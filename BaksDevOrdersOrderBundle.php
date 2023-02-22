@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Order\Orders;
+namespace BaksDev\Orders\Order;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;

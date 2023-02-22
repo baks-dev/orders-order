@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
+use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Orders\Order\Entity;
 use BaksDev\Products\Category\Entity as EntityCategory;
 use BaksDev\Products\Product\Entity as EntityProduct;
@@ -44,19 +45,24 @@ final class AllOrdersQuery implements AllOrdersInterface
     
     //private SwitcherInterface $switcher;
     private Locale $locale;
-    
-    public function __construct(
+	
+	private PaginatorInterface $paginator;
+	
+	
+	public function __construct(
       Connection $connection,
       TranslatorInterface $translator,
-      //SwitcherInterface $switcher
+      SwitcherInterface $switcher,
+		PaginatorInterface $paginator,
     )
     {
         $this->connection = $connection;
         $this->locale = new Locale($translator->getLocale());
         //$this->switcher = $switcher;
-    }
+		$this->paginator = $paginator;
+	}
     
-    public function get(SearchDTO $search) : QueryBuilder
+    public function get(SearchDTO $search) : PaginatorInterface
     {
         $qb = $this->connection->createQueryBuilder();
         
@@ -84,8 +90,12 @@ final class AllOrdersQuery implements AllOrdersInterface
     
         $qb->addSelect('product.event as product_event');
         $qb->join('product', EntityProduct\Event\ProductEvent::TABLE, 'product_event', 'product_event.id = product.event');
-        
-        /* Торговые предложения */
+	
+		$qb->setMaxResults(50);
+		dd($this->connection->prepare('EXPLAIN (ANALYZE)  '.$qb->getSQL())->executeQuery($qb->getParameters())->fetchAllAssociativeIndexed());
+	
+	
+		/* Торговые предложения */
         $qb->join(
           'product',
           EntityProduct\Offers\Offers::TABLE,
@@ -212,7 +222,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         
         $qb->orderBy('order_event.created', 'DESC');
         
-        return $qb;
+        return $this->paginator->fetchAllAssociative($qb);
     }
     
 }

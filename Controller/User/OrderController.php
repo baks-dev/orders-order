@@ -21,7 +21,7 @@
  *  THE SOFTWARE.
  */
 
-namespace App\Module\Orders\Controller\User;
+namespace BaksDev\Orders\Order\Controller\User;
 
 
 use BaksDev\Core\Controller\AbstractController;

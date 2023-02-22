@@ -1,0 +1,18 @@
+<div class="toolbar">
+    <div id="kt_toolbar_container" class="container-xxl d-flex flex-stack flex-wrap">
+
+        {# Хлебные крошки #}
+        {{ include(_self|replace({ "_toolbar.html.twig": "_breadcrumb.html.twig" })) }}
+
+        <div class="d-flex align-items-center py-2 py-md-1">
+
+            {# Дополнительная кнопка #}
+            {# <a href="{{ path('Product:admin.category.newedit.new') }}" class="btn btn-primary fw-bolder">
+                Добавить
+                {{ 'btn.new'|trans({}, 'messages') }}
+            </a> #}
+
+        </div>
+
+    </div>
+</div>

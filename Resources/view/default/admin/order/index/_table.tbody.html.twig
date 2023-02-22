@@ -1,0 +1,119 @@
+{% trans_default_domain 'admin.order' %}
+
+{#{{ dump(item) }}#}
+
+<tr>
+
+	<td>
+		{# Пользовательское меню #}
+		{{ include(_self|replace({ "_table.tbody.html.twig": "_usecase.html.twig" })) }}
+	</td>
+
+	{# Чекбокс #}
+	<td>
+		<div class="form-check form-check-sm form-check-custom">
+			<label>
+				<input class="form-check-input checked-item" type="checkbox" onchange=checkedItem();
+					   value="{{ item.event }}">
+			</label>
+		</div>
+	</td>
+
+	<td class="ps-5">{#{{ item.category_name }}#}</td>
+
+	<td class="ps-5">
+		<div class="d-flex">
+
+			{#{{ dump(item) }}#}
+			{# {{ dump(cdn_host) }}
+			{{ dump(item.event) }}
+			{{ dump(item.cover) }}
+			{{ dump(item.ext) }} #}
+
+
+			{# {% if item.cdn %}
+				<div class="symbol symbol-50px ms-5">
+					<span class="symbol-label"
+						  style="background-image:url({{ cdn_host~'/images/products/category/cover/'~item.event~'/'~item.cover~'.min.'~item.ext }});"></span>
+				</div>
+			{% else %}
+			#}{# <div class="symbol symbol-50px ms-5">
+					<span class="symbol-label"
+						  style="background-image:url({{ item.cover is not null ?
+						  category_cover_dir~item.id~'/'~item.cover  : '/img/blank.svg' }});"></span>
+				</div> #}{#
+			{% endif %} #}
+
+
+
+			{% if item.image_name %}
+
+				{% set img_path = item.image_cdn == true ? cdn_host : '' %}
+				{% set img_min = item.image_cdn == true ? 'small.' : '' %}
+
+				<div class="symbol symbol-50px ms-5">
+					<span class="symbol-label h-65px lazy" data-bg="{{ img_path ~ product_offer_image_dir ~ item.image_dir ~'/'~ item.image_name ~'.'~ img_min ~ item.image_ext }}"></span>
+				</div>
+
+				{# style="background-image:url();" #}
+
+			{% elseif item.photo_name %}
+
+				{% set img_path = item.photo_cdn == true ? cdn_host : '' %}
+				{% set img_min = item.photo_cdn == true ? 'small.' : '' %}
+
+				<div class="symbol symbol-50px ms-5">
+					<img class="symbol-label h-65px lazy" data-src="{{ img_path ~ product_image_dir ~ item.photo_dir ~'/'~ item.photo_name ~'.' ~ img_min ~ item.photo_ext }}"
+						   alt="">
+				</div>
+
+				{#style="background-image:url();#}
+
+			{% else %}
+				<div class="symbol symbol-50px ms-5">
+					<span class="symbol-label h-65px lazy" data-bg="/img/blank.svg"></span>
+				</div>
+			{% endif %}
+
+			{# Обложка  #}
+			{# <div class="symbol symbol-50px ms-5">
+				<span class="symbol-label" style="background-image:url({{ item.cover is not null ?
+				category_cover_dir~item.id~'/'~item.cover  : '/assets/img/blank.svg' }});"></span>
+			</div> #}
+
+			<div class="ms-5">
+
+				{# Название #}
+
+				<a href="{{ path('Product:admin.product.newedit.edit', { id: item.event }) }}"
+				   class="text-gray-600 text-hover-primary fs-5 fw-bolder mb-1"
+				>
+					{{ item.name }}
+				</a>
+
+				{# Описание #}
+				<div class="text-muted fs-7 fw-bolder">
+					{{ string_width(item.preview, 150)|raw }}
+				</div>
+			</div>
+
+		</div>
+	</td>
+
+	<td class="ps-5">
+		{% if item.offer_article %}
+			{{ item.offer_article }}
+		{% else %}
+			{{ item.article }}
+		{% endif %}
+	</td>
+
+	<td>
+		<a href="/" target="_blank" class="btn btn-sm btn-link ">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-postcard" viewBox="0 0 16 16">
+				<path fill-rule="evenodd" d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2ZM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm7.5.5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7ZM2 5.5a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1H2.5a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1H2.5a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1H2.5a.5.5 0 0 1-.5-.5ZM10.5 5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3ZM13 8h-2V6h2v2Z"/>
+			</svg>
+		</a>
+	</td>
+
+</tr>

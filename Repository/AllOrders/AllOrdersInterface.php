@@ -23,7 +23,11 @@
 
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
+use BaksDev\Core\Form\Search\SearchDTO;
+use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+
 interface AllOrdersInterface
 {
-    
+	public function fetchAllOrdersAssociative(OrderStatus $status, SearchDTO $search) : PaginatorInterface;
 }

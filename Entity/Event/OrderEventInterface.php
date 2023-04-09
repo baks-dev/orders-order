@@ -28,6 +28,4 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 interface OrderEventInterface
 {
     public function getEvent() : ?OrderEventUid;
-    
-    public function setId(OrderEventUid $id) : void;
 }

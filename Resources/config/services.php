@@ -23,10 +23,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-//use App\Module\Product\Type\Category\Id\CategoryUidConverter;
-//use BaksDev\Users\Entity\User;
-//use App\Module\Product\Entity;
-//use App\Module\Product\EntityListeners;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 return static function (ContainerConfigurator $configurator)
 {
@@ -55,6 +52,36 @@ return static function (ContainerConfigurator $configurator)
 	$services->load($namespace.'\DataFixtures\\', __DIR__.'/../../DataFixtures')
 		->exclude(__DIR__.'/../../DataFixtures/**/*DTO.php')
 	;
+	
+	$services->load($namespace.'\Event\\', __DIR__.'/../../Event/*');
+	
+	
+	
+	$services
+		->set(OrderStatus\OrderStatusNew::class)
+		->tag('baks.order.status')
+	;
+	
+	$services
+		->set(OrderStatus\OrderStatusCompleted::class)
+		->tag('baks.order.status')
+	;
+	
+	$services
+		->set(OrderStatus\OrderStatusCanceled::class)
+		->tag('baks.order.status')
+	;
+	
+	$services->set(OrderStatus\Collection\OrderStatusCollection::class)
+		->args([tagged_iterator('baks.order.status')])
+	;
+	
+	
+	
 
+//	$configurator
+//		->register('newsletter_manager', 'NewsletterManager')
+//		->addMethodCall('setMailer', [new Reference('mailer')]);
+	
 };
 

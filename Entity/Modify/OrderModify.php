@@ -48,7 +48,7 @@ class OrderModify extends EntityEvent
 	
 	/** ID события */
 	#[ORM\Id]
-	#[ORM\OneToOne(inversedBy: 'modify', targetEntity: OrderEvent::class, cascade: ['persist'])]
+	#[ORM\OneToOne(inversedBy: 'modify', targetEntity: OrderEvent::class)]
 	#[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
 	private OrderEvent $event;
 	

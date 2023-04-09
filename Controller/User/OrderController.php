@@ -25,23 +25,20 @@ namespace BaksDev\Orders\Order\Controller\User;
 
 
 use BaksDev\Core\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class OrderController extends AbstractController
 {
-    /* Корзина пользователя */
+    /* История заказов пользователя */
     #[Route('/orders', name: 'user.orders')]
-    public function index() : Response
+    public function index(Request $request) : Response
     {
-        
-        // $mod = new ModifyAction('update');
-        //        $mod = ModifyAction::UPDATE;
-        //        dump($mod->value);
-        //
-        //
-        //        $mod = ModifyAction::from($mod->value);
-        //        dump($mod);
+	
+	
+	
         
         return $this->render([]);
         

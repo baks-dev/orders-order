@@ -40,16 +40,19 @@ class Order
     /** ID */
     #[ORM\Id]
     #[ORM\Column(type: OrderUid::TYPE)]
-    protected OrderUid $id;
-    
+    private OrderUid $id;
+	
+	#[ORM\Column(type: Types::STRING, length: 20, unique: true, nullable: true )]
+    private string $number;
+	
     /** ID События */
     #[ORM\Column(type: OrderEventUid::TYPE, unique: true)]
-    protected OrderEventUid $event;
-    
-    
+	private OrderEventUid $event;
+	
     public function __construct()
     {
         $this->id = new OrderUid();
+        $this->number = number_format(microtime(true) * 100, 0, '.', '.');
     }
     
 
@@ -57,7 +60,14 @@ class Order
     {
         return $this->id;
     }
-    
+	
+
+	public function getNumber() : string
+	{
+		return $this->number;
+	}
+	
+	
 
     public function setId(OrderUid $id) : void
     {

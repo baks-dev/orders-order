@@ -23,16 +23,23 @@
 
 namespace BaksDev\Orders\Order\Entity\Event;
 
+use BaksDev\Orders\Order\Entity\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Payment\OrderPayment;
 use BaksDev\Orders\Order\Entity\Price\OrderPrice;
+use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
+use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
 
@@ -44,7 +51,8 @@ use InvalidArgumentException;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_event')]
-#[ORM\Index(columns: ['product'])]
+#[ORM\Index(columns: ['status'])]
+#[ORM\Index(columns: ['created'])]
 class OrderEvent extends EntityEvent
 {
     public const TABLE = 'orders_event';
@@ -52,41 +60,40 @@ class OrderEvent extends EntityEvent
     /** ID */
     #[ORM\Id]
     #[ORM\Column(type: OrderEventUid::TYPE)]
-    protected OrderEventUid $id;
-    
-    /** Профиль пользователя */
-    #[ORM\Column(type: UserProfileUid::TYPE)]
-    protected UserProfileUid $profile;
-    
+    private OrderEventUid $id;
+
     /** ID заказа */
     #[ORM\Column(type: OrderUid::TYPE)]
-    protected ?OrderUid $orders = null;
-    
-    /** Идентификатор продукта */
-    #[ORM\Column(type: ProductUid::TYPE)]
-    protected ProductUid $product;
-    
-    /** Торговое предложение */
-    #[ORM\Column(type: ProductOfferUid::TYPE, nullable: true)]
-    protected ?ProductOfferUid $offer = null;
-    
-    /** Стоимость покупки */
-    #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderPrice::class, cascade: ['all'])]
-    protected OrderPrice $price;
-    
+    private ?OrderUid $orders = null;
+	
+	/** Товары в заказе */
+	#[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
+	private Collection $product;
+	
     /** Дата заказа */
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    protected DateTimeImmutable $created;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private DateTimeImmutable $created;
+	
+	/** Статус заказа */
+	#[ORM\Column(type: OrderStatus::TYPE)]
+	private OrderStatus $status;
     
     /** Модификатор */
     #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderModify::class, cascade: ['all'])]
-    protected OrderModify $modify;
-    
+    private OrderModify $modify;
+	
+	/** Пользователь */
+	#[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
+	private OrderUser $users;
+
+	
+	
     public function __construct()
     {
         $this->id = new OrderEventUid();
-        $this->price = new OrderPrice($this);
         $this->modify = new OrderModify($this);
+		$this->created = new DateTimeImmutable();
+		$this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
     }
     
     public function __clone()
@@ -103,6 +110,13 @@ class OrderEvent extends EntityEvent
     {
         return $this->orders;
     }
+	
+
+	public function getStatus() : OrderStatus
+	{
+		return $this->status;
+	}
+	
 	
     public function setOrders(OrderUid|Order $order) : void
     {
@@ -130,5 +144,15 @@ class OrderEvent extends EntityEvent
         
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
-    
+	
+	
+	/**
+	 * @return Collection
+	 */
+	public function getProduct() : Collection
+	{
+		return $this->product;
+	}
+ 
+	
 }

@@ -35,12 +35,12 @@ final class RoleDTO implements RoleEventInterface
 {
     public const ROLE_PREFIX = 'ROLE_ORDERS';
     
-    private const ROLE_NAME = [
+    public const ROLE_NAME = [
       'ru' => 'Заказы',
       'en' => 'Orders'
     ];
     
-    private const ROLE_DESC = [
+    public const ROLE_DESC = [
       'ru' => 'Заказы',
       'en' => 'Orders'
     ];

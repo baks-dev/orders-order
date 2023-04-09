@@ -43,7 +43,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[RoleSecurity(['ROLE_ADMIN', 'ROLE_ORDERS_NEW'])]
 final class NewController extends AbstractController
 {
-    #[Route('/admin/order/new', name: 'admin.order.newedit.new', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/new', name: 'admin.newedit.new', methods: ['GET', 'POST'])]
     public function new(
       Request $request,
       OrderAggregate $handler,

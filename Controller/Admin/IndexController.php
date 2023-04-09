@@ -32,6 +32,8 @@ use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use App\System\Helper\Paginator;
 use BaksDev\Core\Type\Locale\Locale;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,36 +46,43 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class IndexController extends AbstractController
 {
     
-    #[Route('/admin/orders/{page<\d+>}', name: 'admin.order.index',  methods: [
+    #[Route('/admin/orders/{page<\d+>}', name: 'admin.index',  methods: [
       'GET',
       'POST'
     ])]
-    public function index(
-      Request $request,
-      AllOrdersInterface $allOrders,
-      int $page = 0,
-    ) : Response
-    {
-       
-        /* Поиск */
-        $search = new SearchDTO();
-        $searchForm = $this->createForm(SearchForm::class, $search);
-        $searchForm->handleRequest($request);
-
-        /* Получаем список */
-        $stmt = $allOrders->get($search);
-        //dd($stmt->fetchAssociative());
-        
-        
-        //$query = new Paginator($page, $stmt, $request);
-        
-   //dd($query->getData());
-        
-        return $this->render(
-          [
-            'query' => $query,
-            'search' => $searchForm->createView(),
-          ]);
-    }
+	public function index(
+		Request $request,
+		AllOrdersInterface $allOrders,
+		OrderStatusCollection $collection,
+		int $page = 0,
+	) : Response
+	{
+		/* Поиск */
+		$search = new SearchDTO();
+		$searchForm = $this->createForm(SearchForm::class, $search);
+		$searchForm->handleRequest($request);
+		
+		
+		$orders = null;
+		
+		/** @var OrderStatus $status */
+		foreach($collection->cases() as $status)
+		{
+			if($status->getOrderStatusValue() === 'canceled')
+			{
+				continue;
+			}
+			
+			/* Получаем список */
+			$orders[$status->getOrderStatusValue()] = $allOrders->fetchAllOrdersAssociative($status, $search)->getData();
+		}
+		
+		return $this->render(
+			[
+				'query' =>  $orders,
+				'status' => $collection->cases(),
+				//'search' => $searchForm->createView(),
+			]);
+	}
 
 }

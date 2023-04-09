@@ -23,116 +23,68 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit;
 
-use BaksDev\Products\Category\Repository\CategoryChoice\CategoryChoiceInterface;
-use BaksDev\Products\Category\Type\Id\CategoryUid;
-use BaksDev\Products\Product\Repository\ProductOfferChoice\ProductOfferChoiceInterface;
-use BaksDev\Products\Product\Repository\ProductsChoice\ProductsChoiceInterface;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
+
 
 final class OrderForm extends AbstractType
 {
-    
-    private ProductsChoiceInterface $products;
-    private CategoryChoiceInterface $category;
-    private ProductOfferChoiceInterface $offers;
-    
-    public function __construct(
-      ProductsChoiceInterface $products,
-      CategoryChoiceInterface $category,
-      ProductOfferChoiceInterface $offers
-    )
+	
+	private OrderStatus\Collection\OrderStatusCollection $statusCollection;
+	
+	
+	public function __construct(OrderStatus\Collection\OrderStatusCollection $statusCollection) {
+		
+		$this->statusCollection = $statusCollection;
+	}
+	
+	
+	public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
-    
-        $this->products = $products;
-        $this->category = $category;
-        $this->offers = $offers;
-    }
-    
-    public function buildForm(FormBuilderInterface $builder, array $options) : void
-    {
-    
-    
-        $builder
-          ->add('category', ChoiceType::class, [
-            'choices' => $this->category->get(), // $this->category->get(),
-            'choice_value' => function (?CategoryUid $category)
-            {
-                return $category?->getValue();
-            },
-            'choice_label' => function (?CategoryUid $category)
-            {
-                return $category?->getOption();
-            },
-        
-            'label' => false,
-            'expanded' => false,
-            'multiple' => false,
-            'required' => true,
-          ]);
-    
-    
-        $builder
-          ->add('product', ChoiceType::class, [
-            'choices' => $this->products->get(), // $this->category->get(),
-            'choice_value' => function (? ProductUid $product)
-            {
-                return $product?->getValue();
-            },
-            'choice_label' => function (?ProductUid $product)
-            {
-                return $product?->getName();
-            },
-        
-            'label' => false,
-            'expanded' => false,
-            'multiple' => false,
-            'required' => true,
-          ]);
-        
-        
-        $builder
-          ->add('offer', ChoiceType::class, [
-            'choices' => $this->offers->get(), // $this->category->get(),
+		
+		/* Коллекция продукции */
+		$builder->add('product', CollectionType::class, [
+			'entry_type' => Products\OrderProductForm::class,
+			'entry_options' => ['label' => false],
+			'label' => false,
+			'by_reference' => false,
+			'allow_delete' => true,
+			'allow_add' => true,
+			'prototype_name' => '__product__',
+		]);
+	
+		$builder->add('users', User\OrderUserForm::class, ['label' => false]);
+		
+		$builder
+			->add('status', ChoiceType::class, [
+				'choices' => $this->statusCollection->cases(),
+				'choice_value' => function(?OrderStatus $status) {
+					return $status?->getOrderStatusValue();
+				},
+			
+				'choice_label' => function(OrderStatus $status) {
+					return $status?->getOrderStatusValue();
+				},
 
-            'group_by' => function($offer) {
-              
-                return $offer->getOffers() ? 'Группа '.$offer->getOffers() : '';
-
-            },
-            'choice_value' => function ( $offer)
-            {
-                return $offer?->getValue();
-            },
-            'choice_label' => function ( $offer)
-            {
-                return $offer?->getName();
-            },
-        
-            'label' => false,
-            'expanded' => false,
-            'multiple' => false,
-            'required' => true,
-          ]);
-        
-        
-
-        $builder->add('price', Price\PriceForm::class, ['label' => false]);
-        
-        /* Сохранить ******************************************************/
-        $builder->add
-        (
-          'Save',
-          SubmitType::class,
-          ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]);
+				'expanded' => false,
+				'multiple' => false,
+				'required' => true,
+				'translation_domain' => 'status.order'
+			])
+		;
+	
+		/* Сохранить ******************************************************/
+		$builder->add(
+			'order',
+			SubmitType::class,
+			['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+		);
 
     }
     

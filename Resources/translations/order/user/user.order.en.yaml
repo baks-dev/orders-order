@@ -1,0 +1,11 @@
+user:
+  basket:
+    success:
+      truncate: 'Cart was successfully emptied'
+      delete: 'Product successfully removed from cart'
+  order:
+    new:
+      danger: '%s: Ошибка при создании'
+      success: 'Заказ успешно зоздан'
+
+

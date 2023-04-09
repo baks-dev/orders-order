@@ -41,7 +41,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DeleteController extends AbstractController
 {
     
-    #[Route('/admin/order/delete/{id}', name: 'admin.order.delete', methods: ['POST', 'GET'])]
+    #[Route('/admin/order/delete/{id}', name: 'admin.delete', methods: ['POST', 'GET'])]
     public function delete(
       Request $request,
       //OrderAggregate $handler,

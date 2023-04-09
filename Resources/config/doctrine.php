@@ -23,20 +23,47 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldType;
+use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldUid;
+use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryType;
+use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryUid;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Event\OrderEventUidType;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Id\OrderUidType;
 
+use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldType;
+use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldUid;
+use BaksDev\Orders\Order\Type\Payment\OrderPaymentType;
+use BaksDev\Orders\Order\Type\Payment\OrderPaymentUid;
+use BaksDev\Orders\Order\Type\Product\OrderProductType;
+use BaksDev\Orders\Order\Type\Product\OrderProductUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatusType;
+use BaksDev\Orders\Order\Type\User\OrderUserType;
+use BaksDev\Orders\Order\Type\User\OrderUserUid;
 use Symfony\Config\DoctrineConfig;
 
 return static function(ContainerConfigurator $container, DoctrineConfig $doctrine) {
 	
 	$doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
 	$doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
+	$doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
 	
+	$doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);
+	
+	$doctrine->dbal()->type(OrderPaymentUid::TYPE)->class(OrderPaymentType::class);
+	$doctrine->dbal()->type(OrderPaymentFieldUid::TYPE)->class(OrderPaymentFieldType::class);
+	
+	
+	$doctrine->dbal()->type(OrderDeliveryUid::TYPE)->class(OrderDeliveryType::class);
+	$doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
+	
+	$doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
+	
+
 	$emDefault = $doctrine->orm()->entityManager('default');
-	
+
 	$emDefault->autoMapping(true);
 	$emDefault->mapping('Orders')
 		->type('attribute')
@@ -45,4 +72,5 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
 		->prefix('BaksDev\Orders\Order\Entity')
 		->alias('Orders')
 	;
+	
 };

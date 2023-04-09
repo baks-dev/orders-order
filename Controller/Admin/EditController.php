@@ -23,13 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin;
 
-//use App\Module\Product\Entity\Category;
-//use App\Module\Product\Entity\Product\Info;
-//use App\Module\Product\Entity\Product\Event;
-//use App\Module\Product\Handler\Admin\Product\NewEdit\Handler;
-//use App\Module\Product\Handler\Admin\Product\NewEdit\ProductForm;
-//use App\Module\Product\Type\Category\Id\CategoryUid;
-use BaksDev\Products\Category\Repository\CategoryPropertyById\CategoryPropertyByIdInterface;
+
 use BaksDev\Products\Category\Type\Event\CategoryEvent;
 use BaksDev\Products\Category\Type\Id\CategoryUid;
 use BaksDev\Core\Services\Security\RoleSecurity;
@@ -39,8 +33,7 @@ use BaksDev\Orders\Order\UseCase\Admin\NewEdit\ProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\NewEdit\ProductForm;
 use BaksDev\Orders\Order\UseCase\ProductAggregate;
 use BaksDev\Core\Controller\AbstractController;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
+
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -53,8 +46,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[RoleSecurity(['ROLE_ADMIN', 'ROLE_ORDERS_EDIT'])]
 final class EditController extends AbstractController
 {
-    #[Route('/admin/order/edit/{id}', name: 'admin.order.newedit.edit', methods: ['GET', 'POST'])]
-    #[ParamConverter('Event', Event::class)]
+    #[Route('/admin/order/edit/{id}', name: 'admin.newedit.edit', methods: ['GET', 'POST'])]
+    //#[ParamConverter('Event', Event::class)]
     public function edit(
       Request $request,
       //ProductAggregate $handler,

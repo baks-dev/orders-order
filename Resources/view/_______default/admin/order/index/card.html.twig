@@ -1,0 +1,92 @@
+
+
+<div class="col-2">
+
+	<div class="card card-stretch card-bordered mb-5">
+
+
+		<div class="card-header min-h-10px px-1 py-2 justify-content-start">
+
+			{# UseCase #}
+			<a href="#" class="btn btn-sm btn-lonck p-0 btn-active-light-primary">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+					<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
+				</svg>
+			</a>
+
+			<div class="text-gray-800 fw-bolder ps-2">{{ item.created|date('d.m.Y H:i') }}</div>
+
+		</div>
+
+
+
+		{% set card_img = '/img/blank.svg' %}
+
+		{% if item.image_name %}
+
+			{% set img_path = item.image_cdn == true ? cdn_host : '' %}
+			{% set img_min = item.image_cdn == true ? 'small.' : '' %}
+			{% set card_img = img_path ~ product_offer_image_dir ~ item.image_dir ~'/'~ item.image_name ~'.'~ img_min ~ item.image_ext %}
+
+
+		{% elseif item.photo_name %}
+
+			{% set img_path = item.photo_cdn == true ? cdn_host : '' %}
+			{% set img_min = item.photo_cdn == true ? 'small.' : '' %}
+
+			{% set card_img = img_path ~ product_image_dir ~ item.photo_dir ~'/'~ item.photo_name ~'.' ~ img_min ~ item.photo_ext %}
+
+		{% endif %}
+
+
+
+		{# Фото товара #}
+		<div class="card-body p-0 h-250px lazy bgi-size-contain bgi-no-repeat" data-bg="{{ card_img }}"></div>
+
+
+		<div class="d-flex card-footer px-3 py-1 flex-column">
+
+			<div class="pb-2">
+				<a href="{{ path('Product:admin.product.newedit.edit', { id: item.product_event }) }}" class="text-gray-600 text-hover-primary fs-7 fw-bolder mb-1">
+					{{ item.name }}
+				</a>
+				<div class="text-muted fw-bolder">
+					
+
+					{#{{ dump(item.reference) }}
+					{{ dump(item.article_reference) }}#}
+
+				</div>
+			</div>
+
+
+
+			<small>
+				Категория: {{ item.category_name }}
+			</small>
+
+			<small>
+				Арт: {{ item.offer_article }}
+			</small>
+
+		</div>
+
+		<div class="card-footer px-5 py-1">
+
+
+			<div class="d-flex  justify-content-between">
+
+				{#($amount, string $currency, array $attrs = [], string $locale = null)#}
+
+				<div class="">
+					{{ money(item.price) | format_currency(item.currency, {}, app.request.locale) }}
+				</div>
+
+				<div class="">
+					{{ item.total }} шт.
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>

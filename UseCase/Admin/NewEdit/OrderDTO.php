@@ -25,126 +25,109 @@ namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit;
 
 
 use BaksDev\Orders\Order\Entity\Event\EventInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Category\Type\Id\CategoryUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderDTO implements EventInterface
+final class OrderDTO implements OrderEventInterface
 {
-    #[Assert\Uuid]
-    private ?OrderEventUid $id = null;
+	/** Идентификатор события */
+	#[Assert\Uuid]
+	private ?OrderEventUid $id = null;
+	
+	/** Коллекция продукции в заказе */
+	#[Assert\Valid]
+	private ArrayCollection $product;
+	
+	/** Пользователь */
+	#[Assert\Valid]
+	private User\OrderUserDTO $users;
+	
+	/** Статус заказа */
+	private OrderStatus $status;
+	
+	
+	public function __construct() {
+		$this->product = new ArrayCollection();
+		$this->users = new User\OrderUserDTO();
+	}
+	
+	
+	public function getEvent() : ?OrderEventUid
+	{
+		return $this->id;
+	}
+	
+	
+	
+	
+	/** Коллекция продукции в заказе */
+	
+	public function getProduct() : ArrayCollection
+	{
+		return $this->product;
+	}
+	
+	
+	public function setProduct(ArrayCollection $product) : void
+	{
+		$this->product = $product;
+	}
+	
+	public function addProduct(Products\OrderProductDTO $product) : void
+	{
+		if(!$this->product->contains($product))
+		{
+			$this->product->add($product);
+		}
+	}
+	
+	
+	public function removeProduct(Products\OrderProductDTO $product) : void
+	{
+		$this->product->removeElement($product);
+	}
+	
+	
+	
+	
+	
+	/** Пользователь */
+	
+	public function getUsers() : User\OrderUserDTO
+	{
+		return $this->users;
+	}
+	
+	
+	public function setUsers(User\OrderUserDTO $users) : void
+	{
+		$this->users = $users;
+	}
+	
+	
+	/** Статус заказа */
+	
+	
+	public function getStatus() : OrderStatus
+	{
+		
+		
+		return $this->status;
+	}
+	
+	
 
-    /** Идентификатор категории */
-    #[Assert\Uuid]
-    private CategoryUid $category;
-    
-    /** Идентификатор продукта */
-    #[Assert\Uuid]
-    private ProductUid $product;
-    
-    /** Торговое предложение */
-    #[Assert\Uuid]
-    private ?ProductOfferUid $offer = null;
-    
-    #[Assert\Valid]
-    /* Стоимость заказа */
-    private Price\PriceDTO $price;
-    
-    
-    public function __construct() {
-        $this->price = new Price\PriceDTO();
-    }
-    
-    /* EVENT */
-    public function getEvent() : ?OrderEventUid
-    {
-        return $this->id;
-    }
-    
-    public function setId(OrderEventUid $id) : void
-    {
-        $this->id = $id;
-    }
-    
-    /* PRODUCT */
-    
-    /**
-     * @return ProductUid
-     */
-    public function getProduct() : ProductUid
-    {
-        return $this->product;
-    }
-    
-    /**
-     * @param ProductUid $product
-     */
-    public function setProduct(ProductUid $product) : void
-    {
-        $this->product = $product;
-    }
-    
-    /* OFFER */
-    
-    /**
-     * @return ProductOfferUid|null
-     */
-    public function getOffer() : ?ProductOfferUid
-    {
-        return $this->offer;
-    }
-    
-    /**
-     * @param ProductOfferUid|null $offer
-     */
-    public function setOffer(?ProductOfferUid $offer) : void
-    {
-        $this->offer = $offer;
-    }
-    
-    /* PRICE */
-    
-    /**
-     * @return Price\PriceDTO
-     */
-    public function getPrice() : Price\PriceDTO
-    {
-        return $this->price;
-    }
-    
-    /**
-     * @param Price\PriceDTO $price
-     */
-    public function setPrice(Price\PriceDTO $price) : void
-    {
-        $this->price = $price;
-    }
-    
-    public function getPriceClass() : Price\PriceDTO
-    {
-        return new Price\PriceDTO();
-    }
-
-    /* CATEGORY */
-    
-    /**
-     * @return CategoryUid
-     */
-    public function getCategory() : CategoryUid
-    {
-        return $this->category;
-    }
-    
-    /**
-     * @param CategoryUid $category
-     */
-    public function setCategory(CategoryUid $category) : void
-    {
-        $this->category = $category;
-    }
-    
-
+	public function setStatus(OrderStatus $status) : void
+	{
+		$this->status = $status;
+	}
+	
+	
 }

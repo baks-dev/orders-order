@@ -1,36 +1,27 @@
 admin:
-  product:
-    title: 'Продукция'
-    column:
-      name: 'Название'
-    new:
-      title: 'Добавить продукт'
-      success: 'Продукт успешно добавлен'
 
-    form:
-      locale:
-        label: 'Настройки локали'
-      name: 'Название продукта'
-      desc: 'Краткое описание'
+  page:
+    index: 'Orders'
+    control: 'Manage Orders'
+    new: 'Add order'
+    edit: 'Edit order'
+    delete: 'Delete order'
 
+  breadcrumb:
+    index: 'Orders'
+    control: 'Manage Orders'
+    new: 'Add order'
+    edit: 'Edit Order'
+    delete: 'Delete order'
 
-    update:
-      success: 'Продукт успешно обновлен'
-    delete:
-      success: 'Продукт успешно удален'
-      danger: 'Ошибка при удалении продукта'
-  form:
-    delete:
-      header: 'Удалить товар'
-      h4: 'Вы уверены, что желаете удалить товар'
-      success: 'Товар успешно удален'
-  order:
-    new:
-      success: 'Заказ успешно добавлен'
+  success:
+    new: 'Order added successfully'
+    update: 'Order updated successfully'
+    delete: 'Order successfully deleted to cart'
+    restore: 'Order successfully restored'
 
-error:
-  product:
-    upload:
-      photo: 'Ошибка загрузки фото'
-
-
+  danger:
+    new: '%s: Error adding order'
+    update: '%s: Error updating order'
+    delete: '%s: Error while deleting order'
+    restore: '%s: Error restoring order'

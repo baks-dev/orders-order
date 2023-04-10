@@ -24,6 +24,7 @@
 namespace BaksDev\Orders\Order\Type\Id;
 
 use BaksDev\Core\Type\UidType\UidType;
+use Doctrine\DBAL\Types\Types;
 
 final class OrderUidType extends UidType
 {

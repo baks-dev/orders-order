@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Payment\Field;
 
 use BaksDev\Core\Type\UidType\UidType;
+use Doctrine\DBAL\Types\Types;
 
 final class OrderPaymentFieldType extends UidType
 {
@@ -37,7 +38,7 @@ final class OrderPaymentFieldType extends UidType
 	
 	public function getName() : string
 	{
-		return OrderPaymentFieldUid::TYPE;
+        return OrderPaymentFieldUid::TYPE;
 	}
 	
 }

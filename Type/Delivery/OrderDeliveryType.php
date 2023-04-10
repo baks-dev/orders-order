@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Delivery;
 
 use BaksDev\Core\Type\UidType\UidType;
+use Doctrine\DBAL\Types\Types;
 
 final class OrderDeliveryType extends UidType
 {
@@ -37,7 +38,7 @@ final class OrderDeliveryType extends UidType
 	
 	public function getName() : string
 	{
-		return OrderDeliveryUid::TYPE;
+        return OrderDeliveryUid::TYPE;
 	}
 	
 }

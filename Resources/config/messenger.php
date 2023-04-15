@@ -55,6 +55,6 @@ return static function (ContainerConfigurator $configurator, FrameworkConfig $fr
         ->service(null);
 
 	/** Services */
-	$messenger->messenger()->routing(OrderMessage::class)->senders(['orders']);
+	$messenger->routing(OrderMessage::class)->senders(['orders']);
 	
 };

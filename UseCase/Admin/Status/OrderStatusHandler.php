@@ -28,7 +28,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
 use BaksDev\Orders\Order\Entity as OrderEntity;
-use BaksDev\Orders\Order\Messanger\OrderMessage;
+use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;

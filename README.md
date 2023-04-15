@@ -12,6 +12,12 @@ $ composer require baks-dev/orders-order
 
 ## Дополнительно
 
+Должен быть запущен ворвкер 'orders' для обработки асинхронных сообщений 
+
+``` bash
+$ php bin/console messenger:consume orders
+```
+
 Установка файловых ресурсов в публичную директорию (javascript, css, image ...):
 
 ``` bash

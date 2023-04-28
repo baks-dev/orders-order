@@ -21,33 +21,26 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\DataFixtures\Security\Check\Voter;
+declare(strict_types=1);
 
-use BaksDev\Users\Groups\Group\Entity\CheckRole\CheckVoter\CheckVoterInterface;
-use BaksDev\Users\Groups\Role\Type\VoterPrefix\VoterPrefix;
-use Symfony\Component\Validator\Constraints as Assert;
+namespace BaksDev\Orders\Order\Security;
 
-final class CheckVoterDTO implements CheckVoterInterface
+use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
+use BaksDev\Users\Groups\Group\DataFixtures\Security\VoterFixturesInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag('baks.security.voter')]
+class VoterNew implements VoterFixturesInterface
 {
-    /** Префикс правила */
-    #[Assert\NotBlank]
-    private VoterPrefix $voter;
-    
-    /**
-     * @return VoterPrefix
-     */
-    public function getVoter() : VoterPrefix
+    public const VOTER = 'NEW';
+
+    public function getVoter(): string
     {
-        return $this->voter;
-    }
-    
-    /**
-     * @param VoterPrefix $voter
-     */
-    public function setVoter(VoterPrefix $voter) : void
-    {
-        $this->voter = $voter;
+        return Role::ROLE.'_'.self::VOTER;
     }
 
+    public function equals(RoleFixturesInterface $role): bool
+    {
+        return Role::ROLE === $role->getRole();
+    }
 }
-

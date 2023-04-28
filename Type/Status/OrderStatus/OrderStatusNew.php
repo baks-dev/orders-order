@@ -26,35 +26,32 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag('baks.order.status')]
 class OrderStatusNew implements OrderStatusInterface
 {
-	public const STATUS = 'new';
-	
-	private static int $sort = 100;
-	
-	private static string $color = '#4684D0';
-	
-	/** Возвращает значение (value) */
-	
-	public function getValue() : string
-	{
-		return self::STATUS;
-	}
-	
-	/** Сортирвка */
-	
-	public static function sort() : int
-	{
-		return self::$sort;
-	}
-	
-	
-	/** Цвет */
-	
-	public static function color() : string
-	{
-		return self::$color;
-	}
-	
+    public const STATUS = 'new';
+
+    private static int $sort = 100;
+
+    private static string $color = '#4684D0';
+
+    /** Возвращает значение (value) */
+    public function getValue(): string
+    {
+        return self::STATUS;
+    }
+
+    /** Сортирвка */
+    public static function sort(): int
+    {
+        return self::$sort;
+    }
+
+    /** Цвет */
+    public static function color(): string
+    {
+        return self::$color;
+    }
 }

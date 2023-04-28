@@ -1,0 +1,13 @@
+ROLE_ORDERS:
+  name: 'Orders'
+  desc: 'Orders received by the control system'
+
+
+ROLE_ORDERS_NEW:
+  name: 'Add'
+
+ROLE_ORDERS_EDIT:
+  name: 'Edit'
+
+ROLE_ORDERS_DELETE:
+  name: 'Delete'

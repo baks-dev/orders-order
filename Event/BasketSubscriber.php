@@ -25,63 +25,49 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Event;
 
-use BaksDev\Core\Type\Locale\Locale;
-use BaksDev\Products\Category\Repository\AllCategory\AllCategoryInterface;
-use BaksDev\Products\Category\Repository\AllCategoryByMenu\AllCategoryByMenuInterface;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-
-//use App\Repository\ConferenceRepository;
+// use App\Repository\ConferenceRepository;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 final class BasketSubscriber implements EventSubscriberInterface
 {
-	
-	private $twig;
-	
-	private TokenStorageInterface $storage;
-	
-	
-	public function __construct(Environment $twig, TokenStorageInterface $storage)
-	{
-		$this->twig = $twig;
-		$this->storage = $storage;
-	}
-	
-	
-	public static function getSubscribedEvents()
-	{
-		return [
-			KernelEvents::REQUEST => ['onRequestEvent', 1],
-		];
-	}
-	
-	public function onRequestEvent(RequestEvent $event) : void
-	{
-		$cache = new ApcuAdapter();
-		
-		$key = 'basket.'.$event->getRequest()->getClientIp();
-		$counter = 0;
-		
-		/* Получаем кеш */
-		if($cache->hasItem($key))
-		{
-			$products = $cache->getItem($key)->get();
-			$counter = $products?->count();
-		}
-		
-		$globals = $this->twig->getGlobals();
-		$baks_basket = $globals['baks_basket'] ?? [];
-		$this->twig->addGlobal('baks_basket', array_replace_recursive($baks_basket, ['counter' => $counter]) );
-		
-	}
+    private $twig;
+
+    private TokenStorageInterface $storage;
+
+    public function __construct(Environment $twig, TokenStorageInterface $storage)
+    {
+        $this->twig = $twig;
+        $this->storage = $storage;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::REQUEST => ['onRequestEvent', 1],
+        ];
+    }
+
+    public function onRequestEvent(RequestEvent $event): void
+    {
+        $cache = new ApcuAdapter();
+
+        $key = md5($event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
+
+        $counter = 0;
+
+        // Получаем кеш
+        if ($cache->hasItem($key)) {
+            $products = $cache->getItem($key)->get();
+            $counter = $products?->count();
+        }
+
+        $globals = $this->twig->getGlobals();
+        $baks_basket = $globals['baks_basket'] ?? [];
+        $this->twig->addGlobal('baks_basket', array_replace_recursive($baks_basket, ['counter' => $counter]));
+    }
 }

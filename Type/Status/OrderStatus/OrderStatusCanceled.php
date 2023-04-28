@@ -26,34 +26,32 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-class OrderStatusCanceled  implements OrderStatusInterface
+#[AutoconfigureTag('baks.order.status')]
+class OrderStatusCanceled implements OrderStatusInterface
 {
-	public const STATUS = 'canceled';
-	
-	private static int $sort = 300;
-	
-	private static string $color = '#DC3545';
-	
-	/** Возвращает значение (value) */
-	
-	public function getValue() : string
-	{
-		return self::STATUS;
-	}
-	
-	/** Сортирвка */
-	
-	public static function sort() : int
-	{
-		return self::$sort;
-	}
-	
-	/** Цвет */
-	
-	public static function color() : string
-	{
-		return self::$color;
-	}
-	
+    public const STATUS = 'canceled';
+
+    private static int $sort = 300;
+
+    private static string $color = '#DC3545';
+
+    /** Возвращает значение (value) */
+    public function getValue(): string
+    {
+        return self::STATUS;
+    }
+
+    /** Сортирвка */
+    public static function sort(): int
+    {
+        return self::$sort;
+    }
+
+    /** Цвет */
+    public static function color(): string
+    {
+        return self::$color;
+    }
 }

@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,63 +25,36 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
-return static function (ContainerConfigurator $configurator)
-{
+return static function (ContainerConfigurator $configurator) {
     $services = $configurator->services()
-      ->defaults()
-      ->autowire()
-      ->autoconfigure()
+        ->defaults()
+        ->autowire()
+        ->autoconfigure()
     ;
-	
-	$namespace = 'BaksDev\Orders\Order';
 
-    /** Services */
-	
-	$services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
-		->tag('controller.service_arguments')
-	;
-	
-	$services->load($namespace.'\Repository\\', __DIR__.'/../../Repository')
-		->exclude(__DIR__.'/../../Repository/**/*DTO.php')
-	;
-	
-	$services->load($namespace.'\UseCase\\', __DIR__.'/../../UseCase')
-		->exclude(__DIR__.'/../../UseCase/**/*DTO.php')
-	;
-	
-	$services->load($namespace.'\DataFixtures\\', __DIR__.'/../../DataFixtures')
-		->exclude(__DIR__.'/../../DataFixtures/**/*DTO.php')
-	;
-	
-	$services->load($namespace.'\Event\\', __DIR__.'/../../Event/*');
-	
-	
-	
-	$services
-		->set(OrderStatus\OrderStatusNew::class)
-		->tag('baks.order.status')
-	;
-	
-	$services
-		->set(OrderStatus\OrderStatusCompleted::class)
-		->tag('baks.order.status')
-	;
-	
-	$services
-		->set(OrderStatus\OrderStatusCanceled::class)
-		->tag('baks.order.status')
-	;
-	
-	$services->set(OrderStatus\Collection\OrderStatusCollection::class)
-		->args([tagged_iterator('baks.order.status')])
-	;
-	
-	
-	
+    $namespace = 'BaksDev\Orders\Order';
 
-//	$configurator
-//		->register('newsletter_manager', 'NewsletterManager')
-//		->addMethodCall('setMailer', [new Reference('mailer')]);
-	
+    // Services
+
+    $services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
+        ->tag('controller.service_arguments')
+    ;
+
+    $services->load($namespace.'\Repository\\', __DIR__.'/../../Repository')
+        ->exclude(__DIR__.'/../../Repository/**/*DTO.php')
+    ;
+
+    $services->load($namespace.'\UseCase\\', __DIR__.'/../../UseCase')
+        ->exclude(__DIR__.'/../../UseCase/**/*DTO.php')
+    ;
+
+    $services->load($namespace.'\Security\\', __DIR__.'/../../Security');
+
+    $services->load($namespace.'\Event\\', __DIR__.'/../../Event/*');
+
+
+    $services->set(OrderStatus\Collection\OrderStatusCollection::class)
+        ->args([tagged_iterator('baks.order.status')])
+    ;
+
 };
-

@@ -22,16 +22,17 @@
  */
 
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus\Collection;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag('baks.order.status')]
 interface OrderStatusInterface
 {
-	/** Возвращает значение (value) */
-	public function getValue() : string;
-	
-	/** Сортирвока */
-	public static function sort() : int;
-	
-	/** Цвет */
-	public static function color() : string;
+    /** Возвращает значение (value) */
+    public function getValue(): string;
 
+    /** Сортирвока */
+    public static function sort(): int;
+
+    /** Цвет */
+    public static function color(): string;
 }

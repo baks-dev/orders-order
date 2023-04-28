@@ -24,18 +24,16 @@
 namespace BaksDev\Orders\Order\Repository\ProductEventBasket;
 
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
 
 interface ProductEventBasketInterface
 {
-	public function getOneOrNullProductEvent(
-		ProductEventUid $event,
-		?ProductOfferUid $offer,
-		?ProductOfferVariationUid $variation,
-		?ProductOfferVariationModificationUid $modification,
-	) : ?ProductEventUid;
-	
+    public function getOneOrNullProductEvent(
+        ProductEventUid $event,
+        ?ProductOfferUid $offer,
+        ?ProductOfferVariationUid $variation,
+        ?ProductOfferVariationModificationUid $modification,
+    ): ?ProductEventUid;
 }

@@ -1,0 +1,18 @@
+
+# Роль
+ROLE_ORDERS:
+  name: 'Заказы'
+  desc: 'Заказы, поступившие в систему контроля'
+
+# Правила
+
+ROLE_ORDERS_NEW:
+  name: 'Добавить'
+
+ROLE_ORDERS_EDIT:
+  name: 'Редактировать'
+
+ROLE_ORDERS_DELETE:
+  name: 'Удалить'
+
+

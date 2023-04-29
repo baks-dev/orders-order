@@ -23,6 +23,8 @@ $ php bin/console messenger:consume orders
 ``` php
 <?php
 
+namespace App\Orders\OrderStatus;
+
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

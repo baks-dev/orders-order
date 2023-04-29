@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,15 +26,14 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use Symfony\Config\FrameworkConfig;
 
-return static function (ContainerConfigurator $configurator, FrameworkConfig $framework)
-{
+return static function (ContainerConfigurator $configurator, FrameworkConfig $framework) {
     $services = $configurator->services()
-      ->defaults()
-      ->autowire()
-      ->autoconfigure()
+        ->defaults()
+        ->autowire()
+        ->autoconfigure()
     ;
-	
-	$namespace = 'BaksDev\Orders\Order';
+
+    $namespace = 'BaksDev\Orders\Order';
 
     $services->load($namespace.'\Messenger\\', __DIR__.'/../../Messenger')
         ->exclude('../../Messenger/**/*Message.php')
@@ -44,17 +43,29 @@ return static function (ContainerConfigurator $configurator, FrameworkConfig $fr
     $messenger = $framework->messenger();
 
     $messenger
-        ->transport('orders')
+        ->transport('orders_high')
         ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'orders'])
+        ->options(['queue_name' => 'orders_high'])
         ->retryStrategy()
         ->maxRetries(5)
+        ->delay(1000)
+        ->maxDelay(0)
+        ->multiplier(3) // увеличиваем задержку перед каждой повторной попыткой
+        ->service(null)
+    ;
+
+    $messenger
+        ->transport('orders_low')
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
+        ->options(['queue_name' => 'orders_low'])
+        ->retryStrategy()
+        ->maxRetries(3)
         ->delay(3000)
         ->maxDelay(0)
-        ->multiplier(3)
-        ->service(null);
+        ->multiplier(5) // увеличиваем задержку перед каждой повторной попыткой
+        ->service(null)
+    ;
 
-	/** Services */
-	$messenger->routing(OrderMessage::class)->senders(['orders']);
-	
+    // Services
+    $messenger->routing(OrderMessage::class)->senders(['orders_high']);
 };

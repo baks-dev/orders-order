@@ -30,42 +30,36 @@ use InvalidArgumentException;
 
 final class OrderStatusCollection
 {
-	private iterable $status;
-	
-	public function __construct(iterable $status)
-	{
-		$this->status = $status;
-	}
-	
-	/** Возвращает массив из значнией OrderStatus */
-	
-	public function cases() : array
-	{
-		$case = null;
+    private iterable $status;
 
-		foreach($this->status as $status)
-		{
-			$case[$status::sort()] = new OrderStatus(new $status());
-		}
-		
-		ksort($case);
-		
-		return $case;
-	}
-	
-	/** Метод возвращает класс статуса заказа  */
-	
-	public function from(string $name) : OrderStatus
-	{
-		foreach($this->status as $status)
-		{
-			if($status::STATUS === $name)
-			{
-				return new OrderStatus(new $status());
-			}
-		}
-		
-		throw new InvalidArgumentException(sprintf('OrderStatus not found by name %s', $name));
-	}
-	
+    public function __construct(iterable $status)
+    {
+        $this->status = $status;
+    }
+
+    /** Возвращает массив из значнией OrderStatus */
+    public function cases(): array
+    {
+        $case = null;
+
+        foreach ($this->status as $status) {
+            $case[$status::sort()] = new OrderStatus(new $status());
+        }
+
+        ksort($case);
+
+        return $case;
+    }
+
+    /** Метод возвращает класс статуса заказа  */
+    public function from(string $name): OrderStatus
+    {
+        foreach ($this->status as $status) {
+            if ($status::STATUS === $name) {
+                return new OrderStatus(new $status());
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('OrderStatus not found by name %s', $name));
+    }
 }

@@ -25,57 +25,45 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Status;
 
-
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 
 final class OrderStatus
 {
-	public const TYPE = 'order_status_type';
-	
-	private ?OrderStatusInterface $status = null;
-	
-	public function __construct(self|string|OrderStatusInterface $status)
-	{
-		if($status instanceof OrderStatusInterface)
-		{
-			$this->status = $status;
-		}
-		
-		if($status instanceof $this)
-		{
-			$this->status = $status->getOrderStatus();
-		}
-		
-	}
-	
-	public function __toString() : string
-	{
-		return $this->status ? $this->status->getValue() :  '';
-	}
-	
-	/** Возвращает значение (value) страны String */
-	
-	public function getOrderStatus() : OrderStatusInterface
-	{
-		return $this->status;
-	}
-	
-	
-	
-	
-	/** Возвращает значение (value) страны String */
-	
-	public function getOrderStatusValue() : ?string
-	{
-		return $this->status?->getValue();
-	}
-	
-	
-	/** Возвращает код цвета */
-	
-	public function getColor() : string
-	{
-		return $this->status::color();
-	}
-	
+    public const TYPE = 'order_status_type';
+
+    private ?OrderStatusInterface $status = null;
+
+    public function __construct(self|string|OrderStatusInterface $status)
+    {
+        if ($status instanceof OrderStatusInterface) {
+            $this->status = $status;
+        }
+
+        if ($status instanceof $this) {
+            $this->status = $status->getOrderStatus();
+        }
+    }
+
+    public function __toString(): string
+    {
+        return $this->status ? $this->status->getValue() : '';
+    }
+
+    /** Возвращает значение (value) страны String */
+    public function getOrderStatus(): OrderStatusInterface
+    {
+        return $this->status;
+    }
+
+    /** Возвращает значение (value) страны String */
+    public function getOrderStatusValue(): ?string
+    {
+        return $this->status?->getValue();
+    }
+
+    /** Возвращает код цвета */
+    public function getColor(): string
+    {
+        return $this->status::color();
+    }
 }

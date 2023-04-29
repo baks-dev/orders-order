@@ -53,8 +53,9 @@ return static function (ContainerConfigurator $configurator) {
     $services->load($namespace.'\Event\\', __DIR__.'/../../Event/*');
 
 
+    $services->load($namespace.'\Type\Status\OrderStatus\\', __DIR__.'/../../Type/Status/OrderStatus');
+
     $services->set(OrderStatus\Collection\OrderStatusCollection::class)
         ->args([tagged_iterator('baks.order.status')])
     ;
-
 };

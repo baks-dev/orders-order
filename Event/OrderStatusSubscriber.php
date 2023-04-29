@@ -25,37 +25,33 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Event;
 
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
+use BaksDev\Orders\Order\Type\Status\OrderStatusType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 final class OrderStatusSubscriber implements EventSubscriberInterface
 {
-	
-	private OrderStatusCollection $collection;
-	
-	public function __construct(OrderStatusCollection $collection)
-	{
-		$this->collection = $collection;
-	}
-	
-	public static function getSubscribedEvents()
-	{
-		return [
-			KernelEvents::CONTROLLER => ['onControllerEvent', 99],
-		];
-	}
-	
-	
-	public function onControllerEvent(ControllerEvent $event) : void
-	{
-		/** Если объявлен класс OrderStatus - объявляем коллекцию всех статусов */
-		//if(class_exists(OrderStatus::class))
-		//{
-			$this->collection->cases();
-		//}
-	}
-	
+    private OrderStatusCollection $collection;
+
+    public function __construct(OrderStatusCollection $collection)
+    {
+        $this->collection = $collection;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::CONTROLLER => ['onControllerEvent', 99],
+        ];
+    }
+
+    public function onControllerEvent(ControllerEvent $event): void
+    {
+        // Инициируем статусы заказов
+        if (in_array(OrderStatusType::class, get_declared_classes(), true)) {
+            $this->collection->cases();
+        }
+    }
 }

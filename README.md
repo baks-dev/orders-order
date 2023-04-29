@@ -1,6 +1,6 @@
 # BaksDev Order
 
-![Version](https://img.shields.io/badge/version-6.2.2-blue) ![php 8.1+](https://img.shields.io/badge/php-min%208.1-red.svg)
+![Version](https://img.shields.io/badge/version-6.2.3-blue) ![php 8.1+](https://img.shields.io/badge/php-min%208.1-red.svg)
 
 Модуль системных заказов
 
@@ -17,6 +17,22 @@ $ composer require baks-dev/orders-order
 ``` bash
 $ php bin/console messenger:consume orders
 ```
+
+Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом 'baks.order.status'
+
+``` php
+<?php
+
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag('baks.order.status')]
+class OrderStatusDelivery implements OrderStatusInterface
+{
+... implements method
+}
+```
+
 
 Установка файловых ресурсов в публичную директорию (javascript, css, image ...):
 

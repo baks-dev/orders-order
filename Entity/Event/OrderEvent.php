@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,40 +23,32 @@
 
 namespace BaksDev\Orders\Order\Entity\Event;
 
-use BaksDev\Orders\Order\Entity\Delivery\OrderDelivery;
+use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Entity\Payment\OrderPayment;
-use BaksDev\Orders\Order\Entity\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-
-use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
-
-use BaksDev\Core\Entity\EntityEvent;
-use Exception;
+use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
-/* Event */
+// Event
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_event')]
 #[ORM\Index(columns: ['status'])]
 #[ORM\Index(columns: ['created'])]
+#[ORM\Index(columns: ['profile'])]
 class OrderEvent extends EntityEvent
 {
     public const TABLE = 'orders_event';
-    
+
     /** ID */
     #[ORM\Id]
     #[ORM\Column(type: OrderEventUid::TYPE)]
@@ -65,94 +57,85 @@ class OrderEvent extends EntityEvent
     /** ID заказа */
     #[ORM\Column(type: OrderUid::TYPE)]
     private ?OrderUid $orders = null;
-	
-	/** Товары в заказе */
-	#[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
-	private Collection $product;
-	
+
+    /** Товары в заказе */
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
+    private Collection $product;
+
     /** Дата заказа */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $created;
-	
-	/** Статус заказа */
-	#[ORM\Column(type: OrderStatus::TYPE)]
-	private OrderStatus $status;
-    
+
+    /** Статус заказа */
+    #[ORM\Column(type: OrderStatus::TYPE)]
+    private OrderStatus $status;
+
+    /** Ответственный */
+    #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
+    private ?UserProfileUid $profile = null;
+
     /** Модификатор */
     #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderModify::class, cascade: ['all'])]
     private OrderModify $modify;
-	
-	/** Пользователь */
-	#[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
-	private OrderUser $users;
 
-	
-	
+    /** Пользователь */
+    #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
+    private OrderUser $users;
+
+
     public function __construct()
     {
         $this->id = new OrderEventUid();
         $this->modify = new OrderModify($this);
-		$this->created = new DateTimeImmutable();
-		$this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
+        $this->created = new DateTimeImmutable();
+        $this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
     }
-    
+
     public function __clone()
     {
         $this->id = new OrderEventUid();
     }
-	
-    public function getId() : OrderEventUid
+
+    public function getId(): OrderEventUid
     {
         return $this->id;
     }
 
-    public function getOrders() : ?OrderUid
+    public function getOrders(): ?OrderUid
     {
         return $this->orders;
     }
-	
 
-	public function getStatus() : OrderStatus
-	{
-		return $this->status;
-	}
-	
-	
-    public function setOrders(OrderUid|Order $order) : void
+    public function getStatus(): OrderStatus
+    {
+        return $this->status;
+    }
+
+    public function setOrders(OrderUid|Order $order): void
     {
         $this->orders = $order instanceof Order ? $order->getId() : $order;
     }
-    
-	
-    public function getDto($dto) : mixed
+
+    public function getDto($dto): mixed
     {
-        if($dto instanceof OrderEventInterface)
-        {
+        if ($dto instanceof OrderEventInterface) {
             return parent::getDto($dto);
         }
-        
+
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
-    
 
-    public function setEntity($dto) : mixed
+    public function setEntity($dto): mixed
     {
-        if($dto instanceof OrderEventInterface)
-        {
+        if ($dto instanceof OrderEventInterface) {
             return parent::setEntity($dto);
         }
-        
+
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
-	
-	
-	/**
-	 * @return Collection
-	 */
-	public function getProduct() : Collection
-	{
-		return $this->product;
-	}
- 
-	
+
+    public function getProduct(): Collection
+    {
+        return $this->product;
+    }
 }

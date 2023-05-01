@@ -25,147 +25,120 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit;
 
-use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
-use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
-use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderHandler
 {
-	private EntityManagerInterface $entityManager;
-	
-	private ValidatorInterface $validator;
-	
-	private LoggerInterface $logger;
-	
-	private RegistrationHandler $registrationHandler;
-	
-	private UserProfileHandler $profileHandler;
-	
-	private MessageBusInterface $bus;
-	
-	
-	public function __construct(
-		EntityManagerInterface $entityManager,
-		ValidatorInterface $validator,
-		LoggerInterface $logger,
-		RegistrationHandler $registrationHandler,
-		UserProfileHandler $profileHandler,
-		MessageBusInterface $bus,
-	)
-	{
-		$this->entityManager = $entityManager;
-		$this->validator = $validator;
-		$this->logger = $logger;
-		$this->registrationHandler = $registrationHandler;
-		$this->profileHandler = $profileHandler;
-		
-		$this->bus = $bus;
-	}
-	
-	
-	public function handle(
-		OrderDTO $command,
-		//?UploadedFile $cover = null
-	) : string|OrderEntity\Order
-	{
-		/* Валидация */
-		$errors = $this->validator->validate($command);
-		
-		if(count($errors) > 0)
-		{
-			$uniqid = uniqid('', false);
-			$errorsString = (string) $errors;
-			$this->logger->error($uniqid.': '.$errorsString);
-			
-			return $uniqid;
-		}
-		
-		if($command->getEvent())
-		{
-			$EventRepo = $this->entityManager->getRepository(OrderEntity\Event\OrderEvent::class)->find(
-				$command->getEvent()
-			);
-			
-			if($EventRepo === null)
-			{
-				$uniqid = uniqid('', false);
-				$errorsString = sprintf(
-					'Not found %s by id: %s',
-					OrderEntity\Event\OrderEvent::class,
-					$command->getEvent()
-				);
-				$this->logger->error($uniqid.': '.$errorsString);
-				
-				return $uniqid;
-			}
-			
-			$Event = $EventRepo->cloneEntity();
-			
-		}
-		else
-		{
-			$Event = new OrderEntity\Event\OrderEvent();
-			$this->entityManager->persist($Event);
-		}
-		
-		$this->entityManager->clear();
-		
-		
-		/** @var OrderEntity\Order $Main */
-		if($Event->getOrders())
-		{
-			$Main = $this->entityManager->getRepository(OrderEntity\Order::class)->findOneBy(
-				['event' => $command->getEvent()]
-			);
-			
-			if(empty($Main))
-			{
-				$uniqid = uniqid('', false);
-				$errorsString = sprintf(
-					'Not found %s by event: %s',
-					OrderEntity\Order::class,
-					$command->getEvent()
-				);
-				$this->logger->error($uniqid.': '.$errorsString);
-				
-				return $uniqid;
-			}
-			
-		}
-		else
-		{
-			
-			$Main = new OrderEntity\Order();
-			$this->entityManager->persist($Main);
-			$Event->setOrders($Main);
-		}
-		
-		$Event->setEntity($command);
-		$this->entityManager->persist($Event);
-		
-		/* присваиваем событие корню */
-		$Main->setEvent($Event);
-		
-		$this->entityManager->flush();
-		
-		
-		/* Отправляем собыие в шину  */
-		$this->bus->dispatch(new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()));
-		
-		return $Main;
-	}
-	
+    private EntityManagerInterface $entityManager;
+
+    private ValidatorInterface $validator;
+
+    private LoggerInterface $logger;
+
+    private RegistrationHandler $registrationHandler;
+
+    private UserProfileHandler $profileHandler;
+
+    private MessageBusInterface $bus;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        LoggerInterface $logger,
+        RegistrationHandler $registrationHandler,
+        UserProfileHandler $profileHandler,
+        MessageBusInterface $bus,
+    ) {
+        $this->entityManager = $entityManager;
+        $this->validator = $validator;
+        $this->logger = $logger;
+        $this->registrationHandler = $registrationHandler;
+        $this->profileHandler = $profileHandler;
+
+        $this->bus = $bus;
+    }
+
+    public function handle(
+        OrderDTO $command,
+        // ?UploadedFile $cover = null
+    ): string|OrderEntity\Order {
+        // Валидация
+        $errors = $this->validator->validate($command);
+
+        if (count($errors) > 0) {
+            $uniqid = uniqid('', false);
+            $errorsString = (string) $errors;
+            $this->logger->error($uniqid.': '.$errorsString);
+
+            return $uniqid;
+        }
+
+        if ($command->getEvent()) {
+            $EventRepo = $this->entityManager->getRepository(OrderEntity\Event\OrderEvent::class)->find(
+                $command->getEvent()
+            );
+
+            if (null === $EventRepo) {
+                $uniqid = uniqid('', false);
+                $errorsString = sprintf(
+                    'Not found %s by id: %s',
+                    OrderEntity\Event\OrderEvent::class,
+                    $command->getEvent()
+                );
+                $this->logger->error($uniqid.': '.$errorsString);
+
+                return $uniqid;
+            }
+
+            $Event = $EventRepo->cloneEntity();
+        } else {
+            $Event = new OrderEntity\Event\OrderEvent();
+            $this->entityManager->persist($Event);
+        }
+
+        $this->entityManager->clear();
+
+        // @var OrderEntity\Order $Main
+        if ($Event->getOrders()) {
+            $Main = $this->entityManager->getRepository(OrderEntity\Order::class)->findOneBy(
+                ['event' => $command->getEvent()]
+            );
+
+            if (empty($Main)) {
+                $uniqid = uniqid('', false);
+                $errorsString = sprintf(
+                    'Not found %s by event: %s',
+                    OrderEntity\Order::class,
+                    $command->getEvent()
+                );
+                $this->logger->error($uniqid.': '.$errorsString);
+
+                return $uniqid;
+            }
+        } else {
+            $Main = new OrderEntity\Order();
+            $this->entityManager->persist($Main);
+            $Event->setOrders($Main);
+        }
+
+        $Event->setEntity($command);
+        $this->entityManager->persist($Event);
+
+        // присваиваем событие корню
+        $Main->setEvent($Event);
+
+        $this->entityManager->flush();
+
+        // Отправляем собыие в шину
+        $this->bus->dispatch(new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()));
+
+        return $Main;
+    }
 }

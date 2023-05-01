@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin;
 
+use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Services\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity;
@@ -50,13 +51,25 @@ final class StatusController extends AbstractController
         string $status,
         OrderStatus\Collection\OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
+        CentrifugoPublishInterface $publish
     ): Response {
         $OrderStatus = $orderStatusCollection->from($status);
-        $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent());
+        $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
 
         $Handler = $handler->handle($OrderStatusDTO);
 
         if (!$Handler instanceof Entity\Order) {
+            // Отпарвляем сокет для скрытия заказа у других менеджеров
+            $socket = $publish
+                ->addData(['order' => (string) $Handler->getId()])
+                ->addData(['profile' => (string) $this->getProfileUid()])
+                ->send('orders')
+            ;
+
+            if ($socket->isError()) {
+                return new JsonResponse($socket->getMessage());
+            }
+
             return new JsonResponse(
                 [
                     'type' => 'danger',

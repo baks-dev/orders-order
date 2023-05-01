@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin;
 
+use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Services\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
@@ -36,9 +37,11 @@ use BaksDev\Orders\Order\UseCase\Admin\NewEdit\OrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\NewEdit\OrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Products\OrderProductDTO;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 #[RoleSecurity('ROLE_ORDER')]
 final class DetailController extends AbstractController
@@ -56,10 +59,15 @@ final class DetailController extends AbstractController
         OrderHistoryInterface $orderHistory,
         OrderStatusCollection $collection,
         OrderHandler $handler,
+        CentrifugoPublishInterface $publish,
         string $id,
     ): Response {
         /** Получаем активное событие заказа */
         $Event = $currentOrderEvent->getCurrentOrderEventOrNull($Order->getId());
+
+        if (!$Event) {
+            throw new RouteNotFoundException('Page Not Found');
+        }
 
         $OrderDTO = new OrderDTO();
         $Event->getDto($OrderDTO);
@@ -98,30 +106,41 @@ final class DetailController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $Order = $handler->handle($OrderDTO);
+            $OrderHandler = $handler->handle($OrderDTO);
 
-            if ($Order instanceof Order) {
+            if ($OrderHandler instanceof Order) {
                 $this->addFlash('success', 'admin.success.update', 'admin.order');
             } else {
-                $this->addFlash('danger', 'admin.danger.update', 'admin.order', $Order);
+                $this->addFlash('danger', 'admin.danger.update', 'admin.order', $OrderHandler);
             }
 
             return $this->redirectToRoute('Orders:admin.index');
         }
 
         /** Информация о заказе */
-        $Order = $orderDetail->fetchDetailOrderAssociative($Event->getOrders());
+        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getOrders());
 
         /** История изменения статусов */
         $History = $orderHistory->fetchHistoryAllAssociative($Event->getOrders());
+
+        // Отпарвляем сокет для скрытия заказа у других менеджеров
+        $socket = $publish
+            ->addData(['order' => (string) $Event->getOrders()])
+            ->addData(['profile' => (string) $this->getProfileUid()])
+            ->send('orders')
+        ;
+
+        if ($socket->isError()) {
+            return new JsonResponse($socket->getMessage());
+        }
 
         return $this->render(
             [
                 'id' => $id,
                 'form' => $form->createView(),
-                'order' => $Order,
+                'order' => $OrderInfo,
                 'history' => $History,
-                'status' => $collection->from($Order['order_status']),
+                'status' => $collection->from($OrderInfo['order_status']),
                 'statuses' => $collection,
 
                 // 'query' =>  $orders,

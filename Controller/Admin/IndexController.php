@@ -24,6 +24,7 @@
 namespace BaksDev\Orders\Order\Controller\Admin;
 
 // use App\Module\Product\Repository\Product\AllProduct;
+use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
@@ -47,6 +48,7 @@ final class IndexController extends AbstractController
         Request $request,
         AllOrdersInterface $allOrders,
         OrderStatusCollection $collection,
+        TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response {
         // Поиск
@@ -63,13 +65,18 @@ final class IndexController extends AbstractController
             }
 
             // Получаем список
-            $orders[$status->getOrderStatusValue()] = $allOrders->fetchAllOrdersAssociative($status, $search)->getData();
+            $orders[$status->getOrderStatusValue()] = $allOrders->fetchAllOrdersAssociative(
+                $status,
+                $search,
+                $this->isGranted('ROLE_ADMIN') ? null : $this->getProfileUid()
+            )->getData();
         }
 
         return $this->render(
             [
                 'query' => $orders,
                 'status' => $collection->cases(),
+                'token' => $tokenUserGenerator->generate($this->getUser()),
                 // 'search' => $searchForm->createView(),
             ]
         );

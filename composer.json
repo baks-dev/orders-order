@@ -25,7 +25,8 @@
     "symfony/security-bundle": "^6.2",
     "doctrine/doctrine-bundle": "^2.8",
     "baks-dev/products-product": "^6.2",
-    "baks-dev/payment": "^6.2"
+    "baks-dev/payment": "^6.2",
+    "baks-dev/centrifugo": "^6.2"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

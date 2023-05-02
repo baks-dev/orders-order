@@ -92,9 +92,9 @@ class DeleteController extends AbstractController
         $predicat = function ($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
             return
                 $element->getProduct()->equals($product)
-                && $element->getOffer()?->getValue() === $offer?->getValue()
-                && $element->getVariation()?->getValue() === $variation?->getValue()
-                && $element->getModification()?->getValue() === $modification?->getValue();
+                && (!$offer || $element->getOffer()?->equals($offer))
+                && (!$variation || $element->getVariation()?->equals($variation))
+                && (!$modification || $element->getModification()?->equals($modification));
         };
 
         $removeElement = $this->products->findFirst($predicat);

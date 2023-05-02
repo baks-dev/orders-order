@@ -64,14 +64,8 @@ class AddController extends AbstractController
             return $this->ErrorResponse();
         }
 
-
-
-
         /** Получаем событие продукта по переданным параметрам */
         $Event = $productEvent->getOneOrNullProductEvent($event, $offer, $variation, $modification);
-
-
-
 
         if (!$Event) {
             return $this->ErrorResponse();
@@ -122,10 +116,10 @@ class AddController extends AbstractController
             /** @var OrderProductDTO $element */
             $predicat = function ($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
                 return
-                    $AddProductBasketDTO->getProduct()->equals($element->getProduct())
-                    && $AddProductBasketDTO->getOffer()?->getValue() == $element->getOffer()?->getValue()
-                    && $AddProductBasketDTO->getVariation()?->getValue() == $element->getVariation()?->getValue()
-                    && $AddProductBasketDTO->getModification()?->getValue() == $element->getModification()?->getValue();
+                    $element->getProduct()->equals($AddProductBasketDTO->getProduct())
+                    && (!$AddProductBasketDTO->getOffer() || $element->getOffer()?->equals($AddProductBasketDTO->getOffer()))
+                    && (!$AddProductBasketDTO->getVariation() || $element->getVariation()?->equals($AddProductBasketDTO->getVariation()))
+                    && (!$AddProductBasketDTO->getModification() || $element->getModification()?->equals($AddProductBasketDTO->getModification()));
             };
 
             if ($this->products->exists($predicat)) {

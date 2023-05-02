@@ -50,8 +50,7 @@ return static function (ContainerConfigurator $configurator) {
 
     $services->load($namespace.'\Security\\', __DIR__.'/../../Security');
 
-    $services->load($namespace.'\Event\\', __DIR__.'/../../Event/*');
-
+    $services->load($namespace.'\Listeners\\', __DIR__.'/../../Listeners/*');
 
     $services->load($namespace.'\Type\Status\OrderStatus\\', __DIR__.'/../../Type/Status/OrderStatus');
 

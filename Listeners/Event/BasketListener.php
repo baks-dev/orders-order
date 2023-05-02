@@ -23,36 +23,25 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Event;
+namespace BaksDev\Orders\Order\Listeners\Event;
 
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-// use App\Repository\ConferenceRepository;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 
-final class BasketSubscriber implements EventSubscriberInterface
+
+#[AsEventListener(event: RequestEvent::class, priority: 1)]
+final class BasketListener
 {
     private $twig;
 
-    private TokenStorageInterface $storage;
-
-    public function __construct(Environment $twig, TokenStorageInterface $storage)
+    public function __construct(Environment $twig)
     {
         $this->twig = $twig;
-        $this->storage = $storage;
     }
 
-    public static function getSubscribedEvents()
-    {
-        return [
-            KernelEvents::REQUEST => ['onRequestEvent', 1],
-        ];
-    }
-
-    public function onRequestEvent(RequestEvent $event): void
+    public function onKernelRequest(RequestEvent $event): void
     {
         $cache = new ApcuAdapter();
 

@@ -23,8 +23,6 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-
 return static function (ContainerConfigurator $configurator) {
     $services = $configurator->services()
         ->defaults()
@@ -34,27 +32,43 @@ return static function (ContainerConfigurator $configurator) {
 
     $namespace = 'BaksDev\Orders\Order';
 
+
+    $services->load($namespace.'\\', __DIR__.'/../../')
+        ->exclude(__DIR__.'/../../{Controller,Entity,Resources,Type,Tests,*DTO.php,*Message.php}');
+
     // Services
 
     $services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
         ->tag('controller.service_arguments')
+        ->exclude(__DIR__.'/../../Controller/**/*Test.php')
     ;
 
-    $services->load($namespace.'\Repository\\', __DIR__.'/../../Repository')
-        ->exclude(__DIR__.'/../../Repository/**/*DTO.php')
-    ;
-
-    $services->load($namespace.'\UseCase\\', __DIR__.'/../../UseCase')
-        ->exclude(__DIR__.'/../../UseCase/**/*DTO.php')
-    ;
-
-    $services->load($namespace.'\Security\\', __DIR__.'/../../Security');
-
-    $services->load($namespace.'\Listeners\\', __DIR__.'/../../Listeners/*');
+    /* Статусы заказов */
 
     $services->load($namespace.'\Type\Status\OrderStatus\\', __DIR__.'/../../Type/Status/OrderStatus');
 
-    $services->set(OrderStatus\Collection\OrderStatusCollection::class)
-        ->args([tagged_iterator('baks.order.status')])
-    ;
+
+    // Services
+
+//    $services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
+//        ->tag('controller.service_arguments')
+//        ->exclude(__DIR__.'/../../Controller/**/*Test.php')
+//    ;
+//
+//    $services->load($namespace.'\Repository\\', __DIR__.'/../../Repository')
+//        ->exclude(__DIR__.'/../../Repository/**/*DTO.php')
+//    ;
+
+//    $services->load($namespace.'\UseCase\\', __DIR__.'/../../UseCase')
+//        ->exclude(__DIR__.'/../../UseCase/**/{*DTO.php,*Test.php}')
+//    ;
+
+//    $services->load($namespace.'\Security\\', __DIR__.'/../../Security');
+
+//    $services->load($namespace.'\Listeners\\', __DIR__.'/../../Listeners/*');
+
+
+//    $services->set(OrderStatus\Collection\OrderStatusCollection::class)
+//        ->args([tagged_iterator('baks.order.status')])
+//    ;
 };

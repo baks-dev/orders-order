@@ -32,76 +32,66 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDTO implements OrderEventInterface
 {
-	
-	/** Идентификатор события */
-	#[Assert\Uuid]
-	private ?OrderEventUid $id = null;
-	
-	/** Коллекция продукции в заказе */
-	#[Assert\Valid]
-	private ArrayCollection $product;
-	
-	/** Пользователь */
-	#[Assert\Valid]
-	private User\OrderUserDTO $users;
-	
-	
-	public function __construct() {
-		$this->product = new ArrayCollection();
-		$this->users = new User\OrderUserDTO();
-	}
-	
-	
-	public function getEvent() : ?OrderEventUid
-	{
-		return $this->id;
-	}
-	
-	
-	
-	
-	/** Коллекция продукции в заказе */
-	
-	public function getProduct() : ArrayCollection
-	{
-		return $this->product;
-	}
-	
-	
-	public function setProduct(ArrayCollection $product) : void
-	{
-		$this->product = $product;
-	}
-	
-	public function addProduct(Add\OrderProductDTO $product) : void
-	{
-		if(!$this->product->contains($product))
-		{
-			$this->product->add($product);
-		}
-	}
-	
-	
-	public function removeProduct(Add\OrderProductDTO $product) : void
-	{
-		$this->product->removeElement($product);
-	}
-	
-	
-	
-	
-	
-	/** Пользователь */
+    /** Идентификатор события */
+    #[Assert\Uuid]
+    private ?OrderEventUid $id = null;
 
-	public function getUsers() : User\OrderUserDTO
-	{
-		return $this->users;
-	}
+    /** Коллекция продукции в заказе */
+    #[Assert\Valid]
+    private ArrayCollection $product;
 
+    /** Пользователь */
+    #[Assert\Valid]
+    private User\OrderUserDTO $users;
 
-	public function setUsers(User\OrderUserDTO $users) : void
-	{
-		$this->users = $users;
-	}
+    public function __construct()
+    {
+        $this->product = new ArrayCollection();
+        $this->users = new User\OrderUserDTO();
+    }
 
+    public function getEvent() : ?OrderEventUid
+    {
+        return $this->id;
+    }
+
+    public function resetId() : void
+    {
+        $this->id = null;
+    }
+
+    /** Коллекция продукции в заказе */
+    public function getProduct() : ArrayCollection
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ArrayCollection $product) : void
+    {
+        $this->product = $product;
+    }
+
+    public function addProduct(Add\OrderProductDTO $product) : void
+    {
+        if (!$this->product->contains($product))
+        {
+            $this->product->add($product);
+        }
+    }
+
+    public function removeProduct(Add\OrderProductDTO $product) : void
+    {
+        $this->product->removeElement($product);
+    }
+
+    /** Пользователь */
+    public function getUsers() : User\OrderUserDTO
+    {
+        return $this->users;
+    }
+
+    public function setUsers(User\OrderUserDTO $users) : void
+    {
+        $this->users = $users;
+    }
 }

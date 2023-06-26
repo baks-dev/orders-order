@@ -16,3 +16,24 @@ ROLE_ORDERS_DELETE:
   name: 'Удалить'
 
 
+
+# Роль статусо заказов
+ROLE_ORDERS_STATUS:
+  name: 'Статусы заказов'
+  desc: 'Правила доступа пользователей к заказам определенного статуса'
+
+
+ROLE_ORDERS_STATUS_NEW:
+  name: 'Новые'
+
+ROLE_ORDERS_STATUS_CANCELED:
+  name: 'Отмена'
+
+ROLE_ORDERS_STATUS_COMPLETED:
+  name: 'Выполнен'
+
+ROLE_ORDERS_STATUS_PACKAGE:
+  name: 'Упаковка'
+
+ROLE_ORDERS_STATUS_EXTRADITION:
+  name: 'Сборка'

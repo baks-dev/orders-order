@@ -41,15 +41,16 @@ function addOrder(event) {
 }
 
 document.querySelectorAll('.order-basket').forEach(function (forms) {
-
     const btn = forms.querySelector('button[type="submit"]');
-
-    btn.addEventListener('click', addOrder);
+    if (btn) {
+        btn.addEventListener('click', addOrder);
+    }
 });
 
 
 function resolve(forms) {
-    if (forms !== false) {
+
+    if (forms !== false && forms.name == 'order_product_form') {
 
         /** Увеличиваем бейдж корзины */
         $userbasket = document.getElementById('user_basket');
@@ -373,6 +374,14 @@ async function submitDeliveryForm(forms) {
                 /** Персчет всего количество */
                 total();
 
+
+                /** Сбрасываем значения геолокации */
+                document.querySelector('[data-latitude]').value = '';
+                document.querySelector('[data-longitude]').value = '';
+
+                /** Определяем поле с адресом */
+                initAdddress();
+
             }
         });
 
@@ -429,6 +438,14 @@ async function submitRegionForm(forms, id) {
 
 
                 document.getElementById(callId).replaceWith(call);
+
+
+                /** Сбрасываем значения геолокации */
+                document.querySelector('[data-latitude]').value = '';
+                document.querySelector('[data-longitude]').value = '';
+
+                /** Определяем поле с адресом */
+                initAdddress();
 
 
             }
@@ -496,8 +513,6 @@ async function submitPaymentForm(forms) {
 
                 /** Пересобираем поля для способа оплаты */
 
-
-                /** Пересобирваем tooltip */
                 /** Пересобирваем tooltip */
                 var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function (tooltipTriggerEl) {

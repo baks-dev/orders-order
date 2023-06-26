@@ -25,24 +25,15 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User;
 
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
-use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Orders\Order\Type\User\OrderUserUid;
-use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Core\Type\Ip\IpAddress;
-use BaksDev\Core\Type\Modify\ModifyActionEnum;
-use DateTimeImmutable;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Doctrine\ORM\Mapping as ORM;
+use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Users\User\Type\Id\UserUid;
+use BaksDev\Orders\Order\Type\User\OrderUserUid;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 
 /* Пользователь, которому пренадлежит заказ */
 
@@ -50,70 +41,73 @@ use InvalidArgumentException;
 #[ORM\Table(name: 'orders_user')]
 class OrderUser extends EntityEvent
 {
-	public const TABLE = 'orders_user';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderUserUid::TYPE)]
-	private OrderUserUid $id;
-	
-	/** ID события */
-	#[ORM\OneToOne(inversedBy: 'users', targetEntity: OrderEvent::class)]
-	#[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
-	private OrderEvent $event;
-	
-	/** ID пользователя  */
-	#[ORM\Column(name: 'user_id', type: UserUid::TYPE)]
-	private UserUid $user;
-	
-	/** Идентификатор События!! профиля пользователя */
-	#[ORM\Column(type: UserProfileEventUid::TYPE)]
-	private UserProfileEventUid $profile;
-	
-	/** Способ оплаты */
-	#[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderPayment::class, cascade: ['all'])]
-	private OrderPayment $payment;
-	
-	/** Способ доставки */
-	#[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderDelivery::class, cascade: ['all'])]
-	private OrderDelivery $delivery;
-	
-	
-	public function __construct(OrderEvent $event)
-	{
-		$this->id = new OrderUserUid();
-		$this->event = $event;
-		
-		$this->payment = new OrderPayment($this);
-		$this->delivery = new OrderDelivery($this);
-		
-	}
-	
-	public function __clone() : void
-	{
-		$this->id = new OrderUserUid();
-	}
-	
-	
-	public function getDto($dto) : mixed
-	{
-		if($dto instanceof OrderUserInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto) : mixed
-	{
-		if($dto instanceof OrderUserInterface)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
+    public const TABLE = 'orders_user';
+
+    /** ID */
+    #[ORM\Id]
+    #[ORM\Column(type: OrderUserUid::TYPE)]
+    private OrderUserUid $id;
+
+    /** ID события */
+    #[ORM\OneToOne(inversedBy: 'users', targetEntity: OrderEvent::class)]
+    #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
+    private OrderEvent $event;
+
+    /** ID пользователя  */
+    #[ORM\Column(name: 'user_id', type: UserUid::TYPE)]
+    private UserUid $user;
+
+    /** Идентификатор События!! профиля пользователя */
+    #[ORM\Column(type: UserProfileEventUid::TYPE)]
+    private UserProfileEventUid $profile;
+
+    /** Способ оплаты */
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderPayment::class, cascade: ['all'])]
+    private OrderPayment $payment;
+
+    /** Способ доставки */
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderDelivery::class, cascade: ['all'])]
+    private OrderDelivery $delivery;
+
+    public function __construct(OrderEvent $event)
+    {
+        $this->id = new OrderUserUid();
+        $this->event = $event;
+
+        $this->payment = new OrderPayment($this);
+        $this->delivery = new OrderDelivery($this);
+    }
+
+    public function __clone(): void
+    {
+        $this->id = new OrderUserUid();
+    }
+
+    public function getDto($dto): mixed
+    {
+        if ($dto instanceof OrderUserInterface)
+        {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function setEntity($dto): mixed
+    {
+        if ($dto instanceof OrderUserInterface)
+        {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    /**
+     * Delivery.
+     */
+    public function getDelivery(): OrderDelivery
+    {
+        return $this->delivery;
+    }
 }

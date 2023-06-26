@@ -1,4 +1,5 @@
 new: 'New'
+package: 'Package'
 completed: 'Completed'
 canceled: 'Cancelled'
 

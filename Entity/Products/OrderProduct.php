@@ -25,122 +25,106 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\Products;
 
+use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Price\OrderPrice;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use App\System\Type\Locale\Locale;
 use InvalidArgumentException;
 
-/* Перевод OrderProduct */
+// Перевод OrderProduct
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_product')]
-//#[ORM\Index(columns: ['name'])]
+// #[ORM\Index(columns: ['name'])]
 class OrderProduct extends EntityEvent
 {
-	public const TABLE = 'orders_product';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderProductUid::TYPE)]
-	private OrderProductUid $id;
-	
-	/** Связь на событие */
-	#[ORM\ManyToOne(targetEntity: OrderEvent::class, inversedBy: "product")]
-	#[ORM\JoinColumn(name: 'event', referencedColumnName: "id")]
-	private OrderEvent $event;
-	
-	/** Идентификатор События!!! продукта */
-	#[ORM\Column(type: ProductEventUid::TYPE)]
-	private ProductEventUid $product;
-	
-	/** Идентификатор торгового предложения */
-	#[ORM\Column(type: ProductOfferUid::TYPE, nullable: true)]
-	private ?ProductOfferUid $offer;
-	
-	/** Идентификатор множественного варианта торгового предложения */
-	#[ORM\Column(type: ProductOfferVariationUid::TYPE, nullable: true)]
-	private ?ProductOfferVariationUid $variation;
-	
-	/** Идентификатор модификации множественного варианта торгового предложения */
-	#[ORM\Column(type: ProductOfferVariationModificationUid::TYPE, nullable: true)]
-	private ?ProductOfferVariationModificationUid $modification;
-	
-	/** Стоимость покупки */
-	#[ORM\OneToOne(mappedBy: 'product', targetEntity: Price\OrderPrice::class, cascade: ['all'])]
-	private Price\OrderPrice $price;
-	
-	
-	public function __construct(OrderEvent $event)
-	{
-		$this->id = new OrderProductUid();
-		$this->event = $event;
-	}
-	
-	
-	public function __clone() : void
-	{
-		$this->id = new OrderProductUid();
-	}
-	
-	
-	public function getDto($dto) : mixed
-	{
-		if($dto instanceof OrderProductInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto) : mixed
-	{
-		
-		if($dto instanceof OrderProductInterface)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
+    public const TABLE = 'orders_product';
 
-	public function getProduct() : ProductEventUid
-	{
-		return $this->product;
-	}
-	
+    /** ID */
+    #[ORM\Id]
+    #[ORM\Column(type: OrderProductUid::TYPE)]
+    private OrderProductUid $id;
 
-	public function getOffer() : ?ProductOfferUid
-	{
-		return $this->offer;
-	}
+    /** Связь на событие */
+    #[ORM\ManyToOne(targetEntity: OrderEvent::class, inversedBy: 'product')]
+    #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
+    private OrderEvent $event;
 
-	public function getVariation() : ?ProductOfferVariationUid
-	{
-		return $this->variation;
-	}
+    /** Идентификатор События!!! продукта */
+    #[ORM\Column(type: ProductEventUid::TYPE)]
+    private ProductEventUid $product;
 
-	public function getModification() : ?ProductOfferVariationModificationUid
-	{
-		return $this->modification;
-	}
-	
-	public function getTotal() : int
-	{
-		return $this->price->getTotal();
-	}
-	
+    /** Идентификатор торгового предложения */
+    #[ORM\Column(type: ProductOfferUid::TYPE, nullable: true)]
+    private ?ProductOfferUid $offer;
+
+    /** Идентификатор множественного варианта торгового предложения */
+    #[ORM\Column(type: ProductVariationUid::TYPE, nullable: true)]
+    private ?ProductVariationUid $variation;
+
+    /** Идентификатор модификации множественного варианта торгового предложения */
+    #[ORM\Column(type: ProductModificationUid::TYPE, nullable: true)]
+    private ?ProductModificationUid $modification;
+
+    /** Стоимость покупки */
+    #[ORM\OneToOne(mappedBy: 'product', targetEntity: Price\OrderPrice::class, cascade: ['all'])]
+    private Price\OrderPrice $price;
+
+    public function __construct(OrderEvent $event)
+    {
+        $this->id = new OrderProductUid();
+        $this->event = $event;
+    }
+
+    public function __clone(): void
+    {
+        $this->id = new OrderProductUid();
+    }
+
+    public function getDto($dto): mixed
+    {
+        if ($dto instanceof OrderProductInterface) {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function setEntity($dto): mixed
+    {
+        if ($dto instanceof OrderProductInterface) {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function getProduct(): ProductEventUid
+    {
+        return $this->product;
+    }
+
+    public function getOffer(): ?ProductOfferUid
+    {
+        return $this->offer;
+    }
+
+    public function getVariation(): ?ProductVariationUid
+    {
+        return $this->variation;
+    }
+
+    public function getModification(): ?ProductModificationUid
+    {
+        return $this->modification;
+    }
+
+    public function getTotal(): int
+    {
+        return $this->price->getTotal();
+    }
 }

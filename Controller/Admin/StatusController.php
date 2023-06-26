@@ -25,18 +25,17 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Services\Security\RoleSecurity;
+use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[RoleSecurity('ROLE_ORDERS_EDIT')]
+#[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class StatusController extends AbstractController
 {
     #[Route(
@@ -46,27 +45,31 @@ final class StatusController extends AbstractController
         condition: "request.headers.get('X-Requested-With') === 'XMLHttpRequest'",
     )]
     public function status(
-        Request $request,
+        //Request $request,
         #[MapEntity] Entity\Order $Order,
         string $status,
         OrderStatus\Collection\OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish
     ): Response {
+        /**
+         * Обновляем статус заказа
+         */
         $OrderStatus = $orderStatusCollection->from($status);
         $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
+        
+        $OrderStatusHandler = $handler->handle($OrderStatusDTO);
 
-        $Handler = $handler->handle($OrderStatusDTO);
-
-        if (!$Handler instanceof Entity\Order) {
+        if (!$OrderStatusHandler instanceof Entity\Order)
+        {
             // Отпарвляем сокет для скрытия заказа у других менеджеров
             $socket = $publish
-                ->addData(['order' => (string) $Handler->getId()])
+                ->addData(['order' => (string) $OrderStatusHandler->getId()])
                 ->addData(['profile' => (string) $this->getProfileUid()])
-                ->send('orders')
-            ;
+                ->send('orders');
 
-            if ($socket->isError()) {
+            if ($socket->isError())
+            {
                 return new JsonResponse($socket->getMessage());
             }
 

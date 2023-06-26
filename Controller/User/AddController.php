@@ -23,23 +23,23 @@
 
 namespace BaksDev\Orders\Order\Controller\User;
 
-use BaksDev\Core\Controller\AbstractController;
+use Symfony\Contracts\Cache\ItemInterface;
 use BaksDev\Core\Type\UidType\ParamConverter;
-use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
-use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
-use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductForm;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use BaksDev\Core\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Cache\ItemInterface;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductForm;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
+use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
 class AddController extends AbstractController
 {
@@ -52,13 +52,14 @@ class AddController extends AbstractController
         Request $request,
         ProductEventBasketInterface $productEvent,
         ProductUserBasketInterface $productDetail,
-        #[ParamConverter(['product'])] ProductEventUid $event,
-        #[ParamConverter(['offer'])] ?ProductOfferUid $offer = null,
-        #[ParamConverter(['variation'])] ?ProductOfferVariationUid $variation = null,
-        #[ParamConverter(['modification'])] ?ProductOfferVariationModificationUid $modification = null,
+        #[ParamConverter(ProductEventUid::class, key: 'product')] $event,
+        #[ParamConverter(ProductOfferUid::class)]                 $offer = null,
+        #[ParamConverter(ProductVariationUid::class)]             $variation = null,
+        #[ParamConverter(ProductModificationUid::class)]          $modification = null,
     ): Response {
         if (
-            (!empty($modification) && (empty($offer) || empty($variation)))
+            (!empty($modification) && (empty($offer) ||
+                    empty($variation)))
             || (!empty($variation) && empty($offer))
         ) {
             return $this->ErrorResponse();
@@ -67,7 +68,8 @@ class AddController extends AbstractController
         /** Получаем событие продукта по переданным параметрам */
         $Event = $productEvent->getOneOrNullProductEvent($event, $offer, $variation, $modification);
 
-        if (!$Event) {
+        if (!$Event)
+        {
             return $this->ErrorResponse();
         }
 
@@ -95,21 +97,25 @@ class AddController extends AbstractController
         );
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid())
+        {
             $cache = new ApcuAdapter();
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-            if ($this->getUser()) {
+            if ($this->getUser())
+            {
                 $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
             }
 
             // Получаем кеш
-            if ($cache->hasItem($key)) {
+            if ($cache->hasItem($key))
+            {
                 $this->products = $cache->getItem($key)->get();
             }
 
-            if (null === $this->products) {
+            if ($this->products === null)
+            {
                 $this->products = new ArrayCollection();
             }
 
@@ -122,7 +128,8 @@ class AddController extends AbstractController
                     && (!$AddProductBasketDTO->getModification() || $element->getModification()?->equals($AddProductBasketDTO->getModification()));
             };
 
-            if ($this->products->exists($predicat)) {
+            if ($this->products->exists($predicat))
+            {
                 return new JsonResponse(
                     [
                         'type' => 'success',

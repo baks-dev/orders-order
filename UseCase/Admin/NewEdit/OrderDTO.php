@@ -27,11 +27,8 @@ namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit;
 use BaksDev\Orders\Order\Entity\Event\EventInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Category\Type\Id\CategoryUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -63,8 +60,11 @@ final class OrderDTO implements OrderEventInterface
 	{
 		return $this->id;
 	}
-	
-	
+
+    public function resetId()
+    {
+        $this->id = null;
+    }
 	
 	
 	/** Коллекция продукции в заказе */
@@ -128,6 +128,8 @@ final class OrderDTO implements OrderEventInterface
 	{
 		$this->status = $status;
 	}
-	
-	
+
+
+
+
 }

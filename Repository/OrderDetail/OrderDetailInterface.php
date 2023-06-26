@@ -27,11 +27,15 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface OrderDetailInterface
 {
-	/** Метод возвращает массив с информацией об заказе */
+	/**
+     * Метод возвращает массив с информацией об заказе
+     */
 	public function fetchDetailOrderAssociative(OrderUid $order) : ?array;
 	
 	
-	/** Метод возвращает объект с информацией об заказе */
+	/**
+     * Метод возвращает объект с информацией об заказе
+     */
 	public function getDetailOrder(OrderUid $order) : mixed;
 	
 }

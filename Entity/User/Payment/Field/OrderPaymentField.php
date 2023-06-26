@@ -25,14 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User\Payment\Field;
 
+use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldUid;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Core\Type\Locale\Locale;
+use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
 /* Перевод OrderPaymentField */
@@ -58,7 +56,7 @@ class OrderPaymentField extends EntityEvent
 	private PaymentFieldUid $field;
 	
 	/** Заполненное значение */
-	#[ORM\Column(type: Types::STRING, length: 255)]
+	#[ORM\Column(type: Types::STRING)]
 	private string $value;
 	
 	//	/** Описание */

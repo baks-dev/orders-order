@@ -62,6 +62,11 @@ final class OrderPriceDTO implements OrderPriceInterface
 	{
 		$this->total = $total;
 	}
+
+    public function addTotal(int $total) : void
+    {
+        $this->total += $total;
+    }
 	
 	
 	/** Стоимость */

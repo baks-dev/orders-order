@@ -70,7 +70,7 @@ final class OrderStatusType extends StringType
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        $column['length'] = 10;
+        $column['length'] = 15;
 
         return $platform->getStringTypeDeclarationSQL($column);
     }

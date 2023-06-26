@@ -27,17 +27,20 @@ namespace BaksDev\Orders\Order\Type\Status\OrderStatus\Collection;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+
 
 final class OrderStatusCollection
 {
     private iterable $status;
 
-    public function __construct(iterable $status)
+    public function __construct(
+        #[TaggedIterator('baks.order.status')] iterable $status)
     {
         $this->status = $status;
     }
 
-    /** Возвращает массив из значнией OrderStatus */
+    /** Возвращает массив из значений OrderStatus */
     public function cases(): array
     {
         $case = null;

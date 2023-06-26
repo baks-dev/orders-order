@@ -34,7 +34,7 @@ class VoterEdit implements VoterFixturesInterface
 {
     public const VOTER = 'EDIT';
 
-    public function getVoter(): string
+    public static function getVoter(): string
     {
         return Role::ROLE.'_'.self::VOTER;
     }

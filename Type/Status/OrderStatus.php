@@ -35,11 +35,13 @@ final class OrderStatus
 
     public function __construct(self|string|OrderStatusInterface $status)
     {
-        if ($status instanceof OrderStatusInterface) {
+        if ($status instanceof OrderStatusInterface)
+        {
             $this->status = $status;
         }
 
-        if ($status instanceof $this) {
+        if ($status instanceof $this)
+        {
             $this->status = $status->getOrderStatus();
         }
     }
@@ -65,5 +67,10 @@ final class OrderStatus
     public function getColor(): string
     {
         return $this->status::color();
+    }
+
+    public function equals(OrderStatusInterface $status) : bool
+    {
+        return $this->status?->getValue() === $status->getValue();
     }
 }

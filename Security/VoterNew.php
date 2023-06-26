@@ -34,7 +34,7 @@ class VoterNew implements VoterFixturesInterface
 {
     public const VOTER = 'NEW';
 
-    public function getVoter(): string
+    public static function getVoter(): string
     {
         return Role::ROLE.'_'.self::VOTER;
     }

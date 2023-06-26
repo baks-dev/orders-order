@@ -31,7 +31,6 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Event\OrderEventUidType;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Id\OrderUidType;
-
 use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldType;
 use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldUid;
 use BaksDev\Orders\Order\Type\Payment\OrderPaymentType;
@@ -45,9 +44,21 @@ use BaksDev\Orders\Order\Type\User\OrderUserUid;
 use Symfony\Config\DoctrineConfig;
 
 return static function(ContainerConfigurator $container, DoctrineConfig $doctrine) {
-	
+
+    $services = $container->services()
+        ->defaults()
+        ->autowire()
+        ->autoconfigure()
+    ;
+
+
+
 	$doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
-	$doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
+    $services->set(OrderUid::class)->class(OrderUid::class); // #[ParamConverter(['order'])] OrderUid $order,
+
+
+
+    $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
 	$doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
 	
 	$doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);

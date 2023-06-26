@@ -34,7 +34,7 @@ class VoterDelete implements VoterFixturesInterface
 {
     public const VOTER = 'DELETE';
 
-    public function getVoter(): string
+    public static function getVoter(): string
     {
         return Role::ROLE.'_'.self::VOTER;
     }

@@ -29,8 +29,8 @@ use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderProductDTO implements OrderProductInterface
@@ -46,11 +46,11 @@ final class OrderProductDTO implements OrderProductInterface
 	
 	/** Множественный вариант торгового предложения */
 	#[Assert\Uuid]
-	private ?ProductOfferVariationUid $variation = null;
+	private ?ProductVariationUid $variation = null;
 	
-	/** Модификация множественного враинта торгового предложения  */
+	/** Модификация множественного вараинта торгового предложения  */
 	#[Assert\Uuid]
-	private ?ProductOfferVariationModificationUid $modification = null;
+	private ?ProductModificationUid $modification = null;
 	
 	/** Стоимость и количество */
 	#[Assert\Valid]
@@ -113,13 +113,13 @@ final class OrderProductDTO implements OrderProductInterface
 	
 	/** Множественный вариант торгового предложения */
 	
-	public function getVariation() : ?ProductOfferVariationUid
+	public function getVariation() : ?ProductVariationUid
 	{
 		return $this->variation;
 	}
 	
 	
-	public function setVariation(?ProductOfferVariationUid $variation) : void
+	public function setVariation(?ProductVariationUid $variation) : void
 	{
 		$this->variation = $variation;
 	}
@@ -127,13 +127,13 @@ final class OrderProductDTO implements OrderProductInterface
 	
 	/** Модификация множественного враинта торгового предложения  */
 	
-	public function getModification() : ?ProductOfferVariationModificationUid
+	public function getModification() : ?ProductModificationUid
 	{
 		return $this->modification;
 	}
 	
 	
-	public function setModification(?ProductOfferVariationModificationUid $modification) : void
+	public function setModification(?ProductModificationUid $modification) : void
 	{
 		$this->modification = $modification;
 	}

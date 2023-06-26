@@ -25,15 +25,20 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus;
 
+use BaksDev\Orders\Order\Security\Role;
+use BaksDev\Orders\Order\Security\RoleOrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
+use BaksDev\Users\Groups\Group\DataFixtures\Security\VoterFixturesInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.order.status')]
-class OrderStatusCanceled implements OrderStatusInterface
+#[AutoconfigureTag('baks.security.voter')]
+class OrderStatusCanceled implements OrderStatusInterface, VoterFixturesInterface
 {
     public const STATUS = 'canceled';
 
-    private static int $sort = 300;
+    private static int $sort = 400;
 
     private static string $color = '#DC3545';
 
@@ -53,5 +58,17 @@ class OrderStatusCanceled implements OrderStatusInterface
     public static function color(): string
     {
         return self::$color;
+    }
+
+
+    /** Правило доступа */
+    public static function getVoter(): string
+    {
+        return RoleOrderStatus::ROLE.'_'.mb_strtoupper(self::STATUS);
+    }
+
+    public function equals(RoleFixturesInterface $role): bool
+    {
+        return RoleOrderStatus::ROLE === $role->getRole();
     }
 }

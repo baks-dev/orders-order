@@ -25,21 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 
-use BaksDev\Auth\Email\Entity\Account;
-use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
+use BaksDev\Core\Services\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity as OrderEntity;
+use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
-use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
-use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderStatusHandler
@@ -49,34 +40,26 @@ final class OrderStatusHandler
 	private ValidatorInterface $validator;
 	
 	private LoggerInterface $logger;
-	
-	private RegistrationHandler $registrationHandler;
-	
-	private UserProfileHandler $profileHandler;
-	
-	private MessageBusInterface $bus;
-	
-	
-	public function __construct(
+
+    private MessageDispatchInterface $messageDispatch;
+
+    public function __construct(
 		EntityManagerInterface $entityManager,
 		ValidatorInterface $validator,
 		LoggerInterface $logger,
-		RegistrationHandler $registrationHandler,
-		UserProfileHandler $profileHandler,
-		MessageBusInterface $bus
+        MessageDispatchInterface $messageDispatch
+
 	)
 	{
 		$this->entityManager = $entityManager;
 		$this->validator = $validator;
 		$this->logger = $logger;
-		$this->registrationHandler = $registrationHandler;
-		$this->profileHandler = $profileHandler;
-		$this->bus = $bus;
-	}
+        $this->messageDispatch = $messageDispatch;
+    }
 	
 	
 	public function handle(
-		OrderStatusDTO $command,
+        OrderEventInterface $command,
 	) : string|OrderEntity\Order
 	{
 		/* Валидация */
@@ -130,18 +113,22 @@ final class OrderStatusHandler
 			
 			return $uniqid;
 		}
-		
-		
+
+
 		$Event->setEntity($command);
 		$this->entityManager->persist($Event);
 		
 		/* присваиваем событие корню */
 		$Main->setEvent($Event);
-		
+        
 		$this->entityManager->flush();
-		
-		/* Отправляем собыие в шину  */
-		$this->bus->dispatch(new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()));
+
+
+        /* Отправляем сообщение в шину */
+        $this->messageDispatch->dispatch(
+            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
+            transport: 'orders'
+        );
 		
 		return $Main;
 	}

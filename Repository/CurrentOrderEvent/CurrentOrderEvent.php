@@ -40,7 +40,7 @@ final class CurrentOrderEvent implements CurrentOrderEventInterface
 		$this->entityManager = $entityManager;
 	}
 	
-	
+	/** Метод возвращает текущее событие заказа */
 	public function getCurrentOrderEventOrNull(OrderUid $order) : ?OrderEvent
 	{
 		$qb = $this->entityManager->createQueryBuilder();

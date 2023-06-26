@@ -23,9 +23,10 @@
 
 namespace BaksDev\Orders\Order\Entity\Event;
 
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Core\Type\UidType\Uid;
 
 interface OrderEventInterface
 {
-    public function getEvent(): ?OrderEventUid;
+    /** @see OrderEvent */
+    public function getEvent(): ?Uid;
 }

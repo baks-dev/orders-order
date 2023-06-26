@@ -26,12 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit\Products;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderProductForm extends AbstractType
@@ -39,11 +34,8 @@ final class OrderProductForm extends AbstractType
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
 		$builder->add('price', Price\OrderPriceForm::class);
-		
-		
-		
 	}
-	
+
 	public function configureOptions(OptionsResolver $resolver) : void
 	{
 		$resolver->setDefaults([
@@ -51,5 +43,5 @@ final class OrderProductForm extends AbstractType
 			'attr' => ['class' => 'order-basket']
 		]);
 	}
-	
+
 }

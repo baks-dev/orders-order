@@ -29,8 +29,8 @@ use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Products\Product\Entity as ProductEntity;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -46,62 +46,29 @@ final class ProductEventBasket implements ProductEventBasketInterface
         $this->translator = $translator;
     }
 
+    /** Mетод возвращает событие продукта  */
     public function getOneOrNullProductEvent(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer,
-        ?ProductOfferVariationUid $variation,
-        ?ProductOfferVariationModificationUid $modification,
-    ): ?ProductEventUid {
+        ProductEventUid         $event,
+        ?ProductOfferUid        $offer,
+        ?ProductVariationUid    $variation,
+        ?ProductModificationUid $modification,
+
+    ): ?ProductEventUid
+    {
         $qb = $this->entityManager->createQueryBuilder();
 
-        $qb->setParameter('local', new Locale($this->translator->getLocale()), Locale::TYPE);
+        $Locale = new Locale($this->translator->getLocale());
+
 
         $select = sprintf('new %s(product.event, product.id, trans.name)', ProductEventUid::class);
-
+        //$select = 'event';
         $qb->select($select);
 
         $qb->from(ProductEntity\Event\ProductEvent::class, 'event');
+        $qb->where('event.id = :event');
+        $qb->setParameter('event', $event, ProductEventUid::TYPE);
 
         $qb->join(ProductEntity\Product::class, 'product', 'WITH', 'product.id = event.product');
-
-        // Торговое предложение
-
-        $qb->join(
-            ProductEntity\Offers\ProductOffer::class,
-            'offer',
-            'WITH',
-            'offer.event = event.id '.(null === $offer ? '' : 'AND offer.id = :offer')
-        );
-
-        if ($offer) {
-            $qb->setParameter('offer', $offer, ProductOfferUid::TYPE);
-        }
-
-        // Множественный вариант торгового предложения
-
-        $qb->leftJoin(
-            ProductEntity\Offers\Variation\ProductOfferVariation::class,
-            'variation',
-            'WITH',
-            'variation.offer = offer.id '.(null === $variation ? '' : 'AND variation.id = :variation')
-        );
-
-        if ($variation) {
-            $qb->setParameter('variation', $variation, ProductOfferVariationUid::TYPE);
-        }
-
-        // Модификация множественного варианта торгового предложения
-
-        $qb->leftJoin(
-            ProductEntity\Offers\Variation\Modification\ProductOfferVariationModification::class,
-            'modification',
-            'WITH',
-            'modification.variation = variation.id '.(null === $modification ? '' : 'AND modification.id = :modification')
-        );
-
-        if ($modification) {
-            $qb->setParameter('modification', $modification, ProductOfferVariationModificationUid::TYPE);
-        }
 
         $qb->leftJoin(
             ProductEntity\Trans\ProductTrans::class,
@@ -110,8 +77,63 @@ final class ProductEventBasket implements ProductEventBasketInterface
             'trans.event = event.id AND trans.local = :local'
         );
 
-        $qb->where('event.id = :event');
-        $qb->setParameter('event', $event, ProductEventUid::TYPE);
+        $qb->setParameter('local', $Locale, Locale::TYPE);
+
+
+        /**
+         * Торговое предложение
+         */
+
+
+        if ($offer) {
+
+            $qb->join(
+                ProductEntity\Offers\ProductOffer::class,
+                'offer',
+                'WITH',
+                'offer.event = event.id  AND offer.id = :offer'
+            );
+
+            $qb->setParameter('offer', $offer, ProductOfferUid::TYPE);
+
+
+            if ($variation) {
+
+                /**
+                 * Множественный вариант торгового предложения
+                 */
+
+                $qb->join(
+                    ProductEntity\Offers\Variation\ProductOfferVariation::class,
+                    'variation',
+                    'WITH',
+                    'variation.offer = offer.id AND variation.id = :variation'
+                );
+
+                $qb->setParameter('variation', $variation, ProductVariationUid::TYPE);
+
+
+                if ($modification) {
+                    /**
+                     * Модификация множественного варианта торгового предложения
+                     */
+
+                    $qb->join(
+                        ProductEntity\Offers\Variation\Modification\ProductOfferVariationModification::class,
+                        'modification',
+                        'WITH',
+                        'modification.variation = variation.id AND modification.id = :modification'
+                    );
+
+
+                    $qb->setParameter('modification', $modification, ProductModificationUid::TYPE);
+                }
+
+            }
+
+
+        }
+
 
         return $qb->getQuery()->getOneOrNullResult();
     }

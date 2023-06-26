@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\Messenger;
 
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Exception\CacheException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -37,8 +36,12 @@ final class OrderCacheClear
 	public function __invoke(OrderMessage $message)
 	{
 		/* Чистим кеш модуля */
-		$cache = new FilesystemAdapter('CacheOrders');
+		$cache = new FilesystemAdapter('Orders');
 		$cache->clear();
+
+        /* Чистим кеш продукта */
+        $cache = new FilesystemAdapter('Product');
+        $cache->clear();
 		
 		/* Сбрасываем индивидуальный кеш */
 		

@@ -54,7 +54,7 @@
                          data-status="{{ stats.getOrderStatusValue }}"
                          data-level="{{ stats.getOrderStatusValue == 'new' ? 'restricted' }}"
                     >
-                        <div class="w-100 badge p-2 sticky-top" style="top: 5rem; background-color: {{ color }}">
+                        <div class="w-100 badge p-2 sticky-top z-index-5" style="top: 5rem; background-color: {{ color }};">
                             {{ stats.getOrderStatusValue()|trans({}, 'status.order') }}
                         </div>
 

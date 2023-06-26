@@ -23,29 +23,17 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use BaksDev\Orders\Order\Messenger\OrderMessage;
 use Symfony\Config\FrameworkConfig;
 
-return static function (ContainerConfigurator $configurator, FrameworkConfig $framework) {
-    $services = $configurator->services()
-        ->defaults()
-        ->autowire()
-        ->autoconfigure()
-    ;
-
-    $namespace = 'BaksDev\Orders\Order';
-
-    $services->load($namespace.'\Messenger\\', __DIR__.'/../../Messenger')
-        ->exclude('../../Messenger/**/*Message.php')
-    ;
+return static function (FrameworkConfig $framework) {
 
     /** Транспорт заказов */
     $messenger = $framework->messenger();
 
     $messenger
-        ->transport('orders_high')
+        ->transport('orders')
         ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'orders_high'])
+        ->options(['queue_name' => 'orders'])
         ->retryStrategy()
         ->maxRetries(5)
         ->delay(1000)
@@ -54,18 +42,4 @@ return static function (ContainerConfigurator $configurator, FrameworkConfig $fr
         ->service(null)
     ;
 
-    $messenger
-        ->transport('orders_low')
-        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'orders_low'])
-        ->retryStrategy()
-        ->maxRetries(3)
-        ->delay(3000)
-        ->maxDelay(0)
-        ->multiplier(5) // увеличиваем задержку перед каждой повторной попыткой
-        ->service(null)
-    ;
-
-    // Services
-    $messenger->routing(OrderMessage::class)->senders(['orders_high']);
 };

@@ -23,25 +23,24 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger;
+namespace BaksDev\Orders\Order\Messenger\Products;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
-use BaksDev\Products\Product\Entity\Offers\Quantity\ProductOfferQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductOfferVariationModificationQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductOfferVariationQuantity;
-use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Repository\CurrentQuantity\CurrentQuantityByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Modification\CurrentQuantityByModificationInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Offer\CurrentQuantityByOfferInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Variation\CurrentQuantityByVariationInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class OrderReserveCancelProduct
+final class OrderReserveCompletedProduct
 {
 	private EntityManagerInterface $entityManager;
 	
@@ -52,14 +51,17 @@ final class OrderReserveCancelProduct
 	private CurrentQuantityByOfferInterface $quantityByOffer;
 	
 	private CurrentQuantityByEventInterface $quantityByEvent;
-	
-	
-	public function __construct(
+
+    private LoggerInterface $logger;
+
+
+    public function __construct(
 		EntityManagerInterface $entityManager,
 		CurrentQuantityByModificationInterface $quantityByModification,
 		CurrentQuantityByVariationInterface $quantityByVariation,
 		CurrentQuantityByOfferInterface $quantityByOffer,
 		CurrentQuantityByEventInterface $quantityByEvent,
+        LoggerInterface $messageDispatchLogger,
 	)
 	{
 		$this->entityManager = $entityManager;
@@ -69,12 +71,15 @@ final class OrderReserveCancelProduct
 		$this->quantityByVariation = $quantityByVariation;
 		$this->quantityByOffer = $quantityByOffer;
 		$this->quantityByEvent = $quantityByEvent;
-	}
+        $this->logger = $messageDispatchLogger;
+    }
 	
 	
-	/** Сообщение ставит продукцию в резерв  */
+	/** Снимаем резерв и наличие с продукта если заказ выполнен  */
 	public function __invoke(OrderMessage $message) : void
 	{
+        $this->logger->info('MessageHandler', ['handler' => self::class]);
+
 		/* Получаем всю продукцию в заказе */
 		
 		/**
@@ -84,26 +89,10 @@ final class OrderReserveCancelProduct
 		 */
 		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 		
-		/** Если статус не "ОТМЕНА" - завершаем обработчик */
-		if($OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS)
+		/** Если статус не "ВЫПОЛНЕН" - завершаем обработчик */
+		if($OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCompleted::STATUS)
 		{
 			return;
-		}
-		
-		if($message->getLast())
-		{
-			/**
-			 * Предыдущее событие заказа
-			 *
-			 * @var OrderEvent $OrderEventLast
-			 */
-			$OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
-			
-			/** Если статус предыдущего события "ВЫПОЛНЕН" - не снимаем резерв или наличие (просто удаляем)  */
-			if($OrderEventLast->getStatus()->getOrderStatusValue() === OrderStatusCompleted::STATUS)
-			{
-				return;
-			}
 		}
 		
 		/** @var OrderProduct $product */
@@ -111,7 +100,9 @@ final class OrderReserveCancelProduct
 		{
 			/** Снимаем резерв отмененного заказа */
 			$this->changeReserve($product);
+			
 		}
+		
 	}
 	
 	
@@ -161,7 +152,9 @@ final class OrderReserveCancelProduct
 		
 		if($Quantity)
 		{
+			/* Снимаем резерв и снимаем наличие */
 			$Quantity->subReserve($product->getTotal());
+			$Quantity->subQuantity($product->getTotal());
 			$this->entityManager->flush();
 		}
 		

@@ -85,7 +85,8 @@ class BasketController extends AbstractController
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if (!$this->products->isEmpty()) {
             /** @var OrderProductDTO $product */
-            foreach ($this->products as $product) {
+            foreach ($this->products as $product)
+            {
                 $ProductDetail = $userBasket->fetchProductBasketAssociative(
                     $product->getProduct(),
                     $product->getOffer(),
@@ -143,6 +144,9 @@ class BasketController extends AbstractController
 
             $OrderDTO->setProduct($this->products);
         }
+
+
+
 
         // Динамическая форма корзины
         $handleForm = $this->createForm(OrderForm::class, $OrderDTO);

@@ -23,25 +23,25 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger;
+namespace BaksDev\Orders\Order\Messenger\Products;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
-use BaksDev\Products\Product\Entity\Offers\Quantity\ProductOfferQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductOfferVariationModificationQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductOfferVariationQuantity;
-use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Repository\CurrentQuantity\CurrentQuantityByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Modification\CurrentQuantityByModificationInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Offer\CurrentQuantityByOfferInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Variation\CurrentQuantityByVariationInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class OrderReserveProduct
+final class OrderReserveCancelProduct
 {
 	private EntityManagerInterface $entityManager;
 	
@@ -52,14 +52,16 @@ final class OrderReserveProduct
 	private CurrentQuantityByOfferInterface $quantityByOffer;
 	
 	private CurrentQuantityByEventInterface $quantityByEvent;
-	
-	
-	public function __construct(
+    private LoggerInterface $logger;
+
+
+    public function __construct(
 		EntityManagerInterface $entityManager,
 		CurrentQuantityByModificationInterface $quantityByModification,
 		CurrentQuantityByVariationInterface $quantityByVariation,
 		CurrentQuantityByOfferInterface $quantityByOffer,
 		CurrentQuantityByEventInterface $quantityByEvent,
+        LoggerInterface $messageDispatchLogger
 	)
 	{
 		$this->entityManager = $entityManager;
@@ -69,12 +71,15 @@ final class OrderReserveProduct
 		$this->quantityByVariation = $quantityByVariation;
 		$this->quantityByOffer = $quantityByOffer;
 		$this->quantityByEvent = $quantityByEvent;
-	}
+        $this->logger = $messageDispatchLogger;
+    }
 	
 	
-	/** Сообщение ставит продукцию в резерв  */
+	/** Снимаем резерв с продукции при отмене заказа  */
 	public function __invoke(OrderMessage $message) : void
 	{
+        $this->logger->info('MessageHandler', ['handler' => self::class]);
+
 		/* Получаем всю продукцию в заказе */
 		
 		/**
@@ -84,20 +89,12 @@ final class OrderReserveProduct
 		 */
 		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 		
-		if(!$OrderEvent)
+		/** Если статус не "ОТМЕНА" - завершаем обработчик */
+		if($OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS)
 		{
 			return;
 		}
 		
-		/** Если статус "ОТМЕНА" или "ВЫПОЛНЕН"  */
-		if(
-			$OrderEvent->getStatus()->getOrderStatusValue() === OrderStatusCanceled::STATUS ||
-			$OrderEvent->getStatus()->getOrderStatusValue() === OrderStatusCompleted::STATUS
-		)
-		{
-			return;
-		}
-	
 		if($message->getLast())
 		{
 			/**
@@ -107,39 +104,23 @@ final class OrderReserveProduct
 			 */
 			$OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
 			
-			/** Если статус предыдущего события не "ОТМЕНА" и не "ВЫПОЛНЕН" - Снимаем весь старый резерв продукции в заказе  */
-			if(
-				$OrderEventLast->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS &&
-				$OrderEventLast->getStatus()->getOrderStatusValue() !== OrderStatusCompleted::STATUS
-			)
+			/** Если статус предыдущего события "ВЫПОЛНЕН" - не снимаем резерв или наличие (просто удаляем)  */
+			if($OrderEventLast->getStatus()->getOrderStatusValue() === OrderStatusCompleted::STATUS)
 			{
-				
-				/** @var OrderProduct $lastProduct */
-				foreach($OrderEventLast->getProduct() as $lastProduct)
-				{
-					/** Снимаем весь старый резерв продукции в заказе
-					 * (если в новой коллекции будет отсутствовать данный продукт - следует продукт не должен быть в резерве )
-					 */
-					$this->changeReserve($lastProduct, 'sub');
-				}
-				
+				return;
 			}
 		}
-		
 		
 		/** @var OrderProduct $product */
 		foreach($OrderEvent->getProduct() as $product)
 		{
-			/** Устанавливаем новый резерв продукции в заказе */
-			$this->changeReserve($product, 'add');
-			
+			/** Снимаем резерв отмененного заказа */
+			$this->changeReserve($product);
 		}
-		
-		
 	}
 	
 	
-	public function changeReserve(OrderProduct $product, string $method) : void
+	public function changeReserve(OrderProduct $product) : void
 	{
 		$Quantity = null;
 		
@@ -183,19 +164,9 @@ final class OrderReserveProduct
 			);
 		}
 		
-
 		if($Quantity)
 		{
-			if($method === 'add')
-			{
-				$Quantity->addReserve($product->getTotal());
-			}
-			
-			if($method === 'sub')
-			{
-				$Quantity->subReserve($product->getTotal());
-			}
-			
+			$Quantity->subReserve($product->getTotal());
 			$this->entityManager->flush();
 		}
 		

@@ -24,18 +24,17 @@
 namespace BaksDev\Orders\Order\Repository\ProductUserBasket;
 
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
 interface ProductUserBasketInterface
 {
 	public function fetchProductBasketAssociative(
-		ProductEventUid $event,
-		?ProductOfferUid $offer = null,
-		?ProductOfferVariationUid $variation = null,
-		?ProductOfferVariationModificationUid $modification = null,
+		ProductEventUid         $event,
+		?ProductOfferUid        $offer = null,
+		?ProductVariationUid    $variation = null,
+		?ProductModificationUid $modification = null,
 	) : array|bool;
 	
 }

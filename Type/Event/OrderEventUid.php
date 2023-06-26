@@ -27,6 +27,8 @@ use BaksDev\Core\Type\UidType\Uid;
 
 final class OrderEventUid extends Uid
 {
+    public const TEST = '0188a99a-14b0-7151-851d-4a67d09c3e43';
+    
     public const TYPE = 'order_event_id';
 
 }

@@ -26,16 +26,16 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\ProductUserBasket;
 
 use BaksDev\Core\Type\Locale\Locale;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductOfferVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductOfferVariationModificationUid;
-use Doctrine\DBAL\Connection;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
-use BaksDev\Products\Product\Entity as ProductEntity;
 use BaksDev\Products\Category\Entity as CategoryEntity;
+use BaksDev\Products\Product\Entity as ProductEntity;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Connection;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ProductUserBasket implements ProductUserBasketInterface
 {
@@ -56,14 +56,12 @@ final class ProductUserBasket implements ProductUserBasketInterface
 	
 	
 	public function fetchProductBasketAssociative(
-		ProductEventUid $event,
-		?ProductOfferUid $offer = null,
-		?ProductOfferVariationUid $variation = null,
-		?ProductOfferVariationModificationUid  $modification = null,
+		ProductEventUid         $event,
+		?ProductOfferUid        $offer = null,
+		?ProductVariationUid    $variation = null,
+		?ProductModificationUid $modification = null,
 	) : array|bool
 	{
-		
-		
 		$qb = $this->connection->createQueryBuilder();
 		
 		
@@ -138,11 +136,11 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		
 		
 		
-		
-		
+        
 		/** Торговое предложение */
 		
 		$qb->addSelect('product_offer.id as product_offer_uid')->addGroupBy('product_offer.id');
+		$qb->addSelect('product_offer.const as product_offer_const')->addGroupBy('product_offer.const');
 		$qb->addSelect('product_offer.value as product_offer_value')->addGroupBy('product_offer.value');
 		$qb->leftJoin(
 			'product_event',
@@ -206,6 +204,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		/** Множественные варианты торгового предложения */
 		
 		$qb->addSelect('product_offer_variation.id as product_variation_uid')->addGroupBy('product_offer_variation.id');
+		$qb->addSelect('product_offer_variation.const as product_variation_const')->addGroupBy('product_offer_variation.const');
 		$qb->addSelect('product_offer_variation.value as product_variation_value')
 			->addGroupBy('product_offer_variation.value')
 		;
@@ -221,7 +220,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		
 		if($variation)
 		{
-			$qb->setParameter('variation', $variation, ProductOfferVariationUid::TYPE);
+			$qb->setParameter('variation', $variation, ProductVariationUid::TYPE);
 		}
 		
 		/** Цена множественного варианта */
@@ -276,6 +275,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		/** Модификация множественного варианта торгового предложения */
 		
 		$qb->addSelect('product_offer_modification.id as product_modification_uid')->addGroupBy('product_offer_modification.id');
+		$qb->addSelect('product_offer_modification.const as product_modification_const')->addGroupBy('product_offer_modification.const');
 		$qb->addSelect('product_offer_modification.value as product_modification_value')
 			->addGroupBy('product_offer_modification.value')
 		;
@@ -291,7 +291,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		
 		if($modification)
 		{
-			$qb->setParameter('modification', $modification, ProductOfferVariationModificationUid::TYPE);
+			$qb->setParameter('modification', $modification, ProductModificationUid::TYPE);
 		}
 		
 		/** Цена модификации множественного варианта */
@@ -640,8 +640,21 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		//$qb->from(ClasssName::TABLE, 'wb_order');
 		
 		/*dd($qb->fetchAssociative());*/
+
+        /* Кешируем результат DBAL */
+        $cacheFilesystem = new FilesystemAdapter('AuthEmail');
+
+        $config = $this->connection->getConfiguration();
+        $config?->setResultCache($cacheFilesystem);
+
+        return $this->connection->executeCacheQuery(
+            $qb->getSQL(),
+            $qb->getParameters(),
+            $qb->getParameterTypes(),
+            new QueryCacheProfile((60 * 60))
+        )->fetchAssociative();
 		
-		return $qb->fetchAssociative();
+		//return $qb->fetchAssociative();
 	}
 	
 	

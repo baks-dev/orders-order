@@ -22,7 +22,8 @@
 
 const basket = document.querySelector('#modal');  //getElementById('modal');
 
-basket.addEventListener('shown.bs.modal', function (event) {
+basket.addEventListener('shown.bs.modal', function (event)
+{
 
     setTimeout(function initModalBasket() {
 

@@ -29,6 +29,8 @@ use BaksDev\Core\Type\UidType\Uid;
 
 final class OrderPaymentFieldUid extends Uid
 {
+    public const TEST = '0188a99a-8430-7647-8817-21873e248cd8';
+    
 	public const TYPE = 'order_payment_field_uid';
 	
 }

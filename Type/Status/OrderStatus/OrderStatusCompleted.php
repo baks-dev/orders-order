@@ -25,15 +25,19 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus;
 
+use BaksDev\Orders\Order\Security\RoleOrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
+use BaksDev\Users\Groups\Group\DataFixtures\Security\VoterFixturesInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.order.status')]
-class OrderStatusCompleted implements OrderStatusInterface
+#[AutoconfigureTag('baks.security.voter')]
+class OrderStatusCompleted implements OrderStatusInterface, VoterFixturesInterface
 {
     public const STATUS = 'completed';
 
-    private static int $sort = 200;
+    private static int $sort = 300;
 
     private static string $color = '#198754';
 
@@ -43,7 +47,8 @@ class OrderStatusCompleted implements OrderStatusInterface
         return self::STATUS;
     }
 
-    /** Сортирвка */
+
+    /** Сортировка */
     public static function sort(): int
     {
         return self::$sort;
@@ -53,5 +58,16 @@ class OrderStatusCompleted implements OrderStatusInterface
     public static function color(): string
     {
         return self::$color;
+    }
+
+    /** Правило доступа */
+    public static function getVoter(): string
+    {
+        return RoleOrderStatus::ROLE.'_'.mb_strtoupper(self::STATUS);
+    }
+
+    public function equals(RoleFixturesInterface $role): bool
+    {
+        return RoleOrderStatus::ROLE === $role->getRole();
     }
 }

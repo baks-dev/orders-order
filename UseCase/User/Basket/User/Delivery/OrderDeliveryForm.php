@@ -25,19 +25,17 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Delivery;
 
-use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
-
-use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
+use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -62,9 +60,10 @@ final class OrderDeliveryForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
+        /** Способ доставки */
 
 		$builder->add('delivery', HiddenType::class);
-		
+
 		$builder->get('delivery')->addModelTransformer(
 			new CallbackTransformer(
 				function($delivery) {
@@ -75,8 +74,51 @@ final class OrderDeliveryForm extends AbstractType
 				}
 			)
 		);
-		
-		
+
+        $builder->add('latitude', HiddenType::class, ['required' => false, 'attr' => ['data-latitude' => 'true']]);
+
+        $builder->get('latitude')->addModelTransformer(
+            new CallbackTransformer(
+                function ($gps) {
+                    return $gps instanceof GpsLatitude ? $gps->getValue() : $gps;
+                },
+                function ($gps) {
+                    return new GpsLatitude($gps);
+                }
+            )
+        );
+
+        /* GPS долгота:*/
+
+        $builder->add('longitude', HiddenType::class, ['required' => false, 'attr' => ['data-longitude' => 'true']]);
+
+        $builder->get('longitude')->addModelTransformer(
+            new CallbackTransformer(
+                function ($gps) {
+                    return $gps instanceof GpsLongitude ? $gps->getValue() : $gps;
+                },
+                function ($gps) {
+                    return new GpsLongitude($gps);
+                }
+            )
+        );
+
+        /** Координаты на карте */
+        
+        /*$builder->add('geocode', HiddenType::class, ['attr' => ['data-geocode' => 'true']]);
+
+        $builder->get('geocode')->addModelTransformer(
+            new CallbackTransformer(
+                function($geocode) {
+                    return $geocode instanceof GeocodeAddressUid ? $geocode->getValue() : $geocode;
+                },
+                function($geocode) {
+                    return $geocode ? new GeocodeAddressUid($geocode) : null;
+                }
+            )
+        );*/
+
+
 		/* Коллекция пользовательских свойств */
 		$builder->add('field', CollectionType::class, [
 			'entry_type' => Field\OrderDeliveryFieldForm::class,
@@ -96,15 +138,12 @@ final class OrderDeliveryForm extends AbstractType
 				
 				if($options['user_profile_type'])
 				{
-					
-					
+
 					$data = $event->getData();
 					$form = $event->getForm();
 					
 					$deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
-					
-					
-					
+
 					/** @var DeliveryUid $currentDelivery */
 					$currentDelivery = current($deliveryChoice);
 					

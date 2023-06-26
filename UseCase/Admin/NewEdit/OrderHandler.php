@@ -26,12 +26,12 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit;
 
 use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
+use BaksDev\Core\Services\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderHandler
@@ -46,7 +46,8 @@ final class OrderHandler
 
     private UserProfileHandler $profileHandler;
 
-    private MessageBusInterface $bus;
+    //private MessageBusInterface $bus;
+    private MessageDispatchInterface $messageDispatch;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -54,7 +55,8 @@ final class OrderHandler
         LoggerInterface $logger,
         RegistrationHandler $registrationHandler,
         UserProfileHandler $profileHandler,
-        MessageBusInterface $bus,
+        //MessageBusInterface $bus,
+        MessageDispatchInterface $messageDispatch
     ) {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
@@ -62,7 +64,8 @@ final class OrderHandler
         $this->registrationHandler = $registrationHandler;
         $this->profileHandler = $profileHandler;
 
-        $this->bus = $bus;
+        //$this->bus = $bus;
+        $this->messageDispatch = $messageDispatch;
     }
 
     public function handle(
@@ -136,8 +139,11 @@ final class OrderHandler
 
         $this->entityManager->flush();
 
-        // Отправляем собыие в шину
-        $this->bus->dispatch(new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()));
+        /* Отправляем сообщение в шину */
+        $this->messageDispatch->dispatch(
+            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
+            transport: 'orders'
+        );
 
         return $Main;
     }

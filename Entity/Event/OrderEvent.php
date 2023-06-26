@@ -27,6 +27,7 @@ use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
@@ -37,6 +38,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 // Event
 
@@ -50,23 +52,30 @@ class OrderEvent extends EntityEvent
     public const TABLE = 'orders_event';
 
     /** ID */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
     #[ORM\Id]
     #[ORM\Column(type: OrderEventUid::TYPE)]
     private OrderEventUid $id;
 
     /** ID заказа */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
     #[ORM\Column(type: OrderUid::TYPE)]
     private ?OrderUid $orders = null;
 
     /** Товары в заказе */
+    #[Assert\Count(min: 1)]
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
     private Collection $product;
 
     /** Дата заказа */
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $created;
 
     /** Статус заказа */
+    #[Assert\NotBlank]
     #[ORM\Column(type: OrderStatus::TYPE)]
     private OrderStatus $status;
 
@@ -82,6 +91,10 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
     private OrderUser $users;
 
+//    /** Константа склада, для сборки заказа */
+//    #[Assert\Uuid]
+//    #[ORM\Column(type: ContactsRegionCallConst::TYPE, nullable: true)]
+//    private ?ContactsRegionCallConst $warehouse = null;
 
     public function __construct()
     {
@@ -118,7 +131,8 @@ class OrderEvent extends EntityEvent
 
     public function getDto($dto): mixed
     {
-        if ($dto instanceof OrderEventInterface) {
+        if ($dto instanceof OrderEventInterface)
+        {
             return parent::getDto($dto);
         }
 
@@ -127,7 +141,8 @@ class OrderEvent extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderEventInterface) {
+        if ($dto instanceof OrderEventInterface)
+        {
             return parent::setEntity($dto);
         }
 
@@ -137,5 +152,13 @@ class OrderEvent extends EntityEvent
     public function getProduct(): Collection
     {
         return $this->product;
+    }
+
+    /**
+     * Users.
+     */
+    public function getDelivery(): ?OrderDelivery
+    {
+        return $this->users->getDelivery();
     }
 }

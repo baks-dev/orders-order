@@ -28,8 +28,14 @@ use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Core\Services\Switcher\SwitcherInterface;
 use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity as DeliveryEntity;
+use BaksDev\DeliveryTransport\Type\ProductStockStatus\ProductStockStatusError;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
+use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
+use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
+use BaksDev\Products\Stocks\Entity\ProductStock;
+use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
 use BaksDev\Users\Profile\TypeProfile\Entity as TypeProfileEntity;
 use BaksDev\Users\Profile\UserProfile\Entity as UserProfileEntity;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -79,7 +85,8 @@ final class AllOrdersQuery implements AllOrdersInterface
             'order_event.status = :status AND order_event.id = orders.event '.($profile ? 'AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '')
         );
 
-        if ($profile) {
+        if ($profile)
+        {
             $qb->setParameter('profile', $profile, UserProfileUid::TYPE);
         }
 
@@ -88,8 +95,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         // Продукция
 
         $qb->addSelect('order_products_price.currency AS order_currency')
-            ->addGroupBy('order_products_price.currency')
-        ;
+            ->addGroupBy('order_products_price.currency');
 
         $qb->leftJoin(
             'orders',
@@ -144,8 +150,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
         $qb->addSelect('delivery_price.price AS delivery_price')
-            ->addGroupBy('delivery_price.price')
-        ;
+            ->addGroupBy('delivery_price.price');
         $qb->leftJoin(
             'delivery_event',
             DeliveryEntity\Price\DeliveryPrice::TABLE,
@@ -226,6 +231,110 @@ final class AllOrdersQuery implements AllOrdersInterface
 			)
 			AS order_user"
         );
+
+        // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
+        if (defined(ProductStock::class.'::TABLE'))
+        {
+            $qbExist = $this->connection->createQueryBuilder();
+
+            $qbExist->select('1');
+            $qbExist->from(ProductStockMove::TABLE, 'move');
+            $qbExist->where('move.ord = orders.id');
+
+            $qbExist->join(
+                'move',
+                ProductStockEvent::TABLE,
+                'move_event',
+                'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)'
+            );
+
+            $qbExist->join(
+                'move_event',
+                ProductStock::TABLE,
+                'move_stock',
+                'move_stock.event = move_event.id'
+            );
+
+            $qb->addSelect(sprintf('EXISTS(%s) AS order_move', $qbExist->getSQL()) );
+
+
+            $qb->setParameter('moving', new ProductStockStatus(new ProductStockStatus\ProductStockStatusMoving()), ProductStockStatus::TYPE);
+            $qb->setParameter('extradition', new ProductStockStatus(new ProductStockStatus\ProductStockStatusExtradition()), ProductStockStatus::TYPE);
+
+
+
+
+
+
+            $qbExistMoveError = $this->connection->createQueryBuilder();
+
+            $qbExistMoveError->select('1');
+
+
+            $qbExistMoveError->from(ProductStockMove::TABLE, 'move');
+            $qbExistMoveError->where('move.ord = orders.id');
+
+            $qbExistMoveError->join(
+                'move',
+                ProductStockEvent::TABLE,
+                'move_event',
+                'move_event.id = move.event AND move_event.status = :error'
+            );
+
+            $qbExistMoveError->join(
+                'move_event',
+                ProductStock::TABLE,
+                'move_stock',
+                'move_stock.event = move_event.id'
+            );
+
+            $qb->addSelect(sprintf('EXISTS(%s) AS move_error', $qbExistMoveError->getSQL()) );
+
+
+
+
+
+
+
+            $qbExistOrderError = $this->connection->createQueryBuilder();
+
+            $qbExistOrderError->select('1');
+
+
+            $qbExistOrderError->from(ProductStockOrder::TABLE, 'stock_order');
+            $qbExistOrderError->where('stock_order.ord = orders.id');
+
+            $qbExistOrderError->join(
+                'stock_order',
+                ProductStockEvent::TABLE,
+                'stock_order_event',
+                'stock_order_event.id = stock_order.event AND stock_order_event.status = :error'
+            );
+
+            $qbExistOrderError->join(
+                'stock_order_event',
+                ProductStock::TABLE,
+                'stock_order_stock',
+                'stock_order_stock.event = stock_order_event.id'
+            );
+
+            $qb->addSelect(sprintf('EXISTS(%s) AS order_error', $qbExistOrderError->getSQL()) );
+
+
+
+
+            $qb->setParameter('error', new ProductStockStatus(new ProductStockStatusError()), ProductStockStatus::TYPE);
+
+        }
+        else
+        {
+            $qb->addSelect('FALSE AS order_move');
+            $qb->addSelect('FALSE AS order_error');
+            $qb->addSelect('FALSE AS move_error');
+        }
+
+
+
 
         $qb->addOrderBy('order_event.created');
 

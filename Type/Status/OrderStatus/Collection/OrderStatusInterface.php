@@ -22,6 +22,7 @@
  */
 
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus\Collection;
+
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.order.status')]
@@ -35,4 +36,7 @@ interface OrderStatusInterface
 
     /** Цвет */
     public static function color(): string;
+
+    /** Правило доступа */
+    public static function getVoter(): string;
 }

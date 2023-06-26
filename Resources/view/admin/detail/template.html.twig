@@ -1,41 +1,12 @@
 {% trans_default_domain('admin.order') %}
 
-{# ---- ШАБЛОН ------------------------------------------------------------ #}
 {% extends Template('/admin/base.html.twig') %}
-
 
  {% block title %}{{ 'admin.page.control'|trans }}{% endblock %}
 
-{# ---- CSS ------------------------------------------------------------ #}
- {% block stylesheets %}
-    {#  <link href="/assets/plugins/draggable/draggable.min.css" rel="stylesheet" type="text/css">
-     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet" type="text/css"> #}
- {% endblock %}
-
-{# ---- HEADER-БЛОК ------------------------------------------------------------ #}
-{# {% block header %}
-    {{ include(_self|replace({ "template.html.twig": "header.html.twig" })) }}
-{% endblock %} #}
-
-
-{# ---- LEFT-БЛОК ------------------------------------------------------------ #}
-{# {% block left %} #}
-{#   {% include '@Template/flowers/left.html.twig' %} #}
-{# {% endblock %} #}
-
-
-{# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
 	{{ include(_self|replace({ "template.html.twig": "content.html.twig" })) }}
-	
-	<div style="display: none !important;" class="icon rounded-4 mb-2 bg-contain p-1"></div>
 {% endblock %}
-
-
-{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
-{# {% block footer %}
-    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
-{% endblock %} #}
 
 
 

@@ -25,88 +25,87 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User\Delivery;
 
+use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryUid;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Core\Type\Ip\IpAddress;
-use BaksDev\Core\Type\Modify\ModifyAction;
-use BaksDev\Core\Type\Modify\ModifyActionEnum;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/* Модификаторы событий OrderDelivery */
-
+// Модификаторы событий OrderDelivery
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_delivery')]
 class OrderDelivery extends EntityEvent
 {
-	public const TABLE = 'orders_delivery';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderDeliveryUid::TYPE)]
-	private OrderDeliveryUid $id;
-	
-	/** ID пользователя заказа */
-	#[ORM\OneToOne(inversedBy: 'delivery', targetEntity: OrderUser::class)]
-	#[ORM\JoinColumn(name: 'orders_user', referencedColumnName: 'id')]
-	private OrderUser $user;
-	
-	/** Способ оплаты */
-	#[ORM\Column(type: DeliveryUid::TYPE)]
-	private DeliveryUid $delivery;
-	
-	/** Событие способа доставки (для расчета стоимости) */
-	#[ORM\Column(type: DeliveryEventUid::TYPE)]
-	private DeliveryEventUid $event;
-	
-	/** Пользовательские поля */
-	#[ORM\OneToMany(mappedBy: 'delivery', targetEntity: Field\OrderDeliveryField::class, cascade: ['all'])]
-	private Collection $field;
-	
-	
-	public function __construct(OrderUser $user)
-	{
-		$this->id = new OrderDeliveryUid();
-		$this->user = $user;
-		
-	}
-	
-	public function __clone() : void
-	{
-		$this->id = new OrderDeliveryUid();
-	}
-	
-	
-	public function getDto($dto) : mixed
-	{
-		if($dto instanceof OrderDeliveryInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto) : mixed
-	{
-		if($dto instanceof OrderDeliveryInterface)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
+    public const TABLE = 'orders_delivery';
+
+    /** ID */
+    #[Assert\NotBlank]
+    #[ORM\Id]
+    #[ORM\Column(type: OrderDeliveryUid::TYPE)]
+    private OrderDeliveryUid $id;
+
+    /** ID пользователя заказа */
+
+    #[ORM\OneToOne(inversedBy: 'delivery', targetEntity: OrderUser::class)]
+    #[ORM\JoinColumn(name: 'orders_user', referencedColumnName: 'id')]
+    private OrderUser $user;
+
+    /** Способ доставки */
+    #[ORM\Column(type: DeliveryUid::TYPE)]
+    private DeliveryUid $delivery;
+
+    /** Событие способа доставки (для расчета стоимости) */
+    #[ORM\Column(type: DeliveryEventUid::TYPE)]
+    private DeliveryEventUid $event;
+
+    /** Пользовательские поля */
+    #[ORM\OneToMany(mappedBy: 'delivery', targetEntity: Field\OrderDeliveryField::class, cascade: ['all'])]
+    private Collection $field;
+
+    /** Координаты адреса доставки */
+
+    /** GPS широта:*/
+    #[ORM\Column(type: GpsLatitude::TYPE, nullable: true)]
+    private ?GpsLatitude $latitude = null;
+
+    /** GPS долгота:*/
+    #[ORM\Column(type: GpsLongitude::TYPE, nullable: true)]
+    private ?GpsLongitude $longitude = null;
+
+
+    public function __construct(OrderUser $user)
+    {
+        $this->id = new OrderDeliveryUid();
+        $this->user = $user;
+    }
+
+    public function __clone(): void
+    {
+        $this->id = new OrderDeliveryUid();
+    }
+
+    public function getDto($dto): mixed
+    {
+        if ($dto instanceof OrderDeliveryInterface) {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function setEntity($dto): mixed
+    {
+        if ($dto instanceof OrderDeliveryInterface) {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
 }

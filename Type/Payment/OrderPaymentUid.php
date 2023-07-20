@@ -31,6 +31,6 @@ final class OrderPaymentUid extends Uid
 {
     public const TEST = '0188a99a-5e45-7019-a11a-ebaae3c4b2f0';
     
-	public const TYPE = 'order_payment_uid';
+	public const TYPE = 'order_payment';
 	
 }

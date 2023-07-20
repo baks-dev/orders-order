@@ -31,6 +31,6 @@ final class OrderDeliveryFieldUid extends Uid
 {
     public const TEST = '0188a999-e3de-7094-ba3f-b44d07721b4c';
     
-	public const TYPE = 'order_delivery_field_uid';
+	public const TYPE = 'order_delivery_field';
 	
 }

@@ -29,6 +29,6 @@ final class OrderUid extends Uid
 {
     public const TEST = '0188a99a-3c79-78f4-ac65-81937323a97e';
 
-    public const TYPE = 'order_id';
+    public const TYPE = 'order';
 	
 }

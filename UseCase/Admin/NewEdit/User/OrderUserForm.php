@@ -25,91 +25,78 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit\User;
 
-use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
-use BaksDev\Payment\Type\Id\PaymentUid;
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoice;
-use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
-use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByEvent\UserProfileByEventInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Valid;
 
 final class OrderUserForm extends AbstractType
 {
-	private UserProfileByEventInterface $currentUserProfile;
-	
-	
-	public function __construct(
-		
-		UserProfileByEventInterface $currentUserProfile,
-	)
-	{
-		$this->currentUserProfile = $currentUserProfile;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
-		
-		$builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
-		
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
+    private UserProfileByEventInterface $currentUserProfile;
 
-				/** @var OrderUserDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				$CurrentUserProfile = $this->currentUserProfile->findUserProfileEvent($data->getProfile());
-				$userProfileType = $CurrentUserProfile->getType();
-				
-				if($userProfileType)
-				{
-					$form->add('payment',
-						Payment\OrderPaymentForm::class,
-						[
-							'label' => false,
-							'user_profile_type' => $userProfileType,
-						]
-					);
 
-					$form->add('delivery',
-						Delivery\OrderDeliveryForm::class,
-						[
-							'label' => false,
-							'user_profile_type' => $userProfileType,
-						]
-					);
-				}
+    public function __construct(
 
-			}
-		);
-		
-		
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderUserDTO::class,
-		]);
-	}
-	
+        UserProfileByEventInterface $currentUserProfile,
+    )
+    {
+        $this->currentUserProfile = $currentUserProfile;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
+
+        $builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
+
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /** @var OrderUserDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if($data->getProfile())
+                {
+                    $CurrentUserProfile = $this->currentUserProfile->findUserProfileEvent($data->getProfile());
+                    $userProfileType = $CurrentUserProfile->getType();
+
+                    if($userProfileType)
+                    {
+                        $form->add('payment',
+                            Payment\OrderPaymentForm::class,
+                            [
+                                'label' => false,
+                                'user_profile_type' => $userProfileType,
+                            ]
+                        );
+
+                        $form->add('delivery',
+                            Delivery\OrderDeliveryForm::class,
+                            [
+                                'label' => false,
+                                'user_profile_type' => $userProfileType,
+                            ]
+                        );
+                    }
+                }
+            }
+        );
+
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderUserDTO::class,
+        ]);
+    }
+
 }

@@ -76,6 +76,8 @@ final class OrderDetail implements OrderDetailInterface
         $qb->addSelect('orders.number AS order_number')->addGroupBy('orders.number');
 
         $qb->from(OrderEntity\Order::TABLE, 'orders');
+        $qb->where('orders.id = :order');
+        $qb->setParameter('order', $order, OrderUid::TYPE);
 
         $qb->addSelect('event.status AS order_status')->addGroupBy('event.status');
         $qb->join('orders', OrderEntity\Event\OrderEvent::TABLE, 'event', 'event.id = orders.event');
@@ -105,17 +107,12 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
-
-
         $qb->leftJoin(
             'order_product',
             ProductEvent::TABLE,
             'product_event',
             'product_event.id = order_product.product'
         );
-
-
 
 
         $qb->leftJoin(
@@ -125,7 +122,6 @@ final class OrderDetail implements OrderDetailInterface
             'product_info.product = product_event.product '
         )->addGroupBy('product_info.article');
 
-        
 
         $qb->leftJoin(
             'product_event',
@@ -133,8 +129,6 @@ final class OrderDetail implements OrderDetailInterface
             'product_trans',
             'product_trans.event = product_event.id AND product_trans.local = :local'
         );
-
-
 
 
         /** Торговое предложение */
@@ -163,9 +157,7 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
         /** Множественный вариант */
-
 
 
         $qb->leftJoin(
@@ -193,8 +185,6 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
-
         /* Получаем тип модификации множественного варианта */
 
         $qb->leftJoin(
@@ -218,9 +208,6 @@ final class OrderDetail implements OrderDetailInterface
             'category_modification_trans',
             'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
         );
-
-
-
 
 
         /* Фото продукта */
@@ -254,8 +241,6 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
-
         /*$qb->addGroupBy('product_offer_variation_image.name')
             ->addGroupBy('product_offer_variation_image.dir')
             ->addGroupBy('product_offer_variation_image.ext')
@@ -273,8 +258,6 @@ final class OrderDetail implements OrderDetailInterface
 
 
         ;*/
-
-
 
 
         $qb->addSelect(
@@ -350,49 +333,46 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-//        $qb->addSelect(
-//            "
-//			CASE
-//			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-//					CONCAT ( '/upload/".ProductOfferVariationImage::TABLE."' , '/', product_offer_variation_image.dir, '/', product_offer_variation_image.name, '.')
-//			   WHEN product_offer_images.name IS NOT NULL THEN
-//					CONCAT ( '/upload/".ProductOfferImage::TABLE."' , '/', product_offer_images.dir, '/', product_offer_images.name, '.')
-//			   WHEN product_photo.name IS NOT NULL THEN
-//					CONCAT ( '/upload/".ProductPhoto::TABLE."' , '/', product_photo.dir, '/', product_photo.name, '.')
-//			   ELSE NULL
-//			END AS product_image
-//		"
-//        );
+        //        $qb->addSelect(
+        //            "
+        //			CASE
+        //			   WHEN product_offer_variation_image.name IS NOT NULL THEN
+        //					CONCAT ( '/upload/".ProductOfferVariationImage::TABLE."' , '/', product_offer_variation_image.dir, '/', product_offer_variation_image.name, '.')
+        //			   WHEN product_offer_images.name IS NOT NULL THEN
+        //					CONCAT ( '/upload/".ProductOfferImage::TABLE."' , '/', product_offer_images.dir, '/', product_offer_images.name, '.')
+        //			   WHEN product_photo.name IS NOT NULL THEN
+        //					CONCAT ( '/upload/".ProductPhoto::TABLE."' , '/', product_photo.dir, '/', product_photo.name, '.')
+        //			   ELSE NULL
+        //			END AS product_image
+        //		"
+        //        );
 
         /* Флаг загрузки файла CDN */
-//        $qb->addSelect('
-//			CASE
-//			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-//					product_offer_variation_image.ext
-//			   WHEN product_offer_images.name IS NOT NULL THEN
-//					product_offer_images.ext
-//			   WHEN product_photo.name IS NOT NULL THEN
-//					product_photo.ext
-//			   ELSE NULL
-//			END AS product_image_ext
-//		');
-
+        //        $qb->addSelect('
+        //			CASE
+        //			   WHEN product_offer_variation_image.name IS NOT NULL THEN
+        //					product_offer_variation_image.ext
+        //			   WHEN product_offer_images.name IS NOT NULL THEN
+        //					product_offer_images.ext
+        //			   WHEN product_photo.name IS NOT NULL THEN
+        //					product_photo.ext
+        //			   ELSE NULL
+        //			END AS product_image_ext
+        //		');
 
 
         /* Флаг загрузки файла CDN */
-//        $qb->addSelect('
-//			CASE
-//			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-//					product_offer_variation_image.cdn
-//			   WHEN product_offer_images.name IS NOT NULL THEN
-//					product_offer_images.cdn
-//			   WHEN product_photo.name IS NOT NULL THEN
-//					product_photo.cdn
-//			   ELSE NULL
-//			END AS product_image_cdn
-//		');
-
-
+        //        $qb->addSelect('
+        //			CASE
+        //			   WHEN product_offer_variation_image.name IS NOT NULL THEN
+        //					product_offer_variation_image.cdn
+        //			   WHEN product_offer_images.name IS NOT NULL THEN
+        //					product_offer_images.cdn
+        //			   WHEN product_photo.name IS NOT NULL THEN
+        //					product_photo.cdn
+        //			   ELSE NULL
+        //			END AS product_image_cdn
+        //		');
 
 
         /* Доставка */
@@ -432,6 +412,8 @@ final class OrderDetail implements OrderDetailInterface
             'delivery_geocode',
             'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
         );
+
+
 
         /* Профиль пользователя */
 
@@ -473,7 +455,7 @@ final class OrderDetail implements OrderDetailInterface
             'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
         );
 
-        $qb->join(
+        $qb->leftJoin(
             'user_profile_value',
             TypeProfileEntity\Section\Fields\TypeProfileSectionField::TABLE,
             'type_profile_field',
@@ -503,8 +485,6 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
-
         $qb->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -522,14 +502,8 @@ final class OrderDetail implements OrderDetailInterface
 			)
 			AS order_user"
         );
-
-
-
-
-        $qb->where('orders.id = :order');
-        $qb->setParameter('order', $order, OrderUid::TYPE);
-
-        return $qb->fetchAssociative();
+        
+        return $qb->fetchAssociative() ?: null;
     }
 
     public function getDetailOrder(OrderUid $order): mixed

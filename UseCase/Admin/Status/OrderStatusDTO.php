@@ -26,6 +26,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -46,9 +47,9 @@ final class OrderStatusDTO implements OrderEventInterface
     private OrderStatus $status;
 
 
-    public function __construct(OrderStatus $status, OrderEventUid $id, UserProfileUid $profile)
+    public function __construct(OrderStatus|OrderStatusInterface $status, OrderEventUid $id, UserProfileUid $profile)
     {
-        $this->status = $status;
+        $this->status = $status instanceof OrderStatusInterface ? new OrderStatus($status) : $status;
         $this->id = $id;
         $this->profile = $profile;
     }

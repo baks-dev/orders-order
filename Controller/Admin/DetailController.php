@@ -61,11 +61,12 @@ final class DetailController extends AbstractController
         OrderHandler $handler,
         CentrifugoPublishInterface $publish,
         string $id,
-    ): Response {
+    ): Response
+    {
         /** Получаем активное событие заказа */
         $Event = $currentOrderEvent->getCurrentOrderEventOrNull($Order->getId());
 
-        if (!$Event)
+        if(!$Event)
         {
             throw new RouteNotFoundException('Page Not Found');
         }
@@ -73,8 +74,10 @@ final class DetailController extends AbstractController
         $OrderDTO = new OrderDTO();
         $Event->getDto($OrderDTO);
 
+
+
         /** @var OrderProductDTO $product */
-        foreach ($OrderDTO->getProduct() as $product)
+        foreach($OrderDTO->getProduct() as $product)
         {
             $ProductDetail = $userBasket->fetchProductBasketAssociative(
                 $product->getProduct(),
@@ -87,7 +90,6 @@ final class DetailController extends AbstractController
 
             $product->setCard($ProductDetail);
         }
-
 
 
         // $OrderDTO->setProduct($products);
@@ -107,19 +109,20 @@ final class DetailController extends AbstractController
             ['action' => $this->generateUrl('Orders:admin.detail', ['id' => $id])]
         );
 
-        if ($request->headers->get('X-Requested-With') === null)
+        if($request->headers->get('X-Requested-With') === null)
         {
             $form->handleRequest($request);
         }
 
-        if ($form->isSubmitted() && $form->isValid())
+        if($form->isSubmitted() && $form->isValid())
         {
             $OrderHandler = $handler->handle($OrderDTO);
 
-            if ($OrderHandler instanceof Order)
+            if($OrderHandler instanceof Order)
             {
                 $this->addFlash('success', 'admin.success.update', 'admin.order');
-            } else
+            }
+            else
             {
                 $this->addFlash('danger', 'admin.danger.update', 'admin.order', $OrderHandler);
             }
@@ -129,17 +132,17 @@ final class DetailController extends AbstractController
 
         /** Информация о заказе */
         $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getOrders());
-
+        
         /** История изменения статусов */
         $History = $orderHistory->fetchHistoryAllAssociative($Event->getOrders());
 
         // Отпарвляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
-            ->addData(['order' => (string) $Event->getOrders()])
-            ->addData(['profile' => (string) $this->getProfileUid()])
+            ->addData(['order' => (string)$Event->getOrders()])
+            ->addData(['profile' => (string)$this->getProfileUid()])
             ->send('orders');
 
-        if ($socket->isError())
+        if($socket->isError())
         {
             return new JsonResponse($socket->getMessage());
         }

@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use Doctrine\Common\Collections\ArrayCollection;
+use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
@@ -56,11 +57,11 @@ final class PackageOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private $warehouse = null;
 
-    
+
     public function __construct()
     {
         $this->product = new ArrayCollection();
-       // $this->move = new ArrayCollection();
+        // $this->move = new ArrayCollection();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -95,7 +96,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
     public function addProduct(Products\PackageOrderProductDTO $product): void
     {
-        if (!$this->product->contains($product))
+        if(!$this->product->contains($product))
         {
             $this->product->add($product);
         }
@@ -110,11 +111,12 @@ final class PackageOrderDTO implements OrderEventInterface
 
     public function getUsers(): User\OrderUserDTO
     {
+
+        if(!(new ReflectionProperty($this::class, 'users'))->isInitialized($this))
+        {
+            $this->users = new User\OrderUserDTO();
+        }
+
         return $this->users;
     }
-
-
-
-
-
 }

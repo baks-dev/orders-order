@@ -28,6 +28,7 @@ use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Core\Services\Switcher\SwitcherInterface;
 use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity as DeliveryEntity;
+use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 use BaksDev\DeliveryTransport\Type\ProductStockStatus\ProductStockStatusError;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
@@ -63,7 +64,12 @@ final class AllOrdersQuery implements AllOrdersInterface
         $this->translator = $translator;
     }
 
-    public function fetchAllOrdersAssociative(OrderStatus $status, SearchDTO $search, ?UserProfileUid $profile): PaginatorInterface
+    /** Метод возвращает список заказов согласно статусу. Если передан профиль пользователя - то список заказов только принадлежащие данному профилю */
+    public function fetchAllOrdersAssociative(
+        OrderStatus $status,
+        SearchDTO $search,
+        ?UserProfileUid $profile
+    ): PaginatorInterface
     {
         $qb = $this->connection->createQueryBuilder();
 
@@ -92,6 +98,8 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->setParameter('status', $status, OrderStatus::TYPE);
 
+
+
         // Продукция
 
         $qb->addSelect('order_products_price.currency AS order_currency')
@@ -103,6 +111,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'order_products',
             'order_products.event = orders.event'
         );
+
 
         $qb->addSelect(
             "JSON_AGG
@@ -263,8 +272,18 @@ final class AllOrdersQuery implements AllOrdersInterface
 
 
 
+        }
+        else
+        {
+            $qb->addSelect('FALSE AS order_move');
+
+        }
 
 
+
+        // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
+        if (defined(DeliveryTransport::class.'::TABLE'))
+        {
 
             $qbExistMoveError = $this->connection->createQueryBuilder();
 
@@ -291,15 +310,9 @@ final class AllOrdersQuery implements AllOrdersInterface
             $qb->addSelect(sprintf('EXISTS(%s) AS move_error', $qbExistMoveError->getSQL()) );
 
 
-
-
-
-
-
             $qbExistOrderError = $this->connection->createQueryBuilder();
 
             $qbExistOrderError->select('1');
-
 
             $qbExistOrderError->from(ProductStockOrder::TABLE, 'stock_order');
             $qbExistOrderError->where('stock_order.ord = orders.id');
@@ -320,17 +333,12 @@ final class AllOrdersQuery implements AllOrdersInterface
 
             $qb->addSelect(sprintf('EXISTS(%s) AS order_error', $qbExistOrderError->getSQL()) );
 
-
-
-
             $qb->setParameter('error', new ProductStockStatus(new ProductStockStatusError()), ProductStockStatus::TYPE);
-
         }
         else
         {
-            $qb->addSelect('FALSE AS order_move');
-            $qb->addSelect('FALSE AS order_error');
             $qb->addSelect('FALSE AS move_error');
+            $qb->addSelect('FALSE AS order_error');
         }
 
 
@@ -338,11 +346,11 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->addOrderBy('order_event.created');
 
-        $qb->setMaxResults(50);
+        $qb->setMaxResults(20);
 
         // dd($this->connection->prepare('EXPLAIN (ANALYZE)  '.$qb->getSQL())->executeQuery($qb->getParameters())->fetchAllAssociativeIndexed());
 
-        // dump($qb->fetchAllAssociative());
+        /*dump($qb->fetchAllAssociative());*/
 
         return $this->paginator->fetchAllAssociative($qb);
     }

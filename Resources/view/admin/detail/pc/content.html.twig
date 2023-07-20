@@ -94,7 +94,7 @@
 			{# Клиент #}
 			<div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
 				
-				{% set img_path = order.profile_avatar_cdn == true ? cdn_host : '' %}
+				{% set img_path = order.profile_avatar_cdn == true ? CDN_HOST : '' %}
 				{% set img_min = order.profile_avatar_cdn == true ? 'small.' : '' %}
 				
 				{# <a href="{{ path('UserProfile:admin.newedit.edit', { id: item.event }) }}" class="pe-3">

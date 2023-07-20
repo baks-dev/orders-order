@@ -24,7 +24,7 @@
 					<div class="col-2">
 						
 						
-						{% set img_path = card.product_image_cdn == true ? cdn_host : '' %}
+						{% set img_path = card.product_image_cdn == true ? CDN_HOST : '' %}
 						{% set product_image_ext = card.product_image_cdn == true ? 'small.'~card.product_image_ext : card.product_image_ext %}
 						
 						<a href="{{ path('Product:user.detail', {

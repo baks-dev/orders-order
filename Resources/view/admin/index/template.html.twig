@@ -24,13 +24,13 @@
 
  <script nonce="{{ csp_nonce() }}" data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js" class='lazy'></script>
 
- {#<script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/orders_basket{{ app.environment != 'dev'?'.min' }}.js?v={{ version }}" class='lazy'></script>
- <script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/orders_package{{ app.environment != 'dev'?'.min' }}.js?v={{ version }}" class='lazy'></script>#}
+ {#<script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/orders_basket.min.js?v={{ version }}" class='lazy'></script>
+ <script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/orders_package.min.js?v={{ version }}" class='lazy'></script>#}
 
  <script async nonce="{{ csp_nonce() }}" class="lazy" data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}" ></script>
  <script async nonce="{{ csp_nonce() }}" class="lazy" data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}" ></script>
 
-<script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/order_draggable{{ app.environment != 'dev'?'.min' }}.js?v={{ version }}" class='lazy'></script>
+<script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/order_draggable.min.js?v={{ version }}" class='lazy'></script>
 <script nonce="{{ csp_nonce() }}">
 
 

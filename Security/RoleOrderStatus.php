@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Security;
 
-use BaksDev\Menu\Admin\DataFixtures\Menu\MenuAdminFixturesInterface;
-use BaksDev\Menu\Admin\Type\SectionGroup\MenuAdminSectionGroupEnum;
 use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

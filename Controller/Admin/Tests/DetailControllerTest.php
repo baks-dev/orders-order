@@ -94,7 +94,7 @@ final class DetailControllerTest extends WebTestCase
 
                 $client->loginUser($user, 'user');
                 $client->request('GET', sprintf(self::URL, $identifier->getValue()));
-
+                
                 self::assertResponseIsSuccessful();
             }
         } else

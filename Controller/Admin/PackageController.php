@@ -34,8 +34,8 @@ use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
-use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductOfferVariationModification;
-use BaksDev\Products\Product\Entity\Offers\Variation\ProductOfferVariation;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Stocks\Entity\ProductStock;
 use BaksDev\Products\Stocks\Repository\ProductStocksMoveByOrder\ProductStocksMoveByOrderInterface;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
@@ -189,13 +189,13 @@ final class PackageController extends AbstractController
 
                 if ($const->getVariation())
                 {
-                    $constVariation = $entityManager->getRepository(ProductOfferVariation::class)->find($const->getVariation());
+                    $constVariation = $entityManager->getRepository(ProductVariation::class)->find($const->getVariation());
                     $const->setVariation($constVariation->getConst());
                 }
 
                 if ($const->getModification())
                 {
-                    $constModification = $entityManager->getRepository(ProductOfferVariationModification::class)->find($const->getModification());
+                    $constModification = $entityManager->getRepository(ProductModification::class)->find($const->getModification());
                     $const->setModification($constModification->getConst());
                 }
             }

@@ -104,7 +104,7 @@ final class ProductEventBasket implements ProductEventBasketInterface
                  */
 
                 $qb->join(
-                    ProductEntity\Offers\Variation\ProductOfferVariation::class,
+                    ProductEntity\Offers\Variation\ProductVariation::class,
                     'variation',
                     'WITH',
                     'variation.offer = offer.id AND variation.id = :variation'
@@ -119,7 +119,7 @@ final class ProductEventBasket implements ProductEventBasketInterface
                      */
 
                     $qb->join(
-                        ProductEntity\Offers\Variation\Modification\ProductOfferVariationModification::class,
+                        ProductEntity\Offers\Variation\Modification\ProductModification::class,
                         'modification',
                         'WITH',
                         'modification.variation = variation.id AND modification.id = :modification'

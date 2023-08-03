@@ -27,8 +27,10 @@ use BaksDev\Core\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[AsController]
 class TruncateController extends AbstractController
 {
     /** Очистить корзину пользователя от всех товаров. */

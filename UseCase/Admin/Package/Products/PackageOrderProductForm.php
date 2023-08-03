@@ -113,13 +113,6 @@ final class PackageOrderProductForm extends AbstractType
                         );
                     }
 
-                    //dump($warehouse);
-
-//                    if (empty($totalStock))
-//                    {
-//                        dump($totalStock);
-//                        dd($warehouse);
-//                    }
 
                     $product['stock'] = $totalStock;
                     $data->setCard($product);
@@ -148,35 +141,11 @@ final class PackageOrderProductForm extends AbstractType
 
                         $form->add('move', Moving\MovingProductStockForm::class, ['label' => false]);
 
-//                        $form->add(
-//                            'move',
-//                            CollectionType::class,
-//                            [
-//                                'entry_type' => Moving\MovingProductStockForm::class,
-//                                'entry_options' => ['label' => false],
-//                                'label' => false,
-//                                'by_reference' => false,
-//                                'allow_delete' => true,
-//                                'allow_add' => true,
-//                                'prototype_name' => '__move__',
-//                            ]
-//                        );
                     }
-
-                    /* Получаем информацию о наличие на указанном складе */
                 }
             },
         );
 
-//        $builder->get('move')->addEventListener(
-//            FormEvents::POST_SUBMIT,
-//            function (FormEvent $event): void {
-//                /** @var PackageOrderDTO $data */
-//                $data = $event->getData();
-//
-//                dd($data);
-//            }
-//        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

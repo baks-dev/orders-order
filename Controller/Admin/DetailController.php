@@ -40,9 +40,11 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
+#[AsController]
 #[RoleSecurity('ROLE_ORDER')]
 final class DetailController extends AbstractController
 {
@@ -91,11 +93,6 @@ final class DetailController extends AbstractController
             $product->setCard($ProductDetail);
         }
 
-
-        // $OrderDTO->setProduct($products);
-
-        // dump($Event);
-        // dd($OrderDTO);
         // Динамическая форма корзины
         $handleForm = $this->createForm(OrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);

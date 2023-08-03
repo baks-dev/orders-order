@@ -23,23 +23,25 @@
 
 namespace BaksDev\Orders\Order\Controller\User;
 
-use Symfony\Contracts\Cache\ItemInterface;
-use BaksDev\Core\Type\UidType\ParamConverter;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use BaksDev\Core\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use BaksDev\Core\Type\UidType\ParamConverter;
+use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
+use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
+#[AsController]
 class DeleteController extends AbstractController
 {
     private ?ArrayCollection $products = null;

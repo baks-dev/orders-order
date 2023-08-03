@@ -100,7 +100,7 @@
 				{# <a href="{{ path('UserProfile:admin.newedit.edit', { id: item.event }) }}" class="pe-3">
 						<div class="rounded-circle bg-contain lazy p-1" style="width: 50px; height: 50px;"
 								data-bg="{{ item.user_profile_avatar_name ?
-								img_path ~ users_profile_avatar ~ item.user_profile_avatar_dir ~'/'~ item.user_profile_avatar_name ~'.'~ img_min ~ item.user_profile_avatar_ext :
+								img_path ~ '/upload/' ~ constant('BaksDev\\Users\\Profile\\UserProfile\\Entity\\Avatar\\UserProfileAvatar::TABLE') ~'/' ~ item.user_profile_avatar_dir ~'/'~ item.user_profile_avatar_name ~'.'~ img_min ~ item.user_profile_avatar_ext :
 								'/assets/img/blank.svg' }}">
 						</div>
 					</a> #}
@@ -220,7 +220,7 @@
 					</tr>
 					</thead>
 					<tbody>
-					{# {{ dd(history) }} #}
+
 					{% for hist in history %}
 						
 						<tr>

@@ -136,37 +136,6 @@ final class MovingProductStockForm extends AbstractType
             }
         );
 
-//        $builder->get('warehouse')->addEventListener(
-//            FormEvents::POST_SUBMIT,
-//            function (FormEvent $event): void {
-//                /** @var MovingProductStockDTO $data */
-//                $data = $event->getData();
-//
-//                dd($data);
-//
-//                //$product = $event->getForm()->getData();
-//                //$formOfferModifier($event->getForm()->getParent(), $product);
-//
-//                //$this->productModifier($event->getForm()->getParent());
-//
-//                //$this->productModifier($event->getForm()->getParent(), new ContactsRegionCallConst($data));
-//            }
-//        );
-
-        /* Константа склада назначения при перемещении */
-//        $builder->add('destination', HiddenType::class);
-//
-//        $builder->get('destination')->addModelTransformer(
-//            new CallbackTransformer(
-//                function ($destination) {
-//                    return $destination instanceof ContactsRegionCallConst ? $destination->getValue() : $destination;
-//                },
-//                function ($destination) {
-//                    return $destination ? new ContactsRegionCallConst($destination) : null;
-//                }
-//            ),
-//        );
-
         /* Склад назначения при перемещении */
         $builder->add('move', Move\ProductStockMoveForm::class);
 

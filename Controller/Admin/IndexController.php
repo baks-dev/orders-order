@@ -28,15 +28,18 @@ use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
-// use App\System\Form\Search\Command;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+// use App\System\Form\Search\Command;
+
+#[AsController]
 #[RoleSecurity('ROLE_ORDER')]
 final class IndexController extends AbstractController
 {

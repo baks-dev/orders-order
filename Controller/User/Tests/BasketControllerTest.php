@@ -20,10 +20,10 @@ namespace BaksDev\Orders\Order\Controller\User\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- */
+/** @group orders-order */
+#[When(env: 'test')]
 final class BasketControllerTest extends WebTestCase
 {
     private const URL = '/basket';

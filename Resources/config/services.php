@@ -23,52 +23,19 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-return static function (ContainerConfigurator $configurator) {
+return static function(ContainerConfigurator $configurator) {
     $services = $configurator->services()
         ->defaults()
         ->autowire()
-        ->autoconfigure()
-    ;
+        ->autoconfigure();
 
-    $namespace = 'BaksDev\Orders\Order';
+    $NAMESPACE = 'BaksDev\Orders\Order\\';
 
+    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
 
-    $services->load($namespace.'\\', __DIR__.'/../../')
-        ->exclude(__DIR__.'/../../{Controller,Entity,Resources,Type,Tests,*DTO.php,*Message.php}');
-
-    // Services
-
-    $services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
-        ->tag('controller.service_arguments')
-        ->exclude(__DIR__.'/../../Controller/**/*Test.php')
-    ;
+    $services->load($NAMESPACE, $MODULE)
+        ->exclude($MODULE.'{Entity,Resources,Type,*DTO.php,*Message.php}');
 
     /* Статусы заказов */
-
-    $services->load($namespace.'\Type\Status\OrderStatus\\', __DIR__.'/../../Type/Status/OrderStatus');
-
-
-    // Services
-
-//    $services->load($namespace.'\Controller\\', __DIR__.'/../../Controller')
-//        ->tag('controller.service_arguments')
-//        ->exclude(__DIR__.'/../../Controller/**/*Test.php')
-//    ;
-//
-//    $services->load($namespace.'\Repository\\', __DIR__.'/../../Repository')
-//        ->exclude(__DIR__.'/../../Repository/**/*DTO.php')
-//    ;
-
-//    $services->load($namespace.'\UseCase\\', __DIR__.'/../../UseCase')
-//        ->exclude(__DIR__.'/../../UseCase/**/{*DTO.php,*Test.php}')
-//    ;
-
-//    $services->load($namespace.'\Security\\', __DIR__.'/../../Security');
-
-//    $services->load($namespace.'\Listeners\\', __DIR__.'/../../Listeners/*');
-
-
-//    $services->set(OrderStatus\Collection\OrderStatusCollection::class)
-//        ->args([tagged_iterator('baks.order.status')])
-//    ;
+    $services->load($NAMESPACE.'Type\Status\OrderStatus\\', $MODULE.'Type/Status/OrderStatus');
 };

@@ -25,9 +25,9 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Symfony\Config\TwigConfig;
 
-return static function (TwigConfig $config)
+return static function (TwigConfig $twig)
 {
-	$config->path(__DIR__.'/../view', 'Orders');
+	$twig->path(__DIR__.'/../view', 'Orders');
 };
 
 

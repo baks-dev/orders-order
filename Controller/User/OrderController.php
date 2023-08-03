@@ -25,11 +25,12 @@ namespace BaksDev\Orders\Order\Controller\User;
 
 
 use BaksDev\Core\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[AsController]
 class OrderController extends AbstractController
 {
     /* История заказов пользователя */

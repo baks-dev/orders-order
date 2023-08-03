@@ -33,8 +33,10 @@ use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class StatusController extends AbstractController
 {

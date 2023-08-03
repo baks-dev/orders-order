@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Status\OrderStatus;
 
-use BaksDev\Orders\Order\Security\Role;
 use BaksDev\Orders\Order\Security\RoleOrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
@@ -48,7 +47,7 @@ class OrderStatusNew implements OrderStatusInterface, VoterFixturesInterface
         return self::STATUS;
     }
 
-    /** Сортирвка */
+    /** Сортировка */
     public static function sort(): int
     {
         return self::$sort;

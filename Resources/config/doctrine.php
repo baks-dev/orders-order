@@ -51,12 +51,8 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
         ->autoconfigure()
     ;
 
-
-
 	$doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
     $services->set(OrderUid::class)->class(OrderUid::class); // #[ParamConverter(['order'])] OrderUid $order,
-
-
 
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
 	$doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
@@ -71,14 +67,14 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
 	$doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
 	
 	$doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
-	
 
-	$emDefault = $doctrine->orm()->entityManager('default');
+    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
-	$emDefault->autoMapping(true);
-	$emDefault->mapping('Orders')
+    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
+
+    $emDefault->mapping('Orders')
 		->type('attribute')
-		->dir(__DIR__.'/../../Entity')
+		->dir($MODULE.'Entity')
 		->isBundle(false)
 		->prefix('BaksDev\Orders\Order\Entity')
 		->alias('Orders')

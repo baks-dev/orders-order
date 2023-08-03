@@ -24,10 +24,10 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- */
+/** @group orders-order */
+#[When(env: 'test')]
 final class PackageControllerTest extends WebTestCase
 {
     private const URL = '/admin/order/package/%s';

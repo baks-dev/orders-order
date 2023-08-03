@@ -37,9 +37,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\ItemInterface;
 
+#[AsController]
 class BasketController extends AbstractController
 {
     // Корзина пользователя
@@ -76,11 +78,6 @@ class BasketController extends AbstractController
         /** Присваиваем пользователя */
         $OrderUserDTO = $OrderDTO->getUsers();
         $OrderUserDTO->setUser($this->getUser()?->getId());
-        // $OrderUserDTO->setProfile($this->getProfileUid());
-
-        // dd($this->getUser());
-
-        // dd($OrderUserDTO->getUserProfile()->setType());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if (!$this->products->isEmpty()) {

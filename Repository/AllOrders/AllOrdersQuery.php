@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Core\Services\Switcher\SwitcherInterface;
@@ -40,28 +41,27 @@ use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
 use BaksDev\Users\Profile\TypeProfile\Entity as TypeProfileEntity;
 use BaksDev\Users\Profile\UserProfile\Entity as UserProfileEntity;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Doctrine\DBAL\Connection;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllOrdersQuery implements AllOrdersInterface
 {
-    private Connection $connection;
 
     private PaginatorInterface $paginator;
 
     private TranslatorInterface $translator;
+    private DBALQueryBuilder $DBALQueryBuilder;
 
     public function __construct(
-        Connection $connection,
+       DBALQueryBuilder $DBALQueryBuilder,
         TranslatorInterface $translator,
         SwitcherInterface $switcher,
         PaginatorInterface $paginator,
     ) {
-        $this->connection = $connection;
 
         // $this->switcher = $switcher;
         $this->paginator = $paginator;
         $this->translator = $translator;
+        $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
     /** Метод возвращает список заказов согласно статусу. Если передан профиль пользователя - то список заказов только принадлежащие данному профилю */
@@ -71,7 +71,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         ?UserProfileUid $profile
     ): PaginatorInterface
     {
-        $qb = $this->connection->createQueryBuilder();
+        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         /** ЛОКАЛЬ */
         $locale = new Locale($this->translator->getLocale());
@@ -244,7 +244,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
         if (defined(ProductStock::class.'::TABLE'))
         {
-            $qbExist = $this->connection->createQueryBuilder();
+            $qbExist = $this->DBALQueryBuilder->builder();
 
             $qbExist->select('1');
             $qbExist->from(ProductStockMove::TABLE, 'move');
@@ -285,7 +285,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         if (defined(DeliveryTransport::class.'::TABLE'))
         {
 
-            $qbExistMoveError = $this->connection->createQueryBuilder();
+            $qbExistMoveError = $this->DBALQueryBuilder->builder();
 
             $qbExistMoveError->select('1');
 
@@ -310,7 +310,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             $qb->addSelect(sprintf('EXISTS(%s) AS move_error', $qbExistMoveError->getSQL()) );
 
 
-            $qbExistOrderError = $this->connection->createQueryBuilder();
+            $qbExistOrderError = $this->DBALQueryBuilder->builder();
 
             $qbExistOrderError->select('1');
 
@@ -341,17 +341,14 @@ final class AllOrdersQuery implements AllOrdersInterface
             $qb->addSelect('FALSE AS order_error');
         }
 
-
-
-
+        
         $qb->addOrderBy('order_event.created');
 
         $qb->setMaxResults(20);
 
         // dd($this->connection->prepare('EXPLAIN (ANALYZE)  '.$qb->getSQL())->executeQuery($qb->getParameters())->fetchAllAssociativeIndexed());
 
-        /*dump($qb->fetchAllAssociative());*/
-
         return $this->paginator->fetchAllAssociative($qb);
+
     }
 }

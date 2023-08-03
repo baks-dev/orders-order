@@ -27,7 +27,6 @@ use Symfony\Config\FrameworkConfig;
 
 return static function (FrameworkConfig $framework) {
 
-    /** Транспорт заказов */
     $messenger = $framework->messenger();
 
     $messenger

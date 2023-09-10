@@ -69,8 +69,13 @@ final class OrderStatus
         return $this->status::color();
     }
 
-    public function equals(OrderStatusInterface $status) : bool
+    public function equals(OrderStatusInterface|string $status) : bool
     {
-        return $this->status?->getValue() === $status->getValue();
+        if($status instanceof OrderStatusInterface)
+        {
+            return $this->status?->getValue() === $status->getValue();
+        }
+        
+        return $this->status?->getValue() === $status;
     }
 }

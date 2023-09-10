@@ -25,21 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User\Payment;
 
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
-use BaksDev\Orders\Order\Type\Payment\Field\OrderPaymentFieldUid;
 use BaksDev\Orders\Order\Type\Payment\OrderPaymentUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Core\Type\Ip\IpAddress;
-use BaksDev\Core\Type\Modify\ModifyAction;
-use BaksDev\Core\Type\Modify\ModifyActionEnum;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
@@ -59,8 +49,8 @@ class OrderPayment extends EntityEvent
 	
 	/** ID пользователя заказа */
 	#[ORM\OneToOne(inversedBy: 'payment', targetEntity: OrderUser::class)]
-	#[ORM\JoinColumn(name: 'orders_user', referencedColumnName: 'id')]
-	private OrderUser $user;
+	#[ORM\JoinColumn(name: 'usr', referencedColumnName: 'id')]
+	private OrderUser $usr;
 	
 	/** Способ оплаты */
 	#[ORM\Column(type: PaymentUid::TYPE)]
@@ -71,10 +61,10 @@ class OrderPayment extends EntityEvent
 	private Collection $field;
 	
 	
-	public function __construct(OrderUser $user)
+	public function __construct(OrderUser $usr)
 	{
 		$this->id = new OrderPaymentUid();
-		$this->user = $user;
+		$this->usr = $usr;
 		
 	}
 	

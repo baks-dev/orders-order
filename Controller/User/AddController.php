@@ -107,7 +107,7 @@ class AddController extends AbstractController
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-            if ($this->getUser())
+            if ($this->getUsr())
             {
                 $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
             }

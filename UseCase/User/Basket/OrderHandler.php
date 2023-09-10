@@ -121,7 +121,7 @@ final class OrderHandler
 		$OrderUserDTO = $command->getUsers();
 		
 		/** Создаем аккаунт для авторизации */
-		if($OrderUserDTO->getUser() === null)
+		if($OrderUserDTO->getUsr() === null)
 		{
 			$UserAccount = $OrderUserDTO->getUserAccount();
 			
@@ -146,7 +146,7 @@ final class OrderHandler
 			}
 			
 			/* Присваиваем пользователя заказу */
-			$OrderUserDTO->setUser($Account->getId());
+			$OrderUserDTO->setUsr($Account->getId());
 		}
 		
 		/** Создаем профиль пользователя */
@@ -167,7 +167,7 @@ final class OrderHandler
 			}
 			
 			/* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
-			$UserProfileDTO->getInfo()->setUser($OrderUserDTO->getUser() ?: $Account->getId());
+			$UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
 			
 			$UserProfile = $this->profileHandler->handle($UserProfileDTO);
 			

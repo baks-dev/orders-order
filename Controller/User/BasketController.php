@@ -59,7 +59,7 @@ class BasketController extends AbstractController
 
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-        if ($this->getUser()) {
+        if ($this->getUsr()) {
             $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
         }
 
@@ -77,7 +77,7 @@ class BasketController extends AbstractController
 
         /** Присваиваем пользователя */
         $OrderUserDTO = $OrderDTO->getUsers();
-        $OrderUserDTO->setUser($this->getUser()?->getId());
+        $OrderUserDTO->setUsr($this->getUsr()?->getId());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if (!$this->products->isEmpty()) {

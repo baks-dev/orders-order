@@ -28,12 +28,11 @@ use BaksDev\Users\Profile\UserProfile\Type\Status\UserProfileStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Status\UserProfileStatusEnum;
 use BaksDev\Users\User\Entity\User;
 use BaksDev\Users\User\Type\Id\UserUid;
-use Symfony\Component\Validator\Constraints as Assert;
 
 final class InfoDTO implements UserProfileInfoInterface
 {
 	/** Пользователь, кому принадлежит профиль */
-	private readonly UserUid $user;
+	private readonly UserUid $usr;
 	
 	/** Ссылка на профиль пользователя */
 	private string $url;
@@ -54,15 +53,15 @@ final class InfoDTO implements UserProfileInfoInterface
 	
 	/** Пользователь, кому принадлежит профиль */
 
-	public function getUser() : UserUid
+	public function getUsr() : UserUid
 	{
-		return $this->user;
+		return $this->usr;
 	}
 	
 	
-	public function setUser(UserUid|User $user) : void
+	public function setUsr(UserUid|User $usr) : void
 	{
-		$this->user = $user instanceof User ? $user->getId() : $user;
+		$this->usr = $usr instanceof User ? $usr->getId() : $usr;
 	}
 	
 	

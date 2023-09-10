@@ -45,8 +45,8 @@ final class OrderStatusCollection
     {
         $case = null;
 
-        foreach ($this->status as $status) {
-            $case[$status::sort()] = new OrderStatus(new $status());
+        foreach ($this->status as $key => $status) {
+            $case[$status::sort().$key] = new OrderStatus(new $status());
         }
 
         ksort($case);
@@ -57,6 +57,7 @@ final class OrderStatusCollection
     /** Метод возвращает класс статуса заказа  */
     public function from(string $name): OrderStatus
     {
+        /** @var OrderStatusInterface $status */
         foreach ($this->status as $status) {
             if ($status::STATUS === $name) {
                 return new OrderStatus(new $status());

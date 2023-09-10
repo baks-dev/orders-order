@@ -25,20 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User;
 
-use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
-use BaksDev\Payment\Type\Id\PaymentUid;
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoice;
-use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -75,9 +63,9 @@ final class OrderUserForm extends AbstractType
 				$userProfileType = $data->getUserProfile()?->getType();
 				
 				/**Если пользователь авторизован */
-				if($data->getUser() && $userProfileType === null)
+				if($data->getUsr() && $userProfileType === null)
 				{
-					$CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUser());
+					$CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUsr());
 
 					if($CurrentUserProfile)
 					{
@@ -90,7 +78,7 @@ final class OrderUserForm extends AbstractType
 				}
 
 
-                if(!$data->getUser())
+                if(!$data->getUsr())
                 {
 					$form->add('userAccount',
 						UserAccount\UserAccountForm::class, [

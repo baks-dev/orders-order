@@ -64,24 +64,12 @@ final class OrderHistory implements OrderHistoryInterface
 		$qb->addSelect('order_user.profile AS order_profile_id');
 		$qb->leftJoin('event', OrderEntity\User\OrderUser::TABLE, 'order_user',
 			'order_user.event = event.id');
-		
-		
-		
-		
-		//$qb->join('modify', AccountEntity\Account::TABLE, 'account', 'account.id = modify.user_id');
-		
-//		$qb->addSelect('account_event.email');
-//
-//		$qb->leftJoin('account',
-//			AccountEntity\Event\AccountEvent::TABLE,
-//			'account_event',
-//			'account_event.id = account.event'
-//		);
+
 		
 		$qb->leftJoin('modify',
 			UserProfileEntity\Info\UserProfileInfo::TABLE,
 			'profile_info',
-			'profile_info.user_id = modify.user_id AND profile_info.active = true'
+			'profile_info.usr = modify.usr AND profile_info.active = true'
 		);
 		
 		

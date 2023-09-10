@@ -25,14 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\NewEdit\User;
 
-use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\OrderUserInterface;
-use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 final class OrderUserDTO implements OrderUserInterface
 {
@@ -41,7 +37,7 @@ final class OrderUserDTO implements OrderUserInterface
 	
 	/** ID пользователя  */
 	#[Assert\Uuid]
-	private ?UserUid $user = null;
+	private ?UserUid $usr = null;
 	
 	/* Профиль пользователя */
 	
@@ -68,16 +64,16 @@ final class OrderUserDTO implements OrderUserInterface
 	
 	
 	/** ID пользователя */
-	public function getUser() : ?UserUid
+	public function getUsr() : ?UserUid
 	{
-		return $this->user;
+		return $this->usr;
 	}
 	
 	
-	public function setUser(?UserUid $user) : void
+	public function setUsr(?UserUid $usr) : void
 	{
 		
-		$this->user = $user;
+		$this->usr = $usr;
 	}
 	
 	

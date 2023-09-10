@@ -79,7 +79,7 @@ final class IndexController extends AbstractController
             [
                 'query' => $orders,
                 'status' => $collection->cases(),
-                'token' => $tokenUserGenerator->generate($this->getUser()),
+                'token' => $tokenUserGenerator->generate($this->getUsr()),
                 // 'search' => $searchForm->createView(),
             ]
         );

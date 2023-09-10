@@ -25,17 +25,17 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User;
 
-use InvalidArgumentException;
-use Doctrine\ORM\Mapping as ORM;
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Users\User\Type\Id\UserUid;
-use BaksDev\Orders\Order\Type\User\OrderUserUid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
+use BaksDev\Orders\Order\Type\User\OrderUserUid;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 
-/* Пользователь, которому пренадлежит заказ */
+/* Пользователь, которому принадлежит заказ */
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_user')]
@@ -49,24 +49,24 @@ class OrderUser extends EntityEvent
     private OrderUserUid $id;
 
     /** ID события */
-    #[ORM\OneToOne(inversedBy: 'users', targetEntity: OrderEvent::class)]
+    #[ORM\OneToOne(inversedBy: 'usr', targetEntity: OrderEvent::class)]
     #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
     private OrderEvent $event;
 
     /** ID пользователя  */
-    #[ORM\Column(name: 'user_id', type: UserUid::TYPE)]
-    private UserUid $user;
+    #[ORM\Column(type: UserUid::TYPE)]
+    private UserUid $usr;
 
     /** Идентификатор События!! профиля пользователя */
     #[ORM\Column(type: UserProfileEventUid::TYPE)]
     private UserProfileEventUid $profile;
 
     /** Способ оплаты */
-    #[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderPayment::class, cascade: ['all'])]
+    #[ORM\OneToOne(mappedBy: 'usr', targetEntity: OrderPayment::class, cascade: ['all'])]
     private OrderPayment $payment;
 
     /** Способ доставки */
-    #[ORM\OneToOne(mappedBy: 'user', targetEntity: OrderDelivery::class, cascade: ['all'])]
+    #[ORM\OneToOne(mappedBy: 'usr', targetEntity: OrderDelivery::class, cascade: ['all'])]
     private OrderDelivery $delivery;
 
     public function __construct(OrderEvent $event)

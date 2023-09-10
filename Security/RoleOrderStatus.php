@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Security;
 
-use BaksDev\Users\Groups\Group\DataFixtures\Security\RoleFixturesInterface;
+use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.security.role')]
-class RoleOrderStatus implements RoleFixturesInterface
+class RoleOrderStatus implements RoleInterface
 {
     public const ROLE = 'ROLE_ORDERS_STATUS';
 

@@ -34,7 +34,7 @@ final class OrderUserDTO implements OrderUserInterface
 {
 	
 	/* Пользователь  */
-	
+
 //	/** ID пользователя  */
 //	#[Assert\Uuid]
 //	private ?UserUid $user = null;
@@ -58,16 +58,16 @@ final class OrderUserDTO implements OrderUserInterface
 	
 	
 	/** ID пользователя */
-	public function getUser() : ?UserUid
+	public function getUsr() : ?UserUid
 	{
-		return $this->user;
+		return $this->usr;
 	}
 	
 	
-	public function setUser(?UserUid $user) : void
+	public function setUsr(?UserUid $usr) : void
 	{
 		
-		$this->user = $user;
+		$this->usr = $usr;
 	}
 	
 	

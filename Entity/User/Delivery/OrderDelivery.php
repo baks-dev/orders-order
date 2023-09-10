@@ -54,8 +54,8 @@ class OrderDelivery extends EntityEvent
     /** ID пользователя заказа */
 
     #[ORM\OneToOne(inversedBy: 'delivery', targetEntity: OrderUser::class)]
-    #[ORM\JoinColumn(name: 'orders_user', referencedColumnName: 'id')]
-    private OrderUser $user;
+    #[ORM\JoinColumn(name: 'usr', referencedColumnName: 'id')]
+    private OrderUser $usr;
 
     /** Способ доставки */
     #[ORM\Column(type: DeliveryUid::TYPE)]
@@ -80,10 +80,10 @@ class OrderDelivery extends EntityEvent
     private ?GpsLongitude $longitude = null;
 
 
-    public function __construct(OrderUser $user)
+    public function __construct(OrderUser $usr)
     {
         $this->id = new OrderDeliveryUid();
-        $this->user = $user;
+        $this->usr = $usr;
     }
 
     public function __clone(): void

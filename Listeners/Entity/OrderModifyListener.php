@@ -25,7 +25,6 @@ namespace BaksDev\Orders\Order\Listeners\Entity;
 
 use BaksDev\Core\Type\Ip\IpAddress;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
-use BaksDev\Products\Stocks\Entity\Modify\ProductStockModify;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -51,7 +50,7 @@ final class OrderModifyListener
         $token = $this->token->getToken();
 
         if ($token) {
-            $data->setUser($token->getUser());
+            $data->setUsr($token->getUser());
         }
 
         // Если пользователь не из консоли

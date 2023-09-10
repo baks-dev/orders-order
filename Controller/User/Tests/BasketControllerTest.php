@@ -54,9 +54,9 @@ final class BasketControllerTest extends WebTestCase
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            $user = TestUserAccount::getAdmin();
+            $usr = TestUserAccount::getAdmin();
 
-            $client->loginUser($user, 'user');
+            $client->loginUser($usr, 'user');
             $client->request('GET', self::URL);
 
             self::assertResponseIsSuccessful();
@@ -73,8 +73,8 @@ final class BasketControllerTest extends WebTestCase
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            $user = TestUserAccount::getUser();
-            $client->loginUser($user, 'user');
+            $usr = TestUserAccount::getUsr();
+            $client->loginUser($usr, 'user');
             $req = $client->request('GET', self::URL);
             
             self::assertResponseIsSuccessful();

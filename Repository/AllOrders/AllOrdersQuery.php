@@ -148,7 +148,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'order_user',
             OrderEntity\User\Delivery\OrderDelivery::TABLE,
             'order_delivery',
-            'order_delivery.orders_user = order_user.id'
+            'order_delivery.usr = order_user.id'
         );
 
         $qb->leftJoin(

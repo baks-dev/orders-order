@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\User;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
@@ -34,7 +35,6 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,34 +45,37 @@ use Symfony\Contracts\Cache\ItemInterface;
 #[AsController]
 class AddController extends AbstractController
 {
-    // Добавить продукт в корзину
-
     private ?ArrayCollection $products = null;
+
+    /**
+     * Добавить продукт в корзину
+     */
 
     #[Route('/basket/add/', name: 'user.add')]
     public function index(
         Request $request,
+        AppCacheInterface $cache,
         ProductEventBasketInterface $productEvent,
         ProductUserBasketInterface $productDetail,
         #[ParamConverter(ProductEventUid::class, key: 'product')] $event,
-        #[ParamConverter(ProductOfferUid::class)]                 $offer = null,
-        #[ParamConverter(ProductVariationUid::class)]             $variation = null,
-        #[ParamConverter(ProductModificationUid::class)]          $modification = null,
-    ): Response {
-
-
-        if (
+        #[ParamConverter(ProductOfferUid::class)] $offer = null,
+        #[ParamConverter(ProductVariationUid::class)] $variation = null,
+        #[ParamConverter(ProductModificationUid::class)] $modification = null,
+    ): Response
+    {
+        if(
             (!empty($modification) && (empty($offer) ||
                     empty($variation)))
             || (!empty($variation) && empty($offer))
-        ) {
+        )
+        {
             return $this->ErrorResponse();
         }
 
         /** Получаем событие продукта по переданным параметрам */
         $Event = $productEvent->getOneOrNullProductEvent($event, $offer, $variation, $modification);
 
-        if (!$Event)
+        if(!$Event)
         {
             return $this->ErrorResponse();
         }
@@ -101,30 +104,30 @@ class AddController extends AbstractController
         );
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid())
+        if($form->isSubmitted() && $form->isValid())
         {
-            $cache = new ApcuAdapter();
+            $RedisCache =  $cache->init('Orders');
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-            if ($this->getUsr())
+            if($this->getUsr())
             {
                 $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
             }
 
             // Получаем кеш
-            if ($cache->hasItem($key))
+            if($RedisCache->hasItem($key))
             {
-                $this->products = $cache->getItem($key)->get();
+                $this->products = $RedisCache->getItem($key)->get();
             }
 
-            if ($this->products === null)
+            if($this->products === null)
             {
                 $this->products = new ArrayCollection();
             }
 
             /** @var OrderProductDTO $element */
-            $predicat = function ($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
+            $predicat = function($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
                 return
                     $element->getProduct()->equals($AddProductBasketDTO->getProduct())
                     && (!$AddProductBasketDTO->getOffer() || $element->getOffer()?->equals($AddProductBasketDTO->getOffer()))
@@ -132,7 +135,7 @@ class AddController extends AbstractController
                     && (!$AddProductBasketDTO->getModification() || $element->getModification()?->equals($AddProductBasketDTO->getModification()));
             };
 
-            if ($this->products->exists($predicat))
+            if($this->products->exists($predicat))
             {
                 return new JsonResponse(
                     [
@@ -148,10 +151,10 @@ class AddController extends AbstractController
             }
 
             // Удаляем кеш
-            $cache->delete($key);
+            $RedisCache->delete($key);
 
             // получаем кеш
-            $cache->get($key, function (ItemInterface $item) use ($AddProductBasketDTO, $expires) {
+            $RedisCache->get($key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->add($AddProductBasketDTO);
 

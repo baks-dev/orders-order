@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\User;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
@@ -34,7 +35,6 @@ use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Currency\Type\CurrencyEnum;
 use BaksDev\Reference\Money\Type\Money;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -53,23 +53,29 @@ class BasketController extends AbstractController
         Request $request,
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
-    ): Response {
-        $cache = new ApcuAdapter();
+        AppCacheInterface $cache,
+    ): Response
+    {
+
+        $RedisCache = $cache->init('Orders');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-        if ($this->getUsr()) {
+        if($this->getUsr())
+        {
             $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
         }
 
         // Получаем корзину
 
-        if ($cache->hasItem($key)) {
-            $this->products = $cache->getItem($key)->get();
+        if($RedisCache->hasItem($key))
+        {
+            $this->products = $RedisCache->getItem($key)->get();
         }
 
-        if (null === $this->products) {
+        if(null === $this->products)
+        {
             $this->products = new ArrayCollection();
         }
 
@@ -80,9 +86,10 @@ class BasketController extends AbstractController
         $OrderUserDTO->setUsr($this->getUsr()?->getId());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
-        if (!$this->products->isEmpty()) {
+        if(!$this->products->isEmpty())
+        {
             /** @var OrderProductDTO $product */
-            foreach ($this->products as $product)
+            foreach($this->products as $product)
             {
                 $ProductDetail = $userBasket->fetchProductBasketAssociative(
                     $product->getProduct(),
@@ -91,22 +98,25 @@ class BasketController extends AbstractController
                     $product->getModification()
                 );
 
-                if ($ProductDetail) {
+                if($ProductDetail)
+                {
                     // Если событие продукта изменилось - удаляем из корзины
-                    if ($ProductDetail['event'] !== $ProductDetail['current_event']) {
+                    if($ProductDetail['event'] !== $ProductDetail['current_event'])
+                    {
                         /** @var OrderProductDTO $element */
-                        $predicat = function ($key, OrderProductDTO $element) use ($product) {
+                        $predicat = function($key, OrderProductDTO $element) use ($product) {
                             return $element === $product;
                         };
 
                         $removeElement = $this->products->findFirst($predicat);
 
-                        if ($removeElement) {
+                        if($removeElement)
+                        {
                             // Удаляем кеш
-                            $cache->delete($key);
+                            $RedisCache->delete($key);
 
                             // Запоминаем новый кеш
-                            $cache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
+                            $RedisCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
                                 $item->expiresAfter($expires);
                                 $this->products->removeElement($removeElement);
 
@@ -143,8 +153,6 @@ class BasketController extends AbstractController
         }
 
 
-
-
         // Динамическая форма корзины
         $handleForm = $this->createForm(OrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);
@@ -152,18 +160,21 @@ class BasketController extends AbstractController
         // Форма форма корзины
         $form = $this->createForm(OrderForm::class, $OrderDTO, ['action' => $this->generateUrl('Orders:user.basket')]);
 
-        if (null === $request->headers->get('X-Requested-With')) {
+        if(null === $request->headers->get('X-Requested-With'))
+        {
             $form->handleRequest($request);
         }
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if($form->isSubmitted() && $form->isValid())
+        {
             $Order = $handler->handle($OrderDTO);
 
-            if ($Order instanceof Order) {
+            if($Order instanceof Order)
+            {
                 $this->addFlash('success', 'user.order.new.success', 'user.order');
 
                 // Удаляем кеш
-                $cache->delete($key);
+                $RedisCache->delete($key);
 
                 return $this->redirectToRoute('Orders:user.basket');
             }

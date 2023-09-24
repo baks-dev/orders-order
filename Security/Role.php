@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.security.role')]
 #[AutoconfigureTag('baks.menu.admin')]
-class Role implements RoleInterface, MenuAdminInterface
+final class Role implements RoleInterface, MenuAdminInterface
 {
     public const ROLE = 'ROLE_ORDERS';
 
@@ -78,4 +78,5 @@ class Role implements RoleInterface, MenuAdminInterface
     {
         return false;
     }
+
 }

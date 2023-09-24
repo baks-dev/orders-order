@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 
-use BaksDev\Core\Services\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -67,9 +67,9 @@ final class OrderStatusHandler
 		
 		if(count($errors) > 0)
 		{
-			$uniqid = uniqid('', false);
-			$errorsString = (string) $errors;
-			$this->logger->error($uniqid.': '.$errorsString);
+            /** Ошибка валидации */
+            $uniqid = uniqid('', false);
+            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__LINE__ => __FILE__]);
 			
 			return $uniqid;
 		}

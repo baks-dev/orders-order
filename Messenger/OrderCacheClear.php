@@ -25,39 +25,34 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger;
 
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use BaksDev\Core\Cache\AppCacheInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(fromTransport: 'sync')]
 final class OrderCacheClear
 {
+    private AppCacheInterface $cache;
+    private LoggerInterface $messageDispatchLogger;
 
-	public function __invoke(OrderMessage $message)
+    public function __construct(
+        AppCacheInterface $cache,
+        LoggerInterface $messageDispatchLogger,
+    ) {
+        $this->cache = $cache;
+        $this->messageDispatchLogger = $messageDispatchLogger;
+    }
+
+    public function __invoke(OrderMessage $message)
 	{
 		/* Чистим кеш модуля */
-		$cache = new FilesystemAdapter('Orders');
+		$cache = $this->cache->init('Orders');
 		$cache->clear();
 
         /* Чистим кеш продукта */
-        $cache = new FilesystemAdapter('Product');
+        $cache = $this->cache->init('Product');
         $cache->clear();
-		
-		/* Сбрасываем индивидуальный кеш */
-		
-		$cache = new ApcuAdapter('Orders');
-		$cache->clear();
-		
-		$cache = new ApcuAdapter((string) $message->getId()->getValue());
-		$cache->clear();
-		
-		$cache = new ApcuAdapter((string) $message->getEvent()->getValue());
-		$cache->clear();
-		
-		if($message->getLast())
-		{
-			$cache = new ApcuAdapter((string) $message->getLast()->getValue());
-			$cache->clear();
-		}
+
+        $this->messageDispatchLogger->info('Очистили кеш Orders', [__LINE__ => __FILE__]);
 	}
 }

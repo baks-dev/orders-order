@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Listeners\Event;
 
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use BaksDev\Core\Cache\AppCacheInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Twig\Environment;
@@ -35,23 +35,28 @@ use Twig\Environment;
 final class BasketListener
 {
     private $twig;
+    private AppCacheInterface $cache;
 
-    public function __construct(Environment $twig)
+    public function __construct(
+        Environment $twig,
+        AppCacheInterface $cache
+    )
     {
         $this->twig = $twig;
+        $this->cache = $cache;
     }
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $cache = new ApcuAdapter();
+        $RedisCache = $this->cache->init('Orders');
 
         $key = md5($event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
 
         $counter = 0;
 
         // Получаем кеш
-        if ($cache->hasItem($key)) {
-            $products = $cache->getItem($key)->get();
+        if ($RedisCache->hasItem($key)) {
+            $products = $RedisCache->getItem($key)->get();
             $counter = $products?->count();
         }
 

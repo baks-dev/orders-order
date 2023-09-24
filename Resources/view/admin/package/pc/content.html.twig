@@ -19,7 +19,7 @@
         <div class="modal-body" id="modal-body">
 
 
-            {#{% for delivery in form.vars.data.users.delivery.field %}
+            {# {% for delivery in form.vars.data.users.delivery.field %}
 
                 <div class="mb-3">
                     <a target="_blank" href="https://yandex.ru/maps/?text={{ delivery.value }}&z=18"
@@ -33,14 +33,14 @@
                     </a>
                 </div>
 
-            {% endfor %}#}
+            {% endfor %} #}
 
 
             {% if form.vars.data.warehouse %}
 
 
 
-                {#<iframe
+                {# <iframe
                         data-src="https://yandex.ru/maps/?rtext={{ form.vars.data.warehouse.option }}~{{ form.vars.data.users.delivery.latitude }},{{ form.vars.data.users.delivery.longitude }}&rtt=auto"
                         frameborder="0"
                         style="height: 300px;"
@@ -48,7 +48,7 @@
                         id="shipping_route"
                 >
 
-                </iframe>#}
+                </iframe> #}
 
                 <div class="mb-3">
                     <a href="https://yandex.ru/maps/?rtext={{ form.vars.data.warehouse.option }}~{{ form.vars.data.users.delivery.latitude }},{{ form.vars.data.users.delivery.longitude }}&rtt=auto"
@@ -153,7 +153,7 @@
 
                                     {% endfor %}
 
-                                    {#{{ dump(product.vars.data) }}#}
+                                    {# {{ dump(product.vars.data) }} #}
 
                                     <div class="d-flex gap-3 align-items-center">
                                         {% if product.move.warehouse is defined %}
@@ -184,7 +184,8 @@
                         {% else %}
 
                             {% if card.stock %}
-                                &nbsp; <span class="text-success">В наличии  <strong>{{ card.stock }}</strong> шт. </span>
+                                &nbsp; <span
+                                    class="text-success">В наличии  <strong>{{ card.stock }}</strong> шт. </span>
                             {% else %}
                                 <span class="text-danger">Нет в наличии</span>
                             {% endif %}
@@ -203,18 +204,25 @@
 
 
         <div class="modal-footer">
-            {# Отмена #}
 
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                {{ 'btn.cancel'|trans({}, 'core.btn') }}
-            </button>
+            <div class="flex-grow-1">
+                &nbsp;
+            </div>
+
+            <div class="d-flex gap-3">
+                {# Отмена #}
+
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
 
 
-            {# Удалить #}
-            {{ form_widget(form.package, { label: '
+                {# Удалить #}
+                {{ form_widget(form.package, { label: '
 				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
 				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
 			'}) }}
+            </div>
         </div>
     </div>
     {{ form_end(form) }}

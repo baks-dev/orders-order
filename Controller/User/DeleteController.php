@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\User;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
@@ -32,7 +33,6 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,6 +52,7 @@ class DeleteController extends AbstractController
         Request $request,
         ProductEventBasketInterface $productEvent,
         TranslatorInterface $translator,
+        AppCacheInterface $cache,
         #[ParamConverter(ProductEventUid::class)]        $product,
         #[ParamConverter(ProductOfferUid::class)]        $offer = null,
         #[ParamConverter(ProductVariationUid::class)]    $variation = null,
@@ -74,7 +75,7 @@ class DeleteController extends AbstractController
             return $this->ErrorResponse($translator);
         }
 
-        $cache = new ApcuAdapter();
+        $RedisCache = $cache->init('Orders');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
@@ -84,9 +85,9 @@ class DeleteController extends AbstractController
         }
 
         // Получаем кеш
-        if ($cache->hasItem($key))
+        if ($RedisCache->hasItem($key))
         {
-            $this->products = $cache->getItem($key)->get();
+            $this->products = $RedisCache->getItem($key)->get();
         }
 
         if ($this->products === null)
@@ -108,10 +109,10 @@ class DeleteController extends AbstractController
         if ($removeElement)
         {
             // Удаляем из кеша
-            $cache->delete($key);
+            $RedisCache->delete($key);
 
             /** получаем кеш */
-            $result = $cache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
+            $result = $RedisCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->removeElement($removeElement);
 
@@ -120,7 +121,10 @@ class DeleteController extends AbstractController
 
             if ($result->isEmpty())
             {
-                $this->addFlash($Event->getOption(), 'user.basket.success.delete', 'user.order');
+                $this->addFlash($Event->getOption(),
+                    'user.basket.success.delete',
+                    'user.order'
+                );
 
                 return $this->redirectToRoute('Orders:user.basket', status: 200);
             }

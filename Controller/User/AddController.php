@@ -106,7 +106,7 @@ class AddController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $RedisCache =  $cache->init('Orders');
+            $AppCache =  $cache->init('Orders');
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
@@ -116,9 +116,9 @@ class AddController extends AbstractController
             }
 
             // Получаем кеш
-            if($RedisCache->hasItem($key))
+            if($AppCache->hasItem($key))
             {
-                $this->products = $RedisCache->getItem($key)->get();
+                $this->products = ($AppCache->getItem($key))->get();
             }
 
             if($this->products === null)
@@ -151,10 +151,10 @@ class AddController extends AbstractController
             }
 
             // Удаляем кеш
-            $RedisCache->delete($key);
+            $AppCache->delete($key);
 
             // получаем кеш
-            $RedisCache->get($key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
+            $AppCache->get($key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->add($AddProductBasketDTO);
 

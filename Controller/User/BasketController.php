@@ -57,7 +57,7 @@ class BasketController extends AbstractController
     ): Response
     {
 
-        $RedisCache = $cache->init('Orders');
+        $AppCache = $cache->init('Orders');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
@@ -69,9 +69,9 @@ class BasketController extends AbstractController
 
         // Получаем корзину
 
-        if($RedisCache->hasItem($key))
+        if($AppCache->hasItem($key))
         {
-            $this->products = $RedisCache->getItem($key)->get();
+            $this->products = ($AppCache->getItem($key))->get();
         }
 
         if(null === $this->products)
@@ -113,10 +113,10 @@ class BasketController extends AbstractController
                         if($removeElement)
                         {
                             // Удаляем кеш
-                            $RedisCache->delete($key);
+                            $AppCache->delete($key);
 
                             // Запоминаем новый кеш
-                            $RedisCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+                            $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
                                 $item->expiresAfter($expires);
                                 $this->products->removeElement($removeElement);
 
@@ -174,7 +174,7 @@ class BasketController extends AbstractController
                 $this->addFlash('success', 'user.order.new.success', 'user.order');
 
                 // Удаляем кеш
-                $RedisCache->delete($key);
+                $AppCache->delete($key);
 
                 return $this->redirectToRoute('Orders:user.basket');
             }

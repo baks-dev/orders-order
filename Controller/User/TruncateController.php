@@ -38,8 +38,8 @@ class TruncateController extends AbstractController
     public function index(Request $request, AppCacheInterface $cache): Response
     {
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
-        $RedisCache = $cache->init('Orders');
-        $RedisCache->delete($key);
+        $AppCache = $cache->init('Orders');
+        $AppCache->delete($key);
 
         $this->addFlash('success', 'user.basket.success.truncate', 'user.order');
 

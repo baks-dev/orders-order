@@ -48,15 +48,15 @@ final class BasketListener
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $RedisCache = $this->cache->init('Orders');
+        $AppCache = $this->cache->init('Orders');
 
         $key = md5($event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
 
         $counter = 0;
 
         // Получаем кеш
-        if ($RedisCache->hasItem($key)) {
-            $products = $RedisCache->getItem($key)->get();
+        if ($AppCache->hasItem($key)) {
+            $products = ($AppCache->getItem($key))->get();
             $counter = $products?->count();
         }
 

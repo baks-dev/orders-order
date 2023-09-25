@@ -75,7 +75,7 @@ class DeleteController extends AbstractController
             return $this->ErrorResponse($translator);
         }
 
-        $RedisCache = $cache->init('Orders');
+        $AppCache = $cache->init('Orders');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
@@ -85,9 +85,9 @@ class DeleteController extends AbstractController
         }
 
         // Получаем кеш
-        if ($RedisCache->hasItem($key))
+        if ($AppCache->hasItem($key))
         {
-            $this->products = $RedisCache->getItem($key)->get();
+            $this->products = ($AppCache->getItem($key))->get();
         }
 
         if ($this->products === null)
@@ -109,10 +109,10 @@ class DeleteController extends AbstractController
         if ($removeElement)
         {
             // Удаляем из кеша
-            $RedisCache->delete($key);
+            $AppCache->delete($key);
 
             /** получаем кеш */
-            $result = $RedisCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
+            $result = $AppCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->removeElement($removeElement);
 

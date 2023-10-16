@@ -26,7 +26,8 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Orders\Order\Entity;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderForm;
@@ -58,22 +59,18 @@ use Symfony\Component\Routing\Annotation\Route;
 final class PackageController extends AbstractController
 {
     /** Упаковка (сборка) заказов */
-    #[Route(
-        '/admin/order/package/{id}',
-        name: 'admin.package',
-        methods: ['GET', 'POST'],
-        //condition: "request.headers.get('X-Requested-With') === 'XMLHttpRequest'",
-    )]
-    public function status(
+    #[Route('/admin/order/package/{id}', name: 'admin.package', methods: ['GET', 'POST'])]
+    public function package(
         Request $request,
-        #[MapEntity] Entity\Order $Order,
+        #[MapEntity] Order $Order,
         OrderStatusHandler $statusHandler,
         MovingProductStockHandler $movingHandler,
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
         ProductStocksMoveByOrderInterface $productStocksMoveByOrder,
-    ): Response {
+    ): Response
+    {
         // Отправляем сокет для скрытия заказа у других менеджеров
 
         $socket = $publish
@@ -81,12 +78,12 @@ final class PackageController extends AbstractController
             ->addData(['profile' => (string) $this->getProfileUid()])
             ->send('orders');
 
-        if ($socket->isError())
+        if($socket->isError())
         {
             return new JsonResponse($socket->getMessage());
         }
 
-        $OrderEvent = $entityManager->getRepository(Entity\Event\OrderEvent::class)->find($Order->getEvent());
+        $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
 
         /** Создаем заявку на сборку для склада */
         $PackageOrderDTO = new PackageOrderDTO();
@@ -98,7 +95,7 @@ final class PackageController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $form->has('package'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {
             /** Отправляем сокет для скрытия заказа у других менеджеров */
             $socket = $publish
@@ -106,7 +103,7 @@ final class PackageController extends AbstractController
                 ->addData(['profile' => (string) $this->getProfileUid()])
                 ->send('orders');
 
-            if ($socket->isError())
+            if($socket->isError())
             {
                 return new JsonResponse($socket->getMessage());
             }
@@ -118,9 +115,9 @@ final class PackageController extends AbstractController
 
             $MoveCollection = [];
 
-            foreach ($arrProductsMove as $product)
+            foreach($arrProductsMove as $product)
             {
-                if (!empty($product['move']) && isset($product['move']['warehouse'], $product['move']['move']['destination']))
+                if(!empty($product['move']) && isset($product['move']['warehouse'], $product['move']['move']['destination']))
                 {
                     $MoveProductStockDTO = new ProductStockDTO();
                     $MoveProductStockForm = $this->createForm(ProductStockForm::class, $MoveProductStockDTO);
@@ -137,7 +134,7 @@ final class PackageController extends AbstractController
                      * Группируем однотипные заявки
                      * Если заявка уже имеется - добавляем в указанную заявку продукцию для перемещения
                      */
-                    if (isset($MoveCollection[$ord][$warehouse]))
+                    if(isset($MoveCollection[$ord][$warehouse]))
                     {
                         /**
                          * Получаем заявку на указанный склад по ID заказа и добавляем продукцию.
@@ -146,7 +143,7 @@ final class PackageController extends AbstractController
                          */
                         $AddMoveProductStockDTO = $MoveCollection[$ord][$warehouse];
 
-                        foreach ($AddMoveProductStockDTO->getProduct() as $addProduct)
+                        foreach($AddMoveProductStockDTO->getProduct() as $addProduct)
                         {
                             $MoveProductStockDTO->addProduct($addProduct);
                         }
@@ -156,13 +153,13 @@ final class PackageController extends AbstractController
                 }
             }
 
-            foreach ($MoveCollection as $movingCollection)
+            foreach($MoveCollection as $movingCollection)
             {
-                foreach ($movingCollection as $moving)
+                foreach($movingCollection as $moving)
                 {
                     $MoveProductStock = $movingHandler->handle($moving);
 
-                    if (!$MoveProductStock instanceof ProductStock)
+                    if(!$MoveProductStock instanceof ProductStock)
                     {
                         $this->addFlash('danger', 'admin.danger.update', 'admin.order', $MoveProductStock);
                     }
@@ -178,24 +175,24 @@ final class PackageController extends AbstractController
             /* Трансформируем идентификаторы продукта в константы */
 
             /** @var \BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO $const */
-            foreach ($PackageProductStockDTO->getProduct() as $const)
+            foreach($PackageProductStockDTO->getProduct() as $const)
             {
                 $constProduct = $entityManager->getRepository(ProductEvent::class)->find($const->getProduct());
-                $const->setProduct($constProduct->getProduct());
+                $const->setProduct($constProduct->getMain());
 
-                if ($const->getOffer())
+                if($const->getOffer())
                 {
                     $constOffer = $entityManager->getRepository(ProductOffer::class)->find($const->getOffer());
                     $const->setOffer($constOffer->getConst());
                 }
 
-                if ($const->getVariation())
+                if($const->getVariation())
                 {
                     $constVariation = $entityManager->getRepository(ProductVariation::class)->find($const->getVariation());
                     $const->setVariation($constVariation->getConst());
                 }
 
-                if ($const->getModification())
+                if($const->getModification())
                 {
                     $constModification = $entityManager->getRepository(ProductModification::class)->find($const->getModification());
                     $const->setModification($constModification->getConst());
@@ -217,7 +214,7 @@ final class PackageController extends AbstractController
             /** @var PackageProductStockHandler $packageHandler */
             $PackageProductStock = $packageHandler->handle($PackageProductStockDTO);
 
-            if (!$PackageProductStock instanceof ProductStock)
+            if(!$PackageProductStock instanceof ProductStock)
             {
                 $this->addFlash('danger', 'admin.danger.update', 'admin.order', $PackageProductStock);
                 return $this->redirectToReferer();
@@ -230,7 +227,7 @@ final class PackageController extends AbstractController
             /** @var OrderStatusHandler $statusHandler */
             $OrderStatusHandler = $statusHandler->handle($OrderStatusDTO);
 
-            if (!$OrderStatusHandler instanceof Entity\Order)
+            if(!$OrderStatusHandler instanceof Entity\Order)
             {
                 /* В случае ошибки удаляем заявку на упаковку */
                 $entityManager->remove($PackageProductStock);

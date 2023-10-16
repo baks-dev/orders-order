@@ -163,9 +163,9 @@ final class OrderProductDTO implements OrderProductInterface
 		return $this->card;
 	}
 
-	public function setCard(array $card) : void
+	public function setCard(?array $card) : void
 	{
-		$this->card = $card;
+		$this->card = $card ?: [];
 	}
 	
 }

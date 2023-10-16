@@ -58,7 +58,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         ?ProductOfferUid $offer = null,
         ?ProductVariationUid $variation = null,
         ?ProductModificationUid $modification = null,
-    ): array|bool
+    ): ?array
     {
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
@@ -71,7 +71,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
 
         $qb->addSelect('product_event.id AS event')->addGroupBy('product_event.id');
-        $qb->addSelect('product_event.product AS id')->addGroupBy('product_event.product');
+        $qb->addSelect('product_event.main AS id')->addGroupBy('product_event.main');
         $qb->from(ProductEntity\Event\ProductEvent::TABLE, 'product_event');
 
 
@@ -91,7 +91,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		');
 
         $qb->addSelect('product.event AS current_event')->addGroupBy('product.event');
-        $qb->leftJoin('product_event', ProductEntity\Product::TABLE, 'product', 'product.id = product_event.product');
+        $qb->leftJoin('product_event', ProductEntity\Product::TABLE, 'product', 'product.id = product_event.main');
 
 
         $qb->addSelect('product_trans.name AS product_name')->addGroupBy('product_trans.name');
@@ -124,7 +124,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_event',
             ProductEntity\Info\ProductInfo::TABLE,
             'product_info',
-            'product_info.product = product_event.product '
+            'product_info.product = product_event.main '
         )->addGroupBy('product_info.article');
 
 
@@ -379,24 +379,20 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
 
         $qb->addGroupBy('product_offer_modification_image.name');
-        $qb->addGroupBy('product_offer_modification_image.dir');
         $qb->addGroupBy('product_offer_modification_image.ext');
         $qb->addGroupBy('product_offer_modification_image.cdn');
 
 
         $qb->addGroupBy('product_offer_variation_image.name');
-        $qb->addGroupBy('product_offer_variation_image.dir');
         $qb->addGroupBy('product_offer_variation_image.ext');
         $qb->addGroupBy('product_offer_variation_image.cdn');
 
         $qb->addGroupBy('product_offer_images.name');
-        $qb->addGroupBy('product_offer_images.dir');
         $qb->addGroupBy('product_offer_images.ext');
         $qb->addGroupBy('product_offer_images.cdn');
 
 
         $qb->addGroupBy('product_photo.name');
-        $qb->addGroupBy('product_photo.dir');
         $qb->addGroupBy('product_photo.ext');
         $qb->addGroupBy('product_photo.cdn');
 
@@ -404,14 +400,14 @@ final class ProductUserBasket implements ProductUserBasketInterface
         $qb->addSelect("
 			CASE
 			   WHEN product_offer_modification_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE."' , '/', product_offer_modification_image.dir, '/', product_offer_modification_image.name, '.')
+					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE."' , '/', product_offer_modification_image.name)
 					
 			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE."' , '/', product_offer_variation_image.dir, '/', product_offer_variation_image.name, '.')
+					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE."' , '/', product_offer_variation_image.name)
 			   WHEN product_offer_images.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Image\ProductOfferImage::TABLE."' , '/', product_offer_images.dir, '/', product_offer_images.name, '.')
+					CONCAT ( '/upload/".ProductEntity\Offers\Image\ProductOfferImage::TABLE."' , '/', product_offer_images.name)
 			   WHEN product_photo.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Photo\ProductPhoto::TABLE."' , '/', product_photo.dir, '/', product_photo.name, '.')
+					CONCAT ( '/upload/".ProductEntity\Photo\ProductPhoto::TABLE."' , '/', product_photo.name)
 			   ELSE NULL
 			END AS product_image
 		"

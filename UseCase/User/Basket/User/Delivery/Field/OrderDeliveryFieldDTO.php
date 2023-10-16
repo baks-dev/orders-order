@@ -55,7 +55,7 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 	
 	/** Заполненное значение */
 
-	public function getValue() : string
+	public function getValue(): string
 	{
 		return $this->value;
 	}

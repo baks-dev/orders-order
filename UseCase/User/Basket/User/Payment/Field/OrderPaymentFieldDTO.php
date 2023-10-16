@@ -58,7 +58,7 @@ final class OrderPaymentFieldDTO implements OrderPaymentFieldInterface
 	
 	/** Заполненное значение */
 	
-	public function getValue() : string
+	public function getValue(): string
 	{
 		return $this->value;
 	}

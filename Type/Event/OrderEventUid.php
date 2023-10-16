@@ -23,12 +23,19 @@
 
 namespace BaksDev\Orders\Order\Type\Event;
 
+use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
+use Symfony\Component\Uid\AbstractUid;
 
 final class OrderEventUid extends Uid
 {
     public const TEST = '0188a99a-14b0-7151-851d-4a67d09c3e43';
     
     public const TYPE = 'order_event';
+
+    public function __construct(AbstractUid|string|null $value = null)
+    {
+        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
+    }
 
 }

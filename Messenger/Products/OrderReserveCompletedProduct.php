@@ -90,7 +90,7 @@ final class OrderReserveCompletedProduct
 		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 		
 		/** Если статус не "ВЫПОЛНЕН" - завершаем обработчик */
-		if($OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCompleted::STATUS)
+		if(!$OrderEvent || $OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCompleted::STATUS)
 		{
 			return;
 		}

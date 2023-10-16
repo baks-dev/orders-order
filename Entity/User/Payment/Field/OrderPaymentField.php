@@ -58,11 +58,9 @@ class OrderPaymentField extends EntityEvent
 	/** Заполненное значение */
 	#[ORM\Column(type: Types::STRING)]
 	private string $value;
-	
-	//	/** Описание */
-	//	#[ORM\Column(type: Types::TEXT, nullable: true)]
-	//	private ?string $description;
-	
+
+
+
 	public function __construct(OrderPayment $payment)
 	{
 		$this->id = new OrderPaymentFieldUid();
@@ -71,12 +69,19 @@ class OrderPaymentField extends EntityEvent
 	
 	public function __clone() : void
 	{
-		$this->id = new OrderPaymentFieldUid();
+        $this->id = clone $this->id;
 	}
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
 	
 	
-	public function getDto($dto) : mixed
+	public function getDto($dto): mixed
 	{
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
 		if($dto instanceof OrderPaymentFieldInterface)
 		{
 			return parent::getDto($dto);
@@ -86,10 +91,10 @@ class OrderPaymentField extends EntityEvent
 	}
 	
 	
-	public function setEntity($dto) : mixed
+	public function setEntity($dto): mixed
 	{
 		
-		if($dto instanceof OrderPaymentFieldInterface)
+		if($dto instanceof OrderPaymentFieldInterface || $dto instanceof self)
 		{
 			return parent::setEntity($dto);
 		}

@@ -25,12 +25,19 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Delivery;
 
+use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
+use Symfony\Component\Uid\AbstractUid;
 
 final class OrderDeliveryUid extends Uid
 {
     public const TEST = '0188a999-8e73-79c0-b76b-70c531d20667';
 
     public const TYPE = 'order_delivery';
+
+    public function __construct(AbstractUid|string|null $value = null)
+    {
+        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
+    }
 
 }

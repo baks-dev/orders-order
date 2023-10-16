@@ -89,12 +89,8 @@ class OrderEvent extends EntityEvent
 
     /** Пользователь */
     #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
-    private OrderUser $users;
+    private OrderUser $usr;
 
-//    /** Константа склада, для сборки заказа */
-//    #[Assert\Uuid]
-//    #[ORM\Column(type: ContactsRegionCallConst::TYPE, nullable: true)]
-//    private ?ContactsRegionCallConst $warehouse = null;
 
     public function __construct()
     {
@@ -106,7 +102,12 @@ class OrderEvent extends EntityEvent
 
     public function __clone()
     {
-        $this->id = new OrderEventUid();
+        $this->id = clone $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
     }
 
     public function getId(): OrderEventUid
@@ -131,6 +132,8 @@ class OrderEvent extends EntityEvent
 
     public function getDto($dto): mixed
     {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
         if ($dto instanceof OrderEventInterface)
         {
             return parent::getDto($dto);
@@ -141,7 +144,7 @@ class OrderEvent extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderEventInterface)
+        if ($dto instanceof OrderEventInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

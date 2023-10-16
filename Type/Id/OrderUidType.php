@@ -28,12 +28,12 @@ use Doctrine\DBAL\Types\Types;
 
 final class OrderUidType extends UidType
 {
-    public function getClassType() : string
+    public function getClassType(): string
     {
         return OrderUid::class;
     }
     
-    public function getName() : string
+    public function getName(): string
     {
         return OrderUid::TYPE;
     }

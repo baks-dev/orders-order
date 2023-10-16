@@ -62,7 +62,6 @@ final class OrderPaymentForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
-		//$builder->add('payment', HiddenType::class);
 		$builder->add('payment', HiddenType::class);
 		
 		/* Коллекция пользовательских свойств */
@@ -96,9 +95,7 @@ final class OrderPaymentForm extends AbstractType
 				{
 					$data = $event->getData();
 					$form = $event->getForm();
-					
-					//dd($options['user_profile_type']);
-					
+
 					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
 					$currentPayment = current($paymentChoice);
 					

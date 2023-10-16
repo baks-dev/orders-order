@@ -23,12 +23,34 @@
 
 namespace BaksDev\Orders\Order\Type\Id;
 
+use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
+use Symfony\Component\Uid\AbstractUid;
 
 final class OrderUid extends Uid
 {
     public const TEST = '0188a99a-3c79-78f4-ac65-81937323a97e';
 
     public const TYPE = 'order';
-	
+
+    private mixed $attr;
+
+    public function __construct(
+        AbstractUid|string|null $value = null,
+        mixed $attr = null,
+    )
+    {
+        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
+
+        $this->attr = $attr;
+    }
+
+    /**
+     * Attr
+     */
+    public function getAttr(): mixed
+    {
+        return $this->attr;
+    }
+
 }

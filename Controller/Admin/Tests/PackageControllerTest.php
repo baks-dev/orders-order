@@ -18,15 +18,23 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin\Tests;
 
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest;
 
-/** @group orders-order */
+/**
+ * @group orders-order
+ *
+ * @depends BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest::testComplete
+ *
+ * @see DetailControllerTest
+ */
 #[When(env: 'test')]
 final class PackageControllerTest extends WebTestCase
 {
@@ -35,126 +43,121 @@ final class PackageControllerTest extends WebTestCase
     private const ROLE = 'ROLE_ORDERS_STATUS';
 
 
-    private static ?OrderUid $identifier;
-
-    public static function setUpBeforeClass(): void
+    public static function tearDownAfterClass(): void
     {
-        /** Инициируем статус */
-        $new = new OrderStatusNew();
-
-        // Получаем одно из событий Продукта
+        /**
+         * Очищаем все события
+         * @var EntityManagerInterface $em
+         */
         $em = self::getContainer()->get(EntityManagerInterface::class);
-        self::$identifier = $em->getRepository(Order::class)->findOneBy([], ['id' => 'DESC'])?->getId();
+
+        $Order = $em->getRepository(Order::class)->find(OrderUid::TEST);
+        self::assertNotNull($Order);
+        $em->remove($Order);
+
+        $OrderEvent = $em->getRepository(OrderEvent::class)->find(OrderEventUid::TEST);
+        self::assertNotNull($OrderEvent);
+        $em->remove($OrderEvent);
+
+        $em->flush();
+        $em->clear();
+
+        $Order = $em->getRepository(Order::class)->find(OrderUid::TEST);
+        self::assertNull($Order);
+
+        $OrderEvent = $em->getRepository(OrderEvent::class)->find(OrderEventUid::TEST);
+        self::assertNull($OrderEvent);
     }
 
-
-
-    /** Доступ по без роли */
+    /**
+     * Доступ по без роли
+     *
+     */
     public function testGuestFiled(): void
     {
-        // Получаем одно из событий
-        $identifier = self::$identifier;
 
-        if ($identifier)
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+
+        foreach(TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $client->request('GET', sprintf(self::URL, OrderUid::TEST));
 
-                $client->request('GET', sprintf(self::URL, $identifier->getValue()));
-
-                // Full authentication is required to access this resource
-                self::assertResponseStatusCodeSame(401);
-            }
-        } else
-        {
-            self::assertTrue(true);
+            // Full authentication is required to access this resource
+            self::assertResponseStatusCodeSame(401);
         }
+
     }
 
     /** Доступ по роли */
     public function testRoleSuccessful(): void
     {
-        // Получаем одно из событий
-        $identifier = self::$identifier;
 
-        if ($identifier)
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+
+        foreach(TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getModer(self::ROLE);
 
-                $usr = TestUserAccount::getModer(self::ROLE);
+            $client->loginUser($usr, 'user');
+            $client->request('GET', sprintf(self::URL, OrderUid::TEST));
 
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $identifier->getValue()));
-
-                self::assertResponseIsSuccessful();
-            }
-        } else
-        {
-            self::assertTrue(true);
+            self::assertResponseIsSuccessful();
         }
+
     }
 
     // доступ по роли ROLE_ADMIN
     public function testRoleAdminSuccessful(): void
     {
-        // Получаем одно из событий
-        $identifier = self::$identifier;
 
-        if ($identifier)
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+
+        foreach(TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getAdmin();
 
-                $usr = TestUserAccount::getAdmin();
+            $client->loginUser($usr, 'user');
+            $client->request('GET', sprintf(self::URL, OrderUid::TEST));
 
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $identifier->getValue()));
-
-                self::assertResponseIsSuccessful();
-            }
-        } else
-        {
-            self::assertTrue(true);
+            self::assertResponseIsSuccessful();
         }
+
     }
 
     // доступ по роли ROLE_USER
     public function testRoleUserDeny(): void
     {
-        // Получаем одно из событий
-        $identifier = self::$identifier;
+        self::ensureKernelShutdown();
+        $client = static::createClient();
 
-        if ($identifier)
+        foreach(TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getUsr();
+            $client->loginUser($usr, 'user');
+            $client->request('GET', sprintf(self::URL, OrderUid::TEST));
 
-                $usr = TestUserAccount::getUsr();
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $identifier->getValue()));
-
-                self::assertResponseStatusCodeSame(403);
-            }
-        } else
-        {
-            self::assertTrue(true);
+            self::assertResponseStatusCodeSame(403);
         }
     }
+
+    public function testComplete(): void
+    {
+        $true = true;
+        self::assertTrue($true);
+    }
+
+
+
+
 }

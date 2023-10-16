@@ -55,6 +55,11 @@ class Order
         $this->number = number_format(microtime(true) * 100, 0, '.', '.');
     }
 
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+
     public function getId(): OrderUid
     {
         return $this->id;

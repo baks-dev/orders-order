@@ -77,7 +77,6 @@ final class DetailController extends AbstractController
         $Event->getDto($OrderDTO);
 
 
-
         /** @var OrderProductDTO $product */
         foreach($OrderDTO->getProduct() as $product)
         {

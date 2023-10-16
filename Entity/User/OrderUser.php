@@ -80,11 +80,18 @@ class OrderUser extends EntityEvent
 
     public function __clone(): void
     {
-        $this->id = new OrderUserUid();
+        $this->id =  clone $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
     }
 
     public function getDto($dto): mixed
     {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
         if ($dto instanceof OrderUserInterface)
         {
             return parent::getDto($dto);
@@ -95,7 +102,7 @@ class OrderUser extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderUserInterface)
+        if ($dto instanceof OrderUserInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

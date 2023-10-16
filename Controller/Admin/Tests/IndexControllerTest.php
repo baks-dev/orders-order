@@ -31,7 +31,7 @@ final class IndexControllerTest extends WebTestCase
     private const ROLE = 'ROLE_ORDER';
 
     /** Доступ по роли */
-    public function testRoleProductSuccessful(): void
+    public function testRoleSuccessful(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
@@ -101,5 +101,10 @@ final class IndexControllerTest extends WebTestCase
             // Full authentication is required to access this resource
             self::assertResponseStatusCodeSame(401);
         }
+    }
+
+    public function testComplete(): void
+    {
+        self::assertTrue(true);
     }
 }

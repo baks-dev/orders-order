@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\CurrentOrderEvent;
 
+use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
@@ -32,26 +33,27 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class CurrentOrderEvent implements CurrentOrderEventInterface
 {
-	private EntityManagerInterface $entityManager;
-	
-	
-	public function __construct(EntityManagerInterface $entityManager)
-	{
-		$this->entityManager = $entityManager;
-	}
-	
-	/** Метод возвращает текущее событие заказа */
-	public function getCurrentOrderEventOrNull(OrderUid $order) : ?OrderEvent
-	{
-		$qb = $this->entityManager->createQueryBuilder();
-		
-		$qb->select('event');
-		$qb->from(Order::class, 'orders');
-		$qb->join(OrderEvent::class, 'event', 'WITH', 'event.id = orders.event');
-		$qb->where('orders.id = :order');
-		$qb->setParameter('order', $order, OrderUid::TYPE);
-		
-		return $qb->getQuery()->getOneOrNullResult();
-	}
-	
+    private ORMQueryBuilder $ORMQueryBuilder;
+
+    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
+    {
+        $this->ORMQueryBuilder = $ORMQueryBuilder;
+    }
+
+    /**
+     * Метод возвращает текущее активное событие заказа
+     */
+    public function getCurrentOrderEventOrNull(OrderUid $order): ?OrderEvent
+    {
+        $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+
+        $qb->select('event');
+        $qb->from(Order::class, 'orders');
+        $qb->join(OrderEvent::class, 'event', 'WITH', 'event.id = orders.event');
+        $qb->where('orders.id = :order');
+        $qb->setParameter('order', $order, OrderUid::TYPE);
+
+        return $qb->getOneOrNullResult();
+    }
+
 }

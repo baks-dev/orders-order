@@ -26,7 +26,12 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\ProductEventBasket;
 
 use BaksDev\Core\Type\Locale\Locale;
-use BaksDev\Products\Product\Entity as ProductEntity;
+use BaksDev\Products\Product\Entity\Event\ProductEvent;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -64,14 +69,14 @@ final class ProductEventBasket implements ProductEventBasketInterface
         //$select = 'event';
         $qb->select($select);
 
-        $qb->from(ProductEntity\Event\ProductEvent::class, 'event');
+        $qb->from(ProductEvent::class, 'event');
         $qb->where('event.id = :event');
         $qb->setParameter('event', $event, ProductEventUid::TYPE);
 
-        $qb->join(ProductEntity\Product::class, 'product', 'WITH', 'product.id = event.product');
+        $qb->join(Product::class, 'product', 'WITH', 'product.id = event.main');
 
         $qb->leftJoin(
-            ProductEntity\Trans\ProductTrans::class,
+            ProductTrans::class,
             'trans',
             'WITH',
             'trans.event = event.id AND trans.local = :local'
@@ -88,7 +93,7 @@ final class ProductEventBasket implements ProductEventBasketInterface
         if ($offer) {
 
             $qb->join(
-                ProductEntity\Offers\ProductOffer::class,
+                ProductOffer::class,
                 'offer',
                 'WITH',
                 'offer.event = event.id  AND offer.id = :offer'
@@ -104,7 +109,7 @@ final class ProductEventBasket implements ProductEventBasketInterface
                  */
 
                 $qb->join(
-                    ProductEntity\Offers\Variation\ProductVariation::class,
+                    ProductVariation::class,
                     'variation',
                     'WITH',
                     'variation.offer = offer.id AND variation.id = :variation'
@@ -119,7 +124,7 @@ final class ProductEventBasket implements ProductEventBasketInterface
                      */
 
                     $qb->join(
-                        ProductEntity\Offers\Variation\Modification\ProductModification::class,
+                        ProductModification::class,
                         'modification',
                         'WITH',
                         'modification.variation = variation.id AND modification.id = :modification'

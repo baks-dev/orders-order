@@ -26,8 +26,9 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Orders\Order\Entity as OrderEntity;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -35,93 +36,92 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderStatusHandler
 {
-	private EntityManagerInterface $entityManager;
-	
-	private ValidatorInterface $validator;
-	
-	private LoggerInterface $logger;
+    private EntityManagerInterface $entityManager;
+
+    private ValidatorInterface $validator;
+
+    private LoggerInterface $logger;
 
     private MessageDispatchInterface $messageDispatch;
 
     public function __construct(
-		EntityManagerInterface $entityManager,
-		ValidatorInterface $validator,
-		LoggerInterface $logger,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        LoggerInterface $logger,
         MessageDispatchInterface $messageDispatch
 
-	)
-	{
-		$this->entityManager = $entityManager;
-		$this->validator = $validator;
-		$this->logger = $logger;
+    )
+    {
+        $this->entityManager = $entityManager;
+        $this->validator = $validator;
+        $this->logger = $logger;
         $this->messageDispatch = $messageDispatch;
     }
-	
-	
-	public function handle(
+
+
+    public function handle(
         OrderEventInterface $command,
-	) : string|OrderEntity\Order
-	{
-		/* Валидация */
-		$errors = $this->validator->validate($command);
-		
-		if(count($errors) > 0)
-		{
+    ): string|Order
+    {
+        /* Валидация DTO */
+        $errors = $this->validator->validate($command);
+
+        if(count($errors) > 0)
+        {
             /** Ошибка валидации */
             $uniqid = uniqid('', false);
-            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__LINE__ => __FILE__]);
-			
-			return $uniqid;
-		}
-		
-		$EventRepo = $this->entityManager->getRepository(OrderEntity\Event\OrderEvent::class)->find(
-			$command->getEvent()
-		);
-		
-		if($EventRepo === null)
-		{
-			$uniqid = uniqid('', false);
-			$errorsString = sprintf(
-				'Not found %s by id: %s',
-				OrderEntity\Event\OrderEvent::class,
-				$command->getEvent()
-			);
-			$this->logger->error($uniqid.': '.$errorsString);
-			
-			return $uniqid;
-		}
-		
-		$Event = $EventRepo->cloneEntity();
-		
-		$this->entityManager->clear();
-		
-		
-		/** @var OrderEntity\Order $Main */
-		$Main = $this->entityManager->getRepository(OrderEntity\Order::class)->findOneBy(
-			['event' => $command->getEvent()]
-		);
-		
-		if(empty($Main))
-		{
-			$uniqid = uniqid('', false);
-			$errorsString = sprintf(
-				'Not found %s by event: %s',
-				OrderEntity\Order::class,
-				$command->getEvent()
-			);
-			$this->logger->error($uniqid.': '.$errorsString);
-			
-			return $uniqid;
-		}
+            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+
+            return $uniqid;
+        }
+
+        $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
+            $command->getEvent()
+        );
+
+        if($EventRepo === null)
+        {
+            $uniqid = uniqid('', false);
+            $errorsString = sprintf(
+                'Not found %s by id: %s',
+                OrderEvent::class,
+                $command->getEvent()
+            );
+            $this->logger->error($uniqid.': '.$errorsString);
+
+            return $uniqid;
+        }
+
+        $EventRepo->setEntity($command);
+        $EventRepo->setEntityManager($this->entityManager);
+        $Event = $EventRepo->cloneEntity();
+//        $this->entityManager->clear();
+//        $this->entityManager->persist($Event);
 
 
-		$Event->setEntity($command);
-		$this->entityManager->persist($Event);
-		
-		/* присваиваем событие корню */
-		$Main->setEvent($Event);
-        
-		$this->entityManager->flush();
+        /** @var Order $Main */
+        $Main = $this->entityManager->getRepository(Order::class)
+            ->findOneBy(['event' => $command->getEvent()]);
+
+        if(empty($Main))
+        {
+            $uniqid = uniqid('', false);
+            $errorsString = sprintf(
+                'Not found %s by event: %s',
+                Order::class,
+                $command->getEvent()
+            );
+            $this->logger->error($uniqid.': '.$errorsString);
+
+            return $uniqid;
+        }
+
+
+
+        /* присваиваем событие корню */
+        $Main->setEvent($Event);
+
+        $this->entityManager->flush();
 
 
         /* Отправляем сообщение в шину */
@@ -129,8 +129,8 @@ final class OrderStatusHandler
             message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
             transport: 'orders'
         );
-		
-		return $Main;
-	}
-	
+
+        return $Main;
+    }
+
 }

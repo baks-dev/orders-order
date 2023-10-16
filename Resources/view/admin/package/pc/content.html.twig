@@ -74,20 +74,26 @@
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}
 
-            {% for product in form.product %}
+            {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
                 <div class="d-flex gap-3 align-items-center w-100">
 
                     {% set card = product.vars.data.card %}
 
+                    {# Обложка  #}
+                    {% set image_path = '/assets/img/blank.svg' %}
 
-                    {% set img_path = card.product_image_cdn == true ? CDN_HOST : '' %}
-                    {% set product_image_ext = card.product_image_cdn == true ? 'small.'~card.product_image_ext : card.product_image_ext %}
+                    {% if card.product_image_ext is defined and card.product_image_ext is not null %}
+                        {% set img_host =  card.product_image_cdn == true  ? CDN_HOST : '' %}
+                        {% set img_dir = card.product_image %}
+                        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.product_image_ext %}
+                        {% set image_path = img_host ~ img_dir ~ img_file %}
+                    {% endif %}
 
 
                     {# ФОТО ПРОДУКТА  #}
                     <div>
                         <div class="icon rounded-4 mb-2 bg-contain p-1"
-                             style="width: 75px; height: 75px; background-image: url('{{ card.product_image ? img_path ~ card.product_image ~ product_image_ext : '/assets/img/blank.svg' }}');"
+                             style="width: 75px; height: 75px; background-image: url('{{ image_path }}');"
                         ></div>
                     </div>
 

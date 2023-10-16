@@ -112,7 +112,7 @@ final class PackageOrderDTO implements OrderEventInterface
     public function getUsers(): User\OrderUserDTO
     {
 
-        if(!(new ReflectionProperty($this::class, 'users'))->isInitialized($this))
+        if(!(new ReflectionProperty(self::class, 'users'))->isInitialized($this))
         {
             $this->users = new User\OrderUserDTO();
         }

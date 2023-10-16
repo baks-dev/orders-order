@@ -35,6 +35,6 @@ interface ProductUserBasketInterface
 		?ProductOfferUid        $offer = null,
 		?ProductVariationUid    $variation = null,
 		?ProductModificationUid $modification = null,
-	) : array|bool;
+	) : ?array;
 	
 }

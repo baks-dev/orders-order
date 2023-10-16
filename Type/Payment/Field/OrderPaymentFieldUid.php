@@ -25,12 +25,19 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Payment\Field;
 
+use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
+use Symfony\Component\Uid\AbstractUid;
 
 final class OrderPaymentFieldUid extends Uid
 {
     public const TEST = '0188a99a-8430-7647-8817-21873e248cd8';
     
 	public const TYPE = 'order_payment_field';
-	
+
+    public function __construct(AbstractUid|string|null $value = null)
+    {
+        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
+    }
+
 }

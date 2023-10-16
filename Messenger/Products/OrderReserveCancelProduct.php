@@ -90,7 +90,7 @@ final class OrderReserveCancelProduct
 		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 		
 		/** Если статус не "ОТМЕНА" - завершаем обработчик */
-		if($OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS)
+		if(!$OrderEvent || $OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS)
 		{
 			return;
 		}

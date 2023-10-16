@@ -39,7 +39,7 @@ use InvalidArgumentException;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_product')]
-// #[ORM\Index(columns: ['name'])]
+#[ORM\Index(columns: ['product', 'offer', 'variation', 'modification'])]
 class OrderProduct extends EntityEvent
 {
     public const TABLE = 'orders_product';
@@ -82,12 +82,20 @@ class OrderProduct extends EntityEvent
 
     public function __clone(): void
     {
-        $this->id = new OrderProductUid();
+        $this->id =  clone $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
     }
 
     public function getDto($dto): mixed
     {
-        if ($dto instanceof OrderProductInterface) {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if ($dto instanceof OrderProductInterface)
+        {
             return parent::getDto($dto);
         }
 
@@ -96,7 +104,8 @@ class OrderProduct extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderProductInterface) {
+        if ($dto instanceof OrderProductInterface || $dto instanceof self)
+        {
             return parent::setEntity($dto);
         }
 

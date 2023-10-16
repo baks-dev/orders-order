@@ -96,6 +96,11 @@ final class PackageOrderProductForm extends AbstractType
                     /** Получаем информацию о продукте */
                     $product = $this->info->fetchProductBasketAssociative($data->getProduct(), $data->getOffer(), $data->getVariation(), $data->getModification());
 
+                    if(!$product)
+                    {
+                        return;
+                    }
+
                     $ProductUid = new ProductUid($product['id']);
                     $ProductOfferConst = $product['product_offer_const'] ? new ProductOfferConst($product['product_offer_const']) : null;
                     $ProductVariationConst = $product['product_variation_const'] ? new ProductVariationConst($product['product_variation_const']) : null;

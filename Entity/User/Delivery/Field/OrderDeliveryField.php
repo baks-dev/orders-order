@@ -25,17 +25,13 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\User\Delivery\Field;
 
-use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
-use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
-use BaksDev\Orders\Order\Entity\Payment\OrderPayment;
-
-use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldUid;
-use BaksDev\Payment\Type\Field\PaymentFieldUid;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Core\Type\Locale\Locale;
+use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
+use BaksDev\Orders\Order\Entity\Payment\OrderPayment;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldUid;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
 /* Перевод OrderPaymentField */
@@ -74,12 +70,18 @@ class OrderDeliveryField extends EntityEvent
 	
 	public function __clone() : void
 	{
-		$this->id = new OrderDeliveryFieldUid();
+        $this->id = clone $this->id;
 	}
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
 	
-	
-	public function getDto($dto) : mixed
+	public function getDto($dto): mixed
 	{
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
 		if($dto instanceof OrderDeliveryFieldInterface)
 		{
 			return parent::getDto($dto);
@@ -89,10 +91,9 @@ class OrderDeliveryField extends EntityEvent
 	}
 	
 	
-	public function setEntity($dto) : mixed
+	public function setEntity($dto): mixed
 	{
-		
-		if($dto instanceof OrderDeliveryFieldInterface)
+		if($dto instanceof OrderDeliveryFieldInterface || $dto instanceof self)
 		{
 			return parent::setEntity($dto);
 		}

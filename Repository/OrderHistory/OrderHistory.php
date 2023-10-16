@@ -93,7 +93,6 @@ final class OrderHistory implements OrderHistoryInterface
 		
 		
 		$qb->addSelect('profile_avatar.name AS profile_avatar_name');
-		$qb->addSelect('profile_avatar.dir AS profile_avatar_dir');
 		$qb->addSelect('profile_avatar.ext AS profile_avatar_ext');
 		$qb->addSelect('profile_avatar.cdn AS profile_avatar_cdn');
 		

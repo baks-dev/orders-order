@@ -65,17 +65,22 @@ class OrderPayment extends EntityEvent
 	{
 		$this->id = new OrderPaymentUid();
 		$this->usr = $usr;
-		
 	}
 	
 	public function __clone() : void
 	{
-		$this->id = new OrderPaymentUid();
+        $this->id = clone $this->id;
 	}
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
 	
-	
-	public function getDto($dto) : mixed
+	public function getDto($dto): mixed
 	{
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
 		if($dto instanceof OrderPaymentInterface)
 		{
 			return parent::getDto($dto);
@@ -85,9 +90,9 @@ class OrderPayment extends EntityEvent
 	}
 	
 	
-	public function setEntity($dto) : mixed
+	public function setEntity($dto): mixed
 	{
-		if($dto instanceof OrderPaymentInterface)
+		if($dto instanceof OrderPaymentInterface || $dto instanceof self)
 		{
 			return parent::setEntity($dto);
 		}

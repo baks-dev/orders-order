@@ -88,12 +88,20 @@ class OrderDelivery extends EntityEvent
 
     public function __clone(): void
     {
-        $this->id = new OrderDeliveryUid();
+        $this->id =  clone $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->id;
     }
 
     public function getDto($dto): mixed
     {
-        if ($dto instanceof OrderDeliveryInterface) {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if ($dto instanceof OrderDeliveryInterface)
+        {
             return parent::getDto($dto);
         }
 
@@ -102,7 +110,8 @@ class OrderDelivery extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderDeliveryInterface) {
+        if ($dto instanceof OrderDeliveryInterface || $dto instanceof self)
+        {
             return parent::setEntity($dto);
         }
 

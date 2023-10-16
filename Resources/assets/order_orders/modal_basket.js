@@ -75,6 +75,8 @@ function orderModalCounter() {
     let result = this.value * 1;
     let max = this.dataset.max * 1;
 
+
+
     if (result > max) {
         basket.querySelector('#order_product_form_price_total').value = max;
         result = max;

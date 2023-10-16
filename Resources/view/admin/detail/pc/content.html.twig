@@ -93,23 +93,21 @@
 		>
 			{# Клиент #}
 			<div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
-				
-				{% set img_path = order.profile_avatar_cdn == true ? CDN_HOST : '' %}
-				{% set img_min = order.profile_avatar_cdn == true ? 'small.' : '' %}
-				
-				{# <a href="{{ path('UserProfile:admin.newedit.edit', { id: item.event }) }}" class="pe-3">
-						<div class="rounded-circle bg-contain lazy p-1" style="width: 50px; height: 50px;"
-								data-bg="{{ item.user_profile_avatar_name ?
-								img_path ~ '/upload/' ~ constant('BaksDev\\Users\\Profile\\UserProfile\\Entity\\Avatar\\UserProfileAvatar::TABLE') ~'/' ~ item.user_profile_avatar_dir ~'/'~ item.user_profile_avatar_name ~'.'~ img_min ~ item.user_profile_avatar_ext :
-								'/assets/img/blank.svg' }}">
-						</div>
-					</a> #}
-				
+
 				<div>
+
+					{# Обложка  #}
+					{% set image_path = '/assets/img/blank.svg' %}
+
+					{% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
+						{% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}
+						{% set img_dir = order.profile_avatar_name %}
+						{% set img_file = (img_host is empty ? '/image.' : '/small.') ~ order.profile_avatar_ext %}
+						{% set image_path = img_host ~ img_dir ~ img_file %}
+					{% endif %}
+
 					<span class="icon rounded-circle bg-contain lazy p-1 mb-2 entered loaded"
-							style="width: 43px; height: 43px; background-image: url('{{ order.profile_avatar_name ?
-							img_path ~ order.profile_avatar_name ~ img_min ~ order.profile_avatar_ext :
-							'/assets/img/blank.svg' }}');"
+							style="width: 43px; height: 43px; background-image: url('{{ image_path }}');"
 					></span>
 				</div>
 				
@@ -261,11 +259,12 @@
 {% for product in form.product %}
 	
 	{% set card = product.vars.data.card %}
-	{% set summ = (product.price.vars.data.total * card.product_price) %}
-	{% set total_summ_product = total_summ_product + summ %}
-	
-	
-	{% set total_summ_currency = card.product_currency %}
+
+	{% if card %}
+		{% set summ = (product.price.vars.data.total * card.product_price) %}
+		{% set total_summ_product = total_summ_product + summ %}
+		{% set total_summ_currency = card.product_currency %}
+	{% endif %}
 
 {% endfor %}
 

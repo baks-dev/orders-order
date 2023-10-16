@@ -63,9 +63,17 @@ class OrderPrice extends EntityEvent
         $this->currency = new Currency();
     }
 
+    public function __toString(): string
+    {
+        return (string) $this->product;
+    }
+
     public function getDto($dto): mixed
     {
-        if ($dto instanceof OrderPriceInterface) {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if ($dto instanceof OrderPriceInterface)
+        {
             return parent::getDto($dto);
         }
 
@@ -74,7 +82,8 @@ class OrderPrice extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderPriceInterface) {
+        if ($dto instanceof OrderPriceInterface || $dto instanceof self)
+        {
             return parent::setEntity($dto);
         }
 

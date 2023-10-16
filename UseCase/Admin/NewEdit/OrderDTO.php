@@ -35,6 +35,9 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
+    /** Статус заказа */
+    private OrderStatus $status;
+
     /** Коллекция продукции в заказе */
     #[Assert\Valid]
     private ArrayCollection $product;
@@ -43,8 +46,7 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ?User\OrderUserDTO $users;
 
-    /** Статус заказа */
-    private OrderStatus $status;
+
 
 
     public function __construct()

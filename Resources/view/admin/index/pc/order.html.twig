@@ -57,12 +57,13 @@
 
                     <div class="text-end">
 
-                        {% if order.order_move  %}
+                        {% if order.order_move %}
 
                             <button
                                     class="btn btn-sm btn-warning"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
+                                    data-bs-delay='{"show":600,"hide":100}'
                                     title="Заказ ожидает перемещение продукции для полной сборки"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -78,9 +79,11 @@
                                     class="btn btn-sm btn-danger"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
+                                    data-bs-delay='{"show":600,"hide":100}'
                                     title="Невозможно добавить заказ в доставку! Обратитесь на склад для уточнения причины"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-diamond-fill" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-exclamation-diamond-fill" viewBox="0 0 16 16">
                                     <path d="M9.05.435c-.58-.58-1.52-.58-2.1 0L.436 6.95c-.58.58-.58 1.519 0 2.098l6.516 6.516c.58.58 1.519.58 2.098 0l6.516-6.516c.58-.58.58-1.519 0-2.098L9.05.435zM8 4c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                                 </svg>
                             </button>
@@ -91,6 +94,7 @@
                                     aria-label="Изменить статус сделки"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
+                                    data-bs-delay='{"show":600,"hide":100}'
                                     title="Изменить статус сделки"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"

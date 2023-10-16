@@ -36,6 +36,6 @@ interface OrderDetailInterface
 	/**
      * Метод возвращает объект с информацией об заказе
      */
-	public function getDetailOrder(OrderUid $order) : mixed;
+	public function getDetailOrder(OrderUid $order): mixed;
 	
 }

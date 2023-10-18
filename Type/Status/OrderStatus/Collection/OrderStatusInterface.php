@@ -31,7 +31,7 @@ interface OrderStatusInterface
     /** Возвращает значение (value) */
     public function getValue(): string;
 
-    /** Сортирвока */
+    /** Сортировка */
     public static function sort(): int;
 
     /** Цвет */

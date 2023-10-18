@@ -26,56 +26,107 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Status;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use InvalidArgumentException;
 
 final class OrderStatus
 {
     public const TYPE = 'order_status_type';
 
-    private ?OrderStatusInterface $status = null;
+    private OrderStatusInterface $status;
 
     public function __construct(self|string|OrderStatusInterface $status)
     {
-        if ($status instanceof OrderStatusInterface)
+
+        if(is_string($status) && class_exists($status))
         {
-            $this->status = $status;
+            $instance = new $status();
+
+            if($instance instanceof OrderStatusInterface)
+            {
+                $this->status = $instance;
+                return;
+            }
         }
 
-        if ($status instanceof $this)
+        if($status instanceof OrderStatusInterface)
+        {
+            $this->status = $status;
+            return;
+        }
+
+        if($status instanceof self)
         {
             $this->status = $status->getOrderStatus();
+            return;
         }
+
+        /** @var OrderStatusInterface $declare */
+        foreach(self::getDeclared() as $declare)
+        {
+            $instance = new self($declare);
+
+            if($instance->getOrderStatusValue() === $status)
+            {
+                $this->status = new $declare;
+                return;
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('Not found OrderStatus %s', $status));
+
     }
 
     public function __toString(): string
     {
-        return $this->status ? $this->status->getValue() : '';
+        return $this->status->getValue();
     }
 
-    /** Возвращает значение (value) страны String */
     public function getOrderStatus(): OrderStatusInterface
     {
         return $this->status;
     }
 
-    /** Возвращает значение (value) страны String */
-    public function getOrderStatusValue(): ?string
+    public function getOrderStatusValue(): string
     {
-        return $this->status?->getValue();
+        return $this->status->getValue();
     }
 
-    /** Возвращает код цвета */
     public function getColor(): string
     {
         return $this->status::color();
     }
 
-    public function equals(OrderStatusInterface|string $status) : bool
+
+    public static function cases(): array
     {
-        if($status instanceof OrderStatusInterface)
+        $case = [];
+
+        foreach(self::getDeclared() as $key => $declared)
         {
-            return $this->status?->getValue() === $status->getValue();
+            /** @var OrderStatusInterface $declared */
+            $class = new $declared;
+            $case[$class::sort().$key] = new self($class);
         }
-        
-        return $this->status?->getValue() === $status;
+
+        ksort($case);
+
+        return $case;
     }
+
+    public static function getDeclared(): array
+    {
+        return array_filter(
+            get_declared_classes(),
+            static function($className) {
+                return in_array(OrderStatusInterface::class, class_implements($className), true);
+            }
+        );
+    }
+
+    public function equals(mixed $status): bool
+    {
+        $status = new self($status);
+        return $this->getOrderStatusValue() === $status->getOrderStatusValue();
+    }
+
 }

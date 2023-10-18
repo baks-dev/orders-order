@@ -48,7 +48,7 @@ final class BasketListener
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $AppCache = $this->cache->init('Orders');
+        $AppCache = $this->cache->init('orders-order');
 
         $key = md5($event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
 

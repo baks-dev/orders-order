@@ -61,9 +61,11 @@ final class IndexController extends AbstractController
 
         $orders = null;
 
+
         /** @var OrderStatus $status */
-        foreach ($collection->cases() as $status) {
-            if ('canceled' === $status->getOrderStatusValue()) {
+        foreach (OrderStatus::cases() as $status) {
+
+            if ($status->equals('canceled')) {
                 continue;
             }
 

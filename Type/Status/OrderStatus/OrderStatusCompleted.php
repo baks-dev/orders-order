@@ -61,8 +61,6 @@ class OrderStatusCompleted implements OrderStatusInterface, VoterInterface
     }
 
 
-
-
     /** Правило доступа */
     public static function getVoter(): string
     {

@@ -50,14 +50,11 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Reference\Currency\Type\Currencies\RUR;
 use BaksDev\Reference\Currency\Type\Currency;
-use BaksDev\Reference\Currency\Type\CurrencyEnum;
 use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\User\Type\Id\UserUid;
-use BaksDev\Users\UsersTable\Entity\Actions\Event\UsersTableActionsEvent;
-use BaksDev\Users\UsersTable\Entity\Actions\UsersTableActions;
-use BaksDev\Users\UsersTable\Type\Actions\Id\UsersTableActionsUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -139,7 +136,7 @@ final class OrderNewTest extends KernelTestCase
         $OrderPriceDTO->setPrice($price);
         self::assertSame($price, $OrderPriceDTO->getPrice());
 
-        $currency = new Currency(CurrencyEnum::RUR);
+        $currency = new Currency(RUR::class);
         $OrderPriceDTO->setCurrency($currency);
         self::assertSame($currency, $OrderPriceDTO->getCurrency());
 

@@ -41,21 +41,21 @@
         <div class="d-flex justify-content-between gap-2 border rounded-4 cards-box p-2">
 
 
-            {% for stats in status |filter(v => v != 'canceled') %}
+            {% for stats in status |filter(v => v.getValue() != 'canceled') %}
 
-                {% set color = stats.getColor() %}
+                {% set color = stats.color() %}
                 {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}
-                {% set counter = query[stats.getOrderStatusValue]|length %}
+                {% set counter = query[stats.getValue()]|length %}
 
                 <div class="w-100 d-flex flex-column gap-2">
 
                     <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
                          style="overflow-y: visible;"
-                         data-status="{{ stats.getOrderStatusValue }}"
-                         data-level="{{ stats.getOrderStatusValue == 'new' ? 'restricted' }}"
+                         data-status="{{ stats.getValue() }}"
+                         data-level="{{ stats.getValue() == 'new' ? 'restricted' }}"
                     >
                         <div class="w-100 badge p-2 sticky-top z-index-5" style="top: 5rem; background-color: {{ color }};">
-                            {{ stats.getOrderStatusValue()|trans({}, 'status.order') }}
+                            {{ stats.getValue()|trans({}, 'status.order') }}
                         </div>
 
                         {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
@@ -66,7 +66,7 @@
                                 {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small></div>
 
 
-                        {% for order in query[stats.getOrderStatusValue] %}
+                        {% for order in query[stats.getValue()] %}
 
                             {# КАРТОЧКА ЗАКАЗА  #}
                             {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}

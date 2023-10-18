@@ -102,7 +102,7 @@ final class DetailController extends AbstractController
         $form = $this->createForm(
             OrderForm::class,
             $OrderDTO,
-            ['action' => $this->generateUrl('Orders:admin.detail', ['id' => $id])]
+            ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
         );
 
         if($request->headers->get('X-Requested-With') === null)
@@ -123,7 +123,7 @@ final class DetailController extends AbstractController
                 $this->addFlash('danger', 'admin.danger.update', 'admin.order', $OrderHandler);
             }
 
-            return $this->redirectToRoute('Orders:admin.index');
+            return $this->redirectToRoute('orders-order:admin.index');
         }
 
         /** Информация о заказе */

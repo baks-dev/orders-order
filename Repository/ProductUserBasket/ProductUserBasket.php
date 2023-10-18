@@ -598,7 +598,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         /* Кешируем результат DBAL */
         return $qb
-            ->enableCache('Orders', 3600)
+            ->enableCache('orders-order', 3600)
             ->fetchAssociative();
 
     }

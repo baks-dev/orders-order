@@ -27,7 +27,7 @@ use Symfony\Config\TwigConfig;
 
 return static function (TwigConfig $twig)
 {
-	$twig->path(__DIR__.'/../view', 'Orders');
+	$twig->path(__DIR__.'/../view', 'orders-order');
 };
 
 

@@ -1,7 +1,7 @@
 {
   "namespaces": [
     {
-      "namespace": "Orders",
+      "namespace": "orders-order",
       "path": "Resources/view"
     }
   ]

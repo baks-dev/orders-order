@@ -90,7 +90,7 @@ final class PackageController extends AbstractController
         $OrderEvent->getDto($PackageOrderDTO);
 
         $form = $this->createForm(PackageOrderForm::class, $PackageOrderDTO, [
-            'action' => $this->generateUrl('Orders:admin.package', ['id' => $Order->getId()]),
+            'action' => $this->generateUrl('orders-order:admin.package', ['id' => $Order->getId()]),
         ]);
 
         $form->handleRequest($request);

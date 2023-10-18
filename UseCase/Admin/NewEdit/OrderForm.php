@@ -35,16 +35,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderForm extends AbstractType
 {
-	
-	private OrderStatus\Collection\OrderStatusCollection $statusCollection;
-	
-	
-	public function __construct(OrderStatus\Collection\OrderStatusCollection $statusCollection) {
-		
-		$this->statusCollection = $statusCollection;
-	}
-	
-	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
 		
@@ -60,16 +50,17 @@ final class OrderForm extends AbstractType
 		]);
 	
 		$builder->add('users', User\OrderUserForm::class, ['label' => false]);
-		
+
+
 		$builder
 			->add('status', ChoiceType::class, [
-				'choices' => $this->statusCollection->cases(),
+				'choices' => OrderStatus::cases(),
 				'choice_value' => function(?OrderStatus $status) {
 					return $status?->getOrderStatusValue();
 				},
 			
 				'choice_label' => function(OrderStatus $status) {
-					return $status?->getOrderStatusValue();
+					return $status->getOrderStatusValue();
 				},
 
 				'expanded' => false,

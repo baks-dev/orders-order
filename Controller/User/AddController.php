@@ -92,7 +92,7 @@ class AddController extends AbstractController
             $AddProductBasketDTO,
             [
                 'action' => $this->generateUrl(
-                    'Orders:user.add',
+                    'orders-order:user.add',
                     [
                         'product' => $AddProductBasketDTO->getProduct(),
                         'offer' => $AddProductBasketDTO->getOffer(),
@@ -106,7 +106,7 @@ class AddController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $AppCache =  $cache->init('Orders');
+            $AppCache =  $cache->init('orders-order');
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
@@ -142,7 +142,7 @@ class AddController extends AbstractController
                         'type' => 'success',
                         'header' => $Event->getOption(),
                         'message' => 'Товар уже добавлен в корзину',
-                        'href' => $this->generateUrl('Orders:user.basket'),
+                        'href' => $this->generateUrl('orders-order:user.basket'),
                         'name' => 'перейти в корзину',
                         'status' => 400,
                     ],
@@ -166,7 +166,7 @@ class AddController extends AbstractController
                     'type' => 'success',
                     'header' => $Event->getOption(),
                     'message' => 'Товар успешно добавлен.',
-                    'href' => $this->generateUrl('Orders:user.basket'),
+                    'href' => $this->generateUrl('orders-order:user.basket'),
                     'name' => 'перейти в корзину',
                     'status' => 200,
                 ],

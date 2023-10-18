@@ -105,7 +105,7 @@ final class OrderProducts implements OrderProductsInterface
         }
 
         return $qb
-            ->enableCache('Orders', 3600)
+            ->enableCache('orders-order', 3600)
             ->fetchAllAssociative();
     }
 }

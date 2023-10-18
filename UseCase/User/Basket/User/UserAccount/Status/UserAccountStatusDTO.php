@@ -25,25 +25,26 @@
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\Status;
 
 use BaksDev\Auth\Email\Entity\Status\AccountStatusInterface;
-use BaksDev\Auth\Email\Type\Status\AccountStatus;
-use BaksDev\Auth\Email\Type\Status\AccountStatusEnum;
+use BaksDev\Auth\Email\Type\EmailStatus\EmailStatus;
+use BaksDev\Auth\Email\Type\EmailStatus\Status\EmailStatusActive;
+use BaksDev\Auth\Email\Type\EmailStatus\Status\EmailStatusNew;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserAccountStatusDTO implements AccountStatusInterface
 {
 	#[Assert\NotBlank]
-	private readonly AccountStatus $status;
+	private readonly EmailStatus $status;
 	
 	
 	public function __construct()
 	{
-		$this->status = new AccountStatus(AccountStatusEnum::NEW);
+		$this->status = new EmailStatus(EmailStatusNew::class);
 	}
 	
 	/**
-	 * @return AccountStatus
+	 * @return EmailStatus
 	 */
-	public function getStatus() : AccountStatus
+	public function getStatus() : EmailStatus
 	{
 		return $this->status;
 	}

@@ -75,7 +75,7 @@ class DeleteController extends AbstractController
             return $this->ErrorResponse($translator);
         }
 
-        $AppCache = $cache->init('Orders');
+        $AppCache = $cache->init('orders-order');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
@@ -126,7 +126,7 @@ class DeleteController extends AbstractController
                     'user.order'
                 );
 
-                return $this->redirectToRoute('Orders:user.basket', status: 200);
+                return $this->redirectToRoute('orders-order:user.basket', status: 200);
             }
 
             return new JsonResponse(

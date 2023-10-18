@@ -48,7 +48,7 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
         return self::STATUS;
     }
 
-    /** Сортирвка */
+    /** Сортировка */
     public static function sort(): int
     {
         return self::$sort;

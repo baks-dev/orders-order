@@ -35,7 +35,7 @@ final class OrderStatusCollection
     private iterable $status;
 
     public function __construct(
-        #[TaggedIterator('baks.order.status')] iterable $status)
+        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')] iterable $status)
     {
         $this->status = $status;
     }
@@ -46,7 +46,7 @@ final class OrderStatusCollection
         $case = null;
 
         foreach ($this->status as $key => $status) {
-            $case[$status::sort().$key] = new OrderStatus(new $status());
+            $case[$status::sort().$key] = new $status();
         }
 
         ksort($case);

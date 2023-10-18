@@ -32,7 +32,6 @@ use BaksDev\Orders\Order\UseCase\User\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderHandler;
 use BaksDev\Reference\Currency\Type\Currency;
-use BaksDev\Reference\Currency\Type\CurrencyEnum;
 use BaksDev\Reference\Money\Type\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +56,7 @@ class BasketController extends AbstractController
     ): Response
     {
 
-        $AppCache = $cache->init('Orders');
+        $AppCache = $cache->init('orders-order');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
@@ -133,7 +132,7 @@ class BasketController extends AbstractController
                         );
 
                         // Редирект на страницу товара
-                        return $this->redirectToRoute('Product:user.detail', [
+                        return $this->redirectToRoute('products-product:user.detail', [
                             'url' => $ProductDetail['product_url'],
                             'offer' => $ProductDetail['product_offer_value'],
                             'variation' => $ProductDetail['product_variation_value'],
@@ -145,7 +144,7 @@ class BasketController extends AbstractController
 
                     $OrderPriceDTO = $product->getPrice();
                     $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
-                    $OrderPriceDTO->setCurrency(new Currency(CurrencyEnum::from($ProductDetail['product_currency'])));
+                    $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
                 }
             }
 
@@ -158,7 +157,7 @@ class BasketController extends AbstractController
         $handleForm->handleRequest($request);
 
         // Форма форма корзины
-        $form = $this->createForm(OrderForm::class, $OrderDTO, ['action' => $this->generateUrl('Orders:user.basket')]);
+        $form = $this->createForm(OrderForm::class, $OrderDTO, ['action' => $this->generateUrl('orders-order:user.basket')]);
 
         if(null === $request->headers->get('X-Requested-With'))
         {
@@ -176,12 +175,12 @@ class BasketController extends AbstractController
                 // Удаляем кеш
                 $AppCache->delete($key);
 
-                return $this->redirectToRoute('Orders:user.basket');
+                return $this->redirectToRoute('orders-order:user.basket');
             }
 
             $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);
 
-            // return $this->redirectToRoute('Orders:user.basket');
+            // return $this->redirectToRoute('orders-order:user.basket');
         }
 
         return $this->render([

@@ -211,7 +211,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Цена множественного варианта */
         $qb->leftJoin(
             'product_offer_variation',
-            ProductEntity\Offers\Variation\Price\ProductOfferVariationPrice::TABLE,
+            ProductEntity\Offers\Variation\Price\ProductVariationPrice::TABLE,
             'product_variation_price',
             'product_variation_price.variation = product_offer_variation.id'
         )
@@ -241,7 +241,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Наличие и резерв множественного варианта */
         $qb->leftJoin(
             'category_offer_variation',
-            ProductEntity\Offers\Variation\Quantity\ProductOfferVariationQuantity::TABLE,
+            ProductEntity\Offers\Variation\Quantity\ProductVariationQuantity::TABLE,
             'product_variation_quantity',
             'product_variation_quantity.variation = product_offer_variation.id'
         )

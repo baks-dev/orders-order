@@ -116,8 +116,6 @@
                 {% endfor %} #}
 
 
-                            {# {{ dump(product.vars.data) }}
-                {{ dump(product.vars.data.price.total) }} #}
 
 
                         </strong>
@@ -142,11 +140,6 @@
                             <div class="mt-1">
 
 
-                                {# {% for move in form.move %}
-                                    {{ dump(move) }}
-                                {% endfor %}
-                                #}
-
 
                                 {# Перемещение  #}
                                 {% if product.move %}
@@ -159,7 +152,6 @@
 
                                     {% endfor %}
 
-                                    {# {{ dump(product.vars.data) }} #}
 
                                     <div class="d-flex gap-3 align-items-center">
                                         {% if product.move.warehouse is defined %}

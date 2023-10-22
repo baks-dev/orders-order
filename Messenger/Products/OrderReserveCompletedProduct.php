@@ -30,7 +30,7 @@ use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
-use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductOfferVariationQuantity;
+use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
 use BaksDev\Products\Product\Repository\CurrentQuantity\CurrentQuantityByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Modification\CurrentQuantityByModificationInterface;
 use BaksDev\Products\Product\Repository\CurrentQuantity\Offer\CurrentQuantityByOfferInterface;
@@ -125,7 +125,7 @@ final class OrderReserveCompletedProduct
 		/** Обновляем резерв множественного варианта торгового предложения */
 		if(!$Quantity && $product->getVariation())
 		{
-			/** @var ProductOfferVariationQuantity $Quantity */
+			/** @var ProductVariationQuantity $Quantity */
 			$Quantity = $this->quantityByVariation->getVariationQuantity(
 				$product->getProduct(),
 				$product->getOffer(),

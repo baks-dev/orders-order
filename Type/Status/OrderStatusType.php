@@ -25,27 +25,19 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Status;
 
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
-use InvalidArgumentException;
 
 final class OrderStatusType extends StringType
 {
     public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
     {
-        return $value instanceof OrderStatus ? $value->getOrderStatusValue() : $value;
+        return (string) $value;
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform): mixed
     {
-        foreach ($this->getOrderStatus() as $status) {
-            if ($status::STATUS === $value) {
-                return new OrderStatus(new $status());
-            }
-        }
-
-        throw new InvalidArgumentException(sprintf('Not found Order Status %s', $value));
+        return !empty($value) ? new OrderStatus($value) : null;
     }
 
     public function getName(): string
@@ -53,25 +45,8 @@ final class OrderStatusType extends StringType
         return OrderStatus::TYPE;
     }
 
-    public function getOrderStatus(): array
-    {
-        return array_filter(
-            get_declared_classes(),
-            static function ($className) {
-                return in_array(OrderStatusInterface::class, class_implements($className), true);
-            }
-        );
-    }
-
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
-    }
-
-    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
-    {
-        $column['length'] = 15;
-
-        return $platform->getStringTypeDeclarationSQL($column);
     }
 }

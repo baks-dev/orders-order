@@ -125,7 +125,7 @@ final class MovingProductStockForm extends AbstractType
                                     return $warehouse?->getValue();
                                 },
                                 'choice_label' => function (ContactsRegionCallConst $warehouse) {
-                                    return $warehouse->getAttr().' ( '.$warehouse->getCounter().' )';
+                                    return $warehouse->getAttr().' ( '.$warehouse->getProperty().' )';
                                 },
 
                                 'label' => false

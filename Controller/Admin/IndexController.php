@@ -40,7 +40,7 @@ use Symfony\Component\Routing\Annotation\Route;
 // use App\System\Form\Search\Command;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDER')]
+#[RoleSecurity('ROLE_ORDERS')]
 final class IndexController extends AbstractController
 {
     #[Route('/admin/orders/{page<\d+>}', name: 'admin.index', methods: [

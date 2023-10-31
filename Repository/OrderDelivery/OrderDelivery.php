@@ -81,7 +81,7 @@ final class OrderDelivery implements OrderDeliveryInterface
             'users',
             EntityOrder\User\Delivery\OrderDelivery::TABLE,
             'delivery',
-            'delivery.orders_user = users.id'
+            'delivery.usr = users.id'
         );
 
         $qbOrder->where('stock_order.event = :event');

@@ -1,6 +1,6 @@
 # BaksDev Order
 
-![Version](https://img.shields.io/badge/version-6.3.14-blue) ![php 8.1+](https://img.shields.io/badge/php-min%208.1-red.svg)
+![Version](https://img.shields.io/badge/version-6.3.15-blue) ![php 8.1+](https://img.shields.io/badge/php-min%208.1-red.svg)
 
 Модуль системных заказов
 
@@ -12,7 +12,7 @@ $ composer require baks-dev/orders-order
 
 ## Дополнительно
 
-Должен быть запущен ворвкер 'orders' для обработки асинхронных сообщений 
+Должен быть запущен воркер 'orders' для обработки асинхронных сообщений 
 
 ``` bash
 $ php bin/console messenger:consume orders

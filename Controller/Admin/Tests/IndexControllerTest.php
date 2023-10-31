@@ -28,7 +28,7 @@ final class IndexControllerTest extends WebTestCase
 {
     private const URL = '/admin/orders';
 
-    private const ROLE = 'ROLE_ORDER';
+    private const ROLE = 'ROLE_ORDERS';
 
     /** Доступ по роли */
     public function testRoleSuccessful(): void

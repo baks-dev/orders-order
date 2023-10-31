@@ -30,7 +30,7 @@ use BaksDev\Core\Services\Switcher\SwitcherInterface;
 use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity as DeliveryEntity;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
-use BaksDev\DeliveryTransport\Type\ProductStockStatus\ProductStockStatusError;
+
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
@@ -333,7 +333,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
             $qb->addSelect(sprintf('EXISTS(%s) AS order_error', $qbExistOrderError->getSQL()) );
 
-            $qb->setParameter('error', new ProductStockStatus(new ProductStockStatusError()), ProductStockStatus::TYPE);
+            $qb->setParameter('error', new ProductStockStatus(new ProductStockStatus\ProductStockStatusError()), ProductStockStatus::TYPE);
         }
         else
         {
@@ -349,6 +349,5 @@ final class AllOrdersQuery implements AllOrdersInterface
         // dd($this->connection->prepare('EXPLAIN (ANALYZE)  '.$qb->getSQL())->executeQuery($qb->getParameters())->fetchAllAssociativeIndexed());
 
         return $this->paginator->fetchAllAssociative($qb);
-
     }
 }

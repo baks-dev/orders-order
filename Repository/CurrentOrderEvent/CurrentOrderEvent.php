@@ -43,8 +43,10 @@ final class CurrentOrderEvent implements CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEventOrNull(OrderUid $order): ?OrderEvent
+    public function getCurrentOrderEventOrNull(?OrderUid $order): ?OrderEvent
     {
+        if(!$order) { return null; }
+
         $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $qb->select('event');

@@ -36,7 +36,7 @@ final class DetailControllerTest extends WebTestCase
 {
     private const URL = '/admin/order/detail/%s';
 
-    private const ROLE = 'ROLE_ORDER';
+    private const ROLE = 'ROLE_ORDERS';
 
     /**
      * Доступ по без роли

@@ -1,4 +1,4 @@
-{% set id =  random() %}
+{#{% set id =  random() %}#}
 
 <div class="draggable" id="{{ order.order_id }}" tabindex="0">
 
@@ -108,10 +108,21 @@
 
                     </div>
 
-                    <span class="small text-muted">{{ order.order_created|date('d.m.Y') }} </span>
+                    {% set dedline = date(order.modify) %}
+                    {% set difference = dedline.diff(date("now")) %}
+                    {% set hour = difference.d * 24 + difference.h %}
+
+                    <span class="small text-muted">{{ order.order_created|date('d.m.Y') }}</span>
+                    <span
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title="Последнее движение по заказу"
+                            class="small text-muted">
+                        ({{ hour }} ч. {{ difference.i }} м.)
+                    </span>
 
                 </div>
-
             </div>
 
 

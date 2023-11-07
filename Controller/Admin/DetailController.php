@@ -45,7 +45,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDER')]
+#[RoleSecurity('ROLE_ORDERS')]
 final class DetailController extends AbstractController
 {
     #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: [

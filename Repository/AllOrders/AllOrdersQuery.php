@@ -28,18 +28,32 @@ use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Core\Services\Switcher\SwitcherInterface;
 use BaksDev\Core\Type\Locale\Locale;
-use BaksDev\Delivery\Entity as DeliveryEntity;
+
+use BaksDev\Delivery\Entity\Event\DeliveryEvent;
+use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 
-use BaksDev\Orders\Order\Entity as OrderEntity;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Modify\OrderModify;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Entity\ProductStock;
 use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
-use BaksDev\Users\Profile\TypeProfile\Entity as TypeProfileEntity;
-use BaksDev\Users\Profile\UserProfile\Entity as UserProfileEntity;
+
+use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
+use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
+use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
+use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
+use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -80,16 +94,26 @@ final class AllOrdersQuery implements AllOrdersInterface
         $qb->select('orders.id AS order_id')->addGroupBy('orders.id');
         $qb->addSelect('orders.event AS order_event')->addGroupBy('orders.event');
         $qb->addSelect('orders.number AS order_number')->addGroupBy('orders.number');
-        $qb->from(OrderEntity\Order::TABLE, 'orders');
+        $qb->from(Order::TABLE, 'orders');
 
         $qb->addSelect('order_event.created AS order_created')->addGroupBy('order_event.created');
         $qb->addSelect('order_event.status AS order_status')->addGroupBy('order_event.status');
-        $qb->join(
+        $qb->leftJoin(
             'orders',
-            OrderEntity\Event\OrderEvent::TABLE,
+            OrderEvent::TABLE,
             'order_event',
             'order_event.status = :status AND order_event.id = orders.event '.($profile ? 'AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '')
         );
+
+
+        $qb->addSelect('orders_modify.mod_date AS modify')->addGroupBy('orders_modify.mod_date');
+        $qb->leftJoin(
+            'orders',
+            OrderModify::TABLE,
+            'orders_modify',
+            'orders_modify.event = orders.event'
+        );
+
 
         if ($profile)
         {
@@ -107,7 +131,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->leftJoin(
             'orders',
-            OrderEntity\Products\OrderProduct::TABLE,
+            OrderProduct::TABLE,
             'order_products',
             'order_products.event = orders.event'
         );
@@ -130,14 +154,14 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->leftJoin(
             'order_products',
-            OrderEntity\Products\Price\OrderPrice::TABLE,
+            OrderPrice::TABLE,
             'order_products_price',
             'order_products_price.product = order_products.id'
         );
 
         $qb->leftJoin(
             'orders',
-            OrderEntity\User\OrderUser::TABLE,
+            OrderUser::TABLE,
             'order_user',
             'order_user.event = orders.event'
         );
@@ -146,14 +170,14 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->leftJoin(
             'order_user',
-            OrderEntity\User\Delivery\OrderDelivery::TABLE,
+            OrderDelivery::TABLE,
             'order_delivery',
             'order_delivery.usr = order_user.id'
         );
 
         $qb->leftJoin(
             'order_delivery',
-            DeliveryEntity\Event\DeliveryEvent::TABLE,
+            DeliveryEvent::TABLE,
             'delivery_event',
             'delivery_event.id = order_delivery.event'
         );
@@ -162,7 +186,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             ->addGroupBy('delivery_price.price');
         $qb->leftJoin(
             'delivery_event',
-            DeliveryEntity\Price\DeliveryPrice::TABLE,
+            DeliveryPrice::TABLE,
             'delivery_price',
             'delivery_price.event = delivery_event.id'
         );
@@ -171,7 +195,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->leftJoin(
             'order_user',
-            UserProfileEntity\Event\UserProfileEvent::TABLE,
+            UserProfileEvent::TABLE,
             'user_profile',
             'user_profile.id = order_user.profile'
         );
@@ -182,21 +206,21 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->leftJoin(
             'user_profile',
-            UserProfileEntity\Info\UserProfileInfo::TABLE,
+            UserProfileInfo::TABLE,
             'user_profile_info',
             'user_profile_info.profile = user_profile.profile'
         );
 
         $qb->leftJoin(
             'user_profile',
-            UserProfileEntity\Value\UserProfileValue::TABLE,
+            UserProfileValue::TABLE,
             'user_profile_value',
             'user_profile_value.event = user_profile.id'
         );
 
         $qb->leftJoin(
             'user_profile',
-            TypeProfileEntity\TypeProfile::TABLE,
+            TypeProfile::TABLE,
             'type_profile',
             'type_profile.id = user_profile.type'
         );
@@ -204,21 +228,21 @@ final class AllOrdersQuery implements AllOrdersInterface
         $qb->addSelect('type_profile_trans.name AS order_profile')->addGroupBy('type_profile_trans.name');
         $qb->leftJoin(
             'type_profile',
-            TypeProfileEntity\Trans\TypeProfileTrans::TABLE,
+            TypeProfileTrans::TABLE,
             'type_profile_trans',
             'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
         );
 
         $qb->join(
             'user_profile_value',
-            TypeProfileEntity\Section\Fields\TypeProfileSectionField::TABLE,
+            TypeProfileSectionField::TABLE,
             'type_profile_field',
             'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
         );
 
         $qb->leftJoin(
             'type_profile_field',
-            TypeProfileEntity\Section\Fields\Trans\TypeProfileSectionFieldTrans::TABLE,
+            TypeProfileSectionFieldTrans::TABLE,
             'type_profile_field_trans',
             'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
         );

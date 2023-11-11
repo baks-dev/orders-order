@@ -61,7 +61,6 @@ final class IndexController extends AbstractController
 
         $orders = null;
 
-
         /** @var OrderStatus $status */
         foreach (OrderStatus::cases() as $status) {
 

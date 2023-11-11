@@ -75,7 +75,9 @@ final class OrderReserveProduct
     }
 	
 	
-	/** Сообщение ставит продукцию в резерв  */
+	/**
+     * Сообщение ставит продукцию в резерв
+     */
 	public function __invoke(OrderMessage $message) : void
 	{
         $this->logger->info('MessageHandler', ['handler' => self::class]);
@@ -96,8 +98,8 @@ final class OrderReserveProduct
 		
 		/** Если статус "ОТМЕНА" или "ВЫПОЛНЕН"  */
 		if(
-			$OrderEvent->getStatus()->getOrderStatusValue() === OrderStatusCanceled::STATUS ||
-			$OrderEvent->getStatus()->getOrderStatusValue() === OrderStatusCompleted::STATUS
+			$OrderEvent->getStatus()->equals(OrderStatusCanceled::class) === true ||
+			$OrderEvent->getStatus()->equals(OrderStatusCompleted::class) === true
 		)
 		{
 			return;
@@ -114,8 +116,8 @@ final class OrderReserveProduct
 			
 			/** Если статус предыдущего события не "ОТМЕНА" и не "ВЫПОЛНЕН" - Снимаем весь старый резерв продукции в заказе  */
 			if(
-				$OrderEventLast->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS &&
-				$OrderEventLast->getStatus()->getOrderStatusValue() !== OrderStatusCompleted::STATUS
+				$OrderEventLast->getStatus()->equals(OrderStatusCanceled::class) === false &&
+				$OrderEventLast->getStatus()->equals(OrderStatusCompleted::class) === false
 			)
 			{
 				
@@ -123,7 +125,7 @@ final class OrderReserveProduct
 				foreach($OrderEventLast->getProduct() as $lastProduct)
 				{
 					/** Снимаем весь старый резерв продукции в заказе
-					 * (если в новой коллекции будет отсутствовать данный продукт - следует продукт не должен быть в резерве )
+					 * (если в новой коллекции будет отсутствовать данный продукт - следует продукт не должен быть в резерве)
 					 */
 					$this->changeReserve($lastProduct, 'sub');
 				}
@@ -137,6 +139,17 @@ final class OrderReserveProduct
 		{
 			/** Устанавливаем новый резерв продукции в заказе */
 			$this->changeReserve($product, 'add');
+
+            $this->logger->info('Добавили общий резерв продукции в карточке',
+                [
+                    __FILE__.':'.__LINE__,
+                    'product' => $product->getProduct(),
+                    'offer' => $product->getOffer(),
+                    'variation' => $product->getVariation(),
+                    'modification' => $product->getModification(),
+                    'total' => $product->getTotal(),
+                ]
+            );
 			
 		}
 		

@@ -109,7 +109,7 @@ final class PackageOrderProductForm extends AbstractType
 
                     if ($warehouse)
                     {
-                        $totalStock = $this->warehouseTotal->getProductWarehouseTotal(
+                        $totalStock = $this->warehouseTotal->getProductProfileTotal(
                             $warehouse,
                             $ProductUid,
                             $ProductOfferConst,

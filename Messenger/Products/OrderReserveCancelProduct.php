@@ -78,7 +78,6 @@ final class OrderReserveCancelProduct
 	/** Снимаем резерв с продукции при отмене заказа  */
 	public function __invoke(OrderMessage $message) : void
 	{
-        $this->logger->info('MessageHandler', ['handler' => self::class]);
 
 		/* Получаем всю продукцию в заказе */
 		
@@ -90,7 +89,7 @@ final class OrderReserveCancelProduct
 		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 		
 		/** Если статус не "ОТМЕНА" - завершаем обработчик */
-		if(!$OrderEvent || $OrderEvent->getStatus()->getOrderStatusValue() !== OrderStatusCanceled::STATUS)
+		if(!$OrderEvent || !$OrderEvent->getStatus()->equals(OrderStatusCanceled::class))
 		{
 			return;
 		}
@@ -105,7 +104,7 @@ final class OrderReserveCancelProduct
 			$OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
 			
 			/** Если статус предыдущего события "ВЫПОЛНЕН" - не снимаем резерв или наличие (просто удаляем)  */
-			if($OrderEventLast->getStatus()->getOrderStatusValue() === OrderStatusCompleted::STATUS)
+			if($OrderEventLast->getStatus()->equals(OrderStatusCompleted::class))
 			{
 				return;
 			}
@@ -116,6 +115,18 @@ final class OrderReserveCancelProduct
 		{
 			/** Снимаем резерв отмененного заказа */
 			$this->changeReserve($product);
+
+            $this->logger->info('Сняли общий резерв продукции в карточке при отмене заказа',
+                [
+                    __FILE__.':'.__LINE__,
+                    'product' => $product->getProduct(),
+                    'offer' => $product->getOffer(),
+                    'variation' => $product->getVariation(),
+                    'modification' => $product->getModification(),
+                    'total' => $product->getTotal(),
+                ]
+            );
+
 		}
 	}
 	

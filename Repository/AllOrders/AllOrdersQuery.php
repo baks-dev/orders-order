@@ -59,22 +59,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllOrdersQuery implements AllOrdersInterface
 {
-
     private PaginatorInterface $paginator;
 
-    private TranslatorInterface $translator;
     private DBALQueryBuilder $DBALQueryBuilder;
 
     public function __construct(
        DBALQueryBuilder $DBALQueryBuilder,
-        TranslatorInterface $translator,
-        SwitcherInterface $switcher,
         PaginatorInterface $paginator,
     ) {
-
-        // $this->switcher = $switcher;
         $this->paginator = $paginator;
-        $this->translator = $translator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
@@ -85,20 +78,19 @@ final class AllOrdersQuery implements AllOrdersInterface
         ?UserProfileUid $profile
     ): PaginatorInterface
     {
-        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+        $qb = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class)
+            ->bindLocal()
+        ;
 
-        /** ЛОКАЛЬ */
-        $locale = new Locale($this->translator->getLocale());
-        $qb->setParameter('local', $locale, Locale::TYPE);
-
-        $qb->select('orders.id AS order_id')->addGroupBy('orders.id');
-        $qb->addSelect('orders.event AS order_event')->addGroupBy('orders.event');
-        $qb->addSelect('orders.number AS order_number')->addGroupBy('orders.number');
+        $qb->select('orders.id AS order_id');
+        $qb->addSelect('orders.event AS order_event');
+        $qb->addSelect('orders.number AS order_number');
         $qb->from(Order::TABLE, 'orders');
 
-        $qb->addSelect('order_event.created AS order_created')->addGroupBy('order_event.created');
-        $qb->addSelect('order_event.status AS order_status')->addGroupBy('order_event.status');
-        $qb->leftJoin(
+        $qb->addSelect('order_event.created AS order_created');
+        $qb->addSelect('order_event.status AS order_status');
+        $qb->join(
             'orders',
             OrderEvent::TABLE,
             'order_event',
@@ -106,7 +98,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
 
-        $qb->addSelect('orders_modify.mod_date AS modify')->addGroupBy('orders_modify.mod_date');
+        $qb->addSelect('orders_modify.mod_date AS modify');
         $qb->leftJoin(
             'orders',
             OrderModify::TABLE,
@@ -126,8 +118,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         // Продукция
 
-        $qb->addSelect('order_products_price.currency AS order_currency')
-            ->addGroupBy('order_products_price.currency');
+        $qb->addSelect('order_products_price.currency AS order_currency');
 
         $qb->leftJoin(
             'orders',
@@ -182,8 +173,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'delivery_event.id = order_delivery.event'
         );
 
-        $qb->addSelect('delivery_price.price AS delivery_price')
-            ->addGroupBy('delivery_price.price');
+        $qb->addSelect('delivery_price.price AS delivery_price');
         $qb->leftJoin(
             'delivery_event',
             DeliveryPrice::TABLE,
@@ -200,9 +190,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'user_profile.id = order_user.profile'
         );
 
-        $qb->addSelect('user_profile_info.discount AS order_profile_discount')->addGroupBy(
-            'user_profile_info.discount'
-        );
+        $qb->addSelect('user_profile_info.discount AS order_profile_discount');
 
         $qb->leftJoin(
             'user_profile',
@@ -225,7 +213,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'type_profile.id = user_profile.type'
         );
 
-        $qb->addSelect('type_profile_trans.name AS order_profile')->addGroupBy('type_profile_trans.name');
+        $qb->addSelect('type_profile_trans.name AS order_profile');
         $qb->leftJoin(
             'type_profile',
             TypeProfileTrans::TABLE,
@@ -300,7 +288,6 @@ final class AllOrdersQuery implements AllOrdersInterface
         else
         {
             $qb->addSelect('FALSE AS order_move');
-
         }
 
 
@@ -367,6 +354,8 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         
         $qb->addOrderBy('order_event.created');
+
+        $qb->allGroupByExclude();
 
         $qb->setMaxResults(20);
 

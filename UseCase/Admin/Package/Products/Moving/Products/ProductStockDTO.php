@@ -23,6 +23,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Stocks\Entity\Products\ProductStockProductInterface;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class ProductStockDTO implements ProductStockProductInterface
@@ -62,6 +63,14 @@ final class ProductStockDTO implements ProductStockProductInterface
 //    {
 //        $this->warehouse = $warehouse;
 //    }
+
+    private ?UserUid $usr;
+
+
+    public function __construct(?UserUid $usr) {
+        $this->usr = $usr;
+    }
+
 
     /** Продукт */
     public function getProduct(): ProductUid
@@ -117,4 +126,13 @@ final class ProductStockDTO implements ProductStockProductInterface
     {
         $this->total = $total;
     }
+
+    /**
+     * Usr
+     */
+    public function getUsr(): ?UserUid
+    {
+        return $this->usr;
+    }
+
 }

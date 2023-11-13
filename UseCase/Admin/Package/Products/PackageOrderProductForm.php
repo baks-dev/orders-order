@@ -32,6 +32,8 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserByUserProfile\UserByUserProfileInterface;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -45,15 +47,22 @@ final class PackageOrderProductForm extends AbstractType
     private ProductUserBasketInterface $info;
 
     private ProductWarehouseTotalInterface $warehouseTotal;
+    private UserByUserProfileInterface $userByUserProfile;
 
-    public function __construct(ProductUserBasketInterface $info, ProductWarehouseTotalInterface $warehouseTotal)
+    public function __construct(
+        UserByUserProfileInterface $userByUserProfile,
+        ProductUserBasketInterface $info,
+        ProductWarehouseTotalInterface $warehouseTotal
+    )
     {
         $this->info = $info;
         $this->warehouseTotal = $warehouseTotal;
+        $this->userByUserProfile = $userByUserProfile;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
         /* // Section Collection
          $builder->add(
              'move',
@@ -74,22 +83,21 @@ final class PackageOrderProductForm extends AbstractType
 
         $builder->get('move')->addModelTransformer(
             new CallbackTransformer(
-                function ($move) {
+                function($move) {
                     return $move instanceof Moving\MovingProductStockForm ? $move : null;
                 },
-                function ($move): void {
-                }
+                function($move): void {}
             )
         );
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($options): void {
+            function(FormEvent $event) use ($options): void {
                 /** @var PackageOrderProductDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if ($data)
+                if($data)
                 {
                     $warehouse = $options['warehouse'];
 
@@ -107,7 +115,7 @@ final class PackageOrderProductForm extends AbstractType
                     $ProductModificationConst = $product['product_modification_const'] ? new ProductModificationConst($product['product_modification_const']) : null;
                     $totalStock = 0;
 
-                    if ($warehouse)
+                    if($warehouse)
                     {
                         $totalStock = $this->warehouseTotal->getProductProfileTotal(
                             $warehouse,
@@ -126,9 +134,17 @@ final class PackageOrderProductForm extends AbstractType
                     $Delivery = $form->getParent()?->getParent()?->getData()->getUsers()->getDelivery();
 
                     /* Если в заказе количество больше, чем в наличие на складе */
-                    if ($Delivery->isPickup() == false && $data->getPrice()->getTotal() > $totalStock)
+                    if($Delivery->isPickup() == false && $data->getPrice()->getTotal() > $totalStock)
                     {
-                        $ProductMoving = new Moving\Products\ProductStockDTO();
+                        $UserUid = null;
+
+                        if($warehouse)
+                        {
+                            $UserByUserProfile = $this->userByUserProfile->findUserByProfile($warehouse);
+                            $UserUid = $UserByUserProfile?->getId();
+                        }
+
+                        $ProductMoving = new Moving\Products\ProductStockDTO($UserUid);
                         $ProductMoving->setProduct($ProductUid);
                         $ProductMoving->setOffer($ProductOfferConst);
                         $ProductMoving->setVariation($ProductVariationConst);
@@ -144,7 +160,10 @@ final class PackageOrderProductForm extends AbstractType
 
                         $data->setMove($Move);
 
-                        $form->add('move', Moving\MovingProductStockForm::class, ['label' => false]);
+
+                        $form->add('move', Moving\MovingProductStockForm::class,
+                            ['label' => false]
+                        );
 
                     }
                 }
@@ -159,6 +178,7 @@ final class PackageOrderProductForm extends AbstractType
             'data_class' => PackageOrderProductDTO::class,
             'attr' => ['class' => 'order-basket'],
             'warehouse' => null,
+            'usr' => null,
 
         ]);
     }

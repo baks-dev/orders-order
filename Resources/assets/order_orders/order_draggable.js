@@ -162,10 +162,11 @@ setTimeout(function P8X1I2diQ4() {
 
                             /** Инициируем форму упаковки заказа  */
                             modal.addEventListener('shown.bs.modal', function (event){
-                                if (typeof initOrderPackage  == "function")
-                                {
-                                    initOrderPackage();
-                                }
+
+                                let lazy = document.createElement('script');
+                                lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
+                                document.head.appendChild(lazy);
+
                             });
 
                             modal.querySelectorAll('form').forEach(function (forms) {

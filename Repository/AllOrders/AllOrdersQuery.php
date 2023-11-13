@@ -118,7 +118,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         // Продукция
 
-        $qb->addSelect('order_products_price.currency AS order_currency');
+
 
         $qb->leftJoin(
             'orders',
@@ -128,20 +128,12 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
 
-        $qb->addSelect(
-            "JSON_AGG
-			( DISTINCT
-		
-					JSONB_BUILD_OBJECT
-					(
-						'product', order_products_price.product,
-						'price', order_products_price.price,
-						'total', order_products_price.total
-					)
-		
-			)
-			AS product_price"
-        );
+
+
+
+
+        $qb->addSelect('order_products_price.currency AS order_currency');
+
 
         $qb->leftJoin(
             'order_products',
@@ -149,6 +141,10 @@ final class AllOrdersQuery implements AllOrdersInterface
             'order_products_price',
             'order_products_price.product = order_products.id'
         );
+
+
+
+
 
         $qb->leftJoin(
             'orders',
@@ -221,7 +217,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
         );
 
-        $qb->join(
+        $qb->leftJoin(
             'user_profile_value',
             TypeProfileSectionField::TABLE,
             'type_profile_field',
@@ -351,6 +347,22 @@ final class AllOrdersQuery implements AllOrdersInterface
             $qb->addSelect('FALSE AS move_error');
             $qb->addSelect('FALSE AS order_error');
         }
+
+
+        $qb->addSelect(
+            "JSON_AGG
+			( DISTINCT
+		
+					JSONB_BUILD_OBJECT
+					(
+						'product', order_products_price.product,
+						'price', order_products_price.price,
+						'total', order_products_price.total
+					)
+		
+			)
+			AS product_price"
+        );
 
         
         $qb->addOrderBy('order_event.created');

@@ -28,6 +28,9 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+//use BaksDev\Users\User\Entity\User;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -49,17 +52,26 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Пользовательские данные заказа */
     #[Assert\Valid]
-    private User\OrderUserDTO $users;
+    private  User\OrderUserDTO $users;
 
 
-    /** Константа склада, для сборки заказа */
-    #[Assert\NotBlank]
+//    /** Константа склада, для сборки заказа */
+//    #[Assert\NotBlank]
+//    #[Assert\Uuid]
+//    private $warehouse = null;
+
+    /** Склад (Профиль пользователя) */
     #[Assert\Uuid]
-    private $warehouse = null;
+    private ?UserProfileUid $profile = null;
 
 
-    public function __construct()
+    private UserUid $usr;
+
+
+    public function __construct(UserUid $usr)
     {
+        $this->usr = $usr;
+
         $this->product = new ArrayCollection();
         // $this->move = new ArrayCollection();
     }
@@ -69,17 +81,17 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this->id;
     }
 
-    /** Константа склада, для сборки заказа */
-
-    public function getWarehouse()
-    {
-        return $this->warehouse;
-    }
-
-    public function setWarehouse($warehouse): void
-    {
-        $this->warehouse = $warehouse;
-    }
+//    /** Константа склада, для сборки заказа */
+//
+//    public function getWarehouse()
+//    {
+//        return $this->warehouse;
+//    }
+//
+//    public function setWarehouse($warehouse): void
+//    {
+//        $this->warehouse = $warehouse;
+//    }
 
 
     /** Коллекция продукции в заказе */
@@ -118,5 +130,28 @@ final class PackageOrderDTO implements OrderEventInterface
         }
 
         return $this->users;
+    }
+
+    /**
+     * Profile
+     */
+    public function getProfile(): ?UserProfileUid
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
+    
+    /**
+     * Usr
+     */
+    public function getUsr(): UserUid
+    {
+        return $this->usr;
     }
 }

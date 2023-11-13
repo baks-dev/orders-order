@@ -11,17 +11,5 @@
 {#<script defer src="{{ path(app.request.attributes.get('_route')~'.js') }}"></script>#}
 
 <script nonce="{{ csp_nonce() }}" data-src="/assets/order_orders/orders_package.min.js?v={{ version }}" class='lazy'></script>
-<script nonce="{{ csp_nonce() }}" >
-setTimeout(function OxMvRIBczY() {
-
-    if (typeof initOrderPackage == 'function') {
-		initOrderPackage();
-        return;
-    }
-    setTimeout(OxMvRIBczY, 100);
-
-}, 100);
-
-</script>
 
 {% endblock %}

@@ -235,7 +235,7 @@ final class OrderHandler
         /* Отправляем событие в шину  */
         $this->messageDispatch->dispatch(
             message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
-            transport: 'orders'
+            transport: 'orders-order'
         );
 
 

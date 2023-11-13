@@ -36,19 +36,7 @@
             {% endfor %} #}
 
 
-            {% if form.vars.data.warehouse %}
-
-
-
-                {# <iframe
-                        data-src="https://yandex.ru/maps/?rtext={{ form.vars.data.warehouse.option }}~{{ form.vars.data.users.delivery.latitude }},{{ form.vars.data.users.delivery.longitude }}&rtt=auto"
-                        frameborder="0"
-                        style="height: 300px;"
-                        class="mb-3 w-100 d-none"
-                        id="shipping_route"
-                >
-
-                </iframe> #}
+            {#            {% if form.vars.data.warehouse %}
 
                 <div class="mb-3">
                     <a href="https://yandex.ru/maps/?rtext={{ form.vars.data.warehouse.option }}~{{ form.vars.data.users.delivery.latitude }},{{ form.vars.data.users.delivery.longitude }}&rtt=auto"
@@ -67,10 +55,10 @@
                         <span class="ms-3 badge bg-danger">Пункт выдачи заказов</span>
                     {% endif %}
                 </div>
-            {% endif %}
+            {% endif %} #}
 
 
-            {{ form_row(form.warehouse, {
+            {{ form_row(form.profile, {
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}
 
@@ -116,8 +104,6 @@
                 {% endfor %} #}
 
 
-
-
                         </strong>
 
                         &nbsp;
@@ -129,22 +115,24 @@
                         &nbsp;
 
                         {% if form.vars.data.users.delivery.pickup == false and product.vars.data.price.total > card.stock %}
+
                             <span class="text-danger">
                                 {% if card.stock %}
                                     В наличии на складе <strong>{{ card.stock }}</strong> шт.
                                 {% else %}
-                                    Нет в наличии
+                                    {% if form.vars.data.profile %}
+                                        Нет в наличии
+                                    {% endif %}
                                 {% endif %}
                             </span>
 
                             <div class="mt-1">
 
-
-
                                 {# Перемещение  #}
-                                {% if product.move %}
+                                {% if product.move.product is defined %}
 
                                     {% for move_product in product.move.product %}
+
                                         {{ form_row(move_product.product) }}
                                         {{ form_row(move_product.offer) }}
                                         {{ form_row(move_product.variation) }}
@@ -154,24 +142,25 @@
 
 
                                     <div class="d-flex gap-3 align-items-center">
-                                        {% if product.move.warehouse is defined %}
+                                        {% if product.move.profile is defined %}
 
                                             <span>Переместить недостоток {{ (product.vars.data.price.total - card.stock) }} шт. со склада:</span>
 
                                             <div class="w-50">
-                                                {{ form_widget(product.move.warehouse, {
+                                                {{ form_widget(product.move.profile, {
                                                     placeholder: 'Выберите целевой Склад для перемещения ...', attr: { 'data-select' : 'select2' }
                                                 }) }}
                                             </div>
 
                                         {% else %}
-                                            <span class="text-danger">
-                                            Нет в наличии для перемещения
-                                        </span>
+                                            {% if form.vars.data.profile %}
+                                                <span class="text-danger">
+                                                Нет в наличии для перемещения
+                                            </span>
+                                            {% endif %}
+
                                         {% endif %}
                                     </div>
-
-
 
                                     {{ form_row(product.move.move.destination ) }}
 

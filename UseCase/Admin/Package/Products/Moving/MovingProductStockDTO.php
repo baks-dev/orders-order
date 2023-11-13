@@ -26,12 +26,13 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see ProductStockEvent */
 final class MovingProductStockDTO implements ProductStockEventInterface
 {
     /** Идентификатор */
     private ?ProductStockEventUid $id = null;
 
-    /** Ответственное лицо (Профиль пользователя) */
+    /** Целевой склад (Профиль пользователя) */
     #[Assert\Uuid]
     private ?UserProfileUid $profile = null;
 
@@ -45,10 +46,10 @@ final class MovingProductStockDTO implements ProductStockEventInterface
     #[Assert\Length(max: 36)]
     private string $number;
 
-    /** Константа Целевого склада */
-    //#[Assert\NotBlank]
-    #[Assert\Uuid]
-    private ?ContactsRegionCallConst $warehouse = null;
+//    /** Константа Целевого склада */
+//    //#[Assert\NotBlank]
+//    #[Assert\Uuid]
+//    private ?ContactsRegionCallConst $warehouse = null;
 
     /** Склад назначения при перемещении */
     #[Assert\Valid]
@@ -144,16 +145,16 @@ final class MovingProductStockDTO implements ProductStockEventInterface
         $this->number = $number;
     }
 
-    /** Константа Целевого склада */
-    public function getWarehouse(): ?ContactsRegionCallConst
-    {
-        return $this->warehouse;
-    }
-
-    public function setWarehouse(?ContactsRegionCallConst $warehouse): void
-    {
-        $this->warehouse = $warehouse;
-    }
+//    /** Константа Целевого склада */
+//    public function getWarehouse(): ?ContactsRegionCallConst
+//    {
+//        return $this->warehouse;
+//    }
+//
+//    public function setWarehouse(?ContactsRegionCallConst $warehouse): void
+//    {
+//        $this->warehouse = $warehouse;
+//    }
 
     /** Склад назначения при перемещении */
     public function getMove(): Move\ProductStockMoveDTO

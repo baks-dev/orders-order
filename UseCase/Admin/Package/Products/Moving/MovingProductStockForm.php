@@ -25,6 +25,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving;
 
 use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseChoice\ProductWarehouseChoiceInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -49,6 +50,8 @@ final class MovingProductStockForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+
 //        $warehouses = $this->warehouseChoice->fetchAllWarehouse();
 //
 //        $builder->add(
@@ -81,6 +84,7 @@ final class MovingProductStockForm extends AbstractType
 //            ),
 //        );
 
+
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function (FormEvent $event): void {
@@ -95,13 +99,21 @@ final class MovingProductStockForm extends AbstractType
                     /** @var Products\ProductStockDTO $product */
                     $product = $data->getProduct()->current();
 
-                    $warehouses = $this->productWarehouseChoice
-                        ->fetchWarehouseByProduct(
-                            $product->getProduct(),
-                            $product->getOffer(),
-                            $product->getVariation(),
-                            $product->getModification()
-                        );
+                    $warehouses = [];
+
+                    if($product->getUsr())
+                    {
+                        $warehouses = $this->productWarehouseChoice
+                            ->fetchWarehouseByProduct(
+                                $product->getUsr(),
+                                $product->getProduct(),
+                                $product->getOffer(),
+                                $product->getVariation(),
+                                $product->getModification()
+                            );
+                    }
+
+
 
                     // $data->getDestination()
 
@@ -111,21 +123,18 @@ final class MovingProductStockForm extends AbstractType
                         return !$v->equals($Destination);
                     }, ARRAY_FILTER_USE_BOTH);
 
-
-                  
-
                     if ($warehouses)
                     {
                         $form->add(
-                            'warehouse',
+                            'profile',
                             ChoiceType::class,
                             [
                                 'choices' => $warehouses,
-                                'choice_value' => function (?ContactsRegionCallConst $warehouse) {
-                                    return $warehouse?->getValue();
+                                'choice_value' => function (?UserProfileUid $profile) {
+                                    return $profile?->getValue();
                                 },
-                                'choice_label' => function (ContactsRegionCallConst $warehouse) {
-                                    return $warehouse->getAttr().' ( '.$warehouse->getProperty().' )';
+                                'choice_label' => function (UserProfileUid $profile) {
+                                    return $profile->getAttr().' ( '.$profile->getProperty().' )';
                                 },
 
                                 'label' => false
@@ -162,6 +171,7 @@ final class MovingProductStockForm extends AbstractType
                 'data_class' => MovingProductStockDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
+                'usr' => null
             ],
         );
     }

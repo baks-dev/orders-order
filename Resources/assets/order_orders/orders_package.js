@@ -21,12 +21,10 @@
  */
 
 function initOrderPackage() {
-    let orderpackageWarehouse = document.getElementById('package_order_form_warehouse');
+    let orderpackageWarehouse = document.getElementById('package_order_form_profile');
     if (orderpackageWarehouse) {
 
         orderpackageWarehouse.addEventListener('change', changeObjectPackageWarehouse, false);
-
-
 
         /** Изменияем список целевых складов */
         // new NiceSelect(document.getElementById('package_order_form_warehouse'), {
@@ -34,14 +32,12 @@ function initOrderPackage() {
         //     id: 'select2-package_order_form_warehouse'
         // });
     }
-
 }
 
 
 function changeObjectPackageWarehouse() {
 
     //console.log('changeObjectPackageWarehouse');
-
 
 
     /* Создаём объект класса XMLHttpRequest */
@@ -87,3 +83,22 @@ function changeObjectPackageWarehouse() {
     requestModalName.send(formData);
 
 }
+
+limit = 100;
+
+setTimeout(function OxMvRIBczY() {
+
+    if (typeof initOrderPackage == 'function') {
+        initOrderPackage();
+        console.log('initOrderPackage');
+        return;
+    }
+
+    console.log(limit);
+
+    if (limit > 1000) { return; }
+
+    setTimeout(OxMvRIBczY, limit);
+
+}, 100);
+

@@ -27,21 +27,23 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving\Move;
 
 use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMoveInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see ProductStockMove */
 final class ProductStockMoveDTO implements ProductStockMoveInterface
 {
     /** Константа склада назначения при перемещении */
     #[Assert\Uuid]
-    private ?ContactsRegionCallConst $destination = null;
+    private ?UserProfileUid $destination = null;
 
     /** Константа склада назначения при перемещении */
-    public function getDestination(): ?ContactsRegionCallConst
+    public function getDestination(): ?UserProfileUid
     {
         return $this->destination;
     }
 
-    public function setDestination(?ContactsRegionCallConst $destination): void
+    public function setDestination(?UserProfileUid $destination): void
     {
         $this->destination = $destination;
     }

@@ -70,12 +70,12 @@ final class ProductUserBasket implements ProductUserBasketInterface
         //		);
 
 
-        $qb->addSelect('product_event.id AS event')->addGroupBy('product_event.id');
-        $qb->addSelect('product_event.main AS id')->addGroupBy('product_event.main');
+        $qb->addSelect('product_event.id AS event'); //->addGroupBy('product_event.id');
+        $qb->addSelect('product_event.main AS id'); //->addGroupBy('product_event.main');
         $qb->from(ProductEntity\Event\ProductEvent::TABLE, 'product_event');
 
 
-        $qb->addSelect('product_active.active_from AS product_active_from')->addGroupBy('product_active.active_from');
+        $qb->addSelect('product_active.active_from AS product_active_from'); //->addGroupBy('product_active.active_from');
 
         $qb->join('product_event',
             ProductEntity\Active\ProductActive::TABLE,
@@ -90,11 +90,11 @@ final class ProductUserBasket implements ProductUserBasketInterface
 			)
 		');
 
-        $qb->addSelect('product.event AS current_event')->addGroupBy('product.event');
+        $qb->addSelect('product.event AS current_event'); //->addGroupBy('product.event');
         $qb->leftJoin('product_event', ProductEntity\Product::TABLE, 'product', 'product.id = product_event.main');
 
 
-        $qb->addSelect('product_trans.name AS product_name')->addGroupBy('product_trans.name');
+        $qb->addSelect('product_trans.name AS product_name'); //->addGroupBy('product_trans.name');
 
         $qb->leftJoin(
             'product_event',
@@ -110,15 +110,15 @@ final class ProductUserBasket implements ProductUserBasketInterface
             ProductEntity\Price\ProductPrice::TABLE,
             'product_price',
             'product_price.event = product_event.id'
-        )
-            ->addGroupBy('product_price.price')
-            ->addGroupBy('product_price.currency')
-            ->addGroupBy('product_price.quantity')
-            ->addGroupBy('product_price.reserve');
+        );
+//            ->addGroupBy('product_price.price')
+//            ->addGroupBy('product_price.currency')
+//            ->addGroupBy('product_price.quantity')
+//            ->addGroupBy('product_price.reserve');
 
         /* ProductInfo */
 
-        $qb->addSelect('product_info.url AS product_url')->addGroupBy('product_info.url');
+        $qb->addSelect('product_info.url AS product_url'); //->addGroupBy('product_info.url');
 
         $qb->leftJoin(
             'product_event',
@@ -130,9 +130,9 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         /** Торговое предложение */
 
-        $qb->addSelect('product_offer.id as product_offer_uid')->addGroupBy('product_offer.id');
-        $qb->addSelect('product_offer.const as product_offer_const')->addGroupBy('product_offer.const');
-        $qb->addSelect('product_offer.value as product_offer_value')->addGroupBy('product_offer.value');
+        $qb->addSelect('product_offer.id as product_offer_uid'); //->addGroupBy('product_offer.id');
+        $qb->addSelect('product_offer.const as product_offer_const'); //->addGroupBy('product_offer.const');
+        $qb->addSelect('product_offer.value as product_offer_value'); //->addGroupBy('product_offer.value');
         $qb->leftJoin(
             'product_event',
             ProductEntity\Offers\ProductOffer::TABLE,
@@ -153,12 +153,12 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_price',
             'product_offer_price.offer = product_offer.id'
         )
-            ->addGroupBy('product_offer_price.price')
-            ->addGroupBy('product_offer_price.currency');
+        ; //->addGroupBy('product_offer_price.price')
+            //->addGroupBy('product_offer_price.currency');
 
 
         /** Получаем тип торгового предложения */
-        $qb->addSelect('category_offer.reference as product_offer_reference')->addGroupBy('category_offer.reference');
+        $qb->addSelect('category_offer.reference as product_offer_reference'); //->addGroupBy('category_offer.reference');
         $qb->leftJoin(
             'product_offer',
             CategoryEntity\Offers\ProductCategoryOffers::TABLE,
@@ -168,7 +168,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
 
         /** Получаем название торгового предложения */
-        $qb->addSelect('category_offer_trans.name as product_offer_name')->addGroupBy('category_offer_trans.name');
+        $qb->addSelect('category_offer_trans.name as product_offer_name'); //->addGroupBy('category_offer_trans.name');
         $qb->leftJoin(
             'category_offer',
             CategoryEntity\Offers\Trans\ProductCategoryOffersTrans::TABLE,
@@ -183,17 +183,16 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_quantity',
             'product_offer_quantity.offer = product_offer.id'
         )
-            ->addGroupBy('product_offer_quantity.quantity')
-            ->addGroupBy('product_offer_quantity.reserve');
+        ; //->addGroupBy('product_offer_quantity.quantity')
+           // ->addGroupBy('product_offer_quantity.reserve');
 
         //ProductCategoryOffers
 
         /** Множественные варианты торгового предложения */
 
-        $qb->addSelect('product_offer_variation.id as product_variation_uid')->addGroupBy('product_offer_variation.id');
-        $qb->addSelect('product_offer_variation.const as product_variation_const')->addGroupBy('product_offer_variation.const');
-        $qb->addSelect('product_offer_variation.value as product_variation_value')
-            ->addGroupBy('product_offer_variation.value');
+        $qb->addSelect('product_offer_variation.id as product_variation_uid'); //->addGroupBy('product_offer_variation.id');
+        $qb->addSelect('product_offer_variation.const as product_variation_const'); //->addGroupBy('product_offer_variation.const');
+        $qb->addSelect('product_offer_variation.value as product_variation_value'); //->addGroupBy('product_offer_variation.value');
 
         $qb->leftJoin(
             'product_offer',
@@ -201,7 +200,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_variation',
             'product_offer_variation.offer = product_offer.id'.($variation ? ' AND product_offer_variation.id = :variation' : '').' '
         )
-            ->addGroupBy('product_offer_variation.article');
+        ; // ->addGroupBy('product_offer_variation.article');
 
         if($variation)
         {
@@ -215,12 +214,12 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_variation_price',
             'product_variation_price.variation = product_offer_variation.id'
         )
-            ->addGroupBy('product_variation_price.price')
-            ->addGroupBy('product_variation_price.currency');
+        ; //->addGroupBy('product_variation_price.price')
+         //->addGroupBy('product_variation_price.currency');
 
         /** Получаем тип множественного варианта */
         $qb->addSelect('category_offer_variation.reference as product_variation_reference')
-            ->addGroupBy('category_offer_variation.reference');
+        ; //->addGroupBy('category_offer_variation.reference');
         $qb->leftJoin(
             'product_offer_variation',
             CategoryEntity\Offers\Variation\ProductCategoryVariation::TABLE,
@@ -230,7 +229,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         /** Получаем название множественного варианта */
         $qb->addSelect('category_offer_variation_trans.name as product_variation_name')
-            ->addGroupBy('category_offer_variation_trans.name');
+        ; //->addGroupBy('category_offer_variation_trans.name');
         $qb->leftJoin(
             'category_offer_variation',
             CategoryEntity\Offers\Variation\Trans\ProductCategoryVariationTrans::TABLE,
@@ -245,16 +244,16 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_variation_quantity',
             'product_variation_quantity.variation = product_offer_variation.id'
         )
-            ->addGroupBy('product_variation_quantity.quantity')
-            ->addGroupBy('product_variation_quantity.reserve');
+        ; //->addGroupBy('product_variation_quantity.quantity')
+        //->addGroupBy('product_variation_quantity.reserve');
 
 
         /** Модификация множественного варианта торгового предложения */
 
-        $qb->addSelect('product_offer_modification.id as product_modification_uid')->addGroupBy('product_offer_modification.id');
-        $qb->addSelect('product_offer_modification.const as product_modification_const')->addGroupBy('product_offer_modification.const');
+        $qb->addSelect('product_offer_modification.id as product_modification_uid'); //->addGroupBy('product_offer_modification.id');
+        $qb->addSelect('product_offer_modification.const as product_modification_const'); //->addGroupBy('product_offer_modification.const');
         $qb->addSelect('product_offer_modification.value as product_modification_value')
-            ->addGroupBy('product_offer_modification.value');
+        ; //->addGroupBy('product_offer_modification.value');
 
         $qb->leftJoin(
             'product_offer_variation',
@@ -262,7 +261,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_modification',
             'product_offer_modification.variation = product_offer_variation.id'.($modification ? ' AND product_offer_modification.id = :modification' : '').' '
         )
-            ->addGroupBy('product_offer_modification.article');
+        ; //->addGroupBy('product_offer_modification.article');
 
         if($modification)
         {
@@ -276,12 +275,12 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_modification_price',
             'product_modification_price.modification = product_offer_modification.id'
         )
-            ->addGroupBy('product_modification_price.price')
-            ->addGroupBy('product_modification_price.currency');
+        ; //->addGroupBy('product_modification_price.price')
+        //->addGroupBy('product_modification_price.currency');
 
         /** Получаем тип модификации множественного варианта */
         $qb->addSelect('category_offer_modification.reference as product_modification_reference')
-            ->addGroupBy('category_offer_modification.reference');
+        ; //->addGroupBy('category_offer_modification.reference');
         $qb->leftJoin(
             'product_offer_modification',
             CategoryEntity\Offers\Variation\Modification\ProductCategoryModification::TABLE,
@@ -291,7 +290,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         /** Получаем название типа модификации */
         $qb->addSelect('category_offer_modification_trans.name as product_modification_name')
-            ->addGroupBy('category_offer_modification_trans.name');
+        ; //->addGroupBy('category_offer_modification_trans.name');
         $qb->leftJoin(
             'category_offer_modification',
             CategoryEntity\Offers\Variation\Modification\Trans\ProductCategoryModificationTrans::TABLE,
@@ -306,8 +305,8 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_modification_quantity',
             'product_modification_quantity.modification = product_offer_modification.id'
         )
-            ->addGroupBy('product_modification_quantity.quantity')
-            ->addGroupBy('product_modification_quantity.reserve');
+        ; //->addGroupBy('product_modification_quantity.quantity')
+        //->addGroupBy('product_modification_quantity.reserve');
 
 
         //$qb->addSelect("'".Entity\Offers\Variation\Image\ProductOfferVariationImage::TABLE."' AS upload_image_dir ");
@@ -378,36 +377,36 @@ final class ProductUserBasket implements ProductUserBasketInterface
         );
 
 
-        $qb->addGroupBy('product_offer_modification_image.name');
-        $qb->addGroupBy('product_offer_modification_image.ext');
-        $qb->addGroupBy('product_offer_modification_image.cdn');
-
-
-        $qb->addGroupBy('product_offer_variation_image.name');
-        $qb->addGroupBy('product_offer_variation_image.ext');
-        $qb->addGroupBy('product_offer_variation_image.cdn');
-
-        $qb->addGroupBy('product_offer_images.name');
-        $qb->addGroupBy('product_offer_images.ext');
-        $qb->addGroupBy('product_offer_images.cdn');
-
-
-        $qb->addGroupBy('product_photo.name');
-        $qb->addGroupBy('product_photo.ext');
-        $qb->addGroupBy('product_photo.cdn');
+//        $qb->addGroupBy('product_offer_modification_image.name');
+//        $qb->addGroupBy('product_offer_modification_image.ext');
+//        $qb->addGroupBy('product_offer_modification_image.cdn');
+//
+//
+//        $qb->addGroupBy('product_offer_variation_image.name');
+//        $qb->addGroupBy('product_offer_variation_image.ext');
+//        $qb->addGroupBy('product_offer_variation_image.cdn');
+//
+//        $qb->addGroupBy('product_offer_images.name');
+//        $qb->addGroupBy('product_offer_images.ext');
+//        $qb->addGroupBy('product_offer_images.cdn');
+//
+//
+//        $qb->addGroupBy('product_photo.name');
+//        $qb->addGroupBy('product_photo.ext');
+//        $qb->addGroupBy('product_photo.cdn');
 
 
         $qb->addSelect("
 			CASE
 			   WHEN product_offer_modification_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE."' , '/', product_offer_modification_image.name)
+					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE."' , '/', product_offer_modification_image.name, '/')
 					
 			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE."' , '/', product_offer_variation_image.name)
+					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE."' , '/', product_offer_variation_image.name, '/')
 			   WHEN product_offer_images.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Image\ProductOfferImage::TABLE."' , '/', product_offer_images.name)
+					CONCAT ( '/upload/".ProductEntity\Offers\Image\ProductOfferImage::TABLE."' , '/', product_offer_images.name, '/')
 			   WHEN product_photo.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Photo\ProductPhoto::TABLE."' , '/', product_photo.name)
+					CONCAT ( '/upload/".ProductEntity\Photo\ProductPhoto::TABLE."' , '/', product_photo.name, '/')
 			   ELSE NULL
 			END AS product_image
 		"
@@ -518,7 +517,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'category.id = product_event_category.category'
         );
 
-        $qb->addSelect('category_trans.name AS category_name')->addGroupBy('category_trans.name');
+        $qb->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
 
         $qb->leftJoin(
             'category',
@@ -527,7 +526,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'category_trans.event = category.event AND category_trans.local = :local'
         );
 
-        $qb->addSelect('category_info.url AS category_url')->addGroupBy('category_info.url');
+        $qb->addSelect('category_info.url AS category_url'); //->addGroupBy('category_info.url');
         $qb->leftJoin(
             'category',
             CategoryEntity\Info\ProductCategoryInfo::TABLE,
@@ -594,6 +593,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         $qb->setParameter('event', $event, ProductEventUid::TYPE);
         $qb->setParameter('local', new Locale($this->translator->getLocale()), Locale::TYPE);
 
+        $qb->allGroupByExclude();
 
 
         /* Кешируем результат DBAL */

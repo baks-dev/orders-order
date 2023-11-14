@@ -132,7 +132,7 @@ final class OrderHandler
         {
             $Main = new Order();
             $this->entityManager->persist($Main);
-            $Event->setOrders($Main);
+            $Event->setMain($Main);
         }
 
         // присваиваем событие корню

@@ -49,7 +49,7 @@ final class OrderForm extends AbstractType
 			'prototype_name' => '__product__',
 		]);
 	
-		$builder->add('users', User\OrderUserForm::class, ['label' => false]);
+		$builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
 
 		$builder

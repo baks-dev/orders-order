@@ -26,53 +26,231 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\User\Basket;
 
 use BaksDev\Auth\Email\Entity\Account;
+use BaksDev\Auth\Email\Repository\AccountEventActiveByEmail\AccountEventActiveByEmailInterface;
 use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
+use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Validator\ValidatorCollectionInterface;
+use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
+use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
 use Doctrine\ORM\EntityManagerInterface;
+use DomainException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class OrderHandler
+final class OrderHandler extends AbstractHandler
 {
-    private EntityManagerInterface $entityManager;
+//    private EntityManagerInterface $entityManager;
+//
+//    private ValidatorInterface $validator;
+//
+//    private LoggerInterface $logger;
+//
+//    private RegistrationHandler $registrationHandler;
+//
+//    private UserProfileHandler $profileHandler;
+//    private MessageDispatchInterface $messageDispatch;
+//
+//
+//    public function __construct(
+//        EntityManagerInterface $entityManager,
+//        ValidatorInterface $validator,
+//        LoggerInterface $logger,
+//        RegistrationHandler $registrationHandler,
+//        UserProfileHandler $profileHandler,
+//        MessageDispatchInterface $messageDispatch
+//
+//    )
+//    {
+//        $this->entityManager = $entityManager;
+//        $this->validator = $validator;
+//        $this->logger = $logger;
+//        $this->registrationHandler = $registrationHandler;
+//        $this->profileHandler = $profileHandler;
+//        $this->messageDispatch = $messageDispatch;
+//    }
 
-    private ValidatorInterface $validator;
-
-    private LoggerInterface $logger;
 
     private RegistrationHandler $registrationHandler;
-
     private UserProfileHandler $profileHandler;
-    private MessageDispatchInterface $messageDispatch;
-
+    private AccountEventActiveByEmailInterface $accountEventActiveByEmail;
+    private UserPasswordHasherInterface $passwordHasher;
+    private CurrentUserProfileEventInterface $currentUserProfileEvent;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator,
-        LoggerInterface $logger,
+        MessageDispatchInterface $messageDispatch,
+        ValidatorCollectionInterface $validatorCollection,
+        ImageUploadInterface $imageUpload,
+        FileUploadInterface $fileUpload,
         RegistrationHandler $registrationHandler,
         UserProfileHandler $profileHandler,
-        MessageDispatchInterface $messageDispatch
-
+        AccountEventActiveByEmailInterface $accountEventActiveByEmail,
+        UserPasswordHasherInterface $passwordHasher,
+        CurrentUserProfileEventInterface $currentUserProfileEvent
     )
     {
-        $this->entityManager = $entityManager;
-        $this->validator = $validator;
-        $this->logger = $logger;
+        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
+
         $this->registrationHandler = $registrationHandler;
         $this->profileHandler = $profileHandler;
-        $this->messageDispatch = $messageDispatch;
+        $this->accountEventActiveByEmail = $accountEventActiveByEmail;
+        $this->passwordHasher = $passwordHasher;
+        $this->currentUserProfileEvent = $currentUserProfileEvent;
     }
 
 
-    public function handle(OrderDTO $command,): string|Order
+    public function handle(OrderDTO $command): string|Order
+    {
+
+        /* Валидация DTO  */
+        $this->validatorCollection->add($command);
+
+        $OrderUserDTO = $command->getUsr();
+
+
+        /**
+         * Создаем аккаунт для авторизации если отсутствует
+         */
+        if($OrderUserDTO->getUsr() === null)
+        {
+            $UserAccount = $OrderUserDTO->getUserAccount();
+            $this->validatorCollection->add($UserAccount);
+
+            if($UserAccount === null)
+            {
+                return $this->validatorCollection->getErrorUniqid();
+            }
+
+            /**
+             * Пробуем по указанным данным авторизовать пользователя либо регистрируем в случае неудачи
+             */
+            $UserUid = $this->authenticate($UserAccount)?->getAccount();
+
+            if(!$UserUid)
+            {
+                $Account = $this->registrationHandler->handle($UserAccount);
+
+                if(!$Account instanceof Account)
+                {
+                    return $Account;
+                }
+
+                $UserUid = $Account->getId();
+            }
+
+            /* Присваиваем пользователя заказу */
+            $OrderUserDTO->setUsr($UserUid);
+        }
+
+
+
+        /**
+         * Создаем профиль пользователя если отсутствует
+         */
+        if($OrderUserDTO->getProfile() === null)
+        {
+            $UserProfileDTO = $OrderUserDTO->getUserProfile();
+            $this->validatorCollection->add($UserProfileDTO);
+
+            if($UserProfileDTO === null)
+            {
+                return $this->validatorCollection->getErrorUniqid();
+            }
+
+            /** Пробуем найти активный профиль пользователя */
+            $UserProfileEvent = $this->currentUserProfileEvent->findByUser($OrderUserDTO->getUsr())?->getId();
+
+            if(!$UserProfileEvent)
+            {
+                /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
+                $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
+                $UserProfile = $this->profileHandler->handle($UserProfileDTO);
+
+                if(!$UserProfile instanceof UserProfile)
+                {
+                    return $UserProfile;
+                }
+
+                $UserProfileEvent = $UserProfile->getEvent();
+            }
+
+            $OrderUserDTO->setProfile($UserProfileEvent);
+        }
+
+
+
+        $this->main = new Order();
+        $this->event = new OrderEvent();
+
+        try
+        {
+            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
+        }
+        catch(DomainException $errorUniqid)
+        {
+            return $errorUniqid->getMessage();
+        }
+
+        /* Валидация всех объектов */
+        if($this->validatorCollection->isInvalid())
+        {
+            return $this->validatorCollection->getErrorUniqid();
+        }
+
+
+        //dump($command);
+
+        //dump($this->main);
+        //dd($this->event);
+
+        $this->entityManager->flush();
+
+        /* Отправляем сообщение в шину */
+        $this->messageDispatch->dispatch(
+            message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+            transport: 'orders-order'
+        );
+
+        return $this->main;
+    }
+
+
+
+
+    public function authenticate(UserAccountDTO $UserAccount)
+    {
+        /** Пробуем авторизовать пользователя по указанным данным */
+
+        $Account = $this->accountEventActiveByEmail->getAccountEvent($UserAccount->getEmail());
+
+        if($Account === null)
+        {
+            return false;
+        }
+
+        /* Проверяем пароль */
+        $passValid = $this->passwordHasher->isPasswordValid($Account, $UserAccount->getPasswordPlain());
+
+        if($passValid === false)
+        {
+            return false;
+        }
+
+        return $Account;
+    }
+
+
+    public function OLDhandle(OrderDTO $command,): string|Order
     {
         /* Валидация DTO */
         $errors = $this->validator->validate($command);
@@ -120,7 +298,7 @@ final class OrderHandler
         //        $this->entityManager->persist($Event);
 
 
-        $OrderUserDTO = $command->getUsers();
+        $OrderUserDTO = $command->getUsr();
 
         /** Создаем аккаунт для авторизации */
         if($OrderUserDTO->getUsr() === null)
@@ -206,7 +384,7 @@ final class OrderHandler
         {
             $Main = new Order();
             $this->entityManager->persist($Main);
-            $Event->setOrders($Main);
+            $Event->setMain($Main);
         }
 
         /* присваиваем событие корню */

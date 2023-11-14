@@ -9,7 +9,7 @@
         </div>
         <div class="w-100 mb-3">
 
-            {% for delivery in form.users.delivery.delivery %}
+            {% for delivery in form.usr.delivery.delivery %}
 
                 <div class='d-flex align-items-center gap-1'>
                     {{ form_widget(delivery) }}
@@ -32,15 +32,15 @@
         </div>
     </div>
 
-    {% if form.users.delivery.delivery.vars.help %}
+    {% if form.usr.delivery.delivery.vars.help %}
 
         <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
-            {{ form.users.delivery.delivery.vars.help }}
+            {{ form.usr.delivery.delivery.vars.help }}
         </div>
 
     {% endif %}
 
-    {% for delivery_field in form.users.delivery.field %}
+    {% for delivery_field in form.usr.delivery.field %}
 
         <div class="d-flex justify-content-between">
             <div class="w-50 d-flex gap-3">

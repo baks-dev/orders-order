@@ -5,36 +5,34 @@
 
     <div class="d-flex justify-content-between mb-3">
         <div class="w-25">
-            <label>Способ оплаты: *</label>
+            <label>Способ оплаты: *</label>щк
         </div>
-        <div class="w-75">
+        <div class="w-75">скь
 
-            {% for payment in form.users.payment.payment %}
+            {% for payment in form.usr.payment.payment %}
 
                 <div class="form-check">
-
+щквукукщскьщквук
                     <label class="form-check-label" for="payment1">
                         {{ form_widget(payment) }}
                     </label>
                 </div>
 
             {% endfor %}
-
-
-
+            щкву
             {# <div class="form-check">
 								<input class="form-check-input" type="radio" name="payment" id="payment2">
-								<label class="form-check-label" for="payment2">
+								<labeщквуl class="form-check-label" for="payment2">
 									Перевод с карты на карту Сбербанк
 								</label>
 							</div> #}
         </div>
     </div>
 
-    {% if form.users.payment.payment.vars.help %}
+    {% if form.usr.payment.payment.vars.help %}
 
         <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
-            {{ form.users.payment.payment.vars.help }}
+            {{ form.usr.payment.payment.vars.help }}
 
             {# Оплата производится наличными деньгами, в момент получения заказа. Подтверждением вашей оплаты
 							является фискальный кассовый чек, вручаемый во время получения и оплаты заказа. #}
@@ -43,7 +41,7 @@
     {% endif %}
 
 
-    {% for payment_field in form.users.payment.field %}
+    {% for payment_field in form.usr.payment.field %}
 
         {# <div class="form-check">
 								

@@ -44,7 +44,7 @@ final class OrderDTO implements OrderEventInterface
 
     /** Пользователь */
     #[Assert\Valid]
-    private ?User\OrderUserDTO $users;
+    private ?User\OrderUserDTO $usr;
 
 
 
@@ -52,7 +52,7 @@ final class OrderDTO implements OrderEventInterface
     public function __construct()
     {
         $this->product = new ArrayCollection();
-        $this->users = new User\OrderUserDTO();
+        $this->usr = new User\OrderUserDTO();
     }
 
 
@@ -101,15 +101,15 @@ final class OrderDTO implements OrderEventInterface
      * Пользователь
      */
 
-    public function getUsers(): ?User\OrderUserDTO
+    public function getUsr(): ?User\OrderUserDTO
     {
-        return $this->users;
+        return $this->usr;
     }
 
 
-    public function setUsers(?User\OrderUserDTO $users): void
+    public function setUsr(?User\OrderUserDTO $users): void
     {
-        $this->users = $users;
+        $this->usr = $users;
     }
 
 

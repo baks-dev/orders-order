@@ -28,6 +28,6 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface CurrentOrderEventInterface
 {
-	public function getCurrentOrderEventOrNull(?OrderUid $order) : ?OrderEvent;
+	public function getCurrentOrderEvent(?OrderUid $order) : ?OrderEvent;
 	
 }

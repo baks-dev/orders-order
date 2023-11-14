@@ -61,7 +61,7 @@ final class OrderForm extends AbstractType
 				
 				if(!$data->getProduct()->isEmpty())
 				{
-					$form->add('users', User\OrderUserForm::class, ['label' => false]);
+					$form->add('usr', User\OrderUserForm::class, ['label' => false]);
 					
 					/* Сохранить ******************************************************/
 					$form->add(

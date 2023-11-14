@@ -125,10 +125,11 @@ class OrderEvent extends EntityEvent
         return $this->status;
     }
 
-    public function setOrders(OrderUid|Order $order): void
+    public function setMain(OrderUid|Order $order): void
     {
         $this->orders = $order instanceof Order ? $order->getId() : $order;
     }
+
 
     public function getDto($dto): mixed
     {

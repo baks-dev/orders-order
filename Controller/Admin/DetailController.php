@@ -66,7 +66,7 @@ final class DetailController extends AbstractController
     ): Response
     {
         /** Получаем активное событие заказа */
-        $Event = $currentOrderEvent->getCurrentOrderEventOrNull($Order->getId());
+        $Event = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
 
         if(!$Event)
         {
@@ -75,6 +75,7 @@ final class DetailController extends AbstractController
 
         $OrderDTO = new OrderDTO();
         $Event->getDto($OrderDTO);
+
 
 
         /** @var OrderProductDTO $product */

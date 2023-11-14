@@ -43,7 +43,7 @@ final class CurrentOrderEvent implements CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEventOrNull(?OrderUid $order): ?OrderEvent
+    public function getCurrentOrderEvent(?OrderUid $order): ?OrderEvent
     {
         if(!$order) { return null; }
 

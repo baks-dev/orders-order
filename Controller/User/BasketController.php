@@ -81,7 +81,7 @@ class BasketController extends AbstractController
         $OrderDTO = new OrderDTO();
 
         /** Присваиваем пользователя */
-        $OrderUserDTO = $OrderDTO->getUsers();
+        $OrderUserDTO = $OrderDTO->getUsr();
         $OrderUserDTO->setUsr($this->getUsr()?->getId());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения

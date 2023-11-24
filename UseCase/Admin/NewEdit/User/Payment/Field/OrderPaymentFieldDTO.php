@@ -34,11 +34,11 @@ final class OrderPaymentFieldDTO implements OrderPaymentFieldInterface
 {
 	/** Идентификатор пользовательского поля в способе оплаты */
 	#[Assert\NotBlank]
-	private PaymentFieldUid $field;
+	private ?PaymentFieldUid $field = null;
 	
 	/** Заполненное значение */
 	#[Assert\Valid]
-	private ?string $value;
+	private ?string $value = null;
 	
 	
 	/** Идентификатор пользовательского поля в способе оплаты */

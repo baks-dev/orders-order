@@ -80,10 +80,10 @@ final class PackageOrderForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-        $Usr = $builder->getData()->getUsr();
+        $CurrentUser = $builder->getData()->getCurrent();
 
         /** Все профили пользователя */
-        $profiles = $this->userProfileChoice->getActiveUserProfile($Usr);
+        $profiles = $this->userProfileChoice->getActiveUserProfile($CurrentUser);
 
         $this->currentProfile = (count($profiles) === 1) ? current($profiles) : null;
 
@@ -101,7 +101,7 @@ final class PackageOrderForm extends AbstractType
                 }
 
                 /** @var OrderDeliveryDTO $Delivery */
-                $Delivery = $data->getUsers()->getDelivery();
+                $Delivery = $data->getUsr()->getDelivery();
 
                 if ($Delivery->getLatitude() && $Delivery->getLongitude())
                 {
@@ -120,6 +120,11 @@ final class PackageOrderForm extends AbstractType
                     /* Поиск ближайшего склада */
                     foreach ($profiles as $profile)
                     {
+                        if(!$profile->getOption())
+                        {
+                            continue;
+                        }
+
                         $warehouseGeocode = explode(',', $profile->getOption());
 
                         $this->geocodeDistance
@@ -157,7 +162,7 @@ final class PackageOrderForm extends AbstractType
             'entry_type' => Products\PackageOrderProductForm::class,
             'entry_options' => [
                 'label' => false,
-                'usr' => $Usr
+                'usr' => $CurrentUser
             ],
             'label' => false,
             'by_reference' => false,

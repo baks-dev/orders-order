@@ -77,7 +77,6 @@ final class DetailController extends AbstractController
         $Event->getDto($OrderDTO);
 
 
-
         /** @var OrderProductDTO $product */
         foreach($OrderDTO->getProduct() as $product)
         {
@@ -105,6 +104,8 @@ final class DetailController extends AbstractController
             $OrderDTO,
             ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
         );
+
+
 
         if($request->headers->get('X-Requested-With') === null)
         {

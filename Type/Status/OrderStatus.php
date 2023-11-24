@@ -26,11 +26,14 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Status;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use InvalidArgumentException;
 
 final class OrderStatus
 {
     public const TYPE = 'order_status_type';
+
+    public const TEST = OrderStatusNew::class;
 
     private OrderStatusInterface $status;
 

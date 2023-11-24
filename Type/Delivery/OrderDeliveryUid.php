@@ -35,9 +35,5 @@ final class OrderDeliveryUid extends Uid
 
     public const TYPE = 'order_delivery';
 
-    public function __construct(AbstractUid|string|null $value = null)
-    {
-        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
-    }
 
 }

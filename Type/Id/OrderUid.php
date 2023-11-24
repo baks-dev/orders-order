@@ -40,8 +40,7 @@ final class OrderUid extends Uid
         mixed $attr = null,
     )
     {
-        parent::__construct(Kernel::isTestEnvironment() && !$value ? self::TEST : $value);
-
+        parent::__construct($value);
         $this->attr = $attr;
     }
 

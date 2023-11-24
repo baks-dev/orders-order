@@ -97,7 +97,9 @@ class OrderUser extends EntityEvent
             return parent::getDto($dto);
         }
 
-        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+        return false;
+
+        //throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
     public function setEntity($dto): mixed

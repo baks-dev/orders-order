@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\CurrentOrderEvent;
 
+use App\Kernel;
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
+use BaksDev\Core\Entity\EntityTestGenerator;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
@@ -45,6 +47,12 @@ final class CurrentOrderEvent implements CurrentOrderEventInterface
      */
     public function getCurrentOrderEvent(?OrderUid $order): ?OrderEvent
     {
+
+        if(Kernel::isTestEnvironment())
+        {
+            return EntityTestGenerator::get(OrderEvent::class);
+        }
+
         if(!$order) { return null; }
 
         $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);

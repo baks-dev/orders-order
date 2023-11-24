@@ -144,8 +144,8 @@ final class OrderNewTest extends KernelTestCase
         /** OrderUserDTO */
 
         $OrderUserDTO = new OrderUserDTO();
-        $OrderDTO->setUsers($OrderUserDTO);
-        self::assertSame($OrderUserDTO, $OrderDTO->getUsers());
+        $OrderDTO->setUsr($OrderUserDTO);
+        self::assertSame($OrderUserDTO, $OrderDTO->getUsr());
 
         $user = new UserUid();
         $OrderUserDTO->setUsr($user);

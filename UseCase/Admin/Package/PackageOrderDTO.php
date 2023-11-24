@@ -52,7 +52,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Пользовательские данные заказа */
     #[Assert\Valid]
-    private  User\OrderUserDTO $users;
+    private  User\OrderUserDTO $usr;
 
 
 //    /** Константа склада, для сборки заказа */
@@ -65,13 +65,12 @@ final class PackageOrderDTO implements OrderEventInterface
     private ?UserProfileUid $profile = null;
 
 
-    private UserUid $usr;
+    private UserUid $current;
 
 
-    public function __construct(UserUid $usr)
+    public function __construct(UserUid $current)
     {
-        $this->usr = $usr;
-
+        $this->current = $current;
         $this->product = new ArrayCollection();
         // $this->move = new ArrayCollection();
     }
@@ -121,16 +120,17 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Пользовательские данные заказа */
 
-    public function getUsers(): User\OrderUserDTO
+    public function getUsr(): User\OrderUserDTO
     {
 
-        if(!(new ReflectionProperty(self::class, 'users'))->isInitialized($this))
+        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
         {
-            $this->users = new User\OrderUserDTO();
+            $this->usr = new User\OrderUserDTO();
         }
 
-        return $this->users;
+        return $this->usr;
     }
+
 
     /**
      * Profile
@@ -146,12 +146,12 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this;
     }
 
-    
     /**
-     * Usr
+     * Current
      */
-    public function getUsr(): UserUid
+    public function getCurrent(): UserUid
     {
-        return $this->usr;
+        return $this->current;
     }
+
 }

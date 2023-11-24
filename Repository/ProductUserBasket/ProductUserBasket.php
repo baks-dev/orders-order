@@ -415,10 +415,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Флаг загрузки файла CDN */
         $qb->addSelect("
 			CASE
-			   WHEN product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.ext
-			   WHEN product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.ext
-			   WHEN product_offer_images.name IS NOT NULL THEN product_offer_images.ext
-			   WHEN product_photo.name IS NOT NULL THEN product_photo.ext
+			   WHEN product_offer_modification_image.ext IS NOT NULL AND product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.ext
+			   WHEN product_offer_variation_image.ext IS NOT NULL AND product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.ext
+			   WHEN product_offer_images.ext IS NOT NULL AND product_offer_images.name IS NOT NULL THEN product_offer_images.ext
+			   WHEN product_photo.ext IS NOT NULL AND product_photo.name IS NOT NULL THEN product_photo.ext
 			   ELSE NULL
 			END AS product_image_ext
 		");
@@ -426,13 +426,14 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Флаг загрузки файла CDN */
         $qb->addSelect("
 			CASE
-			   WHEN product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.cdn
-			   WHEN product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.cdn
-			   WHEN product_offer_images.name IS NOT NULL THEN product_offer_images.cdn
-			   WHEN product_photo.name IS NOT NULL THEN product_photo.cdn
+			   WHEN product_offer_modification_image.cdn IS NOT NULL AND product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.cdn
+			   WHEN product_offer_variation_image.cdn  IS NOT NULL AND product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.cdn
+			   WHEN product_offer_images.cdn IS NOT NULL AND product_offer_images.name IS NOT NULL THEN product_offer_images.cdn
+			   WHEN product_photo.cdn IS NOT NULL AND product_photo.name IS NOT NULL THEN product_photo.cdn
 			   ELSE NULL
 			END AS product_image_cdn
-		");
+		")
+        ;
 
 
         /** Стоимость продукта */
@@ -453,10 +454,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->addSelect("
 			CASE
-			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 THEN product_modification_price.currency
-			   WHEN product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 THEN product_variation_price.currency
-			   WHEN product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 THEN product_offer_price.currency
-			   WHEN product_price.price IS NOT NULL AND product_price.price > 0 THEN product_price.currency
+			   WHEN product_modification_price.currency IS NOT NULL AND product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 THEN product_modification_price.currency
+			   WHEN product_variation_price.currency IS NOT NULL AND product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 THEN product_variation_price.currency
+			   WHEN product_offer_price.currency IS NOT NULL AND product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 THEN product_offer_price.currency
+			   WHEN product_price.currency IS NOT NULL AND product_price.price IS NOT NULL AND product_price.price > 0 THEN product_price.currency
 			   ELSE NULL
 			END AS product_currency
 		"
@@ -481,9 +482,14 @@ final class ProductUserBasket implements ProductUserBasketInterface
 			   ELSE NULL
 			END AS product_quantity
 		"
-        );
+        )
 
-        //		->addGroupBy('product_modification_quantity.quantity')
+        		->addGroupBy('product_modification_quantity.reserve')
+        		->addGroupBy('product_variation_quantity.reserve')
+        		->addGroupBy('product_offer_quantity.reserve')
+        		->addGroupBy('product_price.reserve')
+
+            ;
         //		->addGroupBy('product_modification_quantity.reserve')
 
         /** Наличие */

@@ -20,17 +20,10 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
-    "symfony/uid": "^6.2",
-    "symfony/security-bundle": "^6.2",
-    "doctrine/doctrine-bundle": "^2.8",
-    "baks-dev/products-product": "^6.2",
-    "baks-dev/payment": "^6.2",
-    "baks-dev/centrifugo": "^6.2"
+    "php": ">=8.2"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-latest",
-    "symfony/test-pack": "^1.0"
+    "roave/security-advisories": "dev-latest"
   },
   "autoload": {
     "psr-4": {

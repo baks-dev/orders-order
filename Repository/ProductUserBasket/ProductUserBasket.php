@@ -111,10 +111,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_price',
             'product_price.event = product_event.id'
         );
-//            ->addGroupBy('product_price.price')
-//            ->addGroupBy('product_price.currency')
-//            ->addGroupBy('product_price.quantity')
-//            ->addGroupBy('product_price.reserve');
+        //            ->addGroupBy('product_price.price')
+        //            ->addGroupBy('product_price.currency')
+        //            ->addGroupBy('product_price.quantity')
+        //            ->addGroupBy('product_price.reserve');
 
         /* ProductInfo */
 
@@ -154,7 +154,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_price.offer = product_offer.id'
         )
         ; //->addGroupBy('product_offer_price.price')
-            //->addGroupBy('product_offer_price.currency');
+        //->addGroupBy('product_offer_price.currency');
 
 
         /** Получаем тип торгового предложения */
@@ -184,7 +184,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_offer_quantity.offer = product_offer.id'
         )
         ; //->addGroupBy('product_offer_quantity.quantity')
-           // ->addGroupBy('product_offer_quantity.reserve');
+        // ->addGroupBy('product_offer_quantity.reserve');
 
         //ProductCategoryOffers
 
@@ -215,7 +215,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
             'product_variation_price.variation = product_offer_variation.id'
         )
         ; //->addGroupBy('product_variation_price.price')
-         //->addGroupBy('product_variation_price.currency');
+        //->addGroupBy('product_variation_price.currency');
 
         /** Получаем тип множественного варианта */
         $qb->addSelect('category_offer_variation.reference as product_variation_reference')
@@ -377,23 +377,36 @@ final class ProductUserBasket implements ProductUserBasketInterface
         );
 
 
-//        $qb->addGroupBy('product_offer_modification_image.name');
-//        $qb->addGroupBy('product_offer_modification_image.ext');
-//        $qb->addGroupBy('product_offer_modification_image.cdn');
-//
-//
-//        $qb->addGroupBy('product_offer_variation_image.name');
-//        $qb->addGroupBy('product_offer_variation_image.ext');
-//        $qb->addGroupBy('product_offer_variation_image.cdn');
-//
-//        $qb->addGroupBy('product_offer_images.name');
-//        $qb->addGroupBy('product_offer_images.ext');
-//        $qb->addGroupBy('product_offer_images.cdn');
-//
-//
-//        $qb->addGroupBy('product_photo.name');
-//        $qb->addGroupBy('product_photo.ext');
-//        $qb->addGroupBy('product_photo.cdn');
+        //        $qb->addGroupBy('product_offer_modification_image.name');
+        $qb->addGroupBy('product_offer_modification_image.ext');
+        $qb->addGroupBy('product_offer_modification_image.cdn')
+            ->addGroupBy('product_modification_price.currency')
+            ->addGroupBy('product_modification_quantity.reserve')
+        ;
+        //
+        //
+        //        $qb->addGroupBy('product_offer_variation_image.name');
+        $qb->addGroupBy('product_offer_variation_image.ext');
+        $qb->addGroupBy('product_offer_variation_image.cdn')
+            ->addGroupBy('product_variation_price.currency')
+            ->addGroupBy('product_variation_quantity.reserve')
+        ;
+        //
+        //        $qb->addGroupBy('product_offer_images.name');
+        $qb->addGroupBy('product_offer_images.ext');
+        $qb->addGroupBy('product_offer_images.cdn')
+            ->addGroupBy('product_offer_price.currency')
+            ->addGroupBy('product_offer_quantity.reserve')
+        ;
+        //
+        //
+        //        $qb->addGroupBy('product_photo.name');
+        $qb->addGroupBy('product_photo.ext');
+        $qb->addGroupBy('product_photo.cdn')
+            ->addGroupBy('product_price.currency')
+            ->addGroupBy('product_price.reserve')
+
+        ;
 
 
         $qb->addSelect("
@@ -415,10 +428,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Флаг загрузки файла CDN */
         $qb->addSelect("
 			CASE
-			   WHEN product_offer_modification_image.ext IS NOT NULL AND product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.ext
-			   WHEN product_offer_variation_image.ext IS NOT NULL AND product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.ext
-			   WHEN product_offer_images.ext IS NOT NULL AND product_offer_images.name IS NOT NULL THEN product_offer_images.ext
-			   WHEN product_photo.ext IS NOT NULL AND product_photo.name IS NOT NULL THEN product_photo.ext
+			   WHEN product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.ext
+			   WHEN product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.ext
+			   WHEN product_offer_images.name IS NOT NULL THEN product_offer_images.ext
+			   WHEN product_photo.name IS NOT NULL THEN product_photo.ext
 			   ELSE NULL
 			END AS product_image_ext
 		");
@@ -426,14 +439,13 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Флаг загрузки файла CDN */
         $qb->addSelect("
 			CASE
-			   WHEN product_offer_modification_image.cdn IS NOT NULL AND product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.cdn
-			   WHEN product_offer_variation_image.cdn  IS NOT NULL AND product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.cdn
-			   WHEN product_offer_images.cdn IS NOT NULL AND product_offer_images.name IS NOT NULL THEN product_offer_images.cdn
-			   WHEN product_photo.cdn IS NOT NULL AND product_photo.name IS NOT NULL THEN product_photo.cdn
+			   WHEN product_offer_modification_image.name IS NOT NULL THEN product_offer_modification_image.cdn
+			   WHEN product_offer_variation_image.name IS NOT NULL THEN product_offer_variation_image.cdn
+			   WHEN product_offer_images.name IS NOT NULL THEN product_offer_images.cdn
+			   WHEN product_photo.name IS NOT NULL THEN product_photo.cdn
 			   ELSE NULL
 			END AS product_image_cdn
-		")
-        ;
+		");
 
 
         /** Стоимость продукта */
@@ -454,10 +466,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->addSelect("
 			CASE
-			   WHEN product_modification_price.currency IS NOT NULL AND product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 THEN product_modification_price.currency
-			   WHEN product_variation_price.currency IS NOT NULL AND product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 THEN product_variation_price.currency
-			   WHEN product_offer_price.currency IS NOT NULL AND product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 THEN product_offer_price.currency
-			   WHEN product_price.currency IS NOT NULL AND product_price.price IS NOT NULL AND product_price.price > 0 THEN product_price.currency
+			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 THEN product_modification_price.currency
+			   WHEN product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 THEN product_variation_price.currency
+			   WHEN product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 THEN product_offer_price.currency
+			   WHEN product_price.price IS NOT NULL AND product_price.price > 0 THEN product_price.currency
 			   ELSE NULL
 			END AS product_currency
 		"
@@ -482,14 +494,9 @@ final class ProductUserBasket implements ProductUserBasketInterface
 			   ELSE NULL
 			END AS product_quantity
 		"
-        )
+        );
 
-        		->addGroupBy('product_modification_quantity.reserve')
-        		->addGroupBy('product_variation_quantity.reserve')
-        		->addGroupBy('product_offer_quantity.reserve')
-        		->addGroupBy('product_price.reserve')
-
-            ;
+        //		->addGroupBy('product_modification_quantity.quantity')
         //		->addGroupBy('product_modification_quantity.reserve')
 
         /** Наличие */

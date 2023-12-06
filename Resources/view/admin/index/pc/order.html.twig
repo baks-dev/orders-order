@@ -15,7 +15,7 @@
                      data-id='{{ order.order_id }}'
                         {#                        data-bs-toggle="offcanvas" #}
                         {#                        data-bs-target="#offcanvas{{ order.order_id }}" #}
-                        {#                        aria-controls="offcanvas{{ order.order_id }}" #}
+                        {#                        title="offcanvas{{ order.order_id }}" #}
                      style="cursor: help"
                 >
 
@@ -91,7 +91,6 @@
                         {% else %}
 
                             <button type="button" class="btn btn-sm btn-light draggable-handle"
-                                    aria-label="Изменить статус сделки"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     data-bs-delay='{"show":600,"hide":100}'

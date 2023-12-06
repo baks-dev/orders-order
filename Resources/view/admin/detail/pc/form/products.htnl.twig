@@ -88,14 +88,14 @@
 
 
                         <button type="button" class="btn btn-sm minus"
-                                aria-label="Уменьшить количество"
+                                title="Уменьшить количество"
                                 data-id='{{ product.price.total.vars.id }}'
                         >
                             <span class="h4 text-muted opacity-50">-</span>
                         </button>
 
                         {# <input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
-						   aria-label="Количество"
+						   title="Количество"
 						   style="width: 50px;"> #}
 
                         {{ form_widget(product.price.total, {
@@ -110,7 +110,7 @@
 
 
                         <button type="button" class="btn btn-sm plus"
-                                aria-label="Увеличить количество"
+                                title="Увеличить количество"
                                 data-id='{{ product.price.total.vars.id }}'
                         >
                             <span class="h5 text-muted opacity-50">+</span>

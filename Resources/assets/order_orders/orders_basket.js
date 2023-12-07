@@ -266,7 +266,7 @@ function success(id) {
 }
 
 
-document.querySelectorAll('input[name="order_form[users][userProfile][type]"]').forEach(function (userProfileType) {
+document.querySelectorAll('input[name="order_form[usr][userProfile][type]"]').forEach(function (userProfileType) {
     userProfileType.addEventListener('change', function (event) {
 
         let forms = this.closest('form');
@@ -276,7 +276,7 @@ document.querySelectorAll('input[name="order_form[users][userProfile][type]"]').
 });
 
 
-document.querySelectorAll('input[name="order_form[users][payment][payment]"]').forEach(function (userPayment) {
+document.querySelectorAll('input[name="order_form[usr][payment][payment]"]').forEach(function (userPayment) {
     userPayment.addEventListener('change', function (event) {
         let forms = this.closest('form');
         submitPaymentForm(forms);
@@ -284,7 +284,7 @@ document.querySelectorAll('input[name="order_form[users][payment][payment]"]').f
     });
 });
 
-document.querySelectorAll('input[name="order_form[users][delivery][delivery]"]').forEach(function (userPayment) {
+document.querySelectorAll('input[name="order_form[usr][delivery][delivery]"]').forEach(function (userPayment) {
     userPayment.addEventListener('change', function (event) {
         let forms = this.closest('form');
         submitDeliveryForm(forms);
@@ -341,7 +341,7 @@ async function submitDeliveryForm(forms) {
                 document.getElementById('user_delivery').replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name="order_form[users][delivery][delivery]"]').forEach(function (user_delivery) {
+                document.querySelectorAll('input[name="order_form[usr][delivery][delivery]"]').forEach(function (user_delivery) {
                     user_delivery.addEventListener('change', function (event) {
 
                         let forms = this.closest('form');
@@ -501,7 +501,7 @@ async function submitPaymentForm(forms) {
                 document.getElementById('user_payment').replaceWith(user_payment);
 
 
-                document.querySelectorAll('input[name="order_form[users][payment][payment]"]').forEach(function (user_payment) {
+                document.querySelectorAll('input[name="order_form[usr][payment][payment]"]').forEach(function (user_payment) {
                     user_payment.addEventListener('change', function (event) {
 
                         let forms = this.closest('form');
@@ -581,7 +581,7 @@ async function submitOrderForm(forms) {
 
 
                 /** Пересобираем события способа оплаты */
-                document.querySelectorAll('input[name="order_form[users][payment][payment]"]').forEach(function (userPayment) {
+                document.querySelectorAll('input[name="order_form[usr][payment][payment]"]').forEach(function (userPayment) {
                     userPayment.addEventListener('change', function (event) {
                         let replaceId = 'user_profile';
                         let forms = this.closest('form');
@@ -595,7 +595,7 @@ async function submitOrderForm(forms) {
                 document.getElementById('user_delivery').replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name="order_form[users][delivery][delivery]"]').forEach(function (user_delivery) {
+                document.querySelectorAll('input[name="order_form[usr][delivery][delivery]"]').forEach(function (user_delivery) {
                     user_delivery.addEventListener('change', function (event) {
 
                         let forms = this.closest('form');

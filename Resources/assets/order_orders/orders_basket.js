@@ -621,11 +621,7 @@ async function submitOrderForm(forms) {
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-
-
             }
-
-
 
         });
 

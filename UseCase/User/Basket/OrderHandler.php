@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\User\Basket;
 
 use BaksDev\Auth\Email\Entity\Account;
+use BaksDev\Auth\Email\Entity\Event\AccountEvent;
 use BaksDev\Auth\Email\Repository\AccountEventActiveByEmail\AccountEventActiveByEmailInterface;
 use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
 use BaksDev\Core\Entity\AbstractHandler;
@@ -131,6 +132,7 @@ final class OrderHandler extends AbstractHandler
                 return $this->validatorCollection->getErrorUniqid();
             }
 
+
             /**
              * Пробуем по указанным данным авторизовать пользователя либо регистрируем в случае неудачи
              */
@@ -147,12 +149,14 @@ final class OrderHandler extends AbstractHandler
 
                 $UserUid = $Account->getId();
             }
+            else
+            {
+
+            }
 
             /* Присваиваем пользователя заказу */
             $OrderUserDTO->setUsr($UserUid);
         }
-
-
 
         /**
          * Создаем профиль пользователя если отсутствует
@@ -227,7 +231,7 @@ final class OrderHandler extends AbstractHandler
 
 
 
-    public function authenticate(UserAccountDTO $UserAccount)
+    public function authenticate(UserAccountDTO $UserAccount): ?AccountEvent
     {
         /** Пробуем авторизовать пользователя по указанным данным */
 
@@ -235,7 +239,7 @@ final class OrderHandler extends AbstractHandler
 
         if($Account === null)
         {
-            return false;
+            return null;
         }
 
         /* Проверяем пароль */
@@ -243,7 +247,7 @@ final class OrderHandler extends AbstractHandler
 
         if($passValid === false)
         {
-            return false;
+            return null;
         }
 
         return $Account;

@@ -99,10 +99,16 @@ final class PackageOrderProductForm extends AbstractType
 
                 if($data)
                 {
+
                     $warehouse = $options['warehouse'];
 
                     /** Получаем информацию о продукте */
-                    $product = $this->info->fetchProductBasketAssociative($data->getProduct(), $data->getOffer(), $data->getVariation(), $data->getModification());
+                    $product = $this->info->fetchProductBasketAssociative(
+                        $data->getProduct(),
+                        $data->getOffer(),
+                        $data->getVariation(),
+                        $data->getModification()
+                    );
 
                     if(!$product)
                     {
@@ -126,16 +132,23 @@ final class PackageOrderProductForm extends AbstractType
                         );
                     }
 
+                    //dd($totalStock);
 
                     $product['stock'] = $totalStock;
                     $data->setCard($product);
 
                     /** @var OrderDeliveryDTO $Delivery */
-                    $Delivery = $form->getParent()?->getParent()?->getData()->getUsers()->getDelivery();
+                    $Delivery = $form->getParent()?->getParent()?->getData()->getUsr()->getDelivery();
 
-                    /* Если в заказе количество больше, чем в наличие на складе */
-                    if($Delivery->isPickup() == false && $data->getPrice()->getTotal() > $totalStock)
+
+
+                    /* Если в заказе количество больше, чем в наличие на складе - добавляем перемещение */
+                    if($Delivery->isPickup() === false && $data->getPrice()->getTotal() > $totalStock)
                     {
+
+                        //dd(4654655);
+
+
                         $UserUid = null;
 
                         if($warehouse)

@@ -89,14 +89,12 @@
                         <strong>
                             {{ card.product_name }}
 
+                            {# Значение множественного варианта ТП #}
+                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference) ~
+                            card.product_modification_value|call_twig_func(card.product_modification_reference) }}
+
                             {# Значение торгового предложения #}
                             {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
-
-                            {# Значение множественного варианта ТП #}
-                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference) }}
-
-                            {# Значение модификации множественного варианта ТП #}
-                            {{ card.product_modification_value|call_twig_func(card.product_modification_reference) }}
 
                             {# Свойства, учавствующие в названии #}
                             {# {% for name_property in arr_property | filter(props => props.field_name == true) %}
@@ -114,7 +112,7 @@
 
                         &nbsp;
 
-                        {% if form.vars.data.users.delivery.pickup == false and product.vars.data.price.total > card.stock %}
+                        {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.price.total > card.stock %}
 
                             <span class="text-danger">
                                 {% if card.stock %}

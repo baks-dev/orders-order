@@ -170,6 +170,7 @@ final class PackageController extends AbstractController
             }
 
 
+
             /**
              * Создаем заявку на сборку заказа на "Склад для упаковки заказа"
              */
@@ -220,6 +221,8 @@ final class PackageController extends AbstractController
 
             /* TODO */
 
+
+
             $PackageProductStockDTO->setNumber($Order->getNumber());
 
             // Присваиваем заявке идентификатор заказа
@@ -229,6 +232,7 @@ final class PackageController extends AbstractController
 
             /** @var PackageProductStockHandler $packageHandler */
             $PackageProductStock = $packageHandler->handle($PackageProductStockDTO);
+
 
             if(!$PackageProductStock instanceof ProductStock)
             {

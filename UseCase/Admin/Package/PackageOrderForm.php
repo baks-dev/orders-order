@@ -28,6 +28,8 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 use BaksDev\Contacts\Region\Repository\ContactCallByGeocode\ContactCallByGeocodeInterface;
 use BaksDev\Contacts\Region\Repository\WarehouseChoice\WarehouseChoiceInterface;
 use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Users\Address\Services\GeocodeDistance;
@@ -51,14 +53,20 @@ final class PackageOrderForm extends AbstractType
 
     private GeocodeDistance $geocodeDistance;
 
+
+
+
     /** Ближайший склад */
-    private ?ContactsRegionCallConst $nearestWarehouse = null;
+    private ?UserProfileUid $nearestWarehouse = null;
 
     /** Склад - пункт выдачи */
-    private ?ContactsRegionCallConst $pickupWarehouse = null;
+    private ?UserProfileUid $pickupWarehouse = null;
 
     /** Выбранный склад */
     private ?UserProfileUid $currentProfile = null;
+
+
+
 
     private ContactCallByGeocodeInterface $contactCallByGeocode;
     private UserProfileChoiceInterface $userProfileChoice;
@@ -69,7 +77,8 @@ final class PackageOrderForm extends AbstractType
         GeocodeAddressInterface $geocodeAddress,
         GeocodeDistance $geocodeDistance,
         ContactCallByGeocodeInterface $contactCallByGeocode,
-    ) {
+    )
+    {
         //$this->warehouseChoice = $warehouseChoice;
         $this->geocodeAddress = $geocodeAddress;
         $this->geocodeDistance = $geocodeDistance;
@@ -90,12 +99,12 @@ final class PackageOrderForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($profiles): void {
+            function(FormEvent $event) use ($profiles): void {
                 /** @var PackageOrderDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if ($this->currentProfile)
+                if($this->currentProfile)
                 {
                     $data->setProfile($this->currentProfile);
                 }
@@ -103,12 +112,13 @@ final class PackageOrderForm extends AbstractType
                 /** @var OrderDeliveryDTO $Delivery */
                 $Delivery = $data->getUsr()->getDelivery();
 
-                if ($Delivery->getLatitude() && $Delivery->getLongitude())
+
+                if($Delivery->getLatitude() && $Delivery->getLongitude())
                 {
                     $address = $this->geocodeAddress->fetchGeocodeAddressAssociative($Delivery->getLatitude(), $Delivery->getLongitude());
                     $pickup = $this->contactCallByGeocode->existContactCallByGeocode($Delivery->getLatitude(), $Delivery->getLongitude());
 
-                    if ($address)
+                    if($address)
                     {
                         $Delivery->setAddress($address['address']);
                     }
@@ -117,23 +127,40 @@ final class PackageOrderForm extends AbstractType
 
                     $distance = null;
 
+
+
                     /* Поиск ближайшего склада */
-                    foreach ($profiles as $profile)
+                    /** @var UserProfileUid $profile */
+                    foreach($profiles as $profile)
                     {
-                        if(!$profile->getOption())
+                        if(!$profile->getOption() || !$profile->getProperty())
                         {
                             continue;
                         }
 
-                        $warehouseGeocode = explode(',', $profile->getOption());
+                        ///$warehouseGeocode = explode(',', $profile->getOption());
+
+                        /**
+                         * @var GpsLatitude $profileLatitude
+                         * @var GpsLongitude $profileLongitude
+                         */
+                        $profileLatitude = $profile->getOption();
+                        $profileLongitude = $profile->getProperty();
 
                         $this->geocodeDistance
                             ->fromLatitude((float) $Delivery->getLatitude()->getValue())
                             ->fromLongitude((float) $Delivery->getLongitude()->getValue())
-                            ->toLatitude((float) $warehouseGeocode[0])
-                            ->toLongitude((float) $warehouseGeocode[1]);
+                            ->toLatitude($profileLatitude->getFloat())
+                            ->toLongitude($profileLongitude->getFloat());
 
-                        if ($this->geocodeDistance->isEquals())
+
+                        $geocodeDistance = $this->geocodeDistance->getDistance();
+
+                        //dump($distance);
+                        //dump($geocodeDistance);
+
+                       /** Если геолокация заказа равна геолокации профиля - присваиваем */
+                        if($this->geocodeDistance->isEquals())
                         {
                             $data->setProfile($profile);
                             $this->nearestWarehouse = $profile; // Ближайший
@@ -143,9 +170,8 @@ final class PackageOrderForm extends AbstractType
                             break;
                         }
 
-                        $geocodeDistance = $this->geocodeDistance->getDistance();
 
-                        if ($geocodeDistance < $distance || $distance === null)
+                        if($distance === null || $geocodeDistance < $distance)
                         {
                             $distance = $geocodeDistance;
                             $data->setProfile($profile);
@@ -188,24 +214,23 @@ final class PackageOrderForm extends AbstractType
             ]);
 
 
-
         /* Склад назначения */
         $builder->add(
             'profile',
             ChoiceType::class,
             [
                 'choices' => $profiles,
-                'choice_value' => function (?UserProfileUid $profile) {
+                'choice_value' => function(?UserProfileUid $profile) {
                     return $profile?->getValue();
                 },
-                'choice_label' => function (UserProfileUid $warehouse) {
+                'choice_label' => function(UserProfileUid $warehouse) {
 
-                    if ($this->pickupWarehouse && $warehouse->equals($this->pickupWarehouse))
+                    if($this->pickupWarehouse && $warehouse->equals($this->pickupWarehouse))
                     {
                         return $warehouse->getAttr().' (Пункт выдачи заказов)';
                     }
 
-                    if ($this->nearestWarehouse && $warehouse->equals($this->nearestWarehouse))
+                    if($this->nearestWarehouse && $warehouse->equals($this->nearestWarehouse))
                     {
                         return $warehouse->getAttr().' (ближайший)';
                     }
@@ -215,7 +240,13 @@ final class PackageOrderForm extends AbstractType
 
                 'label' => false,
                 'required' => false,
-                'choice_attr' => function ($warehouse) {
+                'choice_attr' => function($warehouse) {
+
+
+                    if($this->pickupWarehouse && !$warehouse->equals($this->pickupWarehouse))
+                    {
+                        return ['disabled' => 'disabled'];
+                    }
 
                     return [];
                 }
@@ -225,9 +256,8 @@ final class PackageOrderForm extends AbstractType
 
         $builder->get('profile')->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event): void {
-                /** @var PackageOrderDTO $data */
-                $data = $event->getData();
+            function(FormEvent $event): void {
+                $data = (string) $event->getData();
                 $this->productModifier($event->getForm()->getParent(), new UserProfileUid($data));
             }
         );
@@ -251,7 +281,6 @@ final class PackageOrderForm extends AbstractType
 
     public function productModifier(FormInterface $form, UserProfileUid $warehouse): void
     {
-        //dd($warehouse);
         /* Коллекция продукции */
         $form->add('product', CollectionType::class, [
             'entry_type' => Products\PackageOrderProductForm::class,

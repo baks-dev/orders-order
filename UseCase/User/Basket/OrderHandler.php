@@ -42,50 +42,24 @@ use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
+use BaksDev\Users\User\Entity\User;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
 use DomainException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderHandler extends AbstractHandler
 {
-//    private EntityManagerInterface $entityManager;
-//
-//    private ValidatorInterface $validator;
-//
-//    private LoggerInterface $logger;
-//
-//    private RegistrationHandler $registrationHandler;
-//
-//    private UserProfileHandler $profileHandler;
-//    private MessageDispatchInterface $messageDispatch;
-//
-//
-//    public function __construct(
-//        EntityManagerInterface $entityManager,
-//        ValidatorInterface $validator,
-//        LoggerInterface $logger,
-//        RegistrationHandler $registrationHandler,
-//        UserProfileHandler $profileHandler,
-//        MessageDispatchInterface $messageDispatch
-//
-//    )
-//    {
-//        $this->entityManager = $entityManager;
-//        $this->validator = $validator;
-//        $this->logger = $logger;
-//        $this->registrationHandler = $registrationHandler;
-//        $this->profileHandler = $profileHandler;
-//        $this->messageDispatch = $messageDispatch;
-//    }
-
-
     private RegistrationHandler $registrationHandler;
     private UserProfileHandler $profileHandler;
     private AccountEventActiveByEmailInterface $accountEventActiveByEmail;
     private UserPasswordHasherInterface $passwordHasher;
     private CurrentUserProfileEventInterface $currentUserProfileEvent;
+    private TokenStorageInterface $tokenStorage;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -97,7 +71,8 @@ final class OrderHandler extends AbstractHandler
         UserProfileHandler $profileHandler,
         AccountEventActiveByEmailInterface $accountEventActiveByEmail,
         UserPasswordHasherInterface $passwordHasher,
-        CurrentUserProfileEventInterface $currentUserProfileEvent
+        CurrentUserProfileEventInterface $currentUserProfileEvent,
+        TokenStorageInterface $tokenStorage
     )
     {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
@@ -107,6 +82,7 @@ final class OrderHandler extends AbstractHandler
         $this->accountEventActiveByEmail = $accountEventActiveByEmail;
         $this->passwordHasher = $passwordHasher;
         $this->currentUserProfileEvent = $currentUserProfileEvent;
+        $this->tokenStorage = $tokenStorage;
     }
 
 
@@ -142,6 +118,7 @@ final class OrderHandler extends AbstractHandler
             {
                 $Account = $this->registrationHandler->handle($UserAccount);
 
+                /** Возвращаем ошибку регистрации нового пользователя */
                 if(!$Account instanceof Account)
                 {
                     return $Account;
@@ -149,47 +126,46 @@ final class OrderHandler extends AbstractHandler
 
                 $UserUid = $Account->getId();
             }
-            else
-            {
-
-            }
 
             /* Присваиваем пользователя заказу */
             $OrderUserDTO->setUsr($UserUid);
-        }
 
-        /**
-         * Создаем профиль пользователя если отсутствует
-         */
-        if($OrderUserDTO->getProfile() === null)
-        {
-            $UserProfileDTO = $OrderUserDTO->getUserProfile();
-            $this->validatorCollection->add($UserProfileDTO);
-
-            if($UserProfileDTO === null)
+            /**
+             * Создаем профиль пользователя если отсутствует
+             */
+            if($OrderUserDTO->getProfile() === null)
             {
-                return $this->validatorCollection->getErrorUniqid();
-            }
+                $UserProfileDTO = $OrderUserDTO->getUserProfile();
+                $this->validatorCollection->add($UserProfileDTO);
 
-            /** Пробуем найти активный профиль пользователя */
-            $UserProfileEvent = $this->currentUserProfileEvent->findByUser($OrderUserDTO->getUsr())?->getId();
-
-            if(!$UserProfileEvent)
-            {
-                /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
-                $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
-                $UserProfile = $this->profileHandler->handle($UserProfileDTO);
-
-                if(!$UserProfile instanceof UserProfile)
+                if($UserProfileDTO === null)
                 {
-                    return $UserProfile;
+                    return $this->validatorCollection->getErrorUniqid();
                 }
 
-                $UserProfileEvent = $UserProfile->getEvent();
-            }
+                /** Пробуем найти активный профиль пользователя */
+                $UserProfileEvent = $this->currentUserProfileEvent
+                    ->findByUser($OrderUserDTO->getUsr())?->getId();
 
-            $OrderUserDTO->setProfile($UserProfileEvent);
+                if(!$UserProfileEvent)
+                {
+                    /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
+                    $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
+                    $UserProfile = $this->profileHandler->handle($UserProfileDTO);
+
+                    if(!$UserProfile instanceof UserProfile)
+                    {
+                        return $UserProfile;
+                    }
+
+                    $UserProfileEvent = $UserProfile->getEvent();
+                }
+
+                $OrderUserDTO->setProfile($UserProfileEvent);
+            }
         }
+
+
 
 
 
@@ -219,6 +195,11 @@ final class OrderHandler extends AbstractHandler
 
         $this->entityManager->flush();
 
+
+
+
+
+
         /* Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
@@ -227,8 +208,6 @@ final class OrderHandler extends AbstractHandler
 
         return $this->main;
     }
-
-
 
 
     public function authenticate(UserAccountDTO $UserAccount): ?AccountEvent
@@ -252,6 +231,20 @@ final class OrderHandler extends AbstractHandler
 
         return $Account;
     }
+
+    public function authorization(UserUid $user): void
+    {
+        $CurrentUser = new User((string) $user);
+
+        $authorizationToken = new  UsernamePasswordToken(
+            $CurrentUser,
+            "user",
+            ['ROLE_USER']
+        );
+
+        $this->tokenStorage->setToken($authorizationToken);
+    }
+
 
 
     public function OLDhandle(OrderDTO $command,): string|Order

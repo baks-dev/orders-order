@@ -54,6 +54,7 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
 	$doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
     $services->set(OrderUid::class)->class(OrderUid::class); // #[ParamConverter(['order'])] OrderUid $order,
 
+
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
 	$doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
 	

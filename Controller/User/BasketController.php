@@ -175,12 +175,11 @@ class BasketController extends AbstractController
                 // Удаляем кеш
                 $AppCache->delete($key);
 
-                return $this->redirectToRoute('orders-order:user.basket');
+                return $this->redirectToRoute('orders-order:user.success', ['id' => $Order->getId()]);
             }
 
             $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);
 
-            // return $this->redirectToRoute('orders-order:user.basket');
         }
 
         return $this->render([

@@ -35,7 +35,6 @@ class OrderStatusDelivery implements OrderStatusInterface
 }
 ```
 
-
 Установка файловых ресурсов в публичную директорию (javascript, css, image ...):
 
 ``` bash

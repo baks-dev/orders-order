@@ -129,7 +129,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="text-uppercase fw-bolder py-2">Продукция</h5>
                     <div class="small">
-						<span class="me-3 pt-3"> Позиций:
+						<span class="me-3 pt-3"> Позиций: &nbsp;
 							<span class="text-primary">
 								{{ form.product.count }} {{ 'num_of_products'|trans({'count': form.product.count }, 'messages') }}
 							</span>
@@ -273,8 +273,9 @@
 
 
 <div class="w-100 d-flex justify-content-between sticky-bottom bottom-0 bg-light p-5">
+
     <div class="w-50">
-		<span class="small">Товаров на сумму:
+		<span class="small">Товаров на сумму: &nbsp;
 			<span id='total_product_sum'>{{ discount ?  money(discount) : money(total_summ_product) }}</span>
 		</span>
 
@@ -284,6 +285,7 @@
                   class="fw-bolder mb-0 h3">{{ discount ?  money(discount) : money(total_summ_product) }}</span>
         </div>
     </div>
+
     <div class="w-50 d-flex gap-3 align-items-end justify-content-end">
 
         <div class='w-25'>
@@ -291,9 +293,9 @@
         </div>
 
         {{ form_widget(form.order, { label: '
-								<span>'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
-								<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-							',
+                <span>'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
+                <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+		    ',
             attr: { class: 'btn-danger', title : "Оформить заказ" }
         }) }}
 

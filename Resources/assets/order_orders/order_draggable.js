@@ -27,11 +27,18 @@ var containers = document.querySelectorAll(".draggable-zone");
 /** Обновляем offcanvas событиями orders_basket */
 var myOffcanvas = document.getElementById('offcanvas');
 myOffcanvas.addEventListener('show.bs.offcanvas', function (event) {
-    var head= document.getElementsByTagName('head')[0];
 
-    var ordersScript = document.createElement('script');
-    ordersScript.src= '/assets/order_orders/orders_basket.min.js';
-    head.appendChild(ordersScript);
+    /** Обновляем Preload */
+
+    let lazy = document.createElement('script');
+    lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
+    document.head.appendChild(lazy);
+
+    // var head= document.getElementsByTagName('head')[0];
+    //
+    // var ordersScript = document.createElement('script');
+    // ordersScript.src= '/assets/order_orders/orders_basket.min.js';
+    // head.appendChild(ordersScript);
 
 });
 
@@ -143,10 +150,6 @@ setTimeout(function P8X1I2diQ4() {
             if (e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== 'restricted')
             {
 
-                //console.log(toDroppable.getAttribute("data-status"));
-
-                //fetch('https://bundles.baks.dev/admin/payment/delete/01871a93-9e6f-72f0-a853-7279d5c954654')
-                //fetch('https://bundles.baks.dev/admin/payment/delete/01871ddd-d8ae-7fb4-9c38-9e6be9803198')
                 fetch('/admin/order/'+droppableLevel+'/'+id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function (response) {
                         return response.status === 200 ? response.text() : false;
@@ -160,7 +163,7 @@ setTimeout(function P8X1I2diQ4() {
                             document.getElementById('modal').innerHTML = html;
                             new bootstrap.Modal(modal).show();
 
-                            /** Инициируем форму упаковки заказа  */
+                            /** Инициируем LAZYLOAD  */
                             modal.addEventListener('shown.bs.modal', function (event){
 
                                 let lazy = document.createElement('script');

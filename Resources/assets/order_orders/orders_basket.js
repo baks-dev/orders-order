@@ -48,6 +48,8 @@ document.querySelectorAll('.order-basket').forEach(function (forms) {
 });
 
 
+
+
 function resolve(forms) {
 
     if (forms !== false && forms.name == 'order_product_form') {

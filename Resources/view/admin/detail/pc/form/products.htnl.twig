@@ -20,7 +20,7 @@
             <tr id='item_{{ product.vars.id }}'>
                 <td>
                     <div class="row">
-                        <div class="col-2">
+                        <div class="col-3">
 
                             {# Обложка #}
                             {% set image_path = '/assets/img/blank.svg' %}
@@ -140,10 +140,14 @@
 
                 </td>
 
+
+
+                {# УДАЛИТЬ #}
+
                 <td class="vertical-middle text-end">
 
-                    {# УДАЛИТЬ #}
-                    <a
+
+                    {#<a
                             href='{{ path('orders-order:user.delete', {
                                 product : card.id ,
                                 offer: card.product_offer_uid,
@@ -158,7 +162,7 @@
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
                         </svg>
                         <span class="small">Удалить</span>
-                    </a>
+                    </a>#}
                 </td>
 
             </tr>

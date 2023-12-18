@@ -40,7 +40,9 @@ use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
+use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
@@ -63,25 +65,47 @@ final class AllOrdersQuery implements AllOrdersInterface
 
     private DBALQueryBuilder $DBALQueryBuilder;
 
+    private ?SearchDTO $search = null;
+
+    private ?OrderStatus $status = null;
+
+    private ?OrderFilterDTO $filter = null;
+
     public function __construct(
-       DBALQueryBuilder $DBALQueryBuilder,
+        DBALQueryBuilder $DBALQueryBuilder,
         PaginatorInterface $paginator,
-    ) {
+    )
+    {
         $this->paginator = $paginator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
-    /** Метод возвращает список заказов согласно статусу. Если передан профиль пользователя - то список заказов только принадлежащие данному профилю */
-    public function fetchAllOrdersAssociative(
-        OrderStatus $status,
-        SearchDTO $search,
-        ?UserProfileUid $profile
-    ): PaginatorInterface
+    public function search(SearchDTO $search): self
+    {
+        $this->search = $search;
+        return $this;
+    }
+
+    public function status(OrderStatus|OrderStatusInterface|string $status): self
+    {
+        $this->status = new OrderStatus($status);
+        return $this;
+    }
+
+    public function filter(OrderFilterDTO $filter): self
+    {
+        $this->filter = $filter;
+        return $this;
+    }
+
+    /**
+     * Метод возвращает список заказов
+     */
+    public function fetchAllOrdersAssociative(UserProfileUid $profile): PaginatorInterface
     {
         $qb = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
-            ->bindLocal()
-        ;
+            ->bindLocal();
 
         $qb->select('orders.id AS order_id');
         $qb->addSelect('orders.event AS order_event');
@@ -90,12 +114,16 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $qb->addSelect('order_event.created AS order_created');
         $qb->addSelect('order_event.status AS order_status');
+
         $qb->join(
             'orders',
             OrderEvent::TABLE,
             'order_event',
-            'order_event.status = :status AND order_event.id = orders.event '.($profile ? 'AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '')
-        );
+            'order_event.id = orders.event AND 
+            (order_event.profile IS NULL OR order_event.profile = :profile)
+            '
+        )
+            ->setParameter('profile', $profile, UserProfileUid::TYPE);
 
 
         $qb->addSelect('orders_modify.mod_date AS modify');
@@ -106,19 +134,20 @@ final class AllOrdersQuery implements AllOrdersInterface
             'orders_modify.event = orders.event'
         );
 
-
-        if ($profile)
+        if($this->status)
         {
-            $qb->setParameter('profile', $profile, UserProfileUid::TYPE);
+            $qb
+                ->andWhere('order_event.status = :status')
+                ->setParameter('status', $this->status, OrderStatus::TYPE);
         }
-
-        $qb->setParameter('status', $status, OrderStatus::TYPE);
-
-
 
         // Продукция
 
 
+        if($this->filter?->getDate())
+        {
+            //dump($this->filter?->getDate());
+        }
 
         $qb->leftJoin(
             'orders',
@@ -126,10 +155,6 @@ final class AllOrdersQuery implements AllOrdersInterface
             'order_products',
             'order_products.event = orders.event'
         );
-
-
-
-
 
 
         $qb->addSelect('order_products_price.currency AS order_currency');
@@ -143,9 +168,6 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
 
-
-
-
         $qb->leftJoin(
             'orders',
             OrderUser::TABLE,
@@ -154,6 +176,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
         // Доставка
+
 
         $qb->leftJoin(
             'order_user',
@@ -176,6 +199,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'delivery_price',
             'delivery_price.event = delivery_event.id'
         );
+
 
         // Профиль пользователя
 
@@ -209,13 +233,16 @@ final class AllOrdersQuery implements AllOrdersInterface
             'type_profile.id = user_profile.type'
         );
 
-        $qb->addSelect('type_profile_trans.name AS order_profile');
-        $qb->leftJoin(
-            'type_profile',
-            TypeProfileTrans::TABLE,
-            'type_profile_trans',
-            'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
-        );
+
+        /** Название типа профиля */
+        $qb
+            ->addSelect('type_profile_trans.name AS order_profile')
+            ->leftJoin(
+                'type_profile',
+                TypeProfileTrans::TABLE,
+                'type_profile_trans',
+                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
+            );
 
         $qb->leftJoin(
             'user_profile_value',
@@ -230,6 +257,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'type_profile_field_trans',
             'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
         );
+
 
         $qb->addSelect(
             "JSON_AGG
@@ -250,7 +278,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         );
 
         // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
-        if (defined(ProductStock::class.'::TABLE'))
+        if(defined(ProductStock::class.'::TABLE'))
         {
             $qbExist = $this->DBALQueryBuilder->builder();
 
@@ -272,12 +300,11 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'move_stock.event = move_event.id'
             );
 
-            $qb->addSelect(sprintf('EXISTS(%s) AS order_move', $qbExist->getSQL()) );
+            $qb->addSelect(sprintf('EXISTS(%s) AS order_move', $qbExist->getSQL()));
 
 
             $qb->setParameter('moving', new ProductStockStatus(new ProductStockStatus\ProductStockStatusMoving()), ProductStockStatus::TYPE);
             $qb->setParameter('extradition', new ProductStockStatus(new ProductStockStatus\ProductStockStatusExtradition()), ProductStockStatus::TYPE);
-
 
 
         }
@@ -287,9 +314,8 @@ final class AllOrdersQuery implements AllOrdersInterface
         }
 
 
-
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
-        if (defined(DeliveryTransport::class.'::TABLE'))
+        if(defined(DeliveryTransport::class.'::TABLE'))
         {
 
             $qbExistMoveError = $this->DBALQueryBuilder->builder();
@@ -314,7 +340,7 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'move_stock.event = move_event.id'
             );
 
-            $qb->addSelect(sprintf('EXISTS(%s) AS move_error', $qbExistMoveError->getSQL()) );
+            $qb->addSelect(sprintf('EXISTS(%s) AS move_error', $qbExistMoveError->getSQL()));
 
 
             $qbExistOrderError = $this->DBALQueryBuilder->builder();
@@ -338,7 +364,7 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'stock_order_stock.event = stock_order_event.id'
             );
 
-            $qb->addSelect(sprintf('EXISTS(%s) AS order_error', $qbExistOrderError->getSQL()) );
+            $qb->addSelect(sprintf('EXISTS(%s) AS order_error', $qbExistOrderError->getSQL()));
 
             $qb->setParameter('error', new ProductStockStatus(new ProductStockStatus\ProductStockStatusError()), ProductStockStatus::TYPE);
         }
@@ -364,7 +390,22 @@ final class AllOrdersQuery implements AllOrdersInterface
 			AS product_price"
         );
 
-        
+
+        if($this->search?->getQuery())
+        {
+            $qb
+                ->createSearchQueryBuilder($this->search)
+                ->addSearchEqualUid('orders.id')
+                ->addSearchEqualUid('orders.event')
+                ->addSearchLike('orders.number')
+                //                ->addSearchLike('product_info.article')
+                //                ->addSearchLike('product_offer.article')
+                //                ->addSearchLike('product_offer_modification.article')
+                //                ->addSearchLike('product_offer_variation.article')
+            ;
+        }
+
+
         $qb->addOrderBy('order_event.created');
 
         $qb->allGroupByExclude();

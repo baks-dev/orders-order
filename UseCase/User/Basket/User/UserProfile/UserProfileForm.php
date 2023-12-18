@@ -74,10 +74,12 @@ final class UserProfileForm extends AbstractType
 				
 				//dump($data);
 				
-				$profileChoice = $this->profileChoice->getTypeProfileChoice();
+				$profileChoice = $this->profileChoice->getPublicTypeProfileChoice();
+                $profileChoice = iterator_to_array($profileChoice);
 				
 				/* Получаем все поля для заполнения */
 				$profileType = $data->getType() ?: current($profileChoice);
+
 				$data->setType($profileType);
 				$fields = $this->fieldValue->get($profileType);
 				

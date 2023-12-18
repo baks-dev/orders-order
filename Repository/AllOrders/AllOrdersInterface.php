@@ -25,10 +25,18 @@ namespace BaksDev\Orders\Order\Repository\AllOrders;
 
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface AllOrdersInterface
 {
-    public function fetchAllOrdersAssociative(OrderStatus $status, SearchDTO $search, ?UserProfileUid $profile): PaginatorInterface;
+    public function search(SearchDTO $search) : self;
+
+    public function filter(OrderFilterDTO $filter): self;
+
+    public function status(OrderStatus|OrderStatusInterface|string $status): self;
+
+    public function fetchAllOrdersAssociative(UserProfileUid $profile): PaginatorInterface;
 }

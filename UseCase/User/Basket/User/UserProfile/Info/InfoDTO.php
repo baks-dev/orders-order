@@ -30,6 +30,7 @@ use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
 use BaksDev\Users\User\Entity\User;
 use BaksDev\Users\User\Type\Id\UserUid;
 
+/** @see UserProfileInfo */
 final class InfoDTO implements UserProfileInfoInterface
 {
 	/** Пользователь, кому принадлежит профиль */

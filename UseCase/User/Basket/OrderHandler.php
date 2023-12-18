@@ -95,78 +95,105 @@ final class OrderHandler extends AbstractHandler
         $OrderUserDTO = $command->getUsr();
 
 
+        //$UserAccount = $OrderUserDTO->getUserAccount();
+
+        //dd($UserAccount);
+
+
         /**
          * Создаем аккаунт для авторизации если отсутствует
          */
-        if($OrderUserDTO->getUsr() === null)
-        {
-            $UserAccount = $OrderUserDTO->getUserAccount();
-            $this->validatorCollection->add($UserAccount);
+//        if(!$UserAccount->getEvent())
+//        {
+//
+//        }
 
-            if($UserAccount === null)
+
+        //dd($UserAccount->getEvent());
+
+
+
+//        if($OrderUserDTO->getUsr() === null)
+//        {
+//
+//            $this->validatorCollection->add($UserAccount);
+//
+//            if($UserAccount === null)
+//            {
+//                return $this->validatorCollection->getErrorUniqid();
+//            }
+//
+//
+//            /**
+//             * Пробуем по указанным данным авторизовать пользователя либо регистрируем в случае неудачи
+//             */
+//            $UserUid = $this->authenticate($UserAccount)?->getAccount();
+//
+//            if(!$UserUid)
+//            {
+//                $Account = $this->registrationHandler->handle($UserAccount);
+//
+//                /** Возвращаем ошибку регистрации нового пользователя */
+//                if(!$Account instanceof Account)
+//                {
+//                    return $Account;
+//                }
+//
+//                $UserUid = $Account->getId();
+//            }
+//
+//            /* Присваиваем пользователя заказу */
+//            $OrderUserDTO->setUsr($UserUid);
+//
+
+//        }
+
+
+        /**
+         * Создаем профиль пользователя если отсутствует
+         */
+        if($OrderUserDTO->getProfile() === null)
+        {
+
+            $UserProfileDTO = $OrderUserDTO->getUserProfile();
+
+            //dd($UserProfileDTO);
+
+            $this->validatorCollection->add($UserProfileDTO);
+
+            if($UserProfileDTO === null)
             {
                 return $this->validatorCollection->getErrorUniqid();
             }
 
+            /** Пробуем найти активный профиль пользователя */
+            $UserProfileEvent = $this->currentUserProfileEvent
+                ->findByUser($OrderUserDTO->getUsr())?->getId();
 
-            /**
-             * Пробуем по указанным данным авторизовать пользователя либо регистрируем в случае неудачи
-             */
-            $UserUid = $this->authenticate($UserAccount)?->getAccount();
-
-            if(!$UserUid)
+            if(!$UserProfileEvent)
             {
-                $Account = $this->registrationHandler->handle($UserAccount);
+                /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
 
-                /** Возвращаем ошибку регистрации нового пользователя */
-                if(!$Account instanceof Account)
+                //$InfoDTO = $UserProfileDTO->getInfo();
+
+
+                $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr());
+
+                $UserProfile = $this->profileHandler->handle($UserProfileDTO);
+
+                if(!$UserProfile instanceof UserProfile)
                 {
-                    return $Account;
+                    return $UserProfile;
                 }
 
-                $UserUid = $Account->getId();
+                $UserProfileEvent = $UserProfile->getEvent();
+
+                //dd($UserProfileEvent);
+
             }
 
-            /* Присваиваем пользователя заказу */
-            $OrderUserDTO->setUsr($UserUid);
-
-            /**
-             * Создаем профиль пользователя если отсутствует
-             */
-            if($OrderUserDTO->getProfile() === null)
-            {
-                $UserProfileDTO = $OrderUserDTO->getUserProfile();
-                $this->validatorCollection->add($UserProfileDTO);
-
-                if($UserProfileDTO === null)
-                {
-                    return $this->validatorCollection->getErrorUniqid();
-                }
-
-                /** Пробуем найти активный профиль пользователя */
-                $UserProfileEvent = $this->currentUserProfileEvent
-                    ->findByUser($OrderUserDTO->getUsr())?->getId();
-
-                if(!$UserProfileEvent)
-                {
-                    /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
-                    $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
-                    $UserProfile = $this->profileHandler->handle($UserProfileDTO);
-
-                    if(!$UserProfile instanceof UserProfile)
-                    {
-                        return $UserProfile;
-                    }
-
-                    $UserProfileEvent = $UserProfile->getEvent();
-                }
-
-                $OrderUserDTO->setProfile($UserProfileEvent);
-            }
+            $OrderUserDTO->setProfile($UserProfileEvent);
         }
-
-
-
 
 
         $this->main = new Order();
@@ -210,7 +237,7 @@ final class OrderHandler extends AbstractHandler
     }
 
 
-    public function authenticate(UserAccountDTO $UserAccount): ?AccountEvent
+    public function _authenticate(UserAccountDTO $UserAccount): ?AccountEvent
     {
         /** Пробуем авторизовать пользователя по указанным данным */
 
@@ -232,7 +259,7 @@ final class OrderHandler extends AbstractHandler
         return $Account;
     }
 
-    public function authorization(UserUid $user): void
+    public function _authorization(UserUid $user): void
     {
         $CurrentUser = new User((string) $user);
 

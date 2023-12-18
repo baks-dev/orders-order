@@ -33,6 +33,7 @@ use BaksDev\Orders\Order\UseCase\User\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderHandler;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -82,7 +83,9 @@ class BasketController extends AbstractController
 
         /** Присваиваем пользователя */
         $OrderUserDTO = $OrderDTO->getUsr();
-        $OrderUserDTO->setUsr($this->getUsr()?->getId());
+
+
+        $OrderUserDTO->setUsr($this->getUsr()?->getId() ?: new UserUid());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if(!$this->products->isEmpty())

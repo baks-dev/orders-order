@@ -22,12 +22,12 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\OrderNewTest;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 
 /**
  * @group orders-order
  *
- * @depends BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\OrderNewTest::class
+ * @depends BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest::class
  *
  * @see OrderNewTest
  */

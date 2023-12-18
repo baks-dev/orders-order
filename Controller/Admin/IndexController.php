@@ -54,6 +54,7 @@ final class IndexController extends AbstractController
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response {
+
         // Поиск
         $search = new SearchDTO();
         $searchForm = $this->createForm(SearchForm::class, $search);
@@ -64,16 +65,18 @@ final class IndexController extends AbstractController
         /** @var OrderStatus $status */
         foreach (OrderStatus::cases() as $status) {
 
-            if ($status->equals('canceled')) {
+            if ($status->equals('canceled') || $status->equals('draft')) {
                 continue;
             }
 
             // Получаем список
-            $orders[$status->getOrderStatusValue()] = $allOrders->fetchAllOrdersAssociative(
-                $status,
-                $search,
-                $this->isGranted('ROLE_ADMIN') ? null : $this->getProfileUid()
-            )->getData();
+            $orders[$status->getOrderStatusValue()] = $allOrders
+                ->search($search)
+                ->status($status)
+                ->fetchAllOrdersAssociative($this->getProfileUid())->getData();
+
+            //dd(end($orders));
+
         }
 
         return $this->render(

@@ -47,7 +47,7 @@ class OrderStatusNew implements OrderStatusInterface, VoterInterface
         return self::STATUS;
     }
 
-    /** Сортировка */
+    /** Сортировка */ 
     public static function sort(): int
     {
         return self::$sort;

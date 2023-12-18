@@ -32,10 +32,10 @@ use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
-use BaksDev\Orders\Order\UseCase\Admin\NewEdit\OrderDTO;
-use BaksDev\Orders\Order\UseCase\Admin\NewEdit\OrderForm;
-use BaksDev\Orders\Order\UseCase\Admin\NewEdit\OrderHandler;
-use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Products\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +60,7 @@ final class DetailController extends AbstractController
         OrderDetailInterface $orderDetail,
         OrderHistoryInterface $orderHistory,
         OrderStatusCollection $collection,
-        OrderHandler $handler,
+        EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
         string $id,
     ): Response
@@ -73,7 +73,7 @@ final class DetailController extends AbstractController
             throw new RouteNotFoundException('Page Not Found');
         }
 
-        $OrderDTO = new OrderDTO();
+        $OrderDTO = new EditOrderDTO($Order->getId());
         $Event->getDto($OrderDTO);
 
 
@@ -93,14 +93,14 @@ final class DetailController extends AbstractController
         }
 
         // Динамическая форма корзины
-        $handleForm = $this->createForm(OrderForm::class, $OrderDTO);
+        $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);
 
         //dump($OrderDTO);
 
         // форма заказа
         $form = $this->createForm(
-            OrderForm::class,
+            EditOrderForm::class,
             $OrderDTO,
             ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
         );

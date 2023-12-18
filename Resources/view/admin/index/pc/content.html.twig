@@ -41,7 +41,7 @@
         <div class="d-flex justify-content-between gap-2 border rounded-4 cards-box p-2">
 
 
-            {% for stats in status |filter(v => v.getValue() != 'canceled') %}
+            {% for stats in status |filter(v => v.getValue() != 'canceled' and v.getValue() != 'draft') %}
 
                 {% set color = stats.color() %}
                 {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}

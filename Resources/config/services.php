@@ -23,6 +23,15 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusDraft;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusExtradition;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
+
+
 return static function(ContainerConfigurator $configurator) {
     $services = $configurator->services()
         ->defaults()
@@ -38,4 +47,18 @@ return static function(ContainerConfigurator $configurator) {
 
     /* Статусы заказов */
     $services->load($NAMESPACE.'Type\Status\OrderStatus\\', $MODULE.'Type/Status/OrderStatus');
+
+
+    /** @see https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type */
+
+    $services->alias(OrderStatusInterface::class.' $orderStatusCanceled', OrderStatusCanceled::class);
+    $services->alias(OrderStatusInterface::class.' $orderStatusCompleted', OrderStatusCompleted::class);
+    $services->alias(OrderStatusInterface::class.' $orderStatusDraft', OrderStatusDraft::class);
+    $services->alias(OrderStatusInterface::class.' $orderStatusExtradition', OrderStatusExtradition::class);
+    $services->alias(OrderStatusInterface::class.' $orderStatusPackage', OrderStatusPackage::class);
+    $services->alias(OrderStatusInterface::class.' $orderStatusNew', OrderStatusNew::class);
+
+
+    $services->alias(OrderStatusInterface::class, OrderStatusNew::class);
+
 };

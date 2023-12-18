@@ -1,0 +1,32 @@
+
+<main class="main container px-4">
+	
+	<div class="mt-3">
+		{{ include(_self|replace({ "content.html.twig": "breadcrumb.html.twig" })) }}
+	</div>
+
+	{{ form_start(form) }}
+
+
+		<section id="ordering" class="">
+
+			<div class="w-50 d-flex flex-column gap-3">
+				{# Аккаунт пользователя #}
+				{#{{ include(_self|replace({ "content.html.twig": "form/account.html.twig" })) }}#}
+				{# Профиль пользователя #}
+
+				{#{{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}#}
+			</div>
+
+		
+		</section>
+
+
+
+	{{ form_end(form) }}
+	
+	<hr class="mt-5 rounded-circle border-0" style="height: 20px; box-shadow: 0 20px 20px -6px #000;">
+
+</main>
+
+

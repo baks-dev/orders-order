@@ -24,72 +24,104 @@
 namespace BaksDev\Orders\Order\UseCase\Admin\New;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\UseCase\User\Basket\OrderDTO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
 final class NewOrderForm extends AbstractType
 {
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-		
-//		/* Коллекция продукции */
-//		$builder->add('product', CollectionType::class, [
-//			'entry_type' => Products\OrderProductForm::class,
-//			'entry_options' => ['label' => false],
-//			'label' => false,
-//			'by_reference' => false,
-//			'allow_delete' => true,
-//			'allow_add' => true,
-//			'prototype_name' => '__product__',
-//		]);
-	
-		$builder->add('usr', User\OrderUserForm::class, ['label' => false]);
+        $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
-
-//		$builder
-//			->add('status', ChoiceType::class, [
-//				'choices' => OrderStatus::cases(),
-//				'choice_value' => function(?OrderStatus $status) {
-//					return $status?->getOrderStatusValue();
-//				},
+//        $builder->addEventListener(
+//            FormEvents::PRE_SET_DATA,
+//            function(FormEvent $event) {
 //
-//				'choice_label' => function(OrderStatus $status) {
-//					return $status->getOrderStatusValue();
-//				},
+//                /* @var OrderDTO $data */
+//                $data = $event->getData();
 //
-//				'expanded' => false,
-//				'multiple' => false,
-//				'required' => true,
-//				'translation_domain' => 'status.order',
-//                'attr' => ['data-order' => $builder->getData()->getOrder()]
-//			])
-//		;
+//                //dump($data);
+//
+//                $form = $event->getForm();
+//                $form->add('usr', User\OrderUserForm::class, ['label' => false]);
+//            }
+//        );
 
-	
-		/* Сохранить ******************************************************/
-		$builder->add(
-			'order',
-			SubmitType::class,
-			['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-		);
+
+        $builder->add(
+            'draft',
+            SubmitType::class,
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+        );
+
+        $builder->get('usr')->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function (FormEvent $event): void {
+
+                $form = $event->getForm()->getParent();
+                $data = $event->getData();
+
+                if($form)
+                {
+                    $form->add('usr', User\OrderUserForm::class,
+                        [
+                            'label' => false,
+                            'data_user_profile_type' => $data->getUserProfile()->getType()
+
+                        ]
+                    );
+                }
+
+                //$formModifier($event->getForm()->getParent());
+            }
+        );
+
+
+
+
+        //
+        //        $builder->addEventListener(
+        //            FormEvents::PRE_SET_DATA,
+        //            function(FormEvent $event) {
+        //
+        //                /* @var OrderDTO $data */
+        //                $data = $event->getData();
+        //                $form = $event->getForm();
+        //
+        //
+        //                $form->add('usr', User\OrderUserForm::class, ['label' => false]);
+        //
+        //                /* Сохранить ******************************************************/
+        //                $form->add(
+        //                    'order',
+        //                    SubmitType::class,
+        //                    ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+        //                );
+        //
+        //            }
+        //        );
 
     }
-    
-    public function configureOptions(OptionsResolver $resolver) : void
+
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults
         (
-          [
-            'data_class' => NewOrderDTO::class,
-            'method' => 'POST',
-            'attr' => ['class' => 'w-100'],
-          ]);
+            [
+                'data_class' => NewOrderDTO::class,
+                'method' => 'POST',
+                'attr' => ['class' => 'w-100'],
+            ]);
     }
-    
+
 }

@@ -381,8 +381,27 @@ async function submitDeliveryForm(forms) {
                 document.querySelector('[data-latitude]').value = '';
                 document.querySelector('[data-longitude]').value = '';
 
+
+
+                limitOxMvRIBczY = 100;
+
+                setTimeout(function OxMvRIBczY() {
+
+                    if (typeof initAdddress == 'function') {
+                        initAdddress();
+                        return;
+                    }
+
+                    if (limitOxMvRIBczY > 1000) { return; }
+
+                    limitOxMvRIBczY = limitOxMvRIBczY * 2;
+
+                    setTimeout(OxMvRIBczY, limitOxMvRIBczY);
+
+                }, 100);
+
                 /** Определяем поле с адресом */
-                initAdddress();
+                //initAdddress();
 
             }
         });
@@ -446,9 +465,25 @@ async function submitRegionForm(forms, id) {
                 document.querySelector('[data-latitude]').value = '';
                 document.querySelector('[data-longitude]').value = '';
 
-                /** Определяем поле с адресом */
-                initAdddress();
 
+                /** Определяем поле с адресом */
+
+                limitZJzxDhmvtC = 100;
+
+                setTimeout(function ZJzxDhmvtC() {
+
+                    if (typeof initAdddress == 'function') {
+                        initAdddress();
+                        return;
+                    }
+
+                    if (limitZJzxDhmvtC > 1000) { return; }
+
+                    limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
+
+                    setTimeout(ZJzxDhmvtC, limitZJzxDhmvtC);
+
+                }, 100);
 
             }
         });

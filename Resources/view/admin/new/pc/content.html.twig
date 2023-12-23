@@ -1,32 +1,111 @@
 
-<main class="main container px-4">
-	
-	<div class="mt-3">
-		{{ include(_self|replace({ "content.html.twig": "breadcrumb.html.twig" })) }}
-	</div>
+<div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+    {{ form_start(form) }}
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+        <div class="modal-header align-items-center">
 
-	{{ form_start(form) }}
+            <h5 class="modal-title">
+                {# Заголовок модального окна #}
+                {{ 'Новый заказ'|trans }}:
+            </h5>
+
+            <ul class="nav nav-pills d-flex gap-2">
+                <li class="nav-item">
+                    <button class="btn nav-link fw-bolder active"
+                            type="button"
+                            data-bs-toggle="pill"
+                            data-bs-target="#client"
+                    >
+                        <span class="text-uppercase px-3">Данные получателя</span>
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="btn nav-link fw-bolder"
+                            type="button"
+                            data-bs-toggle="pill"
+                            data-bs-target="#delivery"
+                    >
+                        <span class="text-uppercase px-3">Доставка</span>
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="btn nav-link fw-bolder"
+                            type="button"
+                            data-bs-toggle="pill"
+                            data-bs-target="#payment"
+                    >
+                        <span class="text-uppercase px-3">Оплата</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" title="Close">
+                <span class="svg-icon svg-icon-2x"></span>
+            </div>
+        </div>
+
+        <div class="modal-body" id="modal-body">
 
 
-		<section id="ordering" class="">
-
-			<div class="w-50 d-flex flex-column gap-3">
-				{# Аккаунт пользователя #}
-				{#{{ include(_self|replace({ "content.html.twig": "form/account.html.twig" })) }}#}
-				{# Профиль пользователя #}
-
-				{#{{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}#}
-			</div>
-
-		
-		</section>
 
 
 
-	{{ form_end(form) }}
-	
-	<hr class="mt-5 rounded-circle border-0" style="height: 20px; box-shadow: 0 20px 20px -6px #000;">
 
-</main>
+            <div class="tab-content w-100">
+
+                <div class="tab-pane fade show active" id="client">
+                    {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
+                </div>
+
+                <div class="tab-pane fade" id="delivery">
+                    {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
+                </div>
+
+                <div class="tab-pane fade" id="payment">
+                    {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <div class="flex-grow-1">
+                &nbsp;
+            </div>
+
+            <div class="d-flex gap-3">
+                {# Отмена #}
+
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
+
+
+                {# Удалить #}
+                {{ form_widget(form.draft, { label: '
+				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+			'}) }}
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
 

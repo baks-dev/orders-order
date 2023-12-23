@@ -6,7 +6,7 @@
         {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }}
     </td>
     <td class="text-center text-nowrap">
-        {{ item.modify|date('d.m.Y H:i') }}
+        {{ item.order_created|date('d.m.Y H:i') }}
     </td>
 
     <td class="text-center">
@@ -16,7 +16,7 @@
               title='QR заказа'
         >
                 <a
-                        href="{#{{ path('manufacture-part:admin.qrcode', { id : item.order_id }) }}#}"
+                        href="{{ path('orders-order:admin.order.qrcode', { id : item.order_id }) }}"
                         class="btn-link btn p-0 modal-link icon"
                         data-bs-toggle="modal"
                         data-bs-target="#modal"
@@ -33,61 +33,45 @@
                 </a>
             </span>
     </td>
+
     <td class="w-100">
-        <a href="{#{{ path('manufacture-part:admin.products.index', { id: item.id }) }}#}"
+        <a href="{{ path('orders-order:admin.order.products', { id: item.order_id }) }}"
            class="fw-bolder mb-1 text-decoration-none product-name">
-            {{ item.order_number }}
+            {{ item.order_number }} <span class="badge bg-light text-dark fw-bolder p1 text-start ms-3">
+					{{ item.order_profile }}
+				</span>
         </a> &nbsp;
+        <div class="d-flex gap-3">
 
-        <div>
-            {#<small class="opacity-50 fw-normal">Категория:</small> &nbsp; <strong>{{ item.category_name }}</strong>#} &nbsp;
-            {#<small class="opacity-50 fw-normal">Производство:</small>  &nbsp; <strong>{{ item.action_name }}</strong>#}
-        </div>
-        <div>
-            <small class="opacity-50 fw-normal">Ответственный:</small>  &nbsp; <strong> {#{{ item.users_profile_username }}#}
+            {% set users = item.order_user|json_decode %}
+
+            {% for user in users %}
+                <div class='{{ loop.first ? "fw-bolder" }}'>
+                    {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                </div>
+            {% endfor %}
         </div>
     </td>
 
     <td class="text-center">
-        {#{{ item.complete|trans({}, 'manufacture.complete') }}#}
-    </td>
-    <td class="text-center">
-        {{ item.order_status|trans({}, 'status.order') }}
+        {#{{ item.order_status|trans({}, 'status.order') }}#}
+
+        {{ order_status(item.order_status) }}
 
         {#{{ manufacture_status(item.status) }}#}
     </td>
 
-    <td class="text-center">
+    <td class="text-nowrap">
 
-        {#{% if item.part_working_uid %}
-            <h6 class="lh-normal m-0"><span class="badge text-bg-warning text-dark">{{ item.part_working }}</span></h6>
-        {% else %}
-
-            {% if item.status ==  'completed' %}
-                <h6 class="lh-normal m-0"><span class="badge text-bg-success">Выполнено</span></h6>
-            {% elseif item.status ==  'closed' %}
-                <h6 class="lh-normal m-0"><span class="badge bg-light text-dark shadow">Выполнено</span></h6>
-            {% elseif item.status ==  'defect' %}
-                <h6 class="lh-normal m-0"><span class="badge bg-light text-dark shadow">Производство</span></h6>
-            {% else %}
-                <h6 class="lh-normal m-0"><span class="badge text-bg-secondary">Новая</span></h6>
-            {% endif %}
-
-        {% endif %}#}
-
-
-        {# {% if item.part_working_uid == '0189a177-a104-7cf6-ac68-00b5e8c56137' %}
-            <h6 class="lh-normal m-0"><span class="badge text-bg-secondary">Новая</span></h6>
-        {% elseif item.part_working_uid == '01897e7c-3e0d-7350-90ba-bccaa2cf282a' %}
-            <h6 class="lh-normal m-0"><span class="badge text-bg-secondary">Завершена</span></h6>
-        {% else %}
-            <h6 class="lh-normal m-0"><span class="badge text-bg-secondary">{{ item.part_working }}</span></h6>
-        {% endif %} #}
+        {{ item.modify|date('d.m.Y H:i') }}
     </td>
-
-    <td class="text-center">
-        {#{{ item.quantity }}#}
-    </td>
-
 
 </tr>
+
+{#<tr>
+    <td colspan="5">
+    {{ dump(item) }}
+    </td>
+</tr>#}
+
+

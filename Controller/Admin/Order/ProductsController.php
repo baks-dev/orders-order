@@ -54,7 +54,7 @@ final class ProductsController extends AbstractController
     /**
      * Список продукции для создания заказа
      */
-    #[Route('/admin/order/{page<\d+>}', name: 'admin.order.products', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/products/{id}/{page<\d+>}', name: 'admin.order.products', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
 //        AllWbOrdersManufactureInterface $allWbOrdersGroup,
@@ -65,7 +65,7 @@ final class ProductsController extends AbstractController
     {
 
 
-        dd('admin/order');
+        dd('Продукция в заказе');
 
         /**
          * Поиск

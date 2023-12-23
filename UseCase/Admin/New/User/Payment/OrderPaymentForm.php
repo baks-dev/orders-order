@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Payment;
 
 use BaksDev\Payment\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
-use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -52,7 +51,7 @@ final class OrderPaymentForm extends AbstractType
 	
 	public function __construct(
 		PaymentByTypeProfileChoiceInterface $paymentChoice,
-		FieldByPaymentChoiceInterface $paymentFields,
+		FieldByPaymentChoiceInterface $paymentFields
 	)
 	{
 		$this->paymentChoice = $paymentChoice;
@@ -62,6 +61,7 @@ final class OrderPaymentForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
+		//$builder->add('payment', HiddenType::class);
 		$builder->add('payment', HiddenType::class);
 		
 		/* Коллекция пользовательских свойств */
@@ -74,6 +74,9 @@ final class OrderPaymentForm extends AbstractType
 			'allow_add' => true,
 			'prototype_name' => '__payment_field__',
 		]);
+		
+		
+		
 		
 		$builder->get('payment')->addModelTransformer(
 			new CallbackTransformer(
@@ -95,7 +98,9 @@ final class OrderPaymentForm extends AbstractType
 				{
 					$data = $event->getData();
 					$form = $event->getForm();
-
+					
+					//dd($options['user_profile_type']);
+					
 					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
 					$currentPayment = current($paymentChoice);
 					
@@ -110,6 +115,8 @@ final class OrderPaymentForm extends AbstractType
 						$paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
 							return $v->equals($Payment);
 						}, ARRAY_FILTER_USE_BOTH);
+						
+						//dd($paymentCheckedFilter);
 						
 						if($paymentCheckedFilter)
 						{
@@ -145,43 +152,20 @@ final class OrderPaymentForm extends AbstractType
 					/** Получаем пользовательские поля */
 					if($paymentChecked)
 					{
+
+						$fields =  $this->paymentFields->fetchPaymentFields($paymentChecked);
 						
-						$fields = $this->paymentFields->fetchPaymentFields($paymentChecked);
+					
 						
-						/** @var ArrayCollection $dataFields */
-						$dataFields = $data->getField();
-						
-						$setField = new ArrayCollection();
-						
-						/** @var PaymentFieldUid $field */
+						$data->setField(new ArrayCollection());
 						
 						foreach($fields as $field)
 						{
 							$OrderPaymentFieldDTO = new Field\OrderPaymentFieldDTO();
 							$OrderPaymentFieldDTO->setField($field);
+							$data->addField($OrderPaymentFieldDTO);
 							
-							/**
-							 * Находим заполненное значение в коллекции и присваиваем
-							 *
-							 * @var Field\OrderPaymentFieldDTO $element
-							 */
-							$dataFieldFilter = $dataFields->filter(function(Field\OrderPaymentFieldDTO $element) use (
-								$field
-							) {
-								return $field->equals($element->getField());
-							});
-							
-							if(!$dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
-							{
-								
-								$OrderPaymentFieldDTO->setValue($dataFieldFilter->current()->getValue());
-								
-							}
-							
-							$setField->add($OrderPaymentFieldDTO);
 						}
-						
-						$data->setField($setField);
 						
 						/* Коллекция продукции */
 						$form->add('field', CollectionType::class, [
@@ -194,6 +178,7 @@ final class OrderPaymentForm extends AbstractType
 							'prototype_name' => '__payment_field__',
 						]);
 						
+						//dump($fields);
 					}
 					
 				}

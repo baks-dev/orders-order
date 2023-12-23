@@ -61,7 +61,7 @@ final class OrderUserForm extends AbstractType
 				$form = $event->getForm();
 				
 				$userProfileType = $data->getUserProfile()?->getType();
-				
+
 				/**Если пользователь авторизован */
 				if($data->getUsr() && $userProfileType === null)
 				{

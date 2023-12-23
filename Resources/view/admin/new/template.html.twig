@@ -1,9 +1,9 @@
-{% trans_default_domain('user.order') %}
+{% trans_default_domain('admin.order') %}
 
 {# ---- ШАБЛОН ------------------------------------------------------------ #}
 {% extends Template('/admin/base.html.twig') %}
 
-{% block title %}{{ 'user.page.index'|trans }}{% endblock %}
+{% block title %}{{ 'admin.page.new'|trans }}{% endblock %}
 
 {# ---- CSS ------------------------------------------------------------ #}
  {% block stylesheets %}
@@ -30,7 +30,7 @@
 
 	{{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
 
-
+{{ dump(form.vars.data) }}
 
 {% endblock %}
 

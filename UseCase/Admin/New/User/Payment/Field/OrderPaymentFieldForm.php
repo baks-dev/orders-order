@@ -103,9 +103,6 @@ final class OrderPaymentFieldForm extends AbstractType
 			}
 		);
 		
-		
-		
-		
 	}
 	
 	

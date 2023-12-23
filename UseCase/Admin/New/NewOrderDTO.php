@@ -34,116 +34,66 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderEvent */
 final class NewOrderDTO implements OrderEventInterface
 {
-//    /** Идентификатор заказа */
-//    #[Assert\Uuid]
-//    private ?OrderUid $order = null;
-
     /** Идентификатор события */
     #[Assert\Uuid]
-    private readonly ?OrderEventUid $id;
+    private ?OrderEventUid $id = null;
 
-    /** Статус заказа */
-    private OrderStatus $status;
-
-    /** Коллекция продукции в заказе */
-    #[Assert\Valid]
-    private ArrayCollection $product;
+//    /** Коллекция продукции в заказе */
+//    #[Assert\Valid]
+//    private ArrayCollection $product;
 
     /** Пользователь */
     #[Assert\Valid]
-    private ?User\OrderUserDTO $usr;
-
+    private User\OrderUserDTO $usr;
 
     public function __construct()
     {
-        $this->id = null;
-
         //$this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
-
-        $this->status = new OrderStatus(OrderStatusDraft::class);
-
     }
 
-
-    public function getEvent(): ?OrderEventUid
+    public function getEvent() : ?OrderEventUid
     {
         return $this->id;
     }
 
-//    public function resetId()
-//    {
-//        $this->id = null;
-//    }
+    public function resetId() : void
+    {
+        $this->id = null;
+    }
 
-
-//    /**
-//     * Коллекция продукции в заказе
-//     */
-//
-//    public function getProduct(): ArrayCollection
+//    /** Коллекция продукции в заказе */
+//    public function getProduct() : ArrayCollection
 //    {
 //        return $this->product;
 //    }
 //
-//
-//    public function setProduct(ArrayCollection $product): void
+//    public function setProduct(ArrayCollection $product) : void
 //    {
 //        $this->product = $product;
 //    }
-//
-//    public function addProduct(Products\OrderProductDTO $product): void
+
+//    public function addProduct(Add\OrderProductDTO $product) : void
 //    {
-//        if(!$this->product->contains($product))
+//        if (!$this->product->contains($product))
 //        {
 //            $this->product->add($product);
 //        }
 //    }
-
-//    public function removeProduct(Products\OrderProductDTO $product): void
+//
+//    public function removeProduct(Add\OrderProductDTO $product) : void
 //    {
 //        $this->product->removeElement($product);
 //    }
 
-
-    /**
-     * Пользователь
-     */
-
-    public function getUsr(): User\OrderUserDTO
+    /** Пользователь */
+    public function getUsr() : User\OrderUserDTO
     {
         return $this->usr;
     }
 
-
-    public function setUsr(User\OrderUserDTO $users): void
+    public function setUsr(User\OrderUserDTO $users) : void
     {
         $this->usr = $users;
     }
-
-
-//    /**
-//     * Статус заказа
-//     */
-//
-//    public function getStatus(): OrderStatus
-//    {
-//        return $this->status;
-//    }
-//
-//
-//    public function setStatus(OrderStatus $status): void
-//    {
-//        $this->status = $status;
-//    }
-
-//    /**
-//     * Order
-//     */
-//    public function getOrder(): ?OrderUid
-//    {
-//        return $this->order;
-//    }
-
-
 }

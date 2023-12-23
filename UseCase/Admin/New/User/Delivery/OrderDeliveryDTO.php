@@ -30,9 +30,11 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDeliveryInterface;
+use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see OrderDelivery */
 final class OrderDeliveryDTO implements OrderDeliveryInterface
 {
     /** Способ оплаты */
@@ -59,6 +61,9 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     #[Assert\NotBlank]
     private ?GpsLongitude $longitude = null;
 
+    /** Координаты на карте */
+    private ?GeocodeAddressUid $geocode = null;
+
     public function __construct()
     {
         $this->field = new ArrayCollection();
@@ -70,8 +75,11 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->delivery;
     }
 
-    public function setDelivery(DeliveryUid $delivery): void
+    public function setDelivery( $delivery): void
     {
+        //dump('setDelivery $delivery');
+        //dump($delivery);
+
         $this->delivery = $delivery;
     }
 
@@ -87,7 +95,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     }
 
     /** Пользовательские поля */
-    public function getField(): ArrayCollection
+    public function getField(): ?ArrayCollection
     {
         return $this->field;
     }
@@ -108,6 +116,17 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     public function removeField(Field\OrderDeliveryFieldDTO $field): void
     {
         $this->field->removeElement($field);
+    }
+
+    /** Координаты доставки на карте */
+    public function getGeocode(): ?GeocodeAddressUid
+    {
+        return $this->geocode;
+    }
+
+    public function setGeocode(?GeocodeAddressUid $geocode): void
+    {
+        $this->geocode = $geocode;
     }
 
     /**
@@ -136,5 +155,6 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     {
         $this->longitude = $longitude;
     }
+
 
 }

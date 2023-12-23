@@ -57,6 +57,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use DateTimeImmutable;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllOrdersQuery implements AllOrdersInterface
@@ -143,10 +144,20 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         // Продукция
 
-
-        if($this->filter?->getDate())
+        if(!$this->search?->getQuery() && $this->filter?->getDate())
         {
-            //dump($this->filter?->getDate());
+            $date = $this->filter->getDate() ?: new DateTimeImmutable();
+
+            // Начало дня
+            $startOfDay = $date->setTime(0, 0, 0);
+            // Конец дня
+            $endOfDay = $date->setTime(23, 59, 59);
+
+            //($date ? ' AND part_modify.mod_date = :date' : '')
+            $qb->andWhere('order_event.created BETWEEN :start AND :end');
+
+            $qb->setParameter('start', $startOfDay->format("Y-m-d H:i:s"));
+            $qb->setParameter('end', $endOfDay->format("Y-m-d H:i:s"));
         }
 
         $qb->leftJoin(
@@ -398,7 +409,7 @@ final class AllOrdersQuery implements AllOrdersInterface
                 ->addSearchEqualUid('orders.id')
                 ->addSearchEqualUid('orders.event')
                 ->addSearchLike('orders.number')
-                //                ->addSearchLike('product_info.article')
+                                ->addSearchLike('user_profile_value.value')
                 //                ->addSearchLike('product_offer.article')
                 //                ->addSearchLike('product_offer_modification.article')
                 //                ->addSearchLike('product_offer_variation.article')
@@ -406,7 +417,15 @@ final class AllOrdersQuery implements AllOrdersInterface
         }
 
 
-        $qb->addOrderBy('order_event.created');
+        if((string) $this->status === 'new')
+        {
+            $qb->addOrderBy('orders_modify.mod_date', 'ASC');
+        }
+        else
+        {
+            $qb->addOrderBy('orders_modify.mod_date', 'DESC');
+        }
+
 
         $qb->allGroupByExclude();
 

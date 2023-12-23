@@ -101,7 +101,7 @@ final class IndexController extends AbstractController
             ->search($search)
             ->filter($filter)
             //->status($status)
-            ->fetchAllOrdersAssociative($this->getProfileUid());
+            ->fetchAllOrdersAssociative($this->getProfileUid(), 'DESC');
 
         //dd(end($orders));
 

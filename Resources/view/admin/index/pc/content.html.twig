@@ -6,94 +6,120 @@
             {{ include(_self|replace({ "content.html.twig": "_breadcrumb.html.twig" })) }}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
 
-            <div>
+
+            <div class="w-100 d-flex gap-3 align-items-center">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
                     Управление заказами
-                    <a href="/refresh" class="btn  btn-link text-muted">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                             class="mb-1" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                  d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"></path>
-                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"></path>
-                        </svg>
-                    </a>
                 </h1>
             </div>
 
-            <div class="col-3">
-                <form action="#" class="d-flex align-items-center position-relative">
-                    <div class="w-100">
-                        <input type="search" class="form-control" id="search" placeholder="Поиск">
-                    </div>
-                    <button class="btn position-absolute top-0 end-0" type="submit" title="Поиск">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                             class="bi bi-search text-secondary" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
-                        </svg>
-                    </button>
-                </form>
-            </div>
+            <a href="{{ path('orders-order:admin.new') }}"
+               class="btn modal-btn modal-link btn-primary text-nowrap"
+               data-bs-toggle="modal"
+               data-bs-target="#modal"
+               title="Добавить">
+                Добавить
+            </a>
+
+            <button
+                    class="btn btn-light opacity-25"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    data-bs-delay='{"show":600,"hide":100}'
+                    title="Управление заказми"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
+                     viewBox="0 0 16 16">
+                    <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434L7.752.066ZM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567L4.25 7.504ZM7.5 9.933l-2.75 1.571v3.134l2.75-1.571V9.933Zm1 3.134 2.75 1.571v-3.134L8.5 9.933v3.134Zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567-2.742 1.567Zm2.242-2.433V3.504L8.5 5.076V8.21l2.75-1.572ZM7.5 8.21V5.076L4.75 3.504v3.134L7.5 8.21ZM5.258 2.643 8 4.21l2.742-1.567L8 1.076 5.258 2.643ZM15 9.933l-2.75 1.571v3.134L15 13.067V9.933ZM3.75 14.638v-3.134L1 9.933v3.134l2.75 1.571Z"/>
+                </svg>
+            </button>
+
+            <a
+                    href="{{ path('orders-order:admin.order.index') }}"
+                    class="btn btn-light"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    data-bs-delay='{"show":600,"hide":100}'
+                    title="Список заказов"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                     class="bi bi-card-checklist" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </a>
 
         </div>
 
-        <div class="d-flex justify-content-between gap-2 border rounded-4 cards-box p-2">
+        <div class="border border-light rounded-4 p-3">
+
+            <div class="d-flex justify-content-between">
+                {# Форма поиска по разделу #}
+                {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
+            </div>
 
 
-            {% for stats in status |filter(v => v.getValue() != 'canceled' and v.getValue() != 'draft') %}
+            <div class="d-flex justify-content-between gap-2 cards-box p-2 mt-3">
 
-                {% set color = stats.color() %}
-                {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}
-                {% set counter = query[stats.getValue()]|length %}
+                {% for stats in status |filter(v => v.getValue() != 'canceled' and v.getValue() != 'draft') %}
 
-                <div class="w-100 d-flex flex-column gap-2">
+                    {% set color = stats.color() %}
+                    {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}
+                    {% set counter = query[stats.getValue()]|length %}
 
-                    <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
-                         style="overflow-y: visible;"
-                         data-status="{{ stats.getValue() }}"
-                         data-level="{{ stats.getValue() == 'new' ? 'restricted' }}"
-                    >
-                        <div class="w-100 badge p-2 sticky-top z-index-5" style="top: 5rem; background-color: {{ color }};">
-                            {{ stats.getValue()|trans({}, 'status.order') }}
-                        </div>
+                    <div class="w-100 d-flex flex-column gap-2">
 
-                        {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
+                        <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
+                             style="overflow-y: visible;"
+                             data-status="{{ stats.getValue() }}"
+                             data-level="{{ stats.getValue() == 'new' ? 'restricted' }}"
+                        >
+                            <div class="w-100 badge p-2 sticky-top z-index-5"
+                                 style="top: 5rem; background-color: {{ color }};">
+                                {{ stats.getValue()|trans({}, 'status.order') }}
+                            </div>
+
+                            {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
 								title="Быстрая сделка">+ Быстрая сделка</a> #}
 
 
-                        <div class="text-center"><small>
-                                {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small></div>
+                            <div class="text-center"><small>
+                                    {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
+                            </div>
 
 
-                        {% for order in query[stats.getValue()] %}
+                            {% for order in query[stats.getValue()] %}
 
-                            {# КАРТОЧКА ЗАКАЗА  #}
-                            {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
+                                {# КАРТОЧКА ЗАКАЗА  #}
+                                {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
 
-                            {# ДАТАЛИ ЗАКАЗА #}
-                            {# {{ include(_self|replace({ "content.html.twig": "_info.order.html.twig" })) }} #}
-
-
-                        {% endfor %}
+                                {# ДАТАЛИ ЗАКАЗА #}
+                                {# {{ include(_self|replace({ "content.html.twig": "_info.order.html.twig" })) }} #}
 
 
-                        <div class="offcanvas offcanvas-start" tabindex="-1"
-                             id="offcanvas"
-                             style="--bs-offcanvas-width: 1366px;"
-                        >
+                            {% endfor %}
+
+
+                            <div class="offcanvas offcanvas-start" tabindex="-1"
+                                 id="offcanvas"
+                                 style="--bs-offcanvas-width: 1366px;"
+                            >
+                            </div>
+
+
                         </div>
-
 
                     </div>
 
-                </div>
+
+                {% endfor %}
 
 
-            {% endfor %}
+                <!--end::Col-->
+            </div>
 
-
-            <!--end::Col-->
         </div>
 
     </section>

@@ -51,6 +51,7 @@ final class NewController extends AbstractController
     {
         $OrderDTO = new NewOrderDTO();
 
+        //dump($request->request);
 
         // Форма
         $form = $this->createForm(NewOrderForm::class, $OrderDTO, [
@@ -60,6 +61,11 @@ final class NewController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order'))
         {
+
+            /** TODO:  */
+            return $this->redirectToRoute('orders-order:admin.order.index');
+
+
             $handle = $OrderHandler->handle($OrderDTO);
 
             $this->addFlash
@@ -72,6 +78,8 @@ final class NewController extends AbstractController
 
             return $this->redirectToRoute('orders-order:admin.order.index');
         }
+
+
 
         return $this->render(['form' => $form->createView()]);
     }

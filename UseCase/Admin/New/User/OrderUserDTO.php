@@ -39,11 +39,18 @@ final class OrderUserDTO implements OrderUserInterface
 	#[Assert\Uuid]
 	private ?UserUid $usr = null;
 	
+	/** Новый Аккаунт */
+	private UserAccount\UserAccountDTO $userAccount;
+	
 	/* Профиль пользователя */
 	
 	/** Идентификатор События!! профиля пользователя */
 	#[Assert\Uuid]
 	private ?UserProfileEventUid $profile = null;
+	
+	/** Новый профиль пользователя */
+	private UserProfile\UserProfileDTO $userProfile;
+	
 	
 	
 	/** Способ оплаты */
@@ -53,16 +60,21 @@ final class OrderUserDTO implements OrderUserInterface
 	/** Способ доставки */
 	#[Assert\Valid]
 	private Delivery\OrderDeliveryDTO $delivery;
-
+	
+	
 	
 	public function __construct()
 	{
+		$this->userAccount = new UserAccount\UserAccountDTO();
+		$this->userProfile = new UserProfile\UserProfileDTO();
+
+
 		$this->payment = new Payment\OrderPaymentDTO;
 		$this->delivery = new Delivery\OrderDeliveryDTO;
 	}
-	
-	
-	/** ID пользователя */
+
+
+    /** ID пользователя */
 	public function getUsr() : ?UserUid
 	{
 		return $this->usr;
@@ -91,6 +103,43 @@ final class OrderUserDTO implements OrderUserInterface
 	}
 	
 	
+	/** Новый Аккаунт */
+	
+	public function getUserAccount() : ?UserAccount\UserAccountDTO
+	{
+		//		if(!$this->user)
+		//		{
+		//			$this->userAccount = new UserAccount\UserAccountDTO();
+		//		}
+		
+		return $this->userAccount;
+	}
+	
+	
+	public function setUserAccount(?UserAccount\UserAccountDTO $userAccount) : void
+	{
+		$this->userAccount = $userAccount;
+	}
+	
+	
+	/** Новый профиль пользователя */
+	
+	public function getUserProfile() : ?UserProfile\UserProfileDTO
+	{
+		//		if(!$this->profile)
+		//		{
+		//			$this->userProfile = new UserProfile\UserProfileDTO();
+		//		}
+		
+		return $this->userProfile;
+	}
+	
+	
+	public function setUserProfile(?UserProfile\UserProfileDTO $userProfile) : void
+	{
+		
+		$this->userProfile = $userProfile;
+	}
 	
 	
 	/** Способ оплаты */

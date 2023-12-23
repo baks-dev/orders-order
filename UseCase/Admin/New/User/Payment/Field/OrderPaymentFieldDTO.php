@@ -34,11 +34,11 @@ final class OrderPaymentFieldDTO implements OrderPaymentFieldInterface
 {
 	/** Идентификатор пользовательского поля в способе оплаты */
 	#[Assert\NotBlank]
-	private ?PaymentFieldUid $field = null;
+	private PaymentFieldUid $field;
 	
 	/** Заполненное значение */
 	#[Assert\Valid]
-	private ?string $value = null;
+	private string $value;
 	
 	
 	/** Идентификатор пользовательского поля в способе оплаты */
@@ -58,12 +58,12 @@ final class OrderPaymentFieldDTO implements OrderPaymentFieldInterface
 	
 	/** Заполненное значение */
 	
-	public function getValue() : ?string
+	public function getValue(): string
 	{
 		return $this->value;
 	}
 
-	public function setValue(?string $value) : void
+	public function setValue(string $value) : void
 	{
 		$this->value = $value;
 	}

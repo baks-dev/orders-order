@@ -65,7 +65,7 @@ final class UserProfileDTO implements UserProfileEventInterface
 	
 	/** Тип профиля */
 	
-	public function setType(TypeProfileUid $type) : void
+	public function setType(?TypeProfileUid $type) : void
 	{
 		$this->type = $type;
 	}

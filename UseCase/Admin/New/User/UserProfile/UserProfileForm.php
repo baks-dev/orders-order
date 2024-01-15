@@ -46,131 +46,204 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class UserProfileForm extends AbstractType
 {
-	private FieldValueFormInterface $fieldValue;
-	
-	private TypeProfileChoice $profileChoice;
-	
-	
-	public function __construct(
-		TypeProfileChoice $profileChoice,
-		FieldValueFormInterface $fieldValue,
-	)
-	{
-		$this->fieldValue = $fieldValue;
-		$this->profileChoice = $profileChoice;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-        $builder->add('type', HiddenType::class);
+    private FieldValueFormInterface $fieldValue;
 
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				$form = $event->getForm();
-				/** @var UserProfileDTO $data */
-				$data = $event->getData();
+    private TypeProfileChoice $profileChoice;
 
-                    /** Список профилей, доступных администратору (статус Active) */
-                    $profileChoice = $this->profileChoice->getActiveTypeProfileChoice();
-                    $profileChoice = iterator_to_array($profileChoice);
 
-                    /* Получаем все поля для заполнения */
-                    $profileType = $data->getType() ?: current($profileChoice);
+    public function __construct(
+        TypeProfileChoice $profileChoice,
+        FieldValueFormInterface $fieldValue,
+    )
+    {
+        $this->fieldValue = $fieldValue;
+        $this->profileChoice = $profileChoice;
+    }
 
-                    //$data->setType($profileType);
 
-                    $fields = $this->fieldValue->get($profileType);
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        /** Список профилей, доступных администратору (статус Active) */
+        $profileChoice = $this->profileChoice->getActiveTypeProfileChoice();
+        $profileChoice = iterator_to_array($profileChoice);
 
-                    $form
-                        ->add('type', ChoiceType::class, [
-                            'choices' => $profileChoice,
-                            'choice_value' => function(?TypeProfileUid $type) {
-                                return $type?->getValue();
-                            },
+        $builder
+            ->add('type', ChoiceType::class, [
+                'choices' => $profileChoice,
+                'choice_value' => function(?TypeProfileUid $type) {
+                    return $type?->getValue();
+                },
 
-                            'choice_label' => function(TypeProfileUid $type) {
-                                return $type->getAttr();
-                            },
+                'choice_label' => function(TypeProfileUid $type) {
+                    return $type->getAttr();
+                },
 
-                            'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
-                                return ['checked' => ($choice->equals($profileType))];
-                            },
-                            'attr' => ['class' => 'd-flex gap-3'],
-                            'label' => false,
-                            'expanded' => false,
-                            'multiple' => false,
-                            'required' => true,
-                        ])
-                    ;
+                'attr' => ['class' => 'd-flex gap-3'],
+                'label' => false,
+                'expanded' => false,
+                'multiple' => false,
+                'required' => true,
+            ]);
+
+        $builder->add('value', CollectionType::class, [
+            'entry_type' => Value\ValueForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+        ]);
+
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) use ($options) {
+
+                /** @var UserProfileDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+
+                $fields = [];
 
                 if($data->getType())
                 {
-                    $data->resetValue();
-                    $form->remove('value');
+                    $fields = $this->fieldValue->get($data->getType());
 
-                    /** @var FieldValueFormDTO $field */
-                    foreach($fields as $field)
+
+                    $values = $data->getValue();
+
+                    foreach($values as $key => $value)
                     {
-                        $field = end($field);
-
-                        /** Обязательные поля для заполнения */
-                        if($field->isRequired())
+                        if(!isset($fields[$key]))
                         {
-                            $value = new Value\ValueDTO();
-                            $value->setField($field->getField());
-                            $value->updSection($field);
-                            $data->addValue($value);
+                            $values->removeElement($value);
+                        }
+
+                        if(isset($fields[$key]))
+                        {
+                            //dd($fields[$key]);
+
+                            $value->setField($fields[$key]->getField());
                         }
                     }
 
+
+//                    $data->setValue(new ArrayCollection());
+//
+//                    foreach($fields as $key => $field)
+//                    {
+//                        $set = $values->get($key);
+//
+//                        $value = new Value\ValueDTO();
+//                        $value->setField($field->getField());
+//                        $value->updSection($field);
+//                        $value->setValue($set?->getValue());
+//                        $data->addValue($value);
+//                    }
+
                     $form->add('value', CollectionType::class, [
                         'entry_type' => Value\ValueForm::class,
-                        'entry_options' => ['label' => false, 'fields' => $fields],
+                        'entry_options' => ['label' => false, 'fields' => $data->getType() ? $fields : null],
                         'label' => false,
                         'by_reference' => false,
                         'allow_delete' => true,
                         'allow_add' => true,
                     ]);
+
+
                 }
+//                else
+//                {
+//                    //$fields = $this->fieldValue->getAllField();
+//                }
 
 
 
-			}
-		);
 
-        $builder->get('type')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event) : void {
+//                $fields = $this->fieldValue->getAllField();
+//
+//                foreach($fields as $field)
+//                {
+//                    $value = new Value\ValueDTO();
+//                    $value->setField($field->getField());
+//                    $value->updSection($field);
+//                    $data->addValue($value);
+//                }
+//
+//
+//                if($data->getType())
+//                {
+//                    $data->setValue(new ArrayCollection());
+//
+//                    $fields = $this->fieldValue->get($data->getType());
+//
+//                    foreach($fields as $field)
+//                    {
+//                        $value = new Value\ValueDTO();
+//                        $value->setField($field->getField());
+//                        $value->updSection($field);
+//                        $data->addValue($value);
+//                    }
+//                }
 
-                dd($event->getData() );
-
-                // It's important here to fetch $event->getForm()->getData(), as
-                // $event->getData() will get you the client data (that is, the ID)
-                //$sport = $event->getForm()->getData();
-
-                // since we've added the listener to the child, we'll have to pass on
-                // the parent to the callback function!
-                //$formModifier($event->getForm()->getParent(), $sport);
             }
         );
 
 
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults
-		(
-			[
-				'data_class' => UserProfileDTO::class,
-				'method' => 'POST',
-				'attr' => ['class' => 'w-100'],
-			]
-		);
-	}
-	
+        $builder->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function(FormEvent $event): void {
+
+                /** @var UserProfileDTO $data */
+                $data = $event->getData();
+
+                if($data->getType())
+                {
+                    $values = $data->getValue();
+
+
+                    $data->setValue(new ArrayCollection());
+
+                    $fields = $this->fieldValue->get($data->getType());
+
+                    foreach($fields as $key => $field)
+                    {
+                        $set = $values->get($key);
+
+                        $value = new Value\ValueDTO();
+                        $value->setField($field->getField());
+                        $value->updSection($field);
+                        $value->setValue($set?->getValue());
+                        $data->addValue($value);
+                    }
+
+                    $form = $event->getForm()->getParent();
+
+                    $form->add('userProfile',
+                        self::class, [
+                            'label' => false
+                        ]
+                    );
+                }
+            }
+        );
+
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults
+        (
+            [
+                'data_class' => UserProfileDTO::class,
+                'method' => 'POST',
+                'attr' => ['class' => 'w-100'],
+                'user_profile_type' => null,
+            ]
+        );
+    }
+
 }

@@ -1,7 +1,7 @@
 {# Пользовательское меню #}
 
 <button class="btn btn-link btn-sm p-0 me-1 mb-1"
-		id="usecase-{{ identifier }}"
+		id="usecase-"
 		data-bs-container="body"
 		data-bs-toggle="popover"
 		data-bs-placement="right"
@@ -25,11 +25,11 @@
 
 
 
-<div id="usecase-{{ identifier }}-content" class="d-none">
+{#<div id="usecase-{{ identifier }}-content" class="d-none">
 	<ul class="leader list-group list-group-flush ">
 		
 
-		{# Редактировать #}
+		#}{# Редактировать #}{#
 		<li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
 			<a href="{{ path('manufacture-part:admin.newedit.edit', {id: identifier }) }}"
 			   class="text-decoration-none text-dark w-100 modal-link"
@@ -40,7 +40,7 @@
 			</a>
 		</li>
 		
-		{# Удалить #}
+		#}{# Удалить #}{#
 		<li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
 				<a href="{{ path('manufacture-part:admin.delete', { id: identifier }) }}"
 				   class="text-decoration-none text-dark w-100 modal-link"
@@ -52,7 +52,7 @@
 			</li>
 	
 	</ul>
-</div>
+</div>#}
 
 
 

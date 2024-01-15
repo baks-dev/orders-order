@@ -48,8 +48,8 @@ final class OrderDeliveryFieldForm extends AbstractType
 	{
 		$this->fieldsChoice = $fieldsChoice;
 	}
-	
-	
+
+
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
 		$builder->add('field', HiddenType::class);
@@ -65,10 +65,11 @@ final class OrderDeliveryFieldForm extends AbstractType
 				}
 			)
 		);
+
 		
-		
-		$builder->add('value', TextType::class, ['required' => false]);
-		
+		$builder->add('value', HiddenType::class, ['required' => false]);
+
+
 		$builder->addEventListener(
 			FormEvents::PRE_SET_DATA,
 			function(FormEvent $event) {
@@ -76,7 +77,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 				/* @var OrderDeliveryFieldDTO $data */
 				$data = $event->getData();
 				$form = $event->getForm();
-				
+
 				if($data)
 				{
 					/** @var DeliveryFieldUid $DeliveryField */
@@ -85,7 +86,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 					if($DeliveryField->getType())
 					{
 						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
-						
+
 						$form->add
 						(
 							'value',
@@ -98,13 +99,10 @@ final class OrderDeliveryFieldForm extends AbstractType
 							]
 						);
 					}
-					
-					
 				}
-				
 			}
 		);
-		
+
 	}
 	
 	

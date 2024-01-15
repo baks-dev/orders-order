@@ -8,27 +8,39 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
 
-
             <div class="w-100 d-flex gap-3 align-items-center">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
                     Управление заказами
                 </h1>
             </div>
 
-            <a href="{{ path('orders-order:admin.new') }}"
-               class="btn modal-btn modal-link btn-primary text-nowrap"
-               data-bs-toggle="modal"
-               data-bs-target="#modal"
-               title="Добавить">
-                Добавить
-            </a>
+
+            {% if opens %}
+
+                <a href="{{ path('orders-order:admin.order.draft') }}"
+                   class="btn btn-danger text-nowrap"
+                   title="Открытый заказ">
+                    Открытый заказ
+                </a>
+
+            {% else %}
+                <a href="{{ path('orders-order:admin.new') }}"
+                   class="btn modal-btn modal-link btn-primary text-nowrap"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="Добавить">
+                    Добавить
+                </a>
+            {% endif %}
+
+
 
             <button
                     class="btn btn-light opacity-25"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
                     data-bs-delay='{"show":600,"hide":100}'
-                    title="Управление заказми"
+                    title="Управление заказами"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
                      viewBox="0 0 16 16">

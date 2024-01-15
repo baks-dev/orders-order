@@ -74,9 +74,7 @@ final class OrderPaymentForm extends AbstractType
 			'allow_add' => true,
 			'prototype_name' => '__payment_field__',
 		]);
-		
-		
-		
+
 		
 		$builder->get('payment')->addModelTransformer(
 			new CallbackTransformer(
@@ -124,6 +122,8 @@ final class OrderPaymentForm extends AbstractType
 							$paymentHelp = $paymentChecked?->getAttr();
 						}
 					}
+
+
 					
 					$form
 						->add('payment', ChoiceType::class, [
@@ -154,17 +154,31 @@ final class OrderPaymentForm extends AbstractType
 					{
 
 						$fields =  $this->paymentFields->fetchPaymentFields($paymentChecked);
-						
-					
-						
-						$data->setField(new ArrayCollection());
-						
+
+
+                        $values = $data->getField();
+
+                        foreach($values as $key => $value)
+                        {
+                            if(!isset($fields[$key]))
+                            {
+                                $values->removeElement($value);
+                            }
+
+                            if(isset($fields[$key]))
+                            {
+                                //dd($fields[$key]);
+
+                                $value->setField($fields[$key]);
+                                unset($fields[$key]);
+                            }
+                        }
+
 						foreach($fields as $field)
 						{
 							$OrderPaymentFieldDTO = new Field\OrderPaymentFieldDTO();
 							$OrderPaymentFieldDTO->setField($field);
 							$data->addField($OrderPaymentFieldDTO);
-							
 						}
 						
 						/* Коллекция продукции */

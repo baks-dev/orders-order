@@ -31,6 +31,7 @@ use BaksDev\Orders\Order\Entity\Order;
 //use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 //use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
 //use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
+use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
@@ -38,6 +39,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDER_NEW')]
@@ -46,25 +49,30 @@ final class NewController extends AbstractController
     #[Route('/admin/order/new', name: 'admin.new', methods: ['GET', 'POST'])]
     public function news(
         Request $request,
-        NewOrderHandler $OrderHandler,
+        OpenOrderDraftInterface $draft,
+        NewOrderHandler $OrderHandler
     ): Response
     {
-        $OrderDTO = new NewOrderDTO();
 
-        //dump($request->request);
+        if($draft->existsOpenDraft($this->getProfileUid()))
+        {
+            return $this->redirectToRoute('orders-order:admin.order.draft');
+        }
+
+
+        $OrderDTO = new NewOrderDTO($this->getProfileUid());
 
         // Форма
         $form = $this->createForm(NewOrderForm::class, $OrderDTO, [
             'action' => $this->generateUrl('orders-order:admin.new'),
         ]);
+
         $form->handleRequest($request);
+        $form->createView();
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('order'))
+
+        if($form->isSubmitted() && $form->isValid() && $form->has('draft'))
         {
-
-            /** TODO:  */
-            return $this->redirectToRoute('orders-order:admin.order.index');
-
 
             $handle = $OrderHandler->handle($OrderDTO);
 
@@ -76,11 +84,14 @@ final class NewController extends AbstractController
                 $handle
             );
 
-            return $this->redirectToRoute('orders-order:admin.order.index');
+            if($handle instanceof Order)
+            {
+                return $this->redirectToRoute('orders-order:admin.order.draft');
+            }
+
         }
-
-
 
         return $this->render(['form' => $form->createView()]);
     }
 }
+

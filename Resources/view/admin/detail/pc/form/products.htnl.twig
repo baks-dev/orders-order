@@ -56,9 +56,10 @@
 
                                 {{ card.product_name }}
 
+                                {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                                 card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
                                 {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
-                                {{ card.product_variation_value|call_twig_func(card.product_variation_reference) }}
-                                {{ card.product_modification_value|call_twig_func(card.product_modification_reference) }}
 
                             </a>
 

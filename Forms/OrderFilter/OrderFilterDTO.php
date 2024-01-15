@@ -29,7 +29,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 
-final class OrderFilterDTO implements ManufactureFilterInterface
+final class OrderFilterDTO
 {
     public const date = 'KRNQMIHrZn';
 

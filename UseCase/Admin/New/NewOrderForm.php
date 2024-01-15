@@ -29,6 +29,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -43,74 +44,11 @@ final class NewOrderForm extends AbstractType
     {
         $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
-//        $builder->addEventListener(
-//            FormEvents::PRE_SET_DATA,
-//            function(FormEvent $event) {
-//
-//                /* @var OrderDTO $data */
-//                $data = $event->getData();
-//
-//                //dump($data);
-//
-//                $form = $event->getForm();
-//                $form->add('usr', User\OrderUserForm::class, ['label' => false]);
-//            }
-//        );
-
-
         $builder->add(
             'draft',
             SubmitType::class,
             ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
         );
-
-        $builder->get('usr')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event): void {
-
-                $form = $event->getForm()->getParent();
-                $data = $event->getData();
-
-                if($form)
-                {
-                    $form->add('usr', User\OrderUserForm::class,
-                        [
-                            'label' => false,
-                            'data_user_profile_type' => $data->getUserProfile()->getType()
-
-                        ]
-                    );
-                }
-
-                //$formModifier($event->getForm()->getParent());
-            }
-        );
-
-
-
-
-        //
-        //        $builder->addEventListener(
-        //            FormEvents::PRE_SET_DATA,
-        //            function(FormEvent $event) {
-        //
-        //                /* @var OrderDTO $data */
-        //                $data = $event->getData();
-        //                $form = $event->getForm();
-        //
-        //
-        //                $form->add('usr', User\OrderUserForm::class, ['label' => false]);
-        //
-        //                /* Сохранить ******************************************************/
-        //                $form->add(
-        //                    'order',
-        //                    SubmitType::class,
-        //                    ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-        //                );
-        //
-        //            }
-        //        );
-
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -121,6 +59,8 @@ final class NewOrderForm extends AbstractType
                 'data_class' => NewOrderDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
+                //'allow_extra_fields' => true,
+                //'validation_groups' => false,
             ]);
     }
 

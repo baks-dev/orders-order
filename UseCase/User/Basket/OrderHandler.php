@@ -89,10 +89,8 @@ final class OrderHandler extends AbstractHandler
     public function handle(OrderDTO $command): string|Order
     {
 
-        /* Валидация DTO  */
-        $this->validatorCollection->add($command);
 
-        $OrderUserDTO = $command->getUsr();
+
 
 
         //$UserAccount = $OrderUserDTO->getUserAccount();
@@ -148,6 +146,11 @@ final class OrderHandler extends AbstractHandler
 
 //        }
 
+
+        /* Валидация DTO  */
+        $this->validatorCollection->add($command);
+
+        $OrderUserDTO = $command->getUsr();
 
         /**
          * Создаем профиль пользователя если отсутствует
@@ -237,211 +240,211 @@ final class OrderHandler extends AbstractHandler
     }
 
 
-    public function _authenticate(UserAccountDTO $UserAccount): ?AccountEvent
-    {
-        /** Пробуем авторизовать пользователя по указанным данным */
+//    public function _authenticate(UserAccountDTO $UserAccount): ?AccountEvent
+//    {
+//        /** Пробуем авторизовать пользователя по указанным данным */
+//
+//        $Account = $this->accountEventActiveByEmail->getAccountEvent($UserAccount->getEmail());
+//
+//        if($Account === null)
+//        {
+//            return null;
+//        }
+//
+//        /* Проверяем пароль */
+//        $passValid = $this->passwordHasher->isPasswordValid($Account, $UserAccount->getPasswordPlain());
+//
+//        if($passValid === false)
+//        {
+//            return null;
+//        }
+//
+//        return $Account;
+//    }
 
-        $Account = $this->accountEventActiveByEmail->getAccountEvent($UserAccount->getEmail());
-
-        if($Account === null)
-        {
-            return null;
-        }
-
-        /* Проверяем пароль */
-        $passValid = $this->passwordHasher->isPasswordValid($Account, $UserAccount->getPasswordPlain());
-
-        if($passValid === false)
-        {
-            return null;
-        }
-
-        return $Account;
-    }
-
-    public function _authorization(UserUid $user): void
-    {
-        $CurrentUser = new User((string) $user);
-
-        $authorizationToken = new  UsernamePasswordToken(
-            $CurrentUser,
-            "user",
-            ['ROLE_USER']
-        );
-
-        $this->tokenStorage->setToken($authorizationToken);
-    }
-
-
-
-    public function OLDhandle(OrderDTO $command,): string|Order
-    {
-        /* Валидация DTO */
-        $errors = $this->validator->validate($command);
-
-        if(count($errors) > 0)
-        {
-            /** Ошибка валидации */
-            $uniqid = uniqid('', false);
-            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-
-            return $uniqid;
-        }
-
-        if($command->getEvent())
-        {
-            $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
-                $command->getEvent()
-            );
-
-            if($EventRepo === null)
-            {
-                $uniqid = uniqid('', false);
-                $errorsString = sprintf(
-                    'Not found %s by id: %s',
-                    OrderEvent::class,
-                    $command->getEvent()
-                );
-                $this->logger->error($uniqid.': '.$errorsString);
-
-                return $uniqid;
-            }
-
-            $EventRepo->setEntity($command);
-            $EventRepo->setEntityManager($this->entityManager);
-            $Event = $EventRepo->cloneEntity();
-        }
-        else
-        {
-            $Event = new OrderEvent();
-            $Event->setEntity($command);
-            $this->entityManager->persist($Event);
-        }
-
-        //        $this->entityManager->clear();
-        //        $this->entityManager->persist($Event);
+//    public function _authorization(UserUid $user): void
+//    {
+//        $CurrentUser = new User((string) $user);
+//
+//        $authorizationToken = new  UsernamePasswordToken(
+//            $CurrentUser,
+//            "user",
+//            ['ROLE_USER']
+//        );
+//
+//        $this->tokenStorage->setToken($authorizationToken);
+//    }
 
 
-        $OrderUserDTO = $command->getUsr();
 
-        /** Создаем аккаунт для авторизации */
-        if($OrderUserDTO->getUsr() === null)
-        {
-            $UserAccount = $OrderUserDTO->getUserAccount();
-
-            if($UserAccount === null)
-            {
-                $uniqid = uniqid('', false);
-                $errorsString = sprintf(
-                    'Not empty class %s',
-                    UserAccountDTO::class
-                );
-                $this->logger->error($uniqid.': '.$errorsString);
-
-                return $uniqid;
-            }
-
-            $Account = $this->registrationHandler->handle($UserAccount);
-
-            /* В случае шибки регистрации - возвращает код ошибки */
-            if(!$Account instanceof Account)
-            {
-                return 'Данные авторизации '.$Account;
-            }
-
-            /* Присваиваем пользователя заказу */
-            $OrderUserDTO->setUsr($Account->getId());
-        }
-
-        /** Создаем профиль пользователя */
-        if($OrderUserDTO->getProfile() === null)
-        {
-            $UserProfileDTO = $OrderUserDTO->getUserProfile();
-
-            if($UserProfileDTO === null)
-            {
-                $uniqid = uniqid('', false);
-                $errorsString = sprintf(
-                    'Not empty class %s',
-                    UserProfileDTO::class
-                );
-                $this->logger->error($uniqid.': '.$errorsString);
-
-                return $uniqid;
-            }
-
-            /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
-            $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
-
-            $UserProfile = $this->profileHandler->handle($UserProfileDTO);
-
-            if(!$UserProfile instanceof UserProfile)
-            {
-                return 'Профиль пользователя '.$UserProfile;
-            }
-
-            /* Присваиваем профиль пользователя заказу */
-            $OrderUserDTO->setProfile($UserProfile->getEvent());
-        }
-
-        /** @var Order $Main */
-        if($Event->getOrders())
-        {
-            $Main = $this->entityManager->getRepository(Order::class)
-                ->findOneBy(['event' => $command->getEvent()]);
-
-            if(empty($Main))
-            {
-                $uniqid = uniqid('', false);
-                $errorsString = sprintf(
-                    'Not found %s by event: %s',
-                    Order::class,
-                    $command->getEvent()
-                );
-                $this->logger->error($uniqid.': '.$errorsString);
-
-                return $uniqid;
-            }
-
-        }
-        else
-        {
-            $Main = new Order();
-            $this->entityManager->persist($Main);
-            $Event->setMain($Main);
-        }
-
-        /* присваиваем событие корню */
-        $Main->setEvent($Event);
-
-
-        /**
-         * Валидация Event
-         */
-
-        $errors = $this->validator->validate($Event);
-
-        if(count($errors) > 0)
-        {
-            /** Ошибка валидации */
-            $uniqid = uniqid('', false);
-            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-
-            return $uniqid;
-        }
-
-
-        $this->entityManager->flush();
-
-
-        /* Отправляем событие в шину  */
-        $this->messageDispatch->dispatch(
-            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
-            transport: 'orders-order'
-        );
-
-
-        return $Main;
-    }
+//    public function OLDhandle(OrderDTO $command,): string|Order
+//    {
+//        /* Валидация DTO */
+//        $errors = $this->validator->validate($command);
+//
+//        if(count($errors) > 0)
+//        {
+//            /** Ошибка валидации */
+//            $uniqid = uniqid('', false);
+//            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+//
+//            return $uniqid;
+//        }
+//
+//        if($command->getEvent())
+//        {
+//            $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
+//                $command->getEvent()
+//            );
+//
+//            if($EventRepo === null)
+//            {
+//                $uniqid = uniqid('', false);
+//                $errorsString = sprintf(
+//                    'Not found %s by id: %s',
+//                    OrderEvent::class,
+//                    $command->getEvent()
+//                );
+//                $this->logger->error($uniqid.': '.$errorsString);
+//
+//                return $uniqid;
+//            }
+//
+//            $EventRepo->setEntity($command);
+//            $EventRepo->setEntityManager($this->entityManager);
+//            $Event = $EventRepo->cloneEntity();
+//        }
+//        else
+//        {
+//            $Event = new OrderEvent();
+//            $Event->setEntity($command);
+//            $this->entityManager->persist($Event);
+//        }
+//
+//        //        $this->entityManager->clear();
+//        //        $this->entityManager->persist($Event);
+//
+//
+//        $OrderUserDTO = $command->getUsr();
+//
+//        /** Создаем аккаунт для авторизации */
+//        if($OrderUserDTO->getUsr() === null)
+//        {
+//            $UserAccount = $OrderUserDTO->getUserAccount();
+//
+//            if($UserAccount === null)
+//            {
+//                $uniqid = uniqid('', false);
+//                $errorsString = sprintf(
+//                    'Not empty class %s',
+//                    UserAccountDTO::class
+//                );
+//                $this->logger->error($uniqid.': '.$errorsString);
+//
+//                return $uniqid;
+//            }
+//
+//            $Account = $this->registrationHandler->handle($UserAccount);
+//
+//            /* В случае шибки регистрации - возвращает код ошибки */
+//            if(!$Account instanceof Account)
+//            {
+//                return 'Данные авторизации '.$Account;
+//            }
+//
+//            /* Присваиваем пользователя заказу */
+//            $OrderUserDTO->setUsr($Account->getId());
+//        }
+//
+//        /** Создаем профиль пользователя */
+//        if($OrderUserDTO->getProfile() === null)
+//        {
+//            $UserProfileDTO = $OrderUserDTO->getUserProfile();
+//
+//            if($UserProfileDTO === null)
+//            {
+//                $uniqid = uniqid('', false);
+//                $errorsString = sprintf(
+//                    'Not empty class %s',
+//                    UserProfileDTO::class
+//                );
+//                $this->logger->error($uniqid.': '.$errorsString);
+//
+//                return $uniqid;
+//            }
+//
+//            /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
+//            $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr() ?: $Account->getId());
+//
+//            $UserProfile = $this->profileHandler->handle($UserProfileDTO);
+//
+//            if(!$UserProfile instanceof UserProfile)
+//            {
+//                return 'Профиль пользователя '.$UserProfile;
+//            }
+//
+//            /* Присваиваем профиль пользователя заказу */
+//            $OrderUserDTO->setProfile($UserProfile->getEvent());
+//        }
+//
+//        /** @var Order $Main */
+//        if($Event->getOrders())
+//        {
+//            $Main = $this->entityManager->getRepository(Order::class)
+//                ->findOneBy(['event' => $command->getEvent()]);
+//
+//            if(empty($Main))
+//            {
+//                $uniqid = uniqid('', false);
+//                $errorsString = sprintf(
+//                    'Not found %s by event: %s',
+//                    Order::class,
+//                    $command->getEvent()
+//                );
+//                $this->logger->error($uniqid.': '.$errorsString);
+//
+//                return $uniqid;
+//            }
+//
+//        }
+//        else
+//        {
+//            $Main = new Order();
+//            $this->entityManager->persist($Main);
+//            $Event->setMain($Main);
+//        }
+//
+//        /* присваиваем событие корню */
+//        $Main->setEvent($Event);
+//
+//
+//        /**
+//         * Валидация Event
+//         */
+//
+//        $errors = $this->validator->validate($Event);
+//
+//        if(count($errors) > 0)
+//        {
+//            /** Ошибка валидации */
+//            $uniqid = uniqid('', false);
+//            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+//
+//            return $uniqid;
+//        }
+//
+//
+//        $this->entityManager->flush();
+//
+//
+//        /* Отправляем событие в шину  */
+//        $this->messageDispatch->dispatch(
+//            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
+//            transport: 'orders-order'
+//        );
+//
+//
+//        return $Main;
+//    }
 
 }

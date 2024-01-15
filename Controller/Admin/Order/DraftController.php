@@ -33,9 +33,13 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\AllProducts\AllManufactureProductsInterface;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
 use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
+use BaksDev\Products\Product\Repository\AllExistsProducts\AllExistsProductsInterface;
+use BaksDev\Products\Product\Repository\AllProducts\AllProductsInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -45,70 +49,61 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_ORDER_NEW')]
 final class DraftController extends AbstractController
 {
-    #[Route('/admin/order/draft/{id}/{page<\d+>}', name: 'admin.order.draft', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/draft/{page<\d+>}', name: 'admin.order.draft', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        //OpenManufacturePartInterface $openManufacturePart,
+        //Order $order,
+
+        OpenOrderDraftInterface $draft,
+        AllExistsProductsInterface $getAllProduct,
+        TokenUserGenerator $tokenUserGenerator,
+
         //AllManufactureProductsInterface $allManufactureProducts,
         //TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response
     {
 
-
-        dd('Черновик заказа');
-
-
-        // Поиск
-        $search = new SearchDTO($request);
-        $searchForm = $this->createForm(SearchForm::class, $search, [
-            'action' => $this->generateUrl('manufacture-part:admin.index'),
-        ]);
-        $searchForm->handleRequest($request);
-
-
         /**
-         * Получаем активную открытую поставку ответственного (Независимо от авторизации)
+         * Получаем получаем открытый активный черновик ответственного (Независимо от авторизации)
          */
-        $opens = $openManufacturePart
-            ->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
+        $opens = $draft->getOpenDraft($this->getProfileUid());
 
 
         /**
-         * Фильтр продукции
+         * Фильтр продукции по ТП
          */
         $filter = new ProductFilterDTO($request);
-
-        if($opens)
-        {
-            /* Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
-        }
-
         $filterForm = $this->createForm(ProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('manufacture-part:admin.index'),
+            'action' => $this->generateUrl('orders-order:admin.order.draft'),
         ]);
 
         $filterForm->handleRequest($request);
         !$filterForm->isSubmitted() ?: $this->redirectToReferer();
 
 
-        /**
-         * Список продукции
-         */
-        $query = $allManufactureProducts
-            ->getAllManufactureProducts(
-                $search,
-                $this->getProfileUid(),
-                $filter,
-                $opens ? new ManufacturePartComplete($opens['complete']) : null
-            );
+        // Поиск
+        $search = new SearchDTO($request);
+        $searchForm = $this->createForm(SearchForm::class, $search, [
+            'action' => $this->generateUrl('orders-order:admin.order.draft'),
+        ]);
+        $searchForm->handleRequest($request);
+
+
+        //$isFilter = (bool) ($search->getQuery() || $filter->getOffer() || $filter->getVariation() || $filter->getModification());
+
+
+        // Получаем список торговых предложений
+        $query = $getAllProduct
+            ->search($search)
+            ->filter($filter)
+            ->getAllProducts();
 
 
         return $this->render(
             [
                 'opens' => $opens,
-                'query' => $query, //$ManufacturePart,
+                'query' => $query,
                 'search' => $searchForm->createView(),
                 'filter' => $filterForm->createView(),
                 //'profile' => $profileForm->createView(),

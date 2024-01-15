@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity as DeliveryEntity;
 use BaksDev\Orders\Order\Entity as OrderEntity;
@@ -56,20 +58,34 @@ final class OrderDetail implements OrderDetailInterface
     private EntityManagerInterface $entityManager;
 
     private TranslatorInterface $translator;
+    private DBALQueryBuilder $DBALQueryBuilder;
+    private ORMQueryBuilder $ORMQueryBuilder;
 
-    public function __construct(EntityManagerInterface $entityManager, TranslatorInterface $translator)
+    public function __construct(
+        DBALQueryBuilder $DBALQueryBuilder,
+        ORMQueryBuilder $ORMQueryBuilder,
+
+        //EntityManagerInterface $entityManager,
+        //TranslatorInterface $translator
+    )
     {
-        $this->entityManager = $entityManager;
-        $this->translator = $translator;
+        //$this->entityManager = $entityManager;
+        //$this->translator = $translator;
+        $this->DBALQueryBuilder = $DBALQueryBuilder;
+        $this->ORMQueryBuilder = $ORMQueryBuilder;
     }
 
     public function fetchDetailOrderAssociative(OrderUid $order): ?array
     {
-        $qb = $this->entityManager->getConnection()->createQueryBuilder();
+        //$qb = $this->entityManager->getConnection()->createQueryBuilder();
+        $qb = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class)
+            ->bindLocal()
+        ;
 
         /** ЛОКАЛЬ */
-        $locale = new Locale($this->translator->getLocale());
-        $qb->setParameter('local', $locale, Locale::TYPE);
+        //$locale = new Locale($this->translator->getLocale());
+        //$qb->setParameter('local', $locale, Locale::TYPE);
 
         $qb->select('orders.id AS order_id')->addGroupBy('orders.id');
         $qb->addSelect('orders.event AS order_event')->addGroupBy('orders.event');
@@ -251,23 +267,27 @@ final class OrderDetail implements OrderDetailInterface
 						/* свойства для сортирвоки JSON */
 						'product_id', order_product.id,
 						'product_url', product_info.url,
+						'product_article', product_info.article,
 						'product_name', product_trans.name,
 						
 						'product_offer_reference', category_offer.reference,
 						'product_offer_name', category_offer_trans.name,
 						'product_offer_value', product_offer.value,
 						'product_offer_postfix', product_offer.postfix,
+						'product_offer_article', product_offer.article,
 			
 						
 						'product_variation_reference', category_variation.reference,
 						'product_variation_name', category_variation_trans.name,
 						'product_variation_value', product_variation.value,
 						'product_variation_postfix', product_variation.postfix,
+						'product_variation_article', product_variation.article,
 						
 						'product_modification_reference', category_modification.reference,
 						'product_modification_name', category_modification_trans.name,
 						'product_modification_value', product_modification.value,
 						'product_modification_postfix', product_modification.postfix,
+						'product_modification_article', product_modification.article,
 						
 						'product_image', CASE
 						                   WHEN product_modification_image.name IS NOT NULL THEN
@@ -412,7 +432,6 @@ final class OrderDetail implements OrderDetailInterface
 
         /* Автарка профиля клиента */
         $qb->addSelect("CONCAT ( '/upload/".UserProfileEntity\Avatar\UserProfileAvatar::TABLE."' , '/', profile_avatar.name) AS profile_avatar_name")
-
             ->addGroupBy('profile_avatar.name');
 
         $qb->addSelect('profile_avatar.ext AS profile_avatar_ext')->addGroupBy('profile_avatar.ext');
@@ -425,6 +444,19 @@ final class OrderDetail implements OrderDetailInterface
             'profile_avatar.event = user_profile.id'
         );
 
+
+        /** Артикул продукта */
+
+//        $qb->addSelect("
+//					CASE
+//					   WHEN product_modification.article IS NOT NULL THEN product_modification.article
+//					   WHEN product_variation.article IS NOT NULL THEN product_variation.article
+//					   WHEN product_offer.article IS NOT NULL THEN product_offer.article
+//					   WHEN product_info.article IS NOT NULL THEN product_info.article
+//					   ELSE NULL
+//					END AS product_article
+//				"
+//        );
 
         $qb->addSelect(
             "JSON_AGG
@@ -449,13 +481,13 @@ final class OrderDetail implements OrderDetailInterface
 
     public function getDetailOrder(OrderUid $order): mixed
     {
-        $qb = $this->entityManager->createQueryBuilder();
+        $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $qb->select('orders');
         $qb->from(OrderEntity\Order::class, 'orders');
         $qb->where('orders.id = :order');
         $qb->setParameter('order', $order, OrderUid::TYPE);
 
-        return $qb->getQuery()->getOneOrNullResult();
+        return $qb->enableCache('orders-order', 86400)->getOneOrNullResult();
     }
 }

@@ -67,30 +67,7 @@ final class OrderDeliveryForm extends AbstractType
 
         /** Способ доставки */
 
-        //$builder->add('delivery', HiddenType::class);
 
-        //        $builder->get('delivery')->addModelTransformer(
-        //            new CallbackTransformer(
-        //                function($delivery) {
-        //                    dump($delivery);
-        //
-        //                    return $delivery instanceof DeliveryUid ? $delivery->getValue() : $delivery;
-        //                },
-        //                function($delivery) {
-        //
-        //                    dump($delivery);
-        //
-        //                    return $delivery ?: new DeliveryUid($delivery);
-        //                }
-        //            )
-        //        );
-
-        //        if($options['user_profile_type'])
-        //        {
-        //            $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
-        //        }
-        //        else
-        //        {
         $deliveryChoice = $this->deliveryChoice->fetchAllDelivery();
 
         $builder
@@ -121,8 +98,10 @@ final class OrderDeliveryForm extends AbstractType
                 'required' => true,
             ]);
 
-        //$builder->add('delivery', HiddenType::class);
 
+        /** Координаты на карте */
+
+        /* GPS широта:*/
 
         $builder->add('latitude', HiddenType::class, ['required' => false, 'attr' => ['data-latitude' => 'true']]);
 
@@ -152,20 +131,6 @@ final class OrderDeliveryForm extends AbstractType
             )
         );
 
-        /** Координаты на карте */
-
-        /*$builder->add('geocode', HiddenType::class, ['attr' => ['data-geocode' => 'true']]);
-
-        $builder->get('geocode')->addModelTransformer(
-            new CallbackTransformer(
-                function($geocode) {
-                    return $geocode instanceof GeocodeAddressUid ? $geocode->getValue() : $geocode;
-                },
-                function($geocode) {
-                    return $geocode ? new GeocodeAddressUid($geocode) : null;
-                }
-            )
-        );*/
 
 
         /* Коллекция пользовательских свойств */
@@ -184,21 +149,15 @@ final class OrderDeliveryForm extends AbstractType
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) use ($options) {
 
-                //                if($event->getData()->getDelivery())
-                //                {
-                //                    dump($event->getData()->getDelivery());
-                //                    dump($options['user_profile_type']);
-                //                }
-
+                /** @var OrderDeliveryDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                //dump($data);
 
-                //                dump($data->getDelivery());
-                //                dump($options['user_profile_type']);
 
-                if($data->getDelivery() && $options['user_profile_type'])
+
+                //if($data->getDelivery() && $options['user_profile_type'])
+                if($options['user_profile_type'])
                 {
 
                     $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
@@ -234,6 +193,8 @@ final class OrderDeliveryForm extends AbstractType
                         }
                     }
 
+
+
                     $form
                         ->add('delivery', ChoiceType::class, [
                             'choices' => $deliveryChoice,
@@ -263,20 +224,38 @@ final class OrderDeliveryForm extends AbstractType
                         ]);
 
 
+
+
                     /** Получаем пользовательские поля */
                     if($deliveryChecked)
                     {
-
                         $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
 
-                        $data->setField(new ArrayCollection());
+                        $values = $data->getField();
+
+                        //dump($fields);
+                        //dd($values);
+
+                        /** @var Field\OrderDeliveryFieldDTO $value */
+                        foreach($values as $key => $value)
+                        {
+                            if(!isset($fields[$key]))
+                            {
+                                $values->removeElement($value);
+                            }
+
+                            if(isset($fields[$key]))
+                            {
+                                $value->setField($fields[$key]);
+                                unset($fields[$key]);
+                            }
+                        }
 
                         foreach($fields as $field)
                         {
                             $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
                             $OrderDeliveryFieldDTO->setField($field);
                             $data->addField($OrderDeliveryFieldDTO);
-
                         }
 
                         /* Коллекция продукции */
@@ -294,72 +273,112 @@ final class OrderDeliveryForm extends AbstractType
                     }
 
                 }
-                else if($options['user_profile_type'])
-                {
-                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
 
 
-                    /** @var DeliveryUid $currentDelivery */
-                    $currentDelivery = current($deliveryChoice);
 
-                    $deliveryHelp = $currentDelivery->getOption();
-                    $deliveryChecked = $currentDelivery;
-
-                    $form
-                        ->add('delivery', ChoiceType::class, [
-                            'choices' => $deliveryChoice,
-                            'choice_value' => function(?DeliveryUid $delivery) {
-                                return $delivery?->getValue();
-                            },
-
-                            'choice_label' => function(DeliveryUid $delivery) {
-                                return $delivery->getAttr();
-                            },
-
-                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
-                                return [
-                                    'checked' => ($choice->equals($deliveryChecked)),
-                                    'data-price' => $choice->getPrice()?->getValue(),
-                                    'data-excess' => $choice->getExcess()?->getValue(),
-                                    'data-currency' => $choice->getCurrency(),
-                                ];
-                            },
-
-                            'attr' => ['class' => 'd-flex gap-3'],
-                            //'help' => $deliveryHelp,
-                            'label' => false,
-                            'expanded' => true,
-                            'multiple' => false,
-                            'required' => true,
-                        ]);
-
-
-                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-
-                    $data->setField(new ArrayCollection());
-
-                    foreach($fields as $field)
-                    {
-                        $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-                        $OrderDeliveryFieldDTO->setField($field);
-                        $data->addField($OrderDeliveryFieldDTO);
-
-                    }
-
-                    /* Коллекция продукции */
-                    $form->add('field', CollectionType::class, [
-                        'entry_type' => Field\OrderDeliveryFieldForm::class,
-                        'entry_options' => ['label' => false],
-                        'label' => false,
-                        'by_reference' => false,
-                        'allow_delete' => true,
-                        'allow_add' => true,
-                        'prototype_name' => '__delivery_field__',
-                    ]);
-                }
+//                else if($options['user_profile_type'])
+//                {
+//
+//                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+//
+//
+//                    /** @var DeliveryUid $currentDelivery */
+//                    $currentDelivery = current($deliveryChoice);
+//
+//                    $deliveryHelp = $currentDelivery->getOption();
+//                    $deliveryChecked = $currentDelivery;
+//
+//                    $form
+//                        ->add('delivery', ChoiceType::class, [
+//                            'choices' => $deliveryChoice,
+//                            'choice_value' => function(?DeliveryUid $delivery) {
+//                                return $delivery?->getValue();
+//                            },
+//
+//                            'choice_label' => function(DeliveryUid $delivery) {
+//                                return $delivery->getAttr();
+//                            },
+//
+//                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
+//                                return [
+//                                    'checked' => ($choice->equals($deliveryChecked)),
+//                                    'data-price' => $choice->getPrice()?->getValue(),
+//                                    'data-excess' => $choice->getExcess()?->getValue(),
+//                                    'data-currency' => $choice->getCurrency(),
+//                                ];
+//                            },
+//
+//                            'attr' => ['class' => 'd-flex gap-3'],
+//                            //'help' => $deliveryHelp,
+//                            'label' => false,
+//                            'expanded' => true,
+//                            'multiple' => false,
+//                            'required' => true,
+//                        ]);
+//
+//
+//                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+//
+//
+//                    $values = $data->getField();
+//
+//                    /** @var Field\OrderDeliveryFieldDTO $value */
+//
+//                    foreach($values as $key => $value)
+//                    {
+//                        if(!isset($fields[$key]))
+//                        {
+//                            $values->removeElement($value);
+//                        }
+//
+//                        if(isset($fields[$key]))
+//                        {
+//                            //dd($fields[$key]);
+//
+//                            $value->setField($fields[$key]);
+//                            unset($fields[$key]);
+//                        }
+//                    }
+//
+//                    foreach($fields as $field)
+//                    {
+//                        $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+//                        $OrderDeliveryFieldDTO->setField($field);
+//                        $data->addField($OrderDeliveryFieldDTO);
+//                    }
+//
+//
+//                    /* Коллекция продукции */
+//                    $form->add('field', CollectionType::class, [
+//                        'entry_type' => Field\OrderDeliveryFieldForm::class,
+//                        'entry_options' => ['label' => false],
+//                        'label' => false,
+//                        'by_reference' => false,
+//                        'allow_delete' => true,
+//                        'allow_add' => true,
+//                        'prototype_name' => '__delivery_field__',
+//                    ]);
+//                }
 
             }
         );
+
+//
+//        $builder->addEventListener(
+//            FormEvents::POST_SUBMIT,
+//            function(FormEvent $event): void {
+//
+//                /** @var UserProfileDTO $data */
+//                $data = $event->getData();
+//                $form = $event->getForm()->getParent();
+//
+//                dd($data );
+//
+//                $form->add('delivery', self::class, ['label' => false, ]);
+//            }
+//        );
+
+
 
     }
 

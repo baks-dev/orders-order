@@ -90,11 +90,11 @@
                             {{ card.product_name }}
 
                             {# Значение множественного варианта ТП #}
-                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference) ~
-                            card.product_modification_value|call_twig_func(card.product_modification_reference) }}
+                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                            card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
 
                             {# Значение торгового предложения #}
-                            {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
+                            {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
 
                             {# Свойства, учавствующие в названии #}
                             {# {% for name_property in arr_property | filter(props => props.field_name == true) %}

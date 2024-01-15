@@ -28,6 +28,7 @@ use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDT
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use PHPUnit\Util\Log\TeamCity;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -38,67 +39,83 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class ValueForm extends AbstractType
 {
 	
-	//private FieldValueFormInterface $fieldValue;
+	private FieldValueFormInterface $fieldValue;
 	
 	private FieldsChoice $fieldsChoice;
 	
 	public function __construct(
-		//FieldValueFormInterface $fieldValue,
+		FieldValueFormInterface $fieldValue,
 		FieldsChoice $fieldsChoice,
 	)
 	{
-		//$this->fieldValue = $fieldValue;
+		$this->fieldValue = $fieldValue;
 		$this->fieldsChoice = $fieldsChoice;
 	}
-	
+
+
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
-		
 		/* TextType */
-		//$builder->add('value', HiddenType::class, ['label' => false]);
-		//$builder->add('value', TextType::class, ['required' => false]);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) use ($options) {
-				/* @var ValueDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				if($data)
-				{
-					$fields = $options['fields'];
-					
-//					if($data->getField() !== null || !array_key_exists((string) $data->getField(), $fields))
-//					{
-//						$form->remove('value');
-//						return;
-//					}
-					
-					//dump($fields[(string) $data->getField()]);
-			
-					/** @var FieldValueFormDTO $field */
-					$field = end($fields[(string) $data->getField()]);
-					
-					$fieldType = $this->fieldsChoice->getChoice($field->getType());
-					
-					$form->add
-					(
-						'value',
-						$fieldType->form(),
-						[
-							'label' => $field->getFieldName(),
-							'required' => $field->isRequired(),
-							'help' => $field->getFieldDescription(),
-						]
-					);
-					
-				}
-				
-			}
-		);
-		
+		$builder->add('value', HiddenType::class, ['label' => false]);
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) use ($options) {
+
+                /** @var ValueDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                $fields = $options['fields'];
+
+                if($data && $fields)
+                {
+
+                    $field = $this->fieldValue->getFieldById($data->getField());
+
+                    $fieldType = $this->fieldsChoice->getChoice($field->getType());
+
+//                    dump( 'ValueForm');
+//                    dump( $data);
+//                    dump( $field);
+
+                    $form->add
+                    (
+                        'value',
+                        $fieldType->form(),
+                        [
+                            'label' => $field->getFieldName(),
+                            'required' => $field->isRequired(),
+                            'help' => $field->getFieldDescription(),
+                        ]
+                    );
+
+                }
+
+            }
+        );
+
+
+        $builder->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function(FormEvent $event): void {
+
+                $data = $event->getData();
+                $form = $event->getForm()->getParent();
+
+                $form->add('value', CollectionType::class, [
+                    'entry_type' => self::class,
+                    'entry_options' => ['label' => false],
+                    'label' => false,
+                    'by_reference' => false,
+                    'allow_delete' => true,
+                    'allow_add' => true,
+                ]);
+
+
+            }
+        );
 	}
 	
 	

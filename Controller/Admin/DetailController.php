@@ -129,14 +129,14 @@ final class DetailController extends AbstractController
         }
 
         /** Информация о заказе */
-        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getOrders());
+        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getMain());
         
         /** История изменения статусов */
-        $History = $orderHistory->fetchHistoryAllAssociative($Event->getOrders());
+        $History = $orderHistory->fetchHistoryAllAssociative($Event->getMain());
 
         // Отпарвляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
-            ->addData(['order' => (string)$Event->getOrders()])
+            ->addData(['order' => (string)$Event->getMain()])
             ->addData(['profile' => (string)$this->getProfileUid()])
             ->send('orders');
 

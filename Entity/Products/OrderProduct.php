@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Entity\Products;
 
 use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -89,6 +90,15 @@ class OrderProduct extends EntityEvent
     {
         return (string) $this->id;
     }
+
+    /**
+     * Event
+     */
+    public function getEvent(): OrderEventUid
+    {
+        return $this->event->getId();
+    }
+
 
     public function getDto($dto): mixed
     {

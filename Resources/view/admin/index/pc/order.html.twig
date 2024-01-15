@@ -28,10 +28,30 @@
                         {% endif %}
 
                     </div>
+                    {% set dedline = date(order.modify) %}
+                    {% set difference = dedline.diff(date("now")) %}
+                    {% set day = difference.days ?: null %}
+                    {% set hour = difference.h ?: null %}
+
+                    {#{{ dump(difference) }}#}
+
+                    <div class="small">
+
+                    <span class="small text-muted ">{{ order.order_created|date('d.m.Y') }} | </span>
+                    <strong
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title="Последнее движение по заказу"
+                            class="small {{day ? 'text-danger' : 'text-success' }}">
+                        {{ day ? day~' д. ' }}{{ hour ? hour~' ч. ' }}{{ day and hour is not null ? null : difference.i~' м.' }}
+                    </strong>
+                    </div>
 
                     <span class="fw-bolder d-flex justify-content-between align-items-center">
 							
-							{% set arr_price = order.product_price|json_decode %}
+						{% set arr_price = order.product_price|json_decode %}
+
 
                         {% set price = 0 %}
 
@@ -51,6 +71,9 @@
 							<span class='h5 lh-1 '>{{ money(price, order.order_currency) }}</span>
 							
 						</span>
+
+
+
                 </div>
 
                 <div class="d-flex flex-column justify-content-between gap-1">
@@ -107,19 +130,7 @@
 
                     </div>
 
-                    {% set dedline = date(order.modify) %}
-                    {% set difference = dedline.diff(date("now")) %}
-                    {% set hour = difference.d * 24 + difference.h %}
 
-                    <span class="small text-muted">{{ order.order_created|date('d.m.Y') }}</span>
-                    <span
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-delay='{"show":600,"hide":100}'
-                            title="Последнее движение по заказу"
-                            class="small text-muted">
-                        ({{ hour }} ч. {{ difference.i }} м.)
-                    </span>
 
                 </div>
             </div>

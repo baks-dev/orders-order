@@ -115,7 +115,7 @@ class OrderEvent extends EntityEvent
         return $this->id;
     }
 
-    public function getOrders(): ?OrderUid
+    public function getMain(): ?OrderUid
     {
         return $this->orders;
     }

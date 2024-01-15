@@ -46,7 +46,7 @@ final class OrderProducts implements OrderProductsInterface
     }
 
     /**
-     * Метод возвращает продукцию в заказе
+     * Метод возвращает продукцию в заказе (идентификаторы)
      */
     public function fetchAllOrderProducts(OrderUid $order): ?array
     {
@@ -57,8 +57,7 @@ final class OrderProducts implements OrderProductsInterface
             ->addSelect('ord.event AS oder_event')
             ->from(Order::TABLE, 'ord')
             ->where('ord.id = :order')
-            ->setParameter('order', $order, OrderUid::TYPE)
-        ;
+            ->setParameter('order', $order, OrderUid::TYPE);
 
         $qb
             ->addSelect('products.product AS product_event')
@@ -66,22 +65,20 @@ final class OrderProducts implements OrderProductsInterface
             ->addSelect('products.variation AS product_variation')
             ->addSelect('products.modification AS product_modification')
             ->join(
-            'ord',
-            OrderProduct::TABLE,
-            'products',
-            'products.event = ord.event'
-        );
+                'ord',
+                OrderProduct::TABLE,
+                'products',
+                'products.event = ord.event'
+            );
 
         $qb
             ->addSelect('product_event.main AS product_id')
-
             ->leftJoin(
                 'products',
                 ProductEvent::TABLE,
                 'product_event',
                 'product_event.id = products.product'
             );
-
 
 
         if(class_exists(WbProductCard::class))
@@ -93,9 +90,78 @@ final class OrderProducts implements OrderProductsInterface
                     'product_variation',
                     'product_variation.id = products.variation'
                 );
-            $qb
 
-                ->addSelect('barcode')
+            $qb
+                ->addSelect('wb_card_variation.barcode')
+                ->leftJoin(
+                    'product_variation',
+                    WbProductCardVariation::TABLE,
+                    'wb_card_variation',
+                    'wb_card_variation.variation = product_variation.const'
+                );
+        }
+
+        return $qb
+            ->enableCache('orders-order', 3600)
+            ->fetchAllAssociative();
+    }
+
+
+    public function fetchAllOrderProductsDetail(OrderUid $order): ?array
+    {
+        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $qb
+            ->addSelect('ord.id AS oder_id')
+            ->addSelect('ord.event AS oder_event')
+            ->from(Order::TABLE, 'ord')
+            ->where('ord.id = :order')
+            ->setParameter('order', $order, OrderUid::TYPE);
+
+        $qb
+            ->addSelect('products.product AS product_event')
+            ->addSelect('products.offer AS product_offer')
+            ->addSelect('products.variation AS product_variation')
+            ->addSelect('products.modification AS product_modification')
+            ->join(
+                'ord',
+                OrderProduct::TABLE,
+                'products',
+                'products.event = ord.event'
+            );
+
+
+
+
+
+
+
+
+
+
+
+        $qb
+            ->addSelect('product_event.main AS product_id')
+            ->leftJoin(
+                'products',
+                ProductEvent::TABLE,
+                'product_event',
+                'product_event.id = products.product'
+            );
+
+
+        if(class_exists(WbProductCard::class))
+        {
+            $qb
+                ->leftJoin(
+                    'products',
+                    ProductVariation::TABLE,
+                    'product_variation',
+                    'product_variation.id = products.variation'
+                );
+
+            $qb
+                ->addSelect('wb_card_variation.barcode')
                 ->leftJoin(
                     'product_variation',
                     WbProductCardVariation::TABLE,

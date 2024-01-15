@@ -38,7 +38,7 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 
 	/** Заполненное значение */
 	#[Assert\Valid]
-	private ?string $value;
+	private ?string $value = null;
 	
 	/** Идентификатор пользовательского поля в способе оплаты */
 	
@@ -55,14 +55,15 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 	
 	/** Заполненное значение */
 
-	public function getValue(): string
+	public function getValue(): ?string
 	{
 		return $this->value;
 	}
 	
-	public function setValue(string $value) : void
+	public function setValue(?string $value) : self
 	{
 		$this->value = $value;
+        return $this;
 	}
 	
 	

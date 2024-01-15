@@ -32,6 +32,9 @@ use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderProducts\OrderProductsInterface;
 use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
@@ -57,15 +60,15 @@ final class ProductsController extends AbstractController
     #[Route('/admin/order/products/{id}/{page<\d+>}', name: 'admin.order.products', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
+        Order $Order,
+        OrderDetailInterface $orderDetail,
+
 //        AllWbOrdersManufactureInterface $allWbOrdersGroup,
 //        OpenManufacturePartInterface $openManufacturePart,
 //        TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response
     {
-
-
-        dd('Продукция в заказе');
 
         /**
          * Поиск
@@ -74,7 +77,7 @@ final class ProductsController extends AbstractController
         $search = new SearchDTO($request);
         $searchForm = $this->createForm(
             SearchForm::class, $search, [
-                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
+                'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
             ]
         );
         $searchForm->handleRequest($request);
@@ -106,7 +109,7 @@ final class ProductsController extends AbstractController
 
 
         // Получаем открытый черновик
-        $opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
+        //$opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
 
         /**
          * Фильтр заказов
@@ -114,41 +117,45 @@ final class ProductsController extends AbstractController
 
         $filter = new WbOrdersProductFilterDTO($request);
 
-        if($opens)
-        {
-            /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
-        }
+//        if($opens)
+//        {
+//            /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
+//            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
+//        }
+
 
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
+            'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
         ]);
         $filterForm->handleRequest($request);
         !$filterForm->isSubmitted()?:$this->redirectToReferer();
 
 
         /**
-         * Получаем список заказов
+         * Получаем список продукции в заказе
          */
 
-        $WbOrders = $allWbOrdersGroup
-            ->fetchAllWbOrdersGroupAssociative(
-                $search,
-                $this->getProfileUid(),
-                $filter,
-                $opens ? new ManufacturePartComplete($opens['complete']) : null
-            );
+        $OrderProducts = $orderDetail->fetchDetailOrderAssociative($Order->getId());
+
+
+//        $WbOrders = $allWbOrdersGroup
+//            ->fetchAllWbOrdersGroupAssociative(
+//                $search,
+//                $this->getProfileUid(),
+//                $filter,
+//                $opens ? new ManufacturePartComplete($opens['complete']) : null
+//            );
 
 
 
         return $this->render(
             [
-                'opens' => $opens,
-                'query' => $WbOrders,
+                //'opens' => $opens,
+                'query' => $OrderProducts,
                 'search' => $searchForm->createView(),
                 //'profile' => $profileForm->createView(),
                 'filter' => $filterForm->createView(),
-                'token' => $tokenUserGenerator->generate($this->getUsr()),
+                //'token' => $tokenUserGenerator->generate($this->getUsr()),
             ]
         );
     }

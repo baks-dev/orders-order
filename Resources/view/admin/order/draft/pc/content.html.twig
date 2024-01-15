@@ -12,31 +12,31 @@
 
             <div class="w-100">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
-                    Производственный процесс
+                    Новый заказ
                 </h1>
             </div>
 
-
-            <button {# href="{{ path('products-stocks:admin.purchase.index') }}" #}
-                    class="btn btn-light opacity-25"
+            <a
+                    href="{{ path('orders-order:admin.index') }}"
+                    class="btn btn-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
                     data-bs-delay='{"show":600,"hide":100}'
-                    title="Производство продукции"
+                    title="Управление заказами"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
                      viewBox="0 0 16 16">
                     <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434L7.752.066ZM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567L4.25 7.504ZM7.5 9.933l-2.75 1.571v3.134l2.75-1.571V9.933Zm1 3.134 2.75 1.571v-3.134L8.5 9.933v3.134Zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567-2.742 1.567Zm2.242-2.433V3.504L8.5 5.076V8.21l2.75-1.572ZM7.5 8.21V5.076L4.75 3.504v3.134L7.5 8.21ZM5.258 2.643 8 4.21l2.742-1.567L8 1.076 5.258 2.643ZM15 9.933l-2.75 1.571v3.134L15 13.067V9.933ZM3.75 14.638v-3.134L1 9.933v3.134l2.75 1.571Z"/>
                 </svg>
-            </button>
+            </a>
 
-
-            <a href="{{ path('manufacture-part:admin.manufacture') }}"
-               class="btn btn-light"
-               data-bs-toggle="tooltip"
-               data-bs-placement="bottom"
-               data-bs-delay='{"show":600,"hide":100}'
-               title="Список производственных партий"
+            <a
+                    href="{{ path('orders-order:admin.order.index') }}"
+                    class="btn btn-light"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    data-bs-delay='{"show":600,"hide":100}'
+                    title="Список заказов"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
                      class="bi bi-card-checklist" viewBox="0 0 16 16">
@@ -56,27 +56,26 @@
 
         </div>
 
-        {% if opens is defined %}
+        {% if opens  %}
 
             {# Партия производства #}
-            {{ include(_self|replace({ "content.html.twig": "part.html.twig" }), { card : opens }) }}
+            {{ include(_self|replace({ "content.html.twig": "open.html.twig" }), { card : opens }) }}
 
         {% else %}
 
             <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
                 <span>
-                    У Вас нет  открытых производственных партий
+                    У Вас нет открытого заказа
                 </span>
 
-                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANUFACTURE_PART_NEW') %}
-                    <a href="{{ path('manufacture-part:admin.newedit.new') }}"
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ORDER_NEW') %}
+                    <a href="{{ path('orders-order:admin.new') }}"
                        class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
                        data-bs-target="#modal"
-                       title="Открыть производственную партию">
-                        Открыть  новую партию
+                       title="Добавить заказ">
+                        Добавить заказ
                     </a>
                 {% endif %}
-
 
             </div>
 
@@ -86,7 +85,7 @@
 
             <div class="w-100">
                 <h2 class="h5 text-uppercase fw-bolder mb-0">
-                    Каталог продукции
+                    Каталог продукции в наличии
                 </h2>
             </div>
 
@@ -106,11 +105,13 @@
 
         <div class="border border-light rounded-4 p-3">
 
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between align-items-start gap-3">
 
+                {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
 
-                {#<div class="w-100">
+
+                <div class="w-100">
                     {{ form_start(filter) }}
                     <div class="d-flex justify-content-end align-items-center my-1 gap-3">
 
@@ -142,10 +143,20 @@
 
                         {% endif %}
 
+
                     </div>
 
+
+                    {# <div class="collapse multi-collapse" id="multiCollapseExample2">
+                            <div class="d-flex justify-content-end align-items-center my-1 gap-3" style="clear: both;">
+
+                            </div>
+                        </div> #}
+
+
                     {{ form_end(filter) }}
-                </div>#}
+                </div>
+
 
             </div>
 
@@ -181,7 +192,7 @@
                 </div>
 
                 {% for item in query.data %}
-                    {#{{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}#}
+                    {{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}
                 {% endfor %}
             </div>
 

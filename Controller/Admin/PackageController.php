@@ -156,6 +156,7 @@ final class PackageController extends AbstractController
                 }
             }
 
+
             foreach($MoveCollection as $movingCollection)
             {
                 foreach($movingCollection as $moving)
@@ -186,6 +187,7 @@ final class PackageController extends AbstractController
                 $ProductStockDTO = new \BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO();
 
                 $ProductStockDTO->setTotal($const->getPrice()->getTotal());
+
 
                 $constProduct = $entityManager->getRepository(ProductEvent::class)->find($const->getProduct());
                 $ProductStockDTO->setProduct($constProduct->getMain());
@@ -257,15 +259,17 @@ final class PackageController extends AbstractController
                 return $this->redirectToReferer();
             }
 
-            return new JsonResponse(
-                [
-                    'type' => 'success',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => 'Статус успешно обновлен',
-                    'status' => 200,
-                ],
-                200
-            );
+            return $this->redirectToRoute('orders-order:admin.index');
+
+//            return new JsonResponse(
+//                [
+//                    'type' => 'success',
+//                    'header' => 'Заказ #'.$Order->getNumber(),
+//                    'message' => 'Статус успешно обновлен',
+//                    'status' => 200,
+//                ],
+//                200
+//            );
         }
 
         return $this->render(['form' => $form->createView()]);

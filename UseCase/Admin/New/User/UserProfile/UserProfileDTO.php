@@ -89,25 +89,39 @@ final class UserProfileDTO implements UserProfileEventInterface
 		return $this->info;
 	}
 	
-	
-	
-	
+
 	/** Значения профиля */
 	
 	public function getValue() : ArrayCollection
 	{
 		return $this->value;
 	}
+
+    public function setValue(ArrayCollection $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
 	
-	public function resetValue() : void
+//	public function resetValue() : void
+//	{
+//		$this->value = new ArrayCollection();
+//	}
+
+
+	
+	
+	public function addValue($value) : void
 	{
-		$this->value = new ArrayCollection();
-	}
-	
-	
-	public function addValue(Value\ValueDTO $value) : void
-	{
-		$this->value->add($value);
+        if($value instanceof Value\ValueDTO)
+        {
+            $this->value->add($value);
+        }
+//        else
+//        {
+//            dump($value);
+//        }
+
 	}
 	
 	

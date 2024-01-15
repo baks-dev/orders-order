@@ -97,7 +97,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     /** Пользовательские поля */
     public function getField(): ?ArrayCollection
     {
-        return $this->field;
+        return $this->field ?: new ArrayCollection();
     }
 
     public function setField(ArrayCollection $field): void
@@ -105,8 +105,14 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         $this->field = $field;
     }
 
-    public function addField(Field\OrderDeliveryFieldDTO $field): void
+    public function addField($field): void
     {
+        if(empty($field))
+        {
+            return;
+        }
+
+
         if (!$this->field->contains($field))
         {
             $this->field->add($field);

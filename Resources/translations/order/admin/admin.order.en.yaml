@@ -1,27 +1,31 @@
 admin:
 
   page:
-    index: 'Orders'
-    control: 'Manage Orders'
+    index: 'Order management'
+    all: 'List of orders'
     new: 'Add order'
     edit: 'Edit order'
     delete: 'Delete order'
+    add: 'Add products to order'
 
   breadcrumb:
-    index: 'Orders'
-    control: 'Manage Orders'
+    index: 'Order management'
+    all: 'Order list'
     new: 'Add order'
-    edit: 'Edit Order'
+    edit: 'Edit order'
     delete: 'Delete order'
+    add: 'Add products to order'
 
   success:
     new: 'Order added successfully'
-    update: 'Order updated successfully'
-    delete: 'Order successfully deleted to cart'
+    update: 'Order successfully updated'
+    delete: 'The order was successfully added to the cart'
     restore: 'Order successfully restored'
+    add: 'Products added successfully'
 
   danger:
     new: '%s: Error adding order'
     update: '%s: Error updating order'
-    delete: '%s: Error while deleting order'
-    restore: '%s: Error restoring order'
+    delete: '%s: Error deleting order'
+    restore: '%s: Error while restoring order'
+    add: '%s: Error adding products'

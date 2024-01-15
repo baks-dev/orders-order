@@ -28,7 +28,28 @@ namespace BaksDev\Orders\Order\Repository\ProductUserBasket;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Products\Category\Entity as CategoryEntity;
-use BaksDev\Products\Product\Entity as ProductEntity;
+//use BaksDev\Products\Product\Entity as ProductEntity;
+use BaksDev\Products\Product\Entity\Active\ProductActive;
+use BaksDev\Products\Product\Entity\Category\ProductCategory;
+use BaksDev\Products\Product\Entity\Event\ProductEvent;
+use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
+use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Quantity\ProductOfferQuantity;
+use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Image\ProductModificationImage;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
+use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
+use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
+use BaksDev\Products\Product\Entity\Price\ProductPrice;
+use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Entity\Property\ProductProperty;
+use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -37,21 +58,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ProductUserBasket implements ProductUserBasketInterface
 {
-
-    private TranslatorInterface $translator;
     private DBALQueryBuilder $DBALQueryBuilder;
 
-
     public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-        TranslatorInterface $translator,
+        DBALQueryBuilder $DBALQueryBuilder
     )
     {
-
-        $this->translator = $translator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
-
 
     public function fetchProductBasketAssociative(
         ProductEventUid $event,
@@ -60,7 +74,10 @@ final class ProductUserBasket implements ProductUserBasketInterface
         ?ProductModificationUid $modification = null,
     ): ?array
     {
-        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+        $qb = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class)
+            ->bindLocal()
+        ;
 
 
         //		$qb->join('product',
@@ -72,13 +89,13 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->addSelect('product_event.id AS event'); //->addGroupBy('product_event.id');
         $qb->addSelect('product_event.main AS id'); //->addGroupBy('product_event.main');
-        $qb->from(ProductEntity\Event\ProductEvent::TABLE, 'product_event');
+        $qb->from(ProductEvent::TABLE, 'product_event');
 
 
         $qb->addSelect('product_active.active_from AS product_active_from'); //->addGroupBy('product_active.active_from');
 
         $qb->join('product_event',
-            ProductEntity\Active\ProductActive::TABLE,
+            ProductActive::TABLE,
             'product_active',
             'product_active.event = product_event.id AND product_active.active = true AND product_active.active_from < NOW()
 			
@@ -91,14 +108,14 @@ final class ProductUserBasket implements ProductUserBasketInterface
 		');
 
         $qb->addSelect('product.event AS current_event'); //->addGroupBy('product.event');
-        $qb->leftJoin('product_event', ProductEntity\Product::TABLE, 'product', 'product.id = product_event.main');
+        $qb->leftJoin('product_event', Product::TABLE, 'product', 'product.id = product_event.main');
 
 
         $qb->addSelect('product_trans.name AS product_name'); //->addGroupBy('product_trans.name');
 
         $qb->leftJoin(
             'product_event',
-            ProductEntity\Trans\ProductTrans::TABLE,
+            ProductTrans::TABLE,
             'product_trans',
             'product_trans.event = product_event.id AND product_trans.local = :local'
         );
@@ -107,7 +124,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Базовая Цена товара */
         $qb->leftJoin(
             'product_event',
-            ProductEntity\Price\ProductPrice::TABLE,
+            ProductPrice::TABLE,
             'product_price',
             'product_price.event = product_event.id'
         );
@@ -122,7 +139,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_event',
-            ProductEntity\Info\ProductInfo::TABLE,
+            ProductInfo::TABLE,
             'product_info',
             'product_info.product = product_event.main '
         )->addGroupBy('product_info.article');
@@ -135,7 +152,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         $qb->addSelect('product_offer.value as product_offer_value'); //->addGroupBy('product_offer.value');
         $qb->leftJoin(
             'product_event',
-            ProductEntity\Offers\ProductOffer::TABLE,
+            ProductOffer::TABLE,
             'product_offer',
             'product_offer.event = product_event.id '.($offer ? ' AND product_offer.id = :product_offer' : '').' '
         )
@@ -149,7 +166,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Цена торгового предожения */
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Offers\Price\ProductOfferPrice::TABLE,
+            ProductOfferPrice::TABLE,
             'product_offer_price',
             'product_offer_price.offer = product_offer.id'
         )
@@ -179,7 +196,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Наличие и резерв торгового предложения */
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Offers\Quantity\ProductOfferQuantity::TABLE,
+            ProductOfferQuantity::TABLE,
             'product_offer_quantity',
             'product_offer_quantity.offer = product_offer.id'
         )
@@ -196,7 +213,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Offers\Variation\ProductVariation::TABLE,
+            ProductVariation::TABLE,
             'product_offer_variation',
             'product_offer_variation.offer = product_offer.id'.($variation ? ' AND product_offer_variation.id = :variation' : '').' '
         )
@@ -210,7 +227,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Цена множественного варианта */
         $qb->leftJoin(
             'product_offer_variation',
-            ProductEntity\Offers\Variation\Price\ProductVariationPrice::TABLE,
+            ProductVariationPrice::TABLE,
             'product_variation_price',
             'product_variation_price.variation = product_offer_variation.id'
         )
@@ -240,7 +257,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Наличие и резерв множественного варианта */
         $qb->leftJoin(
             'category_offer_variation',
-            ProductEntity\Offers\Variation\Quantity\ProductVariationQuantity::TABLE,
+            ProductVariationQuantity::TABLE,
             'product_variation_quantity',
             'product_variation_quantity.variation = product_offer_variation.id'
         )
@@ -257,7 +274,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer_variation',
-            ProductEntity\Offers\Variation\Modification\ProductModification::TABLE,
+            ProductModification::TABLE,
             'product_offer_modification',
             'product_offer_modification.variation = product_offer_variation.id'.($modification ? ' AND product_offer_modification.id = :modification' : '').' '
         )
@@ -271,7 +288,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Цена модификации множественного варианта */
         $qb->leftJoin(
             'product_offer_modification',
-            ProductEntity\Offers\Variation\Modification\Price\ProductModificationPrice::TABLE,
+            ProductModificationPrice::TABLE,
             'product_modification_price',
             'product_modification_price.modification = product_offer_modification.id'
         )
@@ -301,7 +318,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /** Наличие и резерв модификации множественного варианта */
         $qb->leftJoin(
             'category_offer_modification',
-            ProductEntity\Offers\Variation\Modification\Quantity\ProductModificationQuantity::TABLE,
+            ProductModificationQuantity::TABLE,
             'product_modification_quantity',
             'product_modification_quantity.modification = product_offer_modification.id'
         )
@@ -331,7 +348,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer_modification',
-            ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE,
+            ProductModificationImage::TABLE,
             'product_offer_modification_image',
             '
 			product_offer_modification_image.modification = product_offer_modification.id AND product_offer_modification_image.root = true
@@ -343,7 +360,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE,
+            ProductVariationImage::TABLE,
             'product_offer_variation_image',
             '
 			product_offer_variation_image.variation = product_offer_variation.id  AND product_offer_variation_image.root = true
@@ -355,7 +372,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Offers\Image\ProductOfferImage::TABLE,
+            ProductOfferImage::TABLE,
             'product_offer_images',
             '
 			
@@ -368,7 +385,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'product_offer',
-            ProductEntity\Photo\ProductPhoto::TABLE,
+            ProductPhoto::TABLE,
             'product_photo',
             '
 	
@@ -412,14 +429,14 @@ final class ProductUserBasket implements ProductUserBasketInterface
         $qb->addSelect("
 			CASE
 			   WHEN product_offer_modification_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Modification\Image\ProductModificationImage::TABLE."' , '/', product_offer_modification_image.name, '/')
+					CONCAT ( '/upload/".ProductModificationImage::TABLE."' , '/', product_offer_modification_image.name, '/')
 					
 			   WHEN product_offer_variation_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Variation\Image\ProductVariationImage::TABLE."' , '/', product_offer_variation_image.name, '/')
+					CONCAT ( '/upload/".ProductVariationImage::TABLE."' , '/', product_offer_variation_image.name, '/')
 			   WHEN product_offer_images.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Offers\Image\ProductOfferImage::TABLE."' , '/', product_offer_images.name, '/')
+					CONCAT ( '/upload/".ProductOfferImage::TABLE."' , '/', product_offer_images.name, '/')
 			   WHEN product_photo.name IS NOT NULL THEN
-					CONCAT ( '/upload/".ProductEntity\Photo\ProductPhoto::TABLE."' , '/', product_photo.name, '/')
+					CONCAT ( '/upload/".ProductPhoto::TABLE."' , '/', product_photo.name, '/')
 			   ELSE NULL
 			END AS product_image
 		"
@@ -515,7 +532,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         /* Категория */
         $qb->join(
             'product_event',
-            ProductEntity\Category\ProductCategory::TABLE,
+            ProductCategory::TABLE,
             'product_event_category',
             'product_event_category.event = product_event.id AND product_event_category.root = true'
         );
@@ -573,7 +590,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->leftJoin(
             'category_section_field',
-            ProductEntity\Property\ProductProperty::TABLE,
+            ProductProperty::TABLE,
             'product_property',
             'product_property.event = product_event.id AND product_property.field = category_section_field.id'
         );
@@ -604,7 +621,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
 
         $qb->where('product_event.id = :event');
         $qb->setParameter('event', $event, ProductEventUid::TYPE);
-        $qb->setParameter('local', new Locale($this->translator->getLocale()), Locale::TYPE);
+        //$qb->setParameter('local', new Locale($this->translator->getLocale()), Locale::TYPE);
 
         $qb->allGroupByExclude();
 

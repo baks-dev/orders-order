@@ -28,6 +28,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusDraft;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -42,14 +43,25 @@ final class NewOrderDTO implements OrderEventInterface
 //    #[Assert\Valid]
 //    private ArrayCollection $product;
 
+
+    /** Статус заказа */
+    #[Assert\NotBlank]
+    private OrderStatus $status;
+
+    /** Ответственный */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private UserProfileUid $profile;
+
     /** Пользователь */
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    public function __construct()
+    public function __construct(UserProfileUid $profile)
     {
-        //$this->product = new ArrayCollection();
+        $this->profile = $profile;
         $this->usr = new User\OrderUserDTO();
+        $this->status = new OrderStatus(OrderStatusDraft::class);
     }
 
     public function getEvent() : ?OrderEventUid
@@ -86,6 +98,12 @@ final class NewOrderDTO implements OrderEventInterface
 //        $this->product->removeElement($product);
 //    }
 
+    /** Статус заказа */
+    public function getStatus(): OrderStatus
+    {
+        return $this->status;
+    }
+
     /** Пользователь */
     public function getUsr() : User\OrderUserDTO
     {
@@ -96,4 +114,10 @@ final class NewOrderDTO implements OrderEventInterface
     {
         $this->usr = $users;
     }
+
+    public function getProfile(): UserProfileUid
+    {
+        return $this->profile;
+    }
+
 }

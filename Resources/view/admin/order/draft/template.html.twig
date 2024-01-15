@@ -31,6 +31,17 @@
 {% block content %}
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
+
+    <div class="modal fade" tabindex="-1" id="modal_address" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered ">
+            <div class="d-flex justify-content-center w-100">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 
@@ -53,8 +64,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 });
 
+
+let TTmzCXyCq = 100;
+
 /** Сокеты */
 setTimeout(function SpgGHaQzun() {
+
+    if (TTmzCXyCq > 1000)
+        {
+            return;
+        }
+
 
     if (typeof Centrifuge === 'function')
     {
@@ -67,13 +87,13 @@ setTimeout(function SpgGHaQzun() {
                 debug: false,
             });
 
-		{% if opens is defined and opens is not null %}
+		{% if opens %}
 
-			  centrifuge.newSubscription('{{ opens.event }}').on('publication', function (ctx) {
-                    document.getElementById('product-{{ opens.event }}').innerHTML = ctx.data.product;
+			  centrifuge.newSubscription('{{ opens.order_event }}').on('publication', function (ctx) {
+                    document.getElementById('product-{{ opens.order_event }}').innerHTML = ctx.data.product;
 
-                    $total = parseInt(document.getElementById('total-{{ opens.event }}').textContent);
-                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total
+                    //$total = parseInt(document.getElementById('total-{{ opens.order_event }}').textContent);
+                    //document.getElementById('total-{{ opens.order_event }}').textContent = $total + ctx.data.total
 
             }).subscribe();
 
@@ -81,20 +101,25 @@ setTimeout(function SpgGHaQzun() {
 
 		{% endif %}
 
-        /** Удаляем из списка у всех продукт */
-		centrifuge.newSubscription('remove').on('publication', function (ctx) {
-                     $identifier = document.getElementById(ctx.data.identifier);
-                     if($identifier) { $identifier.remove(); }
-            }).subscribe();
-
-		centrifuge.connect();
+        // /** Удаляем из списка у всех продукт */
+		// centrifuge.newSubscription('remove').on('publication', function (ctx) {
+        //              $identifier = document.getElementById(ctx.data.identifier);
+        //              if($identifier) { $identifier.remove(); }
+        //     }).subscribe();
+        //
+		// centrifuge.connect();
 
         return;
     }
 
-    setTimeout(SpgGHaQzun, 100);
+
+    TTmzCXyCq = TTmzCXyCq * 2;
+
+    setTimeout(SpgGHaQzun, TTmzCXyCq);
 
 }, 100);
+
+
 
 
 

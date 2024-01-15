@@ -1,21 +1,6 @@
-{% set identifier = item.event %}
+<div class="col-2 p-1">
 
-{% if item.product_offer_id %}
-    {% set identifier = item.product_offer_id %}
-{% endif %}
-
-{% if item.product_variation_id %}
-    {% set identifier = item.product_variation_id %}
-{% endif %}
-
-{% if item.product_modification_id %}
-    {% set identifier = item.product_modification_id %}
-{% endif %}
-
-
-<div id="{{ identifier }}" class="col-2 p-1 {{ item.exist_manufacture ? 'opacity-75' }}">
-
-    <div class="border-bottom border-4 rounded-4 {{ item.exist_manufacture ? 'bg-secondary border-secondary' : 'bg-primary border-primary' }} ">
+    <div class="border-bottom border-4 rounded-4 bg-primary border-primary">
 
         <div class="card bg-light-primary rounded-4">
 
@@ -23,8 +8,10 @@
                 <div class="d-flex justify-content-between align-items-center small">
 
                     {# {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }} #}
-
-                    <div class="w-100"> {{ item.users_profile_username }} </div>
+                    {# Бренд #}
+                    <div class="w-100">
+                        {{ item.users_profile_username }}
+                    </div>
 
                     <div class="text-muted">
                         <span class="badge text-bg-secondary">{{ item.category_name }}</span> {# {{ item.part_date|date('d.m.Y H:i') }} #}
@@ -48,16 +35,17 @@
             {% endif %}
 
 
+
             <div class="d-flex flex-column small gap-1 p-2 bg-cover lazy col-2 w-100"
                  style=" height: 280px;"
                  data-bg="{{ image_path }}"
             >
-                {# <div
+                <div
                         class="icon rounded-circle bg-contain p-1 mb-2 shadow position-absolute"
                         style="width: 25px; height: 25px;"
                 >
                     {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }}
-                </div> #}
+                </div>
 
             </div>
 
@@ -70,41 +58,48 @@
                      data-bs-delay='{"show":600,"hide":100}'
                      title="{{ item.product_name }}"
                 >
-                    <a href="{# /admin/product/edit/06420615-8809-4662-9a2c-e3643dc95c48 #}"
-                       class="fw-bolder mb-1 text-dark text-decoration-none product-name">
+
+
+                    <a href="{{ (is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN')) ? path('products-product:admin.newedit.edit', { id: item.event }) }}"
+                       class="fw-bolder mb-1 text-dark text-decoration-none"
+
+                    >
                         {{ item.product_name|capitalize }}
                     </a>
+
                     <div class="text-muted fw-bolder">
 
-                        {% if item.product_offer_value %}
-                            {{ item.product_offer_value|call_twig_func(item.product_offer_reference) }}
-                            {{ item.product_offer_postfix }}
-                        {% endif %}
 
-                        {% if item.product_variation_value %}
-                            {{ item.product_variation_value|call_twig_func(item.product_variation_reference) }}
-                            {{ item.product_variation_postfix }}
-                        {% endif %}
+                        {# Значение множественного варианта ТП #}
+                        {{ item.product_variation_value|call_twig_func(item.product_variation_reference~'_render')
+                        ~ item.product_modification_value|call_twig_func(item.product_modification_reference~'_render') }}
 
-                        {% if item.product_modification_value %}
-                            {{ item.product_modification_value|call_twig_func(item.product_modification_reference) }}
-                            {{ item.product_modification_postfix }}
-                        {% endif %}
+                        {# Значение торгового предложения #}
+                        {{ item.product_offer_value|call_twig_func(item.product_offer_reference~'_render') }}
+
+                        {# Постфикс торгового предложения #}
+                        {{ item.product_offer_postfix }}
+                        {# Постфикс множественного варианта #}
+                        {{ item.product_variation_postfix }}
+                        {# Постфикс модификации #}
+                        {{ item.product_modification_postfix }}
+
 
                     </div>
                 </div>
 
+
                 <div class="d-flex justify-content-between align-items-center small">
 
                     <div class="d-flex align-items-center">
-                        <span>Арт: &nbsp;</span>
-                        <form method="post" action='{{ path('manufacture-part:admin.index') }}' class="p-0">
+                       {{ item.product_article }}
+                        {#<form method="post" action='{{ path('manufacture-part:admin.index') }}' class="p-0">
                             <input type="hidden" name="search_form[query]" value="{{ item.product_article }}">
                             <button type="submit" class="btn btn-link text-decoration-none btn-sm p-0 border-0">
                                 <span class="small">{{ item.product_article }}</span>
                             </button>
 
-                        </form>
+                        </form>#}
                     </div>
 
                     {% if is_granted('ROLE_MANUFACTURE_PART_ADD') or  is_granted('ROLE_ADMIN') %}
@@ -115,17 +110,19 @@
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     data-bs-delay='{"show":600,"hide":100}'
-                                    title='{{ item.exist_manufacture ? 'Продукция на производстве' : 'Добавить в партию производства' }}'
+                                    title='Добавить в заказ'
                             >
 
-                        <a href="{{ path('manufacture-part:admin.products.add', {
+
+
+                        <a href="{{ path('orders-order:admin.order.add', {
                             product: item.event,
                             offer: item.product_offer_id,
                             variation: item.product_variation_id,
                             modification: item.product_modification_id
                         }) }}"
 
-                           class="btn btn-sm {{ item.exist_manufacture ? 'btn-secondary' : 'btn-primary' }} modal-link"
+                           class="btn btn-sm btn-primary modal-link"
                            data-bs-toggle="modal"
                            data-bs-target="#modal"
                         >
@@ -161,14 +158,12 @@
                             {% endif %}
                         {% endif %}
 
-
                     {% endif %}
 
-
                 </div>
-
             </div>
         </div>
     </div>
 
 </div>
+

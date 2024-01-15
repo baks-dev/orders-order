@@ -306,6 +306,7 @@ async function submitDeliveryForm(forms) {
 
 
     const data = new FormData(forms);
+    data.delete(forms.name+'[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -419,6 +420,7 @@ async function submitRegionForm(forms, id) {
 
 
     const data = new FormData(forms);
+    data.delete(forms.name+'[_token]');
 
 
     await fetch(forms.action, {
@@ -501,6 +503,7 @@ async function submitPaymentForm(forms) {
 
 
     const data = new FormData(forms);
+    data.delete(forms.name+'[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -571,7 +574,7 @@ async function submitPaymentForm(forms) {
 async function submitOrderForm(forms) {
 
     const data = new FormData(forms);
-
+    data.delete(forms.name+'[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.

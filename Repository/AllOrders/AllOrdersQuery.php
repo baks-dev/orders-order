@@ -127,6 +127,10 @@ final class AllOrdersQuery implements AllOrdersInterface
             ->setParameter('profile', $profile, UserProfileUid::TYPE);
 
 
+
+
+
+
         $qb->addSelect('orders_modify.mod_date AS modify');
         $qb->leftJoin(
             'orders',
@@ -140,6 +144,14 @@ final class AllOrdersQuery implements AllOrdersInterface
             $qb
                 ->andWhere('order_event.status = :status')
                 ->setParameter('status', $this->status, OrderStatus::TYPE);
+        }
+
+
+        if($this->filter?->getStatus())
+        {
+            $qb
+                ->andWhere('order_event.status = :status')
+                ->setParameter('status', $this->filter->getStatus(), OrderStatus::TYPE);
         }
 
         // Продукция

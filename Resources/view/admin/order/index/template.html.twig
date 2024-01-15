@@ -49,7 +49,7 @@
 <script nonce="{{ csp_nonce() }}">
 
 document.addEventListener("DOMContentLoaded", (event) => {
-	const form = document.forms.manufacture_filter_form;
+	const form = document.forms.order_filter_form;
 	form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
 });
 

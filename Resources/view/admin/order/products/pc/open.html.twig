@@ -1,0 +1,101 @@
+{% trans_default_domain 'admin.order' %}
+
+
+{# {{ dump(opens) }} #}
+
+<section class="card card-flush alert alert-warning p-0 w-100 "
+         style="background-image: var(--bs-gradient);">
+
+    {# <div class="px-3 pt-3 d-flex gap-3">
+        <div class="w-50 d-flex align-items-center gap-3">
+
+            <span class="badge text-bg-danger"> #}{# {{ opens.complete|trans({}, 'manufacture.complete') }} #}{# </span>
+    #}{# {{ opens.marketplace|trans({}, 'manufacture.marketplace') }} #}{#
+    #}{# <div><small class="opacity-50">Категория:</small> &nbsp; <strong>{{ opens.category_name }}</strong></div> #}{#
+    </div>
+
+    <div class="w-100">
+        <strong> #}{# {{ opens.category_name }} #}{# : </strong> &nbsp;
+            <small class="opacity-50">
+                последний добавленный продукт</small>
+        </div>
+
+    </div> #}
+
+
+    <div class="card-body d-flex justify-content-between">
+
+        <div class="w-75 d-flex gap-3 align-items-center">
+
+
+
+            <span data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  data-bs-delay='{"show":600,"hide":100}'
+                  title='QR заказа'
+            >
+                <a
+                        href="{{ path('orders-order:admin.order.qrcode', { id : card.order_id }) }}"
+                        class="btn-link btn p-0 modal-link icon"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal"
+                        style="height: 55px; width: 55px;"
+                >
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor"
+                            class="bi bi-qr-code" viewBox="0 0 16 16"><path d="M2 2h2v2H2V2Z"></path><path
+                                d="M6 0v6H0V0h6ZM5 1H1v4h4V1ZM4 12H2v2h2v-2Z"></path><path
+                                d="M6 10v6H0v-6h6Zm-5 1v4h4v-4H1Zm11-9h2v2h-2V2Z"></path><path
+                                d="M10 0v6h6V0h-6Zm5 1v4h-4V1h4ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Z"></path><path
+                                d="M7 12h1v3h4v1H7v-4Zm9 2v2h-3v-1h2v-1h1Z"></path>
+                    </svg>
+                </a>
+            </span>
+
+            <div>
+
+                <div>
+                    <small class="opacity-50">Тип заказа:</small> &nbsp;
+                    <strong>{{ card.order_profile }}</strong>
+                </div>
+
+                <div>
+                    <small class="opacity-50">Номер:</small> &nbsp;
+                    <a href="{{ path('orders-order:admin.order.products', { id: card.order_id}) }}"
+                       class="fw-bolder text-decoration-none">
+                        {{ card.order_number }}
+                    </a>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+        <div class="w-100 ">
+
+            {# Последний добавленный продукт #}
+            <div class="w-100 d-flex gap-5 align-items-center justify-content-start">
+                {% set users = card.order_user|json_decode %}
+
+                {% for user in users %}
+                    <div class='d-flex flex-column small'>
+                        <small class="small text-muted">{{ user.profile_name }}</small>
+                        <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <small class="opacity-50">Доставка:</small> &nbsp;
+                <strong>{{ card.delivery_geocode_address }}</strong>
+            </div>
+
+        </div>
+
+        {{ order_status(card.order_status) }}
+
+    </div>
+</section>

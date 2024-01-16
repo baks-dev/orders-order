@@ -55,7 +55,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
-#[RoleSecurity('ROLE_MANUFACTURE_PART_ADD')]
+#[RoleSecurity('ROLE_ORDERS_NEW')]
 final class AddProductsController extends AbstractController
 {
     /**

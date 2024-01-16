@@ -48,3 +48,7 @@ ROLE_ORDERS_STATUS_PACKAGE:
 ROLE_ORDERS_STATUS_EXTRADITION:
   name: 'Сборка'
   desc: ''
+
+ROLE_ORDERS_STATUS_DRAFT:
+  name: 'Чарновик'
+  desc: ''

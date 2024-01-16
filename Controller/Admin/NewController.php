@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDER_NEW')]
+#[RoleSecurity('ROLE_ORDERS_NEW')]
 final class NewController extends AbstractController
 {
     #[Route('/admin/order/new', name: 'admin.new', methods: ['GET', 'POST'])]

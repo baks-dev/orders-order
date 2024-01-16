@@ -46,7 +46,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDER_NEW')]
+#[RoleSecurity('ROLE_ORDERS_NEW')]
 final class DraftController extends AbstractController
 {
     #[Route('/admin/order/draft/{page<\d+>}', name: 'admin.order.draft', methods: ['GET', 'POST'])]

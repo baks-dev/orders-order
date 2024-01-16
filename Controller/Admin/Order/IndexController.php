@@ -23,7 +23,6 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
-// use App\Module\Product\Repository\Product\AllProduct;
 use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
@@ -32,15 +31,12 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use DateInterval;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
-
-// use App\System\Form\Search\Command;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -86,26 +82,11 @@ final class IndexController extends AbstractController
             }
         }
 
-
-        //$orders = null;
-
-        /** @var OrderStatus $status */
-        //foreach (OrderStatus::cases() as $status) {
-
-        //            if ($status->equals('canceled') || $status->equals('draft')) {
-        //                continue;
-        //            }
-
         // Получаем список
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            //->status($status)
             ->fetchAllOrdersAssociative($this->getProfileUid(), 'DESC');
-
-        //dd(end($orders));
-
-        //}
 
 
         return $this->render(

@@ -23,7 +23,6 @@
 
 namespace BaksDev\Orders\Order\Controller\Admin;
 
-// use App\Module\Product\Repository\Product\AllProduct;
 use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
@@ -37,8 +36,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
-
-// use App\System\Form\Search\Command;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]

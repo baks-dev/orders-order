@@ -30,18 +30,12 @@ use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Type\UidType\ParamConverter;
-use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsDTO;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsForm;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsHandler;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsDTO;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsForm;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsHandler;
-use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByUidInterface;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -78,19 +72,6 @@ final class AddProductsController extends AbstractController
         ?int $total = null,
     ): Response
     {
-
-        //        $OrderAddProductsDTO = new OrderAddProductsDTO($this->getProfileUid());
-        //
-        //        if($request->isMethod('GET'))
-        //        {
-        //            $OrderAddProductsDTO
-        //                ->setProduct($product)
-        //                ->setOffer($offer)
-        //                ->setVariation($variation)
-        //                ->setModification($modification)
-        //                ->setTotal($total);
-        //        }
-
 
         /** Получаем событие продукта по переданным параметрам */
         $Event = $productEvent->getOneOrNullProductEvent($product, $offer, $variation, $modification);
@@ -152,11 +133,6 @@ final class AddProductsController extends AbstractController
                     ->addData(['total' => $ProductDetail['product_total']]) // количество для суммы всех товаров
                     //->addData(['identifier' => $ManufacturePartProductDTO->getIdentifier()]) // ID продукта
                     ->send((string) $handle->getId());
-
-//                /* Скрываем у всех продукт */
-//                $CentrifugoPublish
-//                    ->addData(['identifier' => $OrderAddProductsDTO->getIdentifier()]) // ID продукта
-//                    ->send('remove');
 
 
                 $return = $this->addFlash(

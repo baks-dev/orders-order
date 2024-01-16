@@ -30,16 +30,10 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Manufacture\Part\Repository\AllProducts\AllManufactureProductsInterface;
-use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
-use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
-use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
 use BaksDev\Products\Product\Repository\AllExistsProducts\AllExistsProductsInterface;
-use BaksDev\Products\Product\Repository\AllProducts\AllProductsInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -52,14 +46,9 @@ final class DraftController extends AbstractController
     #[Route('/admin/order/draft/{page<\d+>}', name: 'admin.order.draft', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        //Order $order,
-
         OpenOrderDraftInterface $draft,
         AllExistsProductsInterface $getAllProduct,
         TokenUserGenerator $tokenUserGenerator,
-
-        //AllManufactureProductsInterface $allManufactureProducts,
-        //TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response
     {
@@ -68,7 +57,6 @@ final class DraftController extends AbstractController
          * Получаем получаем открытый активный черновик ответственного (Независимо от авторизации)
          */
         $opens = $draft->getOpenDraft($this->getProfileUid());
-
 
         /**
          * Фильтр продукции по ТП
@@ -88,10 +76,6 @@ final class DraftController extends AbstractController
             'action' => $this->generateUrl('orders-order:admin.order.draft'),
         ]);
         $searchForm->handleRequest($request);
-
-
-        //$isFilter = (bool) ($search->getQuery() || $filter->getOffer() || $filter->getVariation() || $filter->getModification());
-
 
         // Получаем список торговых предложений
         $query = $getAllProduct

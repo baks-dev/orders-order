@@ -28,11 +28,9 @@ namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Manufacture\Part\Entity\ManufacturePart;
 use BaksDev\Orders\Order\Entity\Order;
 use chillerlan\QRCode\QRCode;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;

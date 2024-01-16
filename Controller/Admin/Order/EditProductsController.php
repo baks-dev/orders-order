@@ -26,27 +26,14 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
 
-use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Core\Type\UidType\ParamConverter;
-use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsDTO;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsForm;
-use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsHandler;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
-use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsDTO;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsForm;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsHandler;
-use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByUidInterface;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -66,59 +53,14 @@ final class EditProductsController extends AbstractController
     #[Route('/admin/order/product/edit/{id}', name: 'admin.order.edit', methods: ['GET', 'POST'])]
     public function news(
         #[MapEntity] OrderProduct $OrderProduct,
-
         Request $request,
         OrderAddProductsHandler $OrderAddProductsHandler,
-        //ProductDetailByUidInterface $productDetail,
-//        CentrifugoPublishInterface $CentrifugoPublish,
-//
-//        ProductEventBasketInterface $productEvent,
         ProductUserBasketInterface $productDetail,
-
-//        #[ParamConverter(ProductEventUid::class)] $product = null,
-//        #[ParamConverter(ProductOfferUid::class)] $offer = null,
-//        #[ParamConverter(ProductVariationUid::class)] $variation = null,
-//        #[ParamConverter(ProductModificationUid::class)] $modification = null,
-//        ?int $total = null,
     ): Response
     {
 
-        //        $OrderAddProductsDTO = new OrderAddProductsDTO($this->getProfileUid());
-        //
-        //        if($request->isMethod('GET'))
-        //        {
-        //            $OrderAddProductsDTO
-        //                ->setProduct($product)
-        //                ->setOffer($offer)
-        //                ->setVariation($variation)
-        //                ->setModification($modification)
-        //                ->setTotal($total);
-        //        }
-
-
-//        dd($OrderProduct);
-//
-//
-//        /** Получаем событие продукта по переданным параметрам */
-//        $Event = $productEvent->getOneOrNullProductEvent($product, $offer, $variation, $modification);
-//
-//        if(!$Event)
-//        {
-//            return $this->ErrorResponse();
-//        }
-
-        //$AddProductBasketDTO = new OrderAddProductsDTO();
-
         /** @var OrderAddProductsDTO $OrderAddProductsDTO */
         $OrderAddProductsDTO = $OrderProduct->getDto(OrderAddProductsDTO::class);
-
-        //dd($AddProductBasketDTO);
-
-//        $AddProductBasketDTO->setProduct($product);
-//        $AddProductBasketDTO->setOffer($offer);
-//        $AddProductBasketDTO->setVariation($variation);
-//        $AddProductBasketDTO->setModification($modification);
-
 
         $ProductDetail = $productDetail->fetchProductBasketAssociative(
             $OrderAddProductsDTO->getProduct(),

@@ -25,30 +25,18 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
-use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
-use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
-use BaksDev\Orders\Order\Repository\OrderProducts\OrderProductsInterface;
-use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
-use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
-
-//use BaksDev\Manufacture\Part\Type\Marketplace\ManufacturePartMarketplace;
-//use BaksDev\Wildberries\Manufacture\Type\Marketplace\ManufacturePartMarketplaceWildberries;
-//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterDTO;
-//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterForm;
-//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterFormAdmin;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -62,10 +50,6 @@ final class ProductsController extends AbstractController
         Request $request,
         Order $Order,
         OrderDetailInterface $orderDetail,
-
-//        AllWbOrdersManufactureInterface $allWbOrdersGroup,
-//        OpenManufacturePartInterface $openManufacturePart,
-//        TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response
     {
@@ -82,53 +66,18 @@ final class ProductsController extends AbstractController
         );
         $searchForm->handleRequest($request);
 
-
-//        /**
-//         * Фильтр профиля пользователя
-//         */
-//
-//        $profile = new ProfileFilterDTO($request, $this->getProfileUid());
-//        $ROLE_ADMIN = $this->isGranted('ROLE_ADMIN');
-//
-//        if($ROLE_ADMIN)
-//        {
-//            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
-//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-//            ]);
-//        }
-//        else
-//        {
-//            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
-//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-//            ]);
-//        }
-//
-//        $profileForm->handleRequest($request);
-//        !$profileForm->isSubmitted()?:$this->redirectToReferer();
-
-
-
-        // Получаем открытый черновик
-        //$opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
-
         /**
          * Фильтр заказов
          */
 
         $filter = new WbOrdersProductFilterDTO($request);
 
-//        if($opens)
-//        {
-//            /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-//            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
-//        }
-
 
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
             'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
         ]);
         $filterForm->handleRequest($request);
-        !$filterForm->isSubmitted()?:$this->redirectToReferer();
+        !$filterForm->isSubmitted() ?: $this->redirectToReferer();
 
 
         /**
@@ -136,17 +85,6 @@ final class ProductsController extends AbstractController
          */
 
         $OrderProducts = $orderDetail->fetchDetailOrderAssociative($Order->getId());
-
-
-//        $WbOrders = $allWbOrdersGroup
-//            ->fetchAllWbOrdersGroupAssociative(
-//                $search,
-//                $this->getProfileUid(),
-//                $filter,
-//                $opens ? new ManufacturePartComplete($opens['complete']) : null
-//            );
-
-
 
         return $this->render(
             [

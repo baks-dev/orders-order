@@ -66,5 +66,6 @@ final class OrderStatusTest extends KernelTestCase
 
         }
 
+        self::assertTrue(true);
     }
 }

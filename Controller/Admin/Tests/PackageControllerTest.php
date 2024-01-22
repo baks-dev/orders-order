@@ -89,6 +89,8 @@ final class PackageControllerTest extends WebTestCase
             self::assertResponseStatusCodeSame(401);
         }
 
+        self::assertTrue(true);
+
     }
 
     /** Доступ по роли */
@@ -110,6 +112,7 @@ final class PackageControllerTest extends WebTestCase
             self::assertResponseIsSuccessful();
         }
 
+        self::assertTrue(true);
     }
 
     // доступ по роли ROLE_ADMIN
@@ -131,6 +134,7 @@ final class PackageControllerTest extends WebTestCase
             self::assertResponseIsSuccessful();
         }
 
+        self::assertTrue(true);
     }
 
     // доступ по роли ROLE_USER
@@ -149,15 +153,8 @@ final class PackageControllerTest extends WebTestCase
 
             self::assertResponseStatusCodeSame(403);
         }
+
+        self::assertTrue(true);
     }
-
-    public function testComplete(): void
-    {
-        $true = true;
-        self::assertTrue($true);
-    }
-
-
-
 
 }

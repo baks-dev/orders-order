@@ -98,7 +98,12 @@ final class OrderPaymentForm extends AbstractType
 
 					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
 					$currentPayment = current($paymentChoice);
-					
+
+                    if(!$currentPayment)
+                    {
+                        return;
+                    }
+
 					$paymentHelp = $currentPayment->getAttr();
 					$paymentChecked = $currentPayment;
 					

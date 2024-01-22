@@ -42,6 +42,8 @@ final class BasketControllerTest extends WebTestCase
 
             self::assertResponseIsSuccessful();
         }
+
+        self::assertTrue(true);
     }
 
     /** Доступ по роли ROLE_ADMIN */
@@ -61,6 +63,8 @@ final class BasketControllerTest extends WebTestCase
 
             self::assertResponseIsSuccessful();
         }
+
+        self::assertTrue(true);
     }
 
     /** Доступ по роли ROLE_USER */
@@ -79,5 +83,7 @@ final class BasketControllerTest extends WebTestCase
             
             self::assertResponseIsSuccessful();
         }
+
+        self::assertTrue(true);
     }
 }

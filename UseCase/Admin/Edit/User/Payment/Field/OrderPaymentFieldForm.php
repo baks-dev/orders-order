@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field;
 
 use BaksDev\Core\Services\Fields\FieldsChoice;
+use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use Symfony\Component\Form\AbstractType;
@@ -41,79 +42,79 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderPaymentFieldForm extends AbstractType
 {
-	
-	private FieldsChoice $fieldsChoice;
-	
-	
-	public function __construct(
-		FieldsChoice $fieldsChoice,
-	)
-	{
-		$this->fieldsChoice = $fieldsChoice;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('field', HiddenType::class);
-		
-		$builder->get('field')->addModelTransformer(
-			new CallbackTransformer(
-				function($field) {
-					return $field instanceof PaymentFieldUid ? $field->getValue() : $field;
-				},
-				function($field) {
-					return new PaymentFieldUid($field);
-				}
-			)
-		);
-		
-		$builder->add('value', HiddenType::class, ['required' => false, 'label' => false]);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				
-				/* @var OrderPaymentFieldDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				if($data)
-				{
-					
-					$PaymentField = $data->getField();
-					if($PaymentField->getType())
-					{
-						$fieldType = $this->fieldsChoice->getChoice($PaymentField->getType());
-						
-						$form->add
-						(
-							'value',
-							$fieldType->form(),
-							[
-								'label' => $PaymentField->getAttr(),
-								'help' => $PaymentField->getOption(),
-								'required' => $PaymentField->getRequired(),
-								'constraints' => $PaymentField->getRequired() ? [new NotBlank()] : [],
-							]
-						);
-					}
-				}
-			}
-		);
-		
-		
-		
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderPaymentFieldDTO::class,
-		]);
-	}
-	
+
+    private FieldsChoice $fieldsChoice;
+
+
+    public function __construct(
+        FieldsChoice $fieldsChoice,
+    )
+    {
+        $this->fieldsChoice = $fieldsChoice;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('field', HiddenType::class);
+
+        $builder->get('field')->addModelTransformer(
+            new CallbackTransformer(
+                function($field) {
+                    return $field instanceof PaymentFieldUid ? $field->getValue() : $field;
+                },
+                function($field) {
+                    return new PaymentFieldUid($field);
+                }
+            )
+        );
+
+        $builder->add('value', HiddenType::class, ['required' => false, 'label' => false]);
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /* @var OrderPaymentFieldDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if($data)
+                {
+                    $PaymentField = $data->getField();
+
+                    if( //$PaymentField->getType() &&
+                        $PaymentField->getType() instanceof InputField)
+                    {
+                        $fieldType = $this->fieldsChoice->getChoice($PaymentField->getType());
+
+                        $form->add
+                        (
+                            'value',
+                            $fieldType->form(),
+                            [
+                                'label' => $PaymentField->getAttr(),
+                                'help' => $PaymentField->getOption(),
+                                'required' => $PaymentField->getRequired(),
+                                'constraints' => $PaymentField->getRequired() ? [new NotBlank()] : [],
+                            ]
+                        );
+
+
+                    }
+                }
+            }
+        );
+
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderPaymentFieldDTO::class,
+        ]);
+    }
+
 }

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field;
 
 use BaksDev\Core\Services\Fields\FieldsChoice;
+use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -82,10 +83,11 @@ final class OrderDeliveryFieldForm extends AbstractType
 					/** @var DeliveryFieldUid $DeliveryField */
 					$DeliveryField = $data->getField();
 					
-					if($DeliveryField->getType())
+					if( //$DeliveryField->getType() &&
+                        $DeliveryField->getType() instanceof InputField )
 					{
 						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
-						
+
 						$form->add
 						(
 							'value',

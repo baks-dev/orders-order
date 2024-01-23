@@ -88,6 +88,9 @@ final class OrderNewTest extends KernelTestCase
             $em->flush();
         }
 
+        $em->clear();
+        //$em->close();
+
     }
 
     public function testUseCase(): void

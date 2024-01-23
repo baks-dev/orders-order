@@ -31,9 +31,8 @@ use BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest;
 /**
  * @group orders-order
  *
- * @depends BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest::testComplete
- *
- * @see DetailControllerTest
+ * @see     DetailControllerTest
+ * @depends BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest::class
  */
 #[When(env: 'test')]
 final class PackageControllerTest extends WebTestCase
@@ -67,6 +66,9 @@ final class PackageControllerTest extends WebTestCase
 
         $OrderEvent = $em->getRepository(OrderEvent::class)->find(OrderEventUid::TEST);
         self::assertNull($OrderEvent);
+
+        $em->clear();
+        //$em->close();
     }
 
     /**

@@ -76,21 +76,19 @@ final class ValueForm extends AbstractType
 
                     $fieldType = $this->fieldsChoice->getChoice($field->getType());
 
-//                    dump( 'ValueForm');
-//                    dump( $data);
-//                    dump( $field);
-
-                    $form->add
-                    (
-                        'value',
-                        $fieldType->form(),
-                        [
-                            'label' => $field->getFieldName(),
-                            'required' => $field->isRequired(),
-                            'help' => $field->getFieldDescription(),
-                        ]
-                    );
-
+                    if($fieldType)
+                    {
+                        $form->add
+                        (
+                            'value',
+                            $fieldType->form(),
+                            [
+                                'label' => $field->getFieldName(),
+                                'required' => $field->isRequired(),
+                                'help' => $field->getFieldDescription(),
+                            ]
+                        );
+                    }
                 }
 
             }

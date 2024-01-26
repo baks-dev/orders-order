@@ -113,7 +113,7 @@ final class UserProfileForm extends AbstractType
 				/** @var FieldValueFormDTO $field */
 				foreach($fields as $field)
 				{
-					$field = end($field);
+					//$field = end($field);
 					
 					/** Обязательные поля для заполнения */
 					if($field->isRequired())

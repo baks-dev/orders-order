@@ -38,16 +38,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class ValueForm extends AbstractType
 {
 	
-	//private FieldValueFormInterface $fieldValue;
+	private FieldValueFormInterface $fieldValue;
 	
 	private FieldsChoice $fieldsChoice;
 	
 	public function __construct(
-		//FieldValueFormInterface $fieldValue,
+		FieldValueFormInterface $fieldValue,
 		FieldsChoice $fieldsChoice,
 	)
 	{
-		//$this->fieldValue = $fieldValue;
+		$this->fieldValue = $fieldValue;
 		$this->fieldsChoice = $fieldsChoice;
 	}
 	
@@ -68,34 +68,24 @@ final class ValueForm extends AbstractType
 				
 				if($data)
 				{
-					$fields = $options['fields'];
-					
-//					if($data->getField() !== null || !array_key_exists((string) $data->getField(), $fields))
-//					{
-//						$form->remove('value');
-//						return;
-//					}
-					
-					//dump($fields[(string) $data->getField()]);
-			
-					/** @var FieldValueFormDTO $field */
-					$field = end($fields[(string) $data->getField()]);
-					
-					$fieldType = $this->fieldsChoice->getChoice($field->getType());
-					
-					$form->add
-					(
-						'value',
-						$fieldType->form(),
-						[
-							'label' => $field->getFieldName(),
-							'required' => $field->isRequired(),
-							'help' => $field->getFieldDescription(),
-						]
-					);
-					
+                    $field = $this->fieldValue->getFieldById($data->getField());
+
+                    $fieldType = $this->fieldsChoice->getChoice($field->getType());
+
+                    if($fieldType)
+                    {
+                        $form->add
+                        (
+                            'value',
+                            $fieldType->form(),
+                            [
+                                'label' => $field->getFieldName(),
+                                'required' => $field->isRequired(),
+                                'help' => $field->getFieldDescription(),
+                            ]
+                        );
+                    }
 				}
-				
 			}
 		);
 		

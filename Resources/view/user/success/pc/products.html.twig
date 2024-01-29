@@ -26,6 +26,7 @@
                             {# Обложка #}
                             {% set image_path = '/assets/img/blank.svg' %}
 
+
                             {% if card.product_image_ext is defined and card.product_image_ext is not null %}
                                 {% set img_host =  card.product_image_cdn == true  ? CDN_HOST : '' %}
                                 {% set img_dir = card.product_image %}
@@ -34,26 +35,27 @@
                             {% endif %}
 
                             <a
-                                    href="{{ path('products-product:user.detail', {
+                                    href="{#{{ path('products-product:user.detail', {
                                         url : card.product_url ,
                                         offer: card.product_offer_value,
                                         variation: card.product_variation_value,
                                         modification: card.product_modification_value
-                                    }) }}"
+                                    }) }}#}"
                                     class="icon rounded-4 mb-2 bg-contain p-1"
                                     style="width: 75px; height: 75px; background-image: url('{{ image_path }}')"
                             ></a>
 
                         </div>
 
+
                         <div class="col align-self-center">
 
-                            <a href="{{ path('products-product:user.detail', {
+                            <a href="{#{{ path('products-product:user.detail', {
                                 url : card.product_url ,
                                 offer: card.product_offer_value,
                                 variation: card.product_variation_value,
                                 modification: card.product_modification_value
-                            }) }}" class="text-dark me-3 text-uppercase text-decoration-none">
+                            }) }}#}" class="text-dark me-3 text-uppercase text-decoration-none">
 
                                 {{ card.product_name }}
 
@@ -143,5 +145,4 @@
     </tbody>
 </table>
 
-{#
-{{ dump(info) }}#}
+{#{{ dump(info) }}#}

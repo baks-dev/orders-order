@@ -61,7 +61,7 @@ final class OrderReserveProduct
 		CurrentQuantityByVariationInterface $quantityByVariation,
 		CurrentQuantityByOfferInterface $quantityByOffer,
 		CurrentQuantityByEventInterface $quantityByEvent,
-        LoggerInterface $messageDispatchLogger
+        LoggerInterface $ordersOrderLogger
 	)
 	{
 		$this->entityManager = $entityManager;
@@ -71,7 +71,7 @@ final class OrderReserveProduct
 		$this->quantityByVariation = $quantityByVariation;
 		$this->quantityByOffer = $quantityByOffer;
 		$this->quantityByEvent = $quantityByEvent;
-        $this->logger = $messageDispatchLogger;
+        $this->logger = $ordersOrderLogger;
     }
 	
 	

@@ -146,9 +146,17 @@ final class OrderDeliveryForm extends AbstractType
 
 					/** @var DeliveryUid $currentDelivery */
 					$currentDelivery = current($deliveryChoice);
+
+                    $deliveryHelp = null;
+                    $deliveryChecked = null;
+
+                    if($currentDelivery)
+                    {
+                        $deliveryHelp = $currentDelivery->getOption();
+                        $deliveryChecked = $currentDelivery;
+                    }
 					
-					$deliveryHelp = $currentDelivery->getOption();
-					$deliveryChecked = $currentDelivery;
+
 					
 					/** @var DeliveryUid $Delivery */
 					$Delivery = $data->getDelivery();

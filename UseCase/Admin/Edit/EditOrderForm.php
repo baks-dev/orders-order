@@ -52,24 +52,24 @@ final class EditOrderForm extends AbstractType
 		$builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
 
-		$builder
-			->add('status', ChoiceType::class, [
-				'choices' => OrderStatus::cases(),
-				'choice_value' => function(?OrderStatus $status) {
-					return $status?->getOrderStatusValue();
-				},
-			
-				'choice_label' => function(OrderStatus $status) {
-					return $status->getOrderStatusValue();
-				},
-
-				'expanded' => false,
-				'multiple' => false,
-				'required' => true,
-				'translation_domain' => 'status.order',
-                'attr' => ['data-order' => $builder->getData()->getOrder()]
-			])
-		;
+//		$builder
+//			->add('status', ChoiceType::class, [
+//				'choices' => OrderStatus::cases(),
+//				'choice_value' => function(?OrderStatus $status) {
+//					return $status?->getOrderStatusValue();
+//				},
+//
+//				'choice_label' => function(OrderStatus $status) {
+//					return $status->getOrderStatusValue();
+//				},
+//
+//				'expanded' => false,
+//				'multiple' => false,
+//				'required' => true,
+//				'translation_domain' => 'status.order',
+//                'attr' => ['data-order' => $builder->getData()->getOrder()]
+//			])
+//		;
 
 	
 		/* Сохранить ******************************************************/

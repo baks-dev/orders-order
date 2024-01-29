@@ -47,5 +47,5 @@ ROLE_ORDERS_STATUS_EXTRADITION:
   desc: ''
 
 ROLE_ORDERS_STATUS_DRAFT:
-  name: 'Чарновик'
+  name: 'Черновик'
   desc: ''

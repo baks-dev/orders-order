@@ -34,6 +34,7 @@
 
                             <a
                                     href="{{ path('products-product:user.detail', {
+                                        category : card.category_url ,
                                         url : card.product_url ,
                                         offer: card.product_offer_value,
                                         variation: card.product_variation_value,
@@ -48,6 +49,7 @@
                         <div class="col align-self-center">
 
                             <a href="{{ path('products-product:user.detail', {
+                                category : card.category_url ,
                                 url : card.product_url ,
                                 offer: card.product_offer_value,
                                 variation: card.product_variation_value,
@@ -59,7 +61,7 @@
                                 {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
                                  card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
 
-                                {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
+                                {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
 
                             </a>
 

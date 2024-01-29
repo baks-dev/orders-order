@@ -71,11 +71,10 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
         $this->ORMQueryBuilder = $ORMQueryBuilder;
     }
 
-
     /**
      * Метод возвращает информацию об открытом черновике заказа
      */
-    public function getOpenDraft(UserProfileUid $profile): array|bool
+    public function getOpenDraft(UserProfileUid $profile): ?array
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -379,7 +378,7 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
 		');
 
 
-
+        dd(546554);
 
 
         return $dbal
@@ -415,8 +414,6 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
             'WITH',
             'ord.event = event.id'
         );
-
-
 
         return $dbal->getOneOrNullResult();
     }

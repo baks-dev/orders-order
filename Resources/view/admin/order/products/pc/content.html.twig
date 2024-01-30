@@ -1,4 +1,4 @@
-{% trans_default_domain 'admin.order' %}
+{% trans_default_domain 'orders-order.admin' %}
 
 
 {# {{ dump(query) }} #}
@@ -33,7 +33,7 @@
             </a>
 
             <a
-                    href="{{ path('orders-order:admin.order.index') }}"
+                    href="{{ path('orders-order:admin.order.all') }}"
                     class="btn btn-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
@@ -105,9 +105,11 @@
 
             <div class="row cards-box-body mt-3">
 
-
                 {% for item in products %}
-                    {{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}
+
+                    {% if item.product_id %}
+                        {{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}
+                    {% endif %}
                 {% endfor %}
 
             </div>

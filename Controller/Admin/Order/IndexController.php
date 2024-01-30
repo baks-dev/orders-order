@@ -42,7 +42,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_ORDERS')]
 final class IndexController extends AbstractController
 {
-    #[Route('/admin/order/all/{page<\d+>}', name: 'admin.order.index', methods: [
+    #[Route('/admin/order/all/{page<\d+>}', name: 'admin.order.all', methods: [
         'GET',
         'POST',
     ])]

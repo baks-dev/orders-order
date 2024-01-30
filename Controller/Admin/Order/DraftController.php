@@ -52,7 +52,6 @@ final class DraftController extends AbstractController
         int $page = 0,
     ): Response
     {
-
         /**
          * Получаем получаем открытый активный черновик ответственного (Независимо от авторизации)
          */

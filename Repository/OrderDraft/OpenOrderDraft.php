@@ -378,9 +378,6 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
 		');
 
 
-        dd(546554);
-
-
         return $dbal
             ->enableCache('orders-order', 3600)
             ->fetchAssociative();

@@ -61,8 +61,43 @@ final class OrderPaymentForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
+
+
+
+        $paymentChoice = $this->paymentChoice->fetchAllPayment();
+
+        $builder
+            ->add('payment', ChoiceType::class, [
+                'choices' => $paymentChoice,
+                'choice_value' => function(?PaymentUid $payment) {
+                    return $payment?->getValue();
+                },
+
+                'choice_label' => function(PaymentUid $payment) {
+                    return $payment->getAttr();
+                },
+
+                'choice_attr' => function(PaymentUid $choice) {
+                    return [
+                        //'checked' => ($choice->equals($deliveryChecked)),
+                        //'data-price' => $choice->getPrice()?->getValue(),
+                        //'data-excess' => $choice->getExcess()?->getValue(),
+                        //'data-currency' => $choice->getCurrency(),
+                    ];
+                },
+
+                'attr' => ['class' => 'd-flex gap-3'],
+                //'help' => $deliveryHelp,
+                'label' => false,
+                'expanded' => true,
+                'multiple' => false,
+                'required' => true,
+            ]);
+
+
+
 		//$builder->add('payment', HiddenType::class);
-		$builder->add('payment', HiddenType::class);
+		//$builder->add('payment', HiddenType::class);
 		
 		/* Коллекция пользовательских свойств */
 		$builder->add('field', CollectionType::class, [
@@ -87,22 +122,27 @@ final class OrderPaymentForm extends AbstractType
 				}
 			)
 		);
-		
+
+
+
+
 		$builder->addEventListener(
 			FormEvents::PRE_SET_DATA,
 			function(FormEvent $event) use ($options) {
 				
 				if($options['user_profile_type'])
 				{
-					$data = $event->getData();
+                    /** @var OrderPaymentDTO $data */
+                    $data = $event->getData();
 					$form = $event->getForm();
 					
 					//dd($options['user_profile_type']);
 					
 					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
-					$currentPayment = current($paymentChoice);
 
-					
+                    /** @var PaymentUid $currentPayment */
+                    $currentPayment = current($paymentChoice);
+
 					$paymentHelp = $currentPayment ? $currentPayment->getAttr() : '';
 					$paymentChecked = $currentPayment;
 					
@@ -120,12 +160,14 @@ final class OrderPaymentForm extends AbstractType
 						if($paymentCheckedFilter)
 						{
 							$paymentChecked = current($paymentCheckedFilter);
+
+                            /* Присваиваем способу отплаты */
+                            //$data->setPayment($paymentChecked->getEvent());
+
 							$paymentHelp = $paymentChecked?->getAttr();
 						}
 					}
 
-
-					
 					$form
 						->add('payment', ChoiceType::class, [
 							'choices' => $paymentChoice,
@@ -155,7 +197,6 @@ final class OrderPaymentForm extends AbstractType
 					{
 
 						$fields =  $this->paymentFields->fetchPaymentFields($paymentChecked);
-
 
                         $values = $data->getField();
 

@@ -165,7 +165,7 @@ final class PackageController extends AbstractController
 
                     if(!$MoveProductStock instanceof ProductStock)
                     {
-                        $this->addFlash('danger', 'admin.danger.update', 'admin.order', $MoveProductStock);
+                        $this->addFlash('danger', 'danger.update', 'orders-order.admin', $MoveProductStock);
                     }
                 }
             }
@@ -238,7 +238,7 @@ final class PackageController extends AbstractController
 
             if(!$PackageProductStock instanceof ProductStock)
             {
-                $this->addFlash('danger', 'admin.danger.update', 'admin.order', $PackageProductStock);
+                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $PackageProductStock);
                 return $this->redirectToReferer();
             }
 
@@ -255,7 +255,7 @@ final class PackageController extends AbstractController
                 $entityManager->remove($PackageProductStock);
                 $entityManager->flush();
 
-                $this->addFlash('danger', 'admin.danger.update', 'admin.order', $OrderStatusHandler);
+                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderStatusHandler);
                 return $this->redirectToReferer();
             }
 

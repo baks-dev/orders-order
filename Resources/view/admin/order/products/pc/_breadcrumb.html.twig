@@ -1,4 +1,4 @@
-{% trans_default_domain 'admin.order' %}
+{% trans_default_domain 'orders-order.admin' %}
 
 <nav class="small" style="--bs-breadcrumb-divider: '-';" aria-label="breadcrumb">
     <ol class="breadcrumb small opacity-75">
@@ -35,7 +35,7 @@
         </li>
 
         <li class="breadcrumb-item">
-            <a href="{{ path('orders-order:admin.order.index') }}"
+            <a href="{{ path('orders-order:admin.order.all') }}"
                class="text-decoration-none"
                title="Список заказов">
                 Список заказов
@@ -43,7 +43,7 @@
         </li>
 
         <li class="breadcrumb-item active text-muted" aria-current="page"
-            aria-label="{{ 'admin.breadcrumb.index'|trans }}"
+            aria-label="{{ 'breadcrumb.index'|trans }}"
             title="{{ query.order_number }}">
             Заказ #{{ query.order_number }}
         </li>

@@ -37,6 +37,7 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -153,16 +154,11 @@ final class OrderDeliveryForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-
-
-
                 //if($data->getDelivery() && $options['user_profile_type'])
                 if($options['user_profile_type'])
                 {
 
                     $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
-
-                    //dump($deliveryChoice);
 
                     /** @var DeliveryUid $currentDelivery */
                     $currentDelivery = current($deliveryChoice);
@@ -192,8 +188,6 @@ final class OrderDeliveryForm extends AbstractType
                         }
                     }
 
-
-
                     $form
                         ->add('delivery', ChoiceType::class, [
                             'choices' => $deliveryChoice,
@@ -221,9 +215,6 @@ final class OrderDeliveryForm extends AbstractType
                             'multiple' => false,
                             'required' => true,
                         ]);
-
-
-
 
                     /** Получаем пользовательские поля */
                     if($deliveryChecked)
@@ -362,20 +353,6 @@ final class OrderDeliveryForm extends AbstractType
             }
         );
 
-//
-//        $builder->addEventListener(
-//            FormEvents::POST_SUBMIT,
-//            function(FormEvent $event): void {
-//
-//                /** @var UserProfileDTO $data */
-//                $data = $event->getData();
-//                $form = $event->getForm()->getParent();
-//
-//                dd($data );
-//
-//                $form->add('delivery', self::class, ['label' => false, ]);
-//            }
-//        );
 
 
 

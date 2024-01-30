@@ -91,9 +91,9 @@ final class EditProductsController extends AbstractController
 
             $this->addFlash
             (
-                'admin.page.new',
-                $handle instanceof OrderEvent ? 'admin.success.new' : 'admin.danger.new',
-                'admin.order',
+                'page.new',
+                $handle instanceof OrderEvent ? 'success.new' : 'danger.new',
+                'orders-order.admin',
                 $handle
             );
 

@@ -3,9 +3,9 @@
 
 <div id='user_payment'>
 	
-	<div class="d-flex justify-content-between mb-3">
+	<div class="d-flex justify-content-between">
 
-		<div class="w-100">
+		<div class="w-100 mb-3 {{ field_value(form.usr.userProfile.type) ?: 'd-none' }}">
 			
 			{% for payment in form.usr.payment.payment %}
 				
@@ -15,24 +15,19 @@
 						{{ form_widget(payment) }}
 					</label>
 				</div>
-			{% else %}
-
-
-				<div class="w-100 alert alert-warning mb-0" role="alert">
-					Выберите тип заказа для списка допустимых способов платы
-				</div>
 
 			{% endfor %}
 
-
-			{# <div class="form-check">
-								<input class="form-check-input" type="radio" name="payment" id="payment2">
-								<label class="form-check-label" for="payment2">
-									Перевод с карты на карту Сбербанк
-								</label>
-							</div> #}
 		</div>
+
+		{% if not field_value(form.usr.userProfile.type) %}
+			<div class="w-100 alert alert-warning mb-0" role="alert">
+				Выберите тип заказа для списка допустимых способов оплаты
+			</div>
+		{% endif %}
 	</div>
+
+
 	
 	{% if form.usr.payment.payment.vars.help %}
 		

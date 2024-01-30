@@ -136,9 +136,9 @@ final class AddProductsController extends AbstractController
 
 
                 $return = $this->addFlash(
-                    type: 'admin.page.add',
-                    message: 'admin.success.add',
-                    domain: 'admin.manufacture.part',
+                    type: 'page.add',
+                    message: 'success.add',
+                    domain: 'orders-order.admin',
                     status: $request->isXmlHttpRequest() ? 200 : 302 // не делаем редирект в случае AJAX
                 );
 
@@ -146,10 +146,10 @@ final class AddProductsController extends AbstractController
             }
 
             $this->addFlash(
-                'admin.page.add',
-                'admin.danger.add',
-                'admin.order
-                ', $handle);
+                'page.add',
+                'danger.add',
+                'orders-order.admin',
+                $handle);
 
             return $this->redirectToRoute('orders-order:admin.order.draft');
         }

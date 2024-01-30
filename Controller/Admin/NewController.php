@@ -69,13 +69,15 @@ final class NewController extends AbstractController
         if($form->isSubmitted() && $form->isValid() && $form->has('draft'))
         {
 
+            //dd($OrderDTO);
+
             $handle = $OrderHandler->handle($OrderDTO);
 
             $this->addFlash
             (
-                'admin.page.new',
-                $handle instanceof Order ? 'admin.success.new' : 'admin.danger.new',
-                'admin.order',
+                'page.new',
+                $handle instanceof Order ? 'success.new' : 'danger.new',
+                'orders-order.admin',
                 $handle
             );
 

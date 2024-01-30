@@ -118,11 +118,11 @@ final class DetailController extends AbstractController
 
             if($OrderHandler instanceof Order)
             {
-                $this->addFlash('success', 'admin.success.update', 'admin.order');
+                $this->addFlash('success', 'success.update', 'orders-order.admin');
             }
             else
             {
-                $this->addFlash('danger', 'admin.danger.update', 'admin.order', $OrderHandler);
+                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderHandler);
             }
 
             return $this->redirectToRoute('orders-order:admin.index');

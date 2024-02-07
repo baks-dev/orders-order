@@ -74,7 +74,7 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
     /**
      * Метод возвращает информацию об открытом черновике заказа
      */
-    public function getOpenDraft(UserProfileUid $profile): ?array
+    public function getOpenDraft(UserProfileUid $profile): bool|array
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)

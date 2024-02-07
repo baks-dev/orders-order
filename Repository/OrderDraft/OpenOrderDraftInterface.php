@@ -31,7 +31,7 @@ interface OpenOrderDraftInterface
     /**
      * Метод возвращает информацию об открытом черновике заказа
      */
-    public function getOpenDraft(UserProfileUid $profile): ?array;
+    public function getOpenDraft(UserProfileUid $profile): bool|array;
 
     /**
      * Метод проверяет, имеется ли открытый черновик

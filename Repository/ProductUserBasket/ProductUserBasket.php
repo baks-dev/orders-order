@@ -72,7 +72,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         ?ProductOfferUid $offer = null,
         ?ProductVariationUid $variation = null,
         ?ProductModificationUid $modification = null,
-    ): ?array
+    ): bool|array
     {
         $qb = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)

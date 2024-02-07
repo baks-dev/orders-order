@@ -30,11 +30,11 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 
 interface ProductUserBasketInterface
 {
-	public function fetchProductBasketAssociative(
-		ProductEventUid         $event,
-		?ProductOfferUid        $offer = null,
-		?ProductVariationUid    $variation = null,
-		?ProductModificationUid $modification = null,
-	) : ?array;
-	
+    public function fetchProductBasketAssociative(
+        ProductEventUid $event,
+        ?ProductOfferUid $offer = null,
+        ?ProductVariationUid $variation = null,
+        ?ProductModificationUid $modification = null,
+    ): bool|array;
+
 }

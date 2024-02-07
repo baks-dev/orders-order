@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,23 +21,15 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\AllOrders;
+namespace BaksDev\Orders\Order\Repository\ExistOrderEventByStatus;
 
-use BaksDev\Core\Form\Search\SearchDTO;
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 
-interface AllOrdersInterface
+interface ExistOrderEventByStatusInterface
 {
-    public function search(SearchDTO $search) : self;
-
-    public function filter(OrderFilterDTO $filter): self;
-
-    public function status(OrderStatus|OrderStatusInterface|string $status): self;
-
-    public function fetchAllOrdersAssociative(UserProfileUid|UserUid $usr): PaginatorInterface;
+    /**
+     * Метод проверяет, имеется ли событие у заказа с указанным статусом
+     */
+    public function isExists(OrderUid $order, OrderStatus $status): bool;
 }

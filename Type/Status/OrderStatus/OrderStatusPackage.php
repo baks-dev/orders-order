@@ -31,6 +31,9 @@ use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * Статус Package «Упаковка заказов»
+ */
 #[AutoconfigureTag('baks.order.status')]
 #[AutoconfigureTag('baks.security.voter')]
 class OrderStatusPackage implements OrderStatusInterface, VoterInterface

@@ -47,8 +47,13 @@ final class OrderStatusDTO implements OrderEventInterface
     private OrderStatus $status;
 
 
-    public function __construct(OrderStatus|OrderStatusInterface $status, OrderEventUid $id, UserProfileUid $profile)
+    public function __construct(OrderStatus|OrderStatusInterface|string $status, OrderEventUid $id, UserProfileUid $profile)
     {
+        if(is_string($status))
+        {
+            $status = new $status;
+        }
+
         $this->status = $status instanceof OrderStatusInterface ? new OrderStatus($status) : $status;
         $this->id = $id;
         $this->profile = $profile;
@@ -72,5 +77,10 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->profile;
     }
 
+    public function setProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
 
 }

@@ -31,6 +31,7 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Repository\ExistsOrderProduct\ExistsOrderProductInterface;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\AddProduct\OrderAddProductsDTO;
@@ -59,11 +60,11 @@ final class AddProductsController extends AbstractController
     public function news(
         Request $request,
         OrderAddProductsHandler $OrderAddProductsHandler,
-        //ProductDetailByUidInterface $productDetail,
         CentrifugoPublishInterface $CentrifugoPublish,
 
         ProductEventBasketInterface $productEvent,
         ProductUserBasketInterface $productDetail,
+        ExistsOrderProductInterface $existsOrderProduct,
 
         #[ParamConverter(ProductEventUid::class)] $product = null,
         #[ParamConverter(ProductOfferUid::class)] $offer = null,
@@ -115,6 +116,19 @@ final class AddProductsController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_products'))
         {
+
+            $isExists = $existsOrderProduct->isExistsProductDraft($this->getProfileUid(), $product, $offer, $variation, $modification);
+
+            if($isExists)
+            {
+                $this->addFlash(
+                    'page.add',
+                    'Продукция уже имеется в заказе',
+                    'orders-order.admin');
+
+                return $this->redirectToRoute('orders-order:admin.order.draft', status: $request->isXmlHttpRequest() ? 200 : 302);
+            }
+
             $OrderPriceDTO = $AddProductBasketDTO->getPrice();
             $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
             $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
@@ -124,16 +138,17 @@ final class AddProductsController extends AbstractController
             /** Если был добавлен продукт в открытую партию отправляем сокет */
             if($handle instanceof OrderEvent)
             {
-
                 $ProductDetail['product_total'] = $AddProductBasketDTO->getPrice()->getTotal();
 
                 $CentrifugoPublish
-                    // HTML шаблон
-                    ->addData(['product' => $this->render(['card' => $ProductDetail], file: 'centrifugo.html.twig')->getContent()])
-                    ->addData(['total' => $ProductDetail['product_total']]) // количество для суммы всех товаров
-                    //->addData(['identifier' => $ManufacturePartProductDTO->getIdentifier()]) // ID продукта
-                    ->send((string) $handle->getId());
 
+                    ->addData(['product' => $this->render(['card' => $ProductDetail], file: 'centrifugo.html.twig')->getContent()]) // HTML шаблон
+                    ->addData(['total' => $ProductDetail['product_total']]) // количество для суммы всех товаров
+                    ->send((string) $handle->getId())
+
+                    ->addData(['identifier' => $AddProductBasketDTO->getIdentifier()]) // ID карточки
+                    ->send('remove')
+                ;
 
                 $return = $this->addFlash(
                     type: 'page.add',
@@ -151,7 +166,9 @@ final class AddProductsController extends AbstractController
                 'orders-order.admin',
                 $handle);
 
-            return $this->redirectToRoute('orders-order:admin.order.draft');
+
+
+            return $this->redirectToRoute('orders-order:admin.order.draft', status: $request->isXmlHttpRequest() ? 200 : 302);
         }
 
 

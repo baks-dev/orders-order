@@ -64,7 +64,9 @@
             {% endfor %}
         </div>
     </td>
-
+    <td class="text-nowrap ">
+        {{ item.stock_profile_username }}
+    </td>
     <td class="text-center">
         {#{{ item.order_status|trans({}, 'status.order') }}#}
 
@@ -74,7 +76,6 @@
     </td>
 
     <td class="text-nowrap">
-
         {{ item.modify|date('d.m.Y H:i') }}
     </td>
 

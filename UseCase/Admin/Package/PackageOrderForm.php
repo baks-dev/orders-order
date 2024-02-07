@@ -112,7 +112,6 @@ final class PackageOrderForm extends AbstractType
                 /** @var OrderDeliveryDTO $Delivery */
                 $Delivery = $data->getUsr()->getDelivery();
 
-
                 if($Delivery->getLatitude() && $Delivery->getLongitude())
                 {
                     $address = $this->geocodeAddress->fetchGeocodeAddressAssociative($Delivery->getLatitude(), $Delivery->getLongitude());
@@ -126,8 +125,6 @@ final class PackageOrderForm extends AbstractType
                     $Delivery->setPickup($pickup);
 
                     $distance = null;
-
-
 
                     /* Поиск ближайшего склада */
                     /** @var UserProfileUid $profile */

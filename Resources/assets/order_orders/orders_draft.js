@@ -71,11 +71,8 @@ document.querySelectorAll('select.change_region_field').forEach(function (userRe
 async function submitDeliveryForm(forms) {
 
 
-    console.log('submitDeliveryForm');
-
     const data = new FormData(forms);
     data.delete(forms.name+'[_token]');
-
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -151,14 +148,21 @@ async function submitDeliveryForm(forms) {
                 document.querySelector('[data-longitude]').value = '';
 
 
+                let dataUserAddress = document.querySelectorAll('[data-address]');
+
+                if (dataUserAddress) {
+                    dataUserAddress.forEach(function (area){
+                        area.value = '';
+                    });
+                }
+
+
                 limitOxMvRIBczY = 100;
 
                 setTimeout(function OxMvRIBczY() {
 
-                    console.log('initAdddress');
-                    console.log(typeof initAdddress);
-
                     if (typeof initAdddress == 'function') {
+
                         initAdddress();
                         return;
                     }
@@ -173,6 +177,9 @@ async function submitDeliveryForm(forms) {
 
                 /** Определяем поле с адресом */
                 //initAdddress();
+
+
+
 
             }
         });
@@ -484,6 +491,8 @@ function initFormDraft() {
         /** Событие на изменение количество в ручную */
         input.addEventListener('input', orderModalCounter.debounce(300));
 
+
+
         /** Счетчик  */
         form.querySelector('#plus').addEventListener('click', () => {
 
@@ -517,10 +526,13 @@ function initFormDraft() {
 
     function orderModalCounter() {
 
+        console.log(this);
+
         let result = this.value * 1;
         let max = this.dataset.max * 1;
 
         if (result > max) {
+            form.querySelector('#'+name+'_price_total').value = max;
             form.querySelector('#summ_'+name+'_price_total').value = max;
             result = max;
         }
@@ -538,13 +550,16 @@ function initFormDraft() {
             result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
         }
 
-        result_product_sum = result_product_sum / 100;
-        result_product_sum = new Intl.NumberFormat($lang, {
-            style: 'currency',
-            currency: product_summ.dataset.currency,
-            maximumFractionDigits: 0
-        }).format(result_product_sum);
-        product_summ.innerText = result_product_sum;
+        if (product_summ.dataset.currency)
+        {
+            result_product_sum = result_product_sum / 100;
+            result_product_sum = new Intl.NumberFormat($lang, {
+                style: 'currency',
+                currency: product_summ.dataset.currency,
+                maximumFractionDigits: 0
+            }).format(result_product_sum);
+            product_summ.innerText = result_product_sum;
+        }
 
     }
 }

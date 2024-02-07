@@ -104,6 +104,8 @@ final class OrderReserveProduct
 		{
 			return;
 		}
+
+
 	
 		if($message->getLast())
 		{

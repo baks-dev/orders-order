@@ -259,97 +259,9 @@ final class OrderDeliveryForm extends AbstractType
                             'prototype_name' => '__delivery_field__',
                         ]);
 
-                        //dump($fields);
                     }
 
                 }
-
-
-
-//                else if($options['user_profile_type'])
-//                {
-//
-//                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
-//
-//
-//                    /** @var DeliveryUid $currentDelivery */
-//                    $currentDelivery = current($deliveryChoice);
-//
-//                    $deliveryHelp = $currentDelivery->getOption();
-//                    $deliveryChecked = $currentDelivery;
-//
-//                    $form
-//                        ->add('delivery', ChoiceType::class, [
-//                            'choices' => $deliveryChoice,
-//                            'choice_value' => function(?DeliveryUid $delivery) {
-//                                return $delivery?->getValue();
-//                            },
-//
-//                            'choice_label' => function(DeliveryUid $delivery) {
-//                                return $delivery->getAttr();
-//                            },
-//
-//                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
-//                                return [
-//                                    'checked' => ($choice->equals($deliveryChecked)),
-//                                    'data-price' => $choice->getPrice()?->getValue(),
-//                                    'data-excess' => $choice->getExcess()?->getValue(),
-//                                    'data-currency' => $choice->getCurrency(),
-//                                ];
-//                            },
-//
-//                            'attr' => ['class' => 'd-flex gap-3'],
-//                            //'help' => $deliveryHelp,
-//                            'label' => false,
-//                            'expanded' => true,
-//                            'multiple' => false,
-//                            'required' => true,
-//                        ]);
-//
-//
-//                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-//
-//
-//                    $values = $data->getField();
-//
-//                    /** @var Field\OrderDeliveryFieldDTO $value */
-//
-//                    foreach($values as $key => $value)
-//                    {
-//                        if(!isset($fields[$key]))
-//                        {
-//                            $values->removeElement($value);
-//                        }
-//
-//                        if(isset($fields[$key]))
-//                        {
-//                            //dd($fields[$key]);
-//
-//                            $value->setField($fields[$key]);
-//                            unset($fields[$key]);
-//                        }
-//                    }
-//
-//                    foreach($fields as $field)
-//                    {
-//                        $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-//                        $OrderDeliveryFieldDTO->setField($field);
-//                        $data->addField($OrderDeliveryFieldDTO);
-//                    }
-//
-//
-//                    /* Коллекция продукции */
-//                    $form->add('field', CollectionType::class, [
-//                        'entry_type' => Field\OrderDeliveryFieldForm::class,
-//                        'entry_options' => ['label' => false],
-//                        'label' => false,
-//                        'by_reference' => false,
-//                        'allow_delete' => true,
-//                        'allow_add' => true,
-//                        'prototype_name' => '__delivery_field__',
-//                    ]);
-//                }
-
             }
         );
 

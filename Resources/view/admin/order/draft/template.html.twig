@@ -7,7 +7,7 @@
 
 {# ---- CSS ------------------------------------------------------------ #}
 {% block title %}
-    {{ 'page.index'|trans }}
+    {{ 'page.new'|trans }}
 {% endblock %}
 
 {# ---- CSS ------------------------------------------------------------ #}
@@ -102,12 +102,12 @@ setTimeout(function SpgGHaQzun() {
 		{% endif %}
 
         // /** Удаляем из списка у всех продукт */
-		// centrifuge.newSubscription('remove').on('publication', function (ctx) {
-        //              $identifier = document.getElementById(ctx.data.identifier);
-        //              if($identifier) { $identifier.remove(); }
-        //     }).subscribe();
-        //
-		// centrifuge.connect();
+		centrifuge.newSubscription('remove').on('publication', function (ctx) {
+                     $identifier = document.getElementById('card-'+ctx.data.identifier);
+                     if($identifier) { $identifier.remove(); }
+            }).subscribe();
+
+		centrifuge.connect();
 
         return;
     }

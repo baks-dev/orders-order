@@ -86,7 +86,7 @@ final class IndexController extends AbstractController
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            ->fetchAllOrdersAssociative($this->getProfileUid(), 'DESC');
+            ->fetchAllOrdersAssociative($this->getUsr()?->getId());
 
 
         return $this->render(

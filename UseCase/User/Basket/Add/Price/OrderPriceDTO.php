@@ -63,7 +63,10 @@ final class OrderPriceDTO implements OrderPriceInterface
 		$this->total = $total;
 	}
 
+    public function addTotal(int $total) {
 
+        $this->total += $total;
+    }
 
 	
 	
@@ -93,5 +96,7 @@ final class OrderPriceDTO implements OrderPriceInterface
 	{
 		$this->currency = $currency;
 	}
-	
+
+
+
 }

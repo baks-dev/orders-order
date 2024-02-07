@@ -73,19 +73,15 @@ final class OrderDeliveryFieldForm extends AbstractType
 		);
 
 
-		//$builder->add('value', HiddenType::class, ['required' => false]);
+		//$builder->add('call', HiddenType::class, ['required' => false]);
+
+		$builder->add('value', HiddenType::class, ['required' => false]);
 
 
         $builder->add
         (
-            'value',
-            ContactRegionFieldForm::class,
-            //[
-//                'label' => $DeliveryField->getAttr(),
-//                'help' => $DeliveryField->getOption(),
-//                'required' => $DeliveryField->getRequired(),
-//                'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-            //]
+            'call',
+            ContactRegionFieldForm::class
         );
 
 
@@ -106,70 +102,47 @@ final class OrderDeliveryFieldForm extends AbstractType
 					{
 						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
 
-						$form->add
-						(
-							'value',
-							$fieldType->form(),
-							[
-								'label' => $DeliveryField->getAttr(),
-								'help' => $DeliveryField->getOption(),
-								'required' => $DeliveryField->getRequired(),
-								'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-							]
-						);
+
+                        if($fieldType->form() === ContactRegionFieldForm::class)
+                        {
+                            //$form->add('value', HiddenType::class, ['required' => false]);
+                            $form->remove('value');
+
+                            $form->add
+                            (
+                                'call',
+                                $fieldType->form(),
+                                [
+                                    'label' => $DeliveryField->getAttr(),
+                                    'help' => $DeliveryField->getOption(),
+                                    'required' => $DeliveryField->getRequired(),
+                                    'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
+                                ]
+                            );
+                        }
+                        else
+                        {
+                            //$form->add('call', HiddenType::class, ['required' => false]);
+
+                            $form->remove('call');
+
+                            $form->add
+                            (
+                                'value',
+                                $fieldType->form(),
+                                [
+                                    'label' => $DeliveryField->getAttr(),
+                                    'help' => $DeliveryField->getOption(),
+                                    'required' => $DeliveryField->getRequired(),
+                                    'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
+                                ]
+                            );
+                        }
+
 					}
 				}
 			}
 		);
-
-
-
-        $builder->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
-
-                /** @var OrderDeliveryFieldDTO $data */
-
-                $data = $event->getData();
-                $form = $event->getForm()->getParent();
-
-                //if($data?->getField())
-                //{
-                    //$fieldType = $this->deliveryFields->fetchDeliveryByProfile($data->getField());
-
-                    //dd($fieldType);
-
-
-                // 018d5184-d11f-71fc-84ae-2aa64c7aea98
-
-
-                // 018d5175-8b4a-7420-9a57-a7c1ce62f3f2
-                //dd($data);
-
-
-//                    $form->add
-//                    (
-//                        'value',
-//                        ContactRegionFieldForm::class,
-//                        [
-//                            'label' => '11111111',
-//                            'help' => '2222222222',
-//                            'required' => false
-//                        ]
-//                    );
-
-                //}
-
-
-                //$form->add('field', self::class, ['label' => false]);
-
-                    //dump('POST_SUBMIT '.self::class);
-                    //dd($data);
-
-
-
-            }
-        );
 
 	}
 	

@@ -1,4 +1,19 @@
-<div class="col-2 p-1">
+
+{% set identifier = item.event %}
+
+{% if item.product_offer_id %}
+    {% set identifier = item.product_offer_id %}
+{% endif %}
+
+{% if item.product_variation_id %}
+    {% set identifier = item.product_variation_id %}
+{% endif %}
+
+{% if item.product_modification_id %}
+    {% set identifier = item.product_modification_id %}
+{% endif %}
+
+<div class="col-2 p-1" id='card-{{ identifier }}' >
 
     <div class="border-bottom border-4 rounded-4 bg-primary border-primary">
 
@@ -91,7 +106,7 @@
 
                 <div class="d-flex justify-content-between align-items-center small">
 
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center small">
                        {{ item.product_article }}
                         {#<form method="post" action='{{ path('manufacture-part:admin.index') }}' class="p-0">
                             <input type="hidden" name="search_form[query]" value="{{ item.product_article }}">
@@ -141,7 +156,7 @@
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         data-bs-delay='{"show":600,"hide":100}'
-                                        title='Открыть производственную партию'
+                                        title='Добавить в заказ'
                                 >
                                     <a href="{{ path('manufacture-part:admin.newedit.new') }}"
                                        class="btn btn-sm modal-btn modal-link  text-nowrap" data-bs-toggle="modal"

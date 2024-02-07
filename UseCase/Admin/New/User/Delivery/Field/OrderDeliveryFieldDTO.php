@@ -32,6 +32,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 {
 
+    /** Самовывоз */
+    private ?string $call = null;
+
     /** Идентификатор пользовательского поля в способе доставки */
     #[Assert\NotBlank]
     private DeliveryFieldUid $field;
@@ -40,14 +43,14 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
     #[Assert\Valid]
     private ?string $value = null;
 
-//
-//    private ?Region\ContactRegionFieldDTO $region = null;
-//
-//
-//    public function __construct()
-//    {
-//        $this->region = new Region\ContactRegionFieldDTO();
-//    }
+    //
+    //    private ?Region\ContactRegionFieldDTO $region = null;
+    //
+    //
+    //    public function __construct()
+    //    {
+    //        $this->region = new Region\ContactRegionFieldDTO();
+    //    }
 
     /** Идентификатор пользовательского поля в способе оплаты */
 
@@ -72,24 +75,44 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
     public function setValue(?string $value): self
     {
         $this->value = $value;
+
         return $this;
     }
 
-//    /**
-//     * Region
-//     */
-//    public function getRegion(): ?Region\ContactRegionFieldDTO
-//    {
-//        return $this->region;
-//    }
-//
-//    public function setRegion(?Region\ContactRegionFieldDTO $region): self
-//    {
-//        $this->region = $region;
-//        return $this;
-//    }
+    /**
+     * Call
+     */
+    public function getCall(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setCall(?string $call): self
+    {
+        if($call)
+        {
+            $this->value = $call;
+        }
+
+        return $this;
+    }
 
 
+
+
+    //    /**
+    //     * Region
+    //     */
+    //    public function getRegion(): ?Region\ContactRegionFieldDTO
+    //    {
+    //        return $this->region;
+    //    }
+    //
+    //    public function setRegion(?Region\ContactRegionFieldDTO $region): self
+    //    {
+    //        $this->region = $region;
+    //        return $this;
+    //    }
 
 
 }

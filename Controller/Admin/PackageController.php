@@ -26,6 +26,8 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\DeliveryTransport\BaksDevDeliveryTransportBundle;
+use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
@@ -46,6 +48,7 @@ use BaksDev\Products\Stocks\UseCase\Admin\Package\Orders\ProductStockOrderDTO;
 use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockDTO;
 use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockForm;
 use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockHandler;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -69,7 +72,8 @@ final class PackageController extends AbstractController
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        ProductStocksMoveByOrderInterface $productStocksMoveByOrder,
+        //ProductStocksMoveByOrderInterface $productStocksMoveByOrder,
+        PackageOrderProductsInterface $packageOrderProducts,
     ): Response
     {
         // Отправляем сокет для скрытия заказа у других менеджеров
@@ -99,7 +103,10 @@ final class PackageController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {
-            /** Отправляем сокет для скрытия заказа у других менеджеров */
+
+            /**
+             * Отправляем сокет для скрытия заказа у других менеджеров
+             */
             $socket = $publish
                 ->addData(['order' => (string) $Order->getId()])
                 ->addData(['profile' => (string) $this->getProfileUid()])
@@ -110,71 +117,7 @@ final class PackageController extends AbstractController
                 return new JsonResponse($socket->getMessage());
             }
 
-            /**
-             * Создаем заявки на перемещение недостатка.
-             */
-            $arrProductsMove = $request->request->all($form->getName())['product'];
 
-
-            $MoveCollection = [];
-
-            foreach($arrProductsMove as $product)
-            {
-                if(!empty($product['move']) && isset($product['move']['profile'], $product['move']['move']['destination']))
-                {
-                    $MoveProductStockDTO = new ProductStockDTO();
-                    $MoveProductStockForm = $this->createForm(ProductStockForm::class, $MoveProductStockDTO);
-                    $MoveProductStockForm->submit($product['move']);
-
-                    $MoveProductStockDTO->setProfile($this->getProfileUid());
-                    $MoveProductStockDTO->getMove()->setOrd($Order->getId()); // присваиваем заказ
-                    $MoveProductStockDTO->setNumber($Order->getNumber());
-
-                    $ord = (string) $Order->getId();
-                    $warehouse = $product['move']['profile'];
-
-                    /*
-                     * Группируем однотипные заявки
-                     * Если заявка уже имеется - добавляем в указанную заявку продукцию для перемещения
-                     */
-                    if(isset($MoveCollection[$ord][$warehouse]))
-                    {
-                        /**
-                         * Получаем заявку на указанный склад по ID заказа и добавляем продукцию.
-                         *
-                         * @var ProductStockDTO $AddMoveProductStockDTO
-                         */
-                        $AddMoveProductStockDTO = $MoveCollection[$ord][$warehouse];
-
-                        foreach($AddMoveProductStockDTO->getProduct() as $addProduct)
-                        {
-                            $MoveProductStockDTO->addProduct($addProduct);
-                        }
-                    }
-
-                    $MoveCollection[$ord][$warehouse] = $MoveProductStockDTO;
-                }
-            }
-
-
-            foreach($MoveCollection as $movingCollection)
-            {
-                foreach($movingCollection as $moving)
-                {
-                    $MoveProductStock = $movingHandler->handle($moving);
-
-                    if(!$MoveProductStock instanceof ProductStock)
-                    {
-                        $this->addFlash('danger', 'danger.update', 'orders-order.admin', $MoveProductStock);
-                    }
-                }
-            }
-
-
-
-            /**
-             * Создаем заявку на сборку заказа на "Склад для упаковки заказа"
-             */
             $PackageProductStockDTO = new PackageProductStockDTO($this->getUsr()?->getId());
             $OrderEvent->getDto($PackageProductStockDTO);
             $PackageProductStockDTO->setProduct(new ArrayCollection());
@@ -210,21 +153,104 @@ final class PackageController extends AbstractController
                     $ProductStockDTO->setModification($constModification->getConst());
                 }
 
+                /** Проверяем, что все товары имеют параметры упаковки */
+                if(class_exists(BaksDevDeliveryTransportBundle::class))
+                {
+                    /* Параметры упаковки товара */
+                    $parameter = $packageOrderProducts->fetchParameterProductAssociative(
+                        $ProductStockDTO->getProduct(),
+                        $ProductStockDTO->getOffer(),
+                        $ProductStockDTO->getVariation(),
+                        $ProductStockDTO->getModification()
+                    );
+
+                    if(empty($parameter['size']) || empty($parameter['weight']))
+                    {
+                        //dd('Для добавления товара в поставку необходимо указать параметры упаковки товара');
+                        $this->addFlash('page.index', 'danger.size', 'delivery-transport.package');
+                        return $this->redirectToReferer();
+                    }
+                }
+
+
                 $PackageProductStockDTO->addProduct($ProductStockDTO);
                 //dd($ProductStockDTO);
             }
 
 
-            // Присваиваем заявке склад
+            /**
+             * Создаем заявки на перемещение недостатка.
+             * Заявка на перемещении создается раньше заявки на сборку, т.к. идет проверка при формировании путевого листа
+             */
+            $arrProductsMove = $request->request->all($form->getName())['product'];
+
+
+            $MoveCollection = [];
+
+            foreach($arrProductsMove as $product)
+            {
+                if(!empty($product['move']) && isset($product['move']['profile'], $product['move']['move']['destination']))
+                {
+                    $ord = (string) $Order->getId();
+                    $warehouse = $product['move']['profile'];
+
+                    $MoveProductStockDTO = new ProductStockDTO();
+                    $MoveProductStockForm = $this->createForm(ProductStockForm::class, $MoveProductStockDTO);
+                    $MoveProductStockForm->submit($product['move']);
+
+                    //$MoveProductStockDTO->setProfile($this->getProfileUid());
+                    $MoveProductStockDTO->setProfile(new UserProfileUid($warehouse));
+                    $MoveProductStockDTO->getMove()->setOrd($Order->getId()); // присваиваем заказ
+                    $MoveProductStockDTO->setNumber($Order->getNumber());
+
+                    // Присваиваем идентификатор заказа
+                    $MoveProductStockDTO->getOrd()->setOrd($Order->getId());
+
+
+                    /*
+                     * Группируем однотипные заявки
+                     * Если заявка уже имеется - добавляем в указанную заявку продукцию для перемещения
+                     */
+                    if(isset($MoveCollection[$ord][$warehouse]))
+                    {
+                        /**
+                         * Получаем заявку на указанный склад по ID заказа и добавляем продукцию.
+                         *
+                         * @var ProductStockDTO $AddMoveProductStockDTO
+                         */
+                        $AddMoveProductStockDTO = $MoveCollection[$ord][$warehouse];
+
+                        foreach($AddMoveProductStockDTO->getProduct() as $addProduct)
+                        {
+                            $MoveProductStockDTO->addProduct($addProduct);
+                        }
+                    }
+
+                    $MoveCollection[$ord][$warehouse] = $MoveProductStockDTO;
+                }
+            }
+
+            foreach($MoveCollection as $movingCollection)
+            {
+                foreach($movingCollection as $moving)
+                {
+                    $MoveProductStock = $movingHandler->handle($moving);
+
+                    if(!$MoveProductStock instanceof ProductStock)
+                    {
+                        $this->addFlash('danger', 'danger.update', 'orders-order.admin', $MoveProductStock);
+                    }
+                }
+            }
+
+
+            /**
+             * Создаем заявку на сборку заказа на "Целевой склад для упаковки заказа"
+             */
+
+            // Присваиваем заявке склад для сборки
             $PackageProductStockForm = $this->createForm(PackageProductStockForm::class, $PackageProductStockDTO);
             $PackageProductStockForm->submit($request->request->all($form->getName()));
-
-            //$PackageProductStockDTO->setProfile($this->getProfileUid());
-
-            /* TODO */
-
-
-
             $PackageProductStockDTO->setNumber($Order->getNumber());
 
             // Присваиваем заявке идентификатор заказа
@@ -235,22 +261,27 @@ final class PackageController extends AbstractController
             /** @var PackageProductStockHandler $packageHandler */
             $PackageProductStock = $packageHandler->handle($PackageProductStockDTO);
 
-
             if(!$PackageProductStock instanceof ProductStock)
             {
                 $this->addFlash('danger', 'danger.update', 'orders-order.admin', $PackageProductStock);
                 return $this->redirectToReferer();
             }
 
+
+
+
             /**
-             * Обновляем статус заказа.
+             * Обновляем статус заказа и присваиваем профиль склада упаковки.
              */
             $OrderStatusDTO = new OrderStatusDTO(new OrderStatus(new OrderStatus\OrderStatusPackage()), $Order->getEvent(), $this->getProfileUid());
+            $OrderStatusDTO->setProfile($PackageProductStockDTO->getProfile());
+
             /** @var OrderStatusHandler $statusHandler */
             $OrderStatusHandler = $statusHandler->handle($OrderStatusDTO);
 
             if(!$OrderStatusHandler instanceof Order)
             {
+
                 /* В случае ошибки удаляем заявку на упаковку */
                 $entityManager->remove($PackageProductStock);
                 $entityManager->flush();
@@ -259,17 +290,22 @@ final class PackageController extends AbstractController
                 return $this->redirectToReferer();
             }
 
+
+
+
+
+
             return $this->redirectToRoute('orders-order:admin.index');
 
-//            return new JsonResponse(
-//                [
-//                    'type' => 'success',
-//                    'header' => 'Заказ #'.$Order->getNumber(),
-//                    'message' => 'Статус успешно обновлен',
-//                    'status' => 200,
-//                ],
-//                200
-//            );
+            //            return new JsonResponse(
+            //                [
+            //                    'type' => 'success',
+            //                    'header' => 'Заказ #'.$Order->getNumber(),
+            //                    'message' => 'Статус успешно обновлен',
+            //                    'status' => 200,
+            //                ],
+            //                200
+            //            );
         }
 
         return $this->render(['form' => $form->createView()]);

@@ -173,4 +173,30 @@ final class OrderAddProductsDTO implements OrderProductInterface
         $this->card = $card;
     }
 
+
+    /**
+     * Id
+     */
+    public function getIdentifier(): string
+    {
+        $identifier = $this->getProduct();
+
+        if($this->getOffer())
+        {
+            $identifier = $this->getOffer();
+        }
+
+        if($this->getVariation())
+        {
+            $identifier = $this->getVariation();
+        }
+
+        if($this->getModification())
+        {
+            $identifier = $this->getModification();
+        }
+
+        return (string) $identifier;
+    }
+
 }

@@ -31,11 +31,14 @@ use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * Статус Extradition «Готов к выдаче»
+ */
 #[AutoconfigureTag('baks.order.status')]
 #[AutoconfigureTag('baks.security.voter')]
 class OrderStatusExtradition implements OrderStatusInterface, VoterInterface
 {
-    /** Готов к выдаче */
+
     public const STATUS = 'extradition';
 
     private static int $sort = 230;

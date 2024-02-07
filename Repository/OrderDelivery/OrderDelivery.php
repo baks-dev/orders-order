@@ -49,9 +49,6 @@ final class OrderDelivery implements OrderDeliveryInterface
      */
     public function fetchProductStocksGps(ProductStockEventUid $event): array|bool
     {
-        /**
-         * ДОСТАВКА
-         */
 
         $qbOrder = $this->connection->createQueryBuilder();
 

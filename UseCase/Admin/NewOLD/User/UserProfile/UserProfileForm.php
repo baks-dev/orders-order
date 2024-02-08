@@ -79,7 +79,7 @@ final class UserProfileForm extends AbstractType
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) use ($options) {
 
-                dump('PRE_SET_DATA '.$this::class);
+                //dump('PRE_SET_DATA '.$this::class);
 
                 $form = $event->getForm();
                 /** @var UserProfileDTO $data */

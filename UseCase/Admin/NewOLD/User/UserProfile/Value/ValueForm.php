@@ -103,7 +103,7 @@ final class ValueForm extends AbstractType
             FormEvents::POST_SUBMIT,
             function (FormEvent $event) use ($options) : void {
 
-                dump('POST_SUBMIT '.$this::class);
+                //dump('POST_SUBMIT '.$this::class);
 
             }
         );

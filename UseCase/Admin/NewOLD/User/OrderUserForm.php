@@ -96,8 +96,8 @@ final class OrderUserForm extends AbstractType
                 }
 
 
-                dump('PRE_SET_DATA '.$this::class);
-                dump($data->getUserProfile()?->getType());
+                //dump('PRE_SET_DATA '.$this::class);
+                //dump($data->getUserProfile()?->getType());
 
 
                 $userProfileType =  $options['data_user_profile_type'];
@@ -227,8 +227,8 @@ final class OrderUserForm extends AbstractType
 
                 $data = $event->getData();
 
-                dump('POST_SUBMIT '.$this::class);
-                dump($data);
+                //dump('POST_SUBMIT '.$this::class);
+                //dump($data);
 
 //                if($data->getUserProfile()->getType())
 //                {

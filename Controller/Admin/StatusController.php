@@ -28,7 +28,7 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Delivery\BaksDevDeliveryBundle;
 use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
-use BaksDev\Orders\Order\Entity;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
@@ -54,7 +54,7 @@ final class StatusController extends AbstractController
     )]
     public function status(
         //Request $request,
-        #[MapEntity] Entity\Order $Order,
+        #[MapEntity] Order $Order,
         OrderStatus\Collection\OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish,
@@ -67,7 +67,6 @@ final class StatusController extends AbstractController
          */
         $OrderStatus = $orderStatusCollection->from($status);
         $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
-
 
         $isExistsCompleted = $existOrderEventByStatus->isExists(
             $Order->getId(),
@@ -87,6 +86,7 @@ final class StatusController extends AbstractController
                 400
             );
         }
+
 
         if(class_exists(BaksDevProductsStocksBundle::class))
         {
@@ -146,11 +146,9 @@ final class StatusController extends AbstractController
             }
         }
 
-
         $OrderStatusHandler = $handler->handle($OrderStatusDTO);
 
-
-        if(!$OrderStatusHandler instanceof Entity\Order)
+        if(!$OrderStatusHandler instanceof Order)
         {
             // Отпарвляем сокет для скрытия заказа у других менеджеров
             $socket = $publish

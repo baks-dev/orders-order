@@ -52,7 +52,7 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
     }
 
     /** Сортировка */
-    public static function sort(): int
+    public static function priority(): int
     {
         return self::$sort;
     }

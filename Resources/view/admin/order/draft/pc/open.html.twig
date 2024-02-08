@@ -84,7 +84,7 @@
         </div>
 
         <div class="text-end d-flex gap-1 align-items-center">
-            <a href="{{ path('orders-order:admin.package', { id: opens.order_id }) }}" id="close_supply_btn"
+            <a href="{{ path('orders-order:admin.order.package', { id: opens.order_id }) }}" id="close_supply_btn"
                class="btn modal-btn btn-primary modal-link text-nowrap"
                data-bs-toggle="modal"
                data-bs-target="#modal"
@@ -93,7 +93,7 @@
                 Отправить на упаковку
             </a>
 
-            <a href="{{ path('orders-order:admin.order.cancel', { id: opens.order_event }) }}"
+            <a href="{{ path('orders-order:admin.order.delete', { id: opens.order_event }) }}"
                class="btn modal-btn btn-danger modal-link text-nowrap"
                data-bs-toggle="modal"
                data-bs-target="#modal"

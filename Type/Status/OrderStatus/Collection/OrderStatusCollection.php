@@ -46,7 +46,7 @@ final class OrderStatusCollection
         $case = null;
 
         foreach ($this->status as $key => $status) {
-            $case[$status::sort().$key] = new $status();
+            $case[$status::priority().$key] = new $status();
         }
 
         ksort($case);

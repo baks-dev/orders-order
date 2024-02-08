@@ -32,7 +32,7 @@ interface OrderStatusInterface
     public function getValue(): string;
 
     /** Сортировка */
-    public static function sort(): int;
+    public static function priority(): int;
 
     /** Цвет */
     public static function color(): string;

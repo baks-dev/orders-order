@@ -117,17 +117,17 @@ final class AllOrdersQuery implements AllOrdersInterface
         $dbal->addSelect('orders.number AS order_number');
         $dbal->from(Order::TABLE, 'orders');
 
-        $dbal->addSelect('order_event.created AS order_created');
-        $dbal->addSelect('order_event.status AS order_status');
-
-
-        $dbal->join(
-            'orders',
-            OrderEvent::TABLE,
-            'order_event',
-            'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
+        $dbal
+            ->addSelect('order_event.created AS order_created')
+            ->addSelect('order_event.status AS order_status')
+            ->addSelect('order_event.comment AS order_comment')
+            ->join(
+                'orders',
+                OrderEvent::TABLE,
+                'order_event',
+                'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
             '
-        )
+            )
             ->setParameter('profile', $usr, UserProfileUid::TYPE);
 
 
@@ -154,7 +154,6 @@ final class AllOrdersQuery implements AllOrdersInterface
                 ->andWhere('order_event.status = :status')
                 ->setParameter('status', $this->filter->getStatus(), OrderStatus::TYPE);
         }
-
 
 
         // Продукция
@@ -257,6 +256,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             'user_profile_value.event = user_profile.id'
         );
 
+
         $dbal->leftJoin(
             'user_profile',
             TypeProfile::TABLE,
@@ -289,7 +289,6 @@ final class AllOrdersQuery implements AllOrdersInterface
             'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
         );
 
-
         $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -307,14 +306,12 @@ final class AllOrdersQuery implements AllOrdersInterface
 			)
 			AS order_user"
         );
-
-
-
+        $dbal->addSelect('FALSE AS order_move');
 
 
         // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
 
-        if(class_exists(ProductStock::class))
+        if(!$this->status?->equals(OrderStatus\OrderStatusNew::class) && class_exists(ProductStock::class))
         {
             $dbalExist = $this->DBALQueryBuilder->builder();
 
@@ -343,8 +340,6 @@ final class AllOrdersQuery implements AllOrdersInterface
             $dbal->setParameter('extradition', new ProductStockStatus(new ProductStockStatus\ProductStockStatusExtradition()), ProductStockStatus::TYPE);
 
 
-
-
             $dbal
                 ->join(
                     'orders',
@@ -360,7 +355,6 @@ final class AllOrdersQuery implements AllOrdersInterface
                     'stock',
                     'stock.event = stock_order.event'
                 );
-
 
 
             $dbal
@@ -395,9 +389,6 @@ final class AllOrdersQuery implements AllOrdersInterface
                 );
 
 
-
-
-
             // Профиль ответственного (Клиент)
 
             //            $dbal->leftJoin(
@@ -414,16 +405,11 @@ final class AllOrdersQuery implements AllOrdersInterface
             $dbal->addSelect('FALSE AS order_move');
         }
 
-
-
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
         if(class_exists(DeliveryTransport::class))
         {
-
             $dbalExistMoveError = $this->DBALQueryBuilder->builder();
-
             $dbalExistMoveError->select('1');
-
 
             $dbalExistMoveError->from(ProductStockMove::TABLE, 'move');
             $dbalExistMoveError->where('move.ord = orders.id');

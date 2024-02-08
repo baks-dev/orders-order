@@ -114,7 +114,7 @@ final class OrderStatus
                 continue;
             }
 
-            $case[$class::sort().$key] = new self($class);
+            $case[$class::priority().$key] = new self($class);
         }
 
         ksort($case);

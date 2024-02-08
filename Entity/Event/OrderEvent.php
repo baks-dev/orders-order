@@ -65,7 +65,8 @@ class OrderEvent extends EntityEvent
     private ?OrderUid $orders = null;
 
     /** Товары в заказе */
-    #[Assert\Count(min: 1)]
+    //#[Assert\Count(min: 1)]
+    #[Assert\When(expression: 'this.getStatus().getOrderStatusValue() != "draft"', constraints: new Assert\Count(min: 1))]
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
     private Collection $product;
 
@@ -91,6 +92,9 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
     private OrderUser $usr;
 
+    /** Комментарий к заказу */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private string $comment;
 
     public function __construct()
     {

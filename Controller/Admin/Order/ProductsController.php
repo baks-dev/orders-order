@@ -53,7 +53,6 @@ final class ProductsController extends AbstractController
         int $page = 0,
     ): Response
     {
-
         /**
          * Поиск
          */

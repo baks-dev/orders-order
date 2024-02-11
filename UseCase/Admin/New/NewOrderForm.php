@@ -54,14 +54,11 @@ final class NewOrderForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults
-        (
-            [
-                'data_class' => NewOrderDTO::class,
-                'method' => 'POST',
-                'attr' => ['class' => 'w-100'],
-                //'allow_extra_fields' => true,
-                //'validation_groups' => false,
-            ]);
+        ([
+            'data_class' => NewOrderDTO::class,
+            'method' => 'POST',
+            'attr' => ['class' => 'w-100'],
+        ]);
     }
 
 }

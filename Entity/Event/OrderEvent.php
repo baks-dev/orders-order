@@ -24,6 +24,7 @@
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Core\Type\Crypt\Crypt;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;

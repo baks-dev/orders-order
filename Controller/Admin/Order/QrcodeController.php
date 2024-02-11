@@ -47,7 +47,6 @@ final class QrcodeController extends AbstractController
         #[MapEntity] Order $Order
     ): Response
     {
-
         $data = sprintf('%s', $Order->getId());
 
         return $this->render(

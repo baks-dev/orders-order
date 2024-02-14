@@ -130,11 +130,15 @@ class OrderEvent extends EntityEvent
         return $this->status;
     }
 
+    public function isStatusEquals(mixed $status): bool
+    {
+        return $this->status->equals($status);
+    }
+
     public function setMain(OrderUid|Order $order): void
     {
         $this->orders = $order instanceof Order ? $order->getId() : $order;
     }
-
 
     public function getDto($dto): mixed
     {

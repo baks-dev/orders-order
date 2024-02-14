@@ -23,7 +23,7 @@
         {# Редактировать #}
         {# <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
             <a href="{{ path('manufacture-part:admin.newedit.edit', {id: identifier }) }}"
-               class="text-decoration-none text-dark w-100 modal-link"
+               class="text-decoration-none text-dark w-100 modal-link disabled"
                data-bs-toggle="modal"
                data-bs-target="#modal"
                title="{{ 'btn.edit'|trans({}, 'core.btn') }}">
@@ -39,7 +39,7 @@
             {% if item.order_status == 'draft' and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
                 <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                     <a href="{{ path('orders-order:admin.order.delete', { id: item.order_event }) }}"
-                       class="text-decoration-none text-dark w-100 modal-link"
+                       class="text-decoration-none text-dark w-100 modal-link disabled"
                        data-bs-toggle="modal"
                        data-bs-target="#modal"
                        title="{{ 'btn.cancel'|trans({}, 'core.btn') }}">
@@ -47,10 +47,10 @@
                     </a>
                 </li>
             {% elseif is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') %}
-                {{ dump(item.order_status == 'draft') }}
+
                 <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                     <a href="{{ path('orders-order:admin.order.canceled', { id: item.order_event }) }}"
-                       class="text-decoration-none text-dark w-100 modal-link"
+                       class="text-decoration-none text-dark w-100 modal-link disabled"
                        data-bs-toggle="modal"
                        data-bs-target="#modal"
                        title="{{ 'btn.cancel'|trans({}, 'core.btn') }}">

@@ -75,7 +75,6 @@ final class IndexController extends AbstractController
                 ->fetchAllOrdersAssociative($this->getProfileUid())->getData();
 
             //dd(end($orders));
-
         }
 
         return $this->render(

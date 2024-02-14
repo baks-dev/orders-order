@@ -31,6 +31,9 @@ use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * Статус Canceled «Отменен»
+ */
 #[AutoconfigureTag('baks.order.status')]
 #[AutoconfigureTag('baks.security.voter')]
 class OrderStatusCanceled implements OrderStatusInterface, VoterInterface

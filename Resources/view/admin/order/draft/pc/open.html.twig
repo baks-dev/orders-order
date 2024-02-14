@@ -34,7 +34,7 @@
             >
                 <a
                         href="{{ path('orders-order:admin.order.qrcode', { id : opens.order_id }) }}"
-                        class="btn-link btn p-0 modal-link icon"
+                        class="btn-link btn p-0 modal-link disabled icon"
                         data-bs-toggle="modal"
                         data-bs-target="#modal"
                         style="height: 55px; width: 55px;"
@@ -85,7 +85,7 @@
 
         <div class="text-end d-flex gap-1 align-items-center">
             <a href="{{ path('orders-order:admin.order.package', { id: opens.order_id }) }}" id="close_supply_btn"
-               class="btn modal-btn btn-primary modal-link text-nowrap"
+               class="btn modal-btn btn-primary modal-link disabled text-nowrap"
                data-bs-toggle="modal"
                data-bs-target="#modal"
                title="Отпарвить заказ на упаковку"
@@ -94,7 +94,7 @@
             </a>
 
             <a href="{{ path('orders-order:admin.order.delete', { id: opens.order_event }) }}"
-               class="btn modal-btn btn-danger modal-link text-nowrap"
+               class="btn modal-btn btn-danger modal-link disabled text-nowrap"
                data-bs-toggle="modal"
                data-bs-target="#modal"
                title="Отпарвить заказ на упаковку"
@@ -107,7 +107,7 @@
 
         {# <div class="text-end w-25">
             <a href="#"
-               class="btn modal-btn modal-link btn-primary" data-bs-toggle="modal" data-bs-target="#modal"
+               class="btn modal-btn modal-link disabled btn-primary" data-bs-toggle="modal" data-bs-target="#modal"
                title="Открыть поставку">
                 Открыть партию
             </a>

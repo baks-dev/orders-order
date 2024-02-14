@@ -122,7 +122,7 @@ final class PackageOrderForm extends AbstractType
                         $Delivery->setAddress($address['address']);
                     }
 
-                    $Delivery->setPickup($pickup);
+                    //$Delivery->setPickup($pickup);
 
                     $distance = null;
 

@@ -118,7 +118,6 @@ final class PackageController extends AbstractController
                 return new JsonResponse($socket->getMessage());
             }
 
-
             $PackageProductStockDTO = new PackageProductStockDTO($this->getUsr()?->getId());
             $OrderEvent->getDto($PackageProductStockDTO);
             $PackageProductStockDTO->setProduct(new ArrayCollection());
@@ -134,6 +133,7 @@ final class PackageController extends AbstractController
 
 
                 $constProduct = $entityManager->getRepository(ProductEvent::class)->find($const->getProduct());
+
                 $ProductStockDTO->setProduct($constProduct->getMain());
 
                 if($const->getOffer())

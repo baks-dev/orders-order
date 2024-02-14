@@ -1,7 +1,6 @@
 {% trans_default_domain 'orders-order.admin' %}
 
 
-
 <div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
     {{ form_start(form) }}
     <div class="modal-content p-3 border-bottom border-5 border-primary">
@@ -155,11 +154,11 @@
                                             </div>
 
                                         {% else %}
-                                            {% if form.vars.data.profile %}
-                                                <span class="text-danger">
-                                                Нет в наличии для перемещения
-                                            </span>
-                                            {% endif %}
+                                            {# {% if form.vars.data.profile %} #}
+                                            <span class="text-danger">
+                                                    Нет в наличии для перемещения
+                                                </span>
+                                            {# {% endif %} #}
 
                                         {% endif %}
                                     </div>
@@ -187,13 +186,20 @@
                 </div>
 
 
+            {% else %}
+
+                <div class="alert alert-danger clearfix" role="alert">
+                    В заказе отстутсвет продукция для упаковки
+                </div>
+
+
             {% endfor %}
 
             {% if form.vars.data.usr.delivery.address %}
 
                 <label class="form-label mt-3">Адрес доставки (выдачи) заказа:</label>
                 <div class="alert alert-warning" role="alert">
-                {{ form.vars.data.usr.delivery.address }}
+                    {{ form.vars.data.usr.delivery.address }}
                 </div>
             {% endif %}
         </div>

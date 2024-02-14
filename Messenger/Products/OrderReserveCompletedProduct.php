@@ -82,14 +82,12 @@ final class OrderReserveCompletedProduct
         /* Получаем всю продукцию в заказе */
 
         /**
-         * Новое событие заказа
-         *
          * @var OrderEvent $OrderEvent
          */
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
-        /** Если статус не "ВЫПОЛНЕН" - завершаем обработчик */
-        if(!$OrderEvent || $OrderEvent->getStatus()->equals(OrderStatusCompleted::class))
+        /** Если статус не Completed «Выполнен» - завершаем обработчик */
+        if(!$OrderEvent || !$OrderEvent->getStatus()->equals(OrderStatusCompleted::class))
         {
             return;
         }

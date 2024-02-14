@@ -229,6 +229,8 @@ final class AllOrdersQuery implements AllOrdersInterface
             );
 
 
+
+
         // Профиль пользователя (Клиент)
 
         $dbal->leftJoin(
@@ -244,7 +246,7 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'user_profile',
                 UserProfileInfo::TABLE,
                 'user_profile_info',
-                'user_profile_info.profile = user_profile.profile '.($usr instanceof UserUid ? ' AND user_profile_info.usr = :user' : '')
+                'user_profile_info.profile = user_profile.profile '.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
             )
             ->setParameter('user', $usr, UserUid::TYPE);
 
@@ -306,6 +308,8 @@ final class AllOrdersQuery implements AllOrdersInterface
 			)
 			AS order_user"
         );
+
+
         $dbal->addSelect('FALSE AS order_move');
 
 
@@ -404,6 +408,7 @@ final class AllOrdersQuery implements AllOrdersInterface
         {
             $dbal->addSelect('FALSE AS order_move');
         }
+
 
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
         if(class_exists(DeliveryTransport::class))

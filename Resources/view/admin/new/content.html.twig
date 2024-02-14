@@ -2,7 +2,6 @@
 
 {{ include(_self|replace({ "content.html.twig" : baks_settings.device~"/content.html.twig" })) }}
 
-<script nonce='{{ csp_nonce() }}' async class='lazy' data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" ></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/order_orders/orders_draft.js?v={{ version }}" class='lazy'></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/field_address/script.min.js?v={{ version }}" class='lazy'></script>
 

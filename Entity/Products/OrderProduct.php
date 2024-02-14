@@ -92,6 +92,14 @@ class OrderProduct extends EntityEvent
     }
 
     /**
+     * Id
+     */
+    public function getId(): OrderProductUid
+    {
+        return $this->id;
+    }
+
+    /**
      * Event
      */
     public function getEvent(): OrderEventUid

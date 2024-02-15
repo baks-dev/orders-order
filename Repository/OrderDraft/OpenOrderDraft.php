@@ -427,8 +427,7 @@ final class OpenOrderDraft implements OpenOrderDraftInterface
             ->setParameter('status', OrderStatusDraft::STATUS);
 
         $dbal
-            ->exists(
-                'event',
+            ->andWhereExists(
                 Order::class,
                 'ord',
                 'ord.event = event.id'

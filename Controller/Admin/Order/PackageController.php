@@ -270,12 +270,12 @@ final class PackageController extends AbstractController
 
 
 
-
             /**
              * Обновляем статус заказа и присваиваем профиль склада упаковки.
              */
             $OrderStatusDTO = new OrderStatusDTO(new OrderStatus(new OrderStatus\OrderStatusPackage()), $Order->getEvent(), $this->getProfileUid());
-            $OrderStatusDTO->setProfile($PackageProductStockDTO->getProfile());
+            //$OrderStatusDTO->setProfile($PackageProductStockDTO->getProfile());
+
 
             /** @var OrderStatusHandler $statusHandler */
             $OrderStatusHandler = $statusHandler->handle($OrderStatusDTO);
@@ -290,10 +290,6 @@ final class PackageController extends AbstractController
                 $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderStatusHandler);
                 return $this->redirectToReferer();
             }
-
-
-
-
 
 
             return $this->redirectToRoute('orders-order:admin.index');

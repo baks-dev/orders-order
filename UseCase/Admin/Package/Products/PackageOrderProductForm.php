@@ -132,8 +132,6 @@ final class PackageOrderProductForm extends AbstractType
                         );
                     }
 
-                    //dd($totalStock);
-
                     $product['stock'] = $totalStock;
                     $data->setCard($product);
 
@@ -145,9 +143,6 @@ final class PackageOrderProductForm extends AbstractType
                     /* Если в заказе количество больше, чем в наличие на складе - добавляем перемещение */
                     if($Delivery->isPickup() === false && $data->getPrice()->getTotal() > $totalStock)
                     {
-
-                        //dd(4654655);
-
 
                         $UserUid = null;
 

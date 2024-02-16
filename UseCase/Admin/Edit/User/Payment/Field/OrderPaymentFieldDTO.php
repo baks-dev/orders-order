@@ -43,13 +43,12 @@ final class OrderPaymentFieldDTO implements OrderPaymentFieldInterface
 	
 	/** Идентификатор пользовательского поля в способе оплаты */
 	
-	public function getField() : PaymentFieldUid
+	public function getField() : ?PaymentFieldUid
 	{
 		return $this->field;
 	}
 	
-	
-	
+
 	public function setField(PaymentFieldUid $field) : void
 	{
 		$this->field = $field;

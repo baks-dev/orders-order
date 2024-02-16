@@ -28,15 +28,12 @@ namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Payment;
 use BaksDev\Payment\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
 use BaksDev\Payment\Type\Id\PaymentUid;
-use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -61,7 +58,6 @@ final class OrderPaymentForm extends AbstractType
 	
 	public function buildForm(FormBuilderInterface $builder, array $options) : void
 	{
-		//$builder->add('payment', HiddenType::class);
 		$builder->add('payment', HiddenType::class);
 		
 		/* Коллекция пользовательских свойств */
@@ -98,9 +94,7 @@ final class OrderPaymentForm extends AbstractType
 				{
 					$data = $event->getData();
 					$form = $event->getForm();
-					
-					//dd($options['user_profile_type']);
-					
+
 					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
 					$currentPayment = current($paymentChoice);
 
@@ -124,9 +118,7 @@ final class OrderPaymentForm extends AbstractType
 						$paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
 							return $v->equals($Payment);
 						}, ARRAY_FILTER_USE_BOTH);
-						
-						//dd($paymentCheckedFilter);
-						
+
 						if($paymentCheckedFilter)
 						{
 							$paymentChecked = current($paymentCheckedFilter);

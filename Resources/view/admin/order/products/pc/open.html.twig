@@ -1,33 +1,11 @@
 {% trans_default_domain 'orders-order.admin' %}
 
-
-{# {{ dump(opens) }} #}
-
 <section class="card card-flush alert alert-warning p-0 w-100 "
          style="background-image: var(--bs-gradient);">
-
-    {# <div class="px-3 pt-3 d-flex gap-3">
-        <div class="w-50 d-flex align-items-center gap-3">
-
-            <span class="badge text-bg-danger"> #}{# {{ opens.complete|trans({}, 'manufacture.complete') }} #}{# </span>
-    #}{# {{ opens.marketplace|trans({}, 'manufacture.marketplace') }} #}{#
-    #}{# <div><small class="opacity-50">Категория:</small> &nbsp; <strong>{{ opens.category_name }}</strong></div> #}{#
-    </div>
-
-    <div class="w-100">
-        <strong> #}{# {{ opens.category_name }} #}{# : </strong> &nbsp;
-            <small class="opacity-50">
-                последний добавленный продукт</small>
-        </div>
-
-    </div> #}
-
 
     <div class="card-body d-flex justify-content-between">
 
         <div class="w-75 d-flex gap-3 align-items-center">
-
-
 
             <span data-bs-toggle="tooltip"
                   data-bs-placement="bottom"
@@ -66,7 +44,6 @@
                         {{ card.order_number }}
                     </a>
                 </div>
-
 
 
             </div>

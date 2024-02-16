@@ -50,12 +50,7 @@
 
                         <div class="col align-self-center">
 
-                            <a href="{#{{ path('products-product:user.detail', {
-                                url : card.product_url ,
-                                offer: card.product_offer_value,
-                                variation: card.product_variation_value,
-                                modification: card.product_modification_value
-                            }) }}#}" class="text-dark me-3 text-uppercase text-decoration-none">
+                            <a href="#" class="text-dark me-3 text-uppercase text-decoration-none">
 
                                 {{ card.product_name }}
 
@@ -64,15 +59,6 @@
 
                                 {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
                             </a>
-
-                            {#{% if date() < card.product_active_from|date_modify("+1 month") %}
-                                <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
-                            {% endif %}#}
-
-
-
-                            {# <span class="badge bg-hit rounded-2 mt-1 mx-1">Хит</span> #}
-                            {#<div class="small text-muted">Артикул: {{ card.product_article }}</div>#}
                         </div>
                     </div>
 
@@ -81,36 +67,12 @@
                 <td class="vertical-middle">
 
                     {{ money(card.product_price, card.product_price_currency) }}
-                    {# <span class="badge bg-danger rounded-2 ms-1">
-					<span class="text-uppercase">-20%</span>
-				</span> #}
                 </td>
 
                 <td class="vertical-middle">
 
                     <div class="d-flex justify-content-center align-items-center text-center">
-
-
-                        {#<button type="button" class="btn btn-sm minus"
-                                title="Уменьшить количество"
-                                data-id='{{ product.price.total.vars.id }}'
-                        >
-                            <span class="h4 text-muted opacity-50">-</span>
-                        </button>#}
-
-                        {# <input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
-						   title="Количество"
-						   style="width: 50px;"> #}
-
                         {{ card.product_total }}
-
-
-                        {#<button type="button" class="btn btn-sm plus"
-                                title="Увеличить количество"
-                                data-id='{{ product.price.total.vars.id }}'
-                        >
-                            <span class="h5 text-muted opacity-50">+</span>
-                        </button>#}
                     </div>
 
                 </td>
@@ -145,4 +107,3 @@
     </tbody>
 </table>
 
-{#{{ dump(info) }}#}

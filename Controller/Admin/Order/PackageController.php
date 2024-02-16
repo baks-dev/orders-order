@@ -167,7 +167,7 @@ final class PackageController extends AbstractController
 
                     if(empty($parameter['size']) || empty($parameter['weight']))
                     {
-                        //dd('Для добавления товара в поставку необходимо указать параметры упаковки товара');
+                        // 'Для добавления товара в поставку необходимо указать параметры упаковки товара'
                         $this->addFlash('page.index', 'danger.size', 'delivery-transport.package');
                         return $this->redirectToReferer();
                     }
@@ -175,7 +175,6 @@ final class PackageController extends AbstractController
 
 
                 $PackageProductStockDTO->addProduct($ProductStockDTO);
-                //dd($ProductStockDTO);
             }
 
 

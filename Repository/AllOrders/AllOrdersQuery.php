@@ -513,9 +513,6 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $dbal->setMaxResults(20);
 
-
-        // dd($this->connection->prepare('EXPLAIN (ANALYZE)  '.$dbal->getSQL())->executeQuery($dbal->getParameters())->fetchAllAssociativeIndexed());
-
         return $this->paginator->fetchAllAssociative($dbal);
     }
 }

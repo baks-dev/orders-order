@@ -38,61 +38,22 @@ final class MovingProductStockForm extends AbstractType
 {
     private ProductWarehouseChoiceInterface $productWarehouseChoice;
 
-    //private WarehouseChoiceInterface $warehouseChoice;
-
     public function __construct(
         ProductWarehouseChoiceInterface $productWarehouseChoice,
-        //WarehouseChoiceInterface $warehouseChoice
     ) {
         $this->productWarehouseChoice = $productWarehouseChoice;
-        //$this->warehouseChoice = $warehouseChoice;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-
-//        $warehouses = $this->warehouseChoice->fetchAllWarehouse();
-//
-//        $builder->add(
-//            'warehouse',
-//            ChoiceType::class,
-//            [
-//                'choices' => $warehouses,
-//                'choice_value' => function (?ContactsRegionCallConst $warehouse) {
-//                    return $warehouse?->getValue();
-//                },
-//                'choice_label' => function (ContactsRegionCallConst $warehouse) {
-//                    return $warehouse->getAttr().' ( '.$warehouse->getCounter().' )';
-//                },
-//
-//                'label' => false
-//            ]
-//        );
-
-        /* Константа Целевого склада */
-//        $builder->add('warehouse', HiddenType::class);
-//
-//        $builder->get('warehouse')->addModelTransformer(
-//            new CallbackTransformer(
-//                function ($warehouse) {
-//                    return $warehouse instanceof ContactsRegionCallConst ? $warehouse->getValue() : $warehouse;
-//                },
-//                function ($warehouse) {
-//                    return new ContactsRegionCallConst($warehouse);
-//                }
-//            ),
-//        );
-
-
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void {
+            function (FormEvent $event): void
+            {
                 /** @var MovingProductStockDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
-
-                //dd($data);
 
                 if (!$data->getProduct()->isEmpty())
                 {

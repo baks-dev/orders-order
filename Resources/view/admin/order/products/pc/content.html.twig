@@ -1,8 +1,5 @@
 {% trans_default_domain 'orders-order.admin' %}
 
-
-{# {{ dump(query) }} #}
-
 <main class="main d-print-none">
 
     <section class="container px-4 mb-5">
@@ -47,19 +44,7 @@
                 </svg>
             </a>
 
-            {# {% if opens %}
-                <a href="{{ path('manufacture-part:admin.newedit.new') }}"
-                   class="btn modal-btn modal-link disabled btn-primary text-nowrap" data-bs-toggle="modal"
-                   data-bs-target="#modal"
-                   title="Открыть производственную партию">
-                    Добавить партию
-                </a>
-            {% endif %} #}
-
         </div>
-
-
-
 
 
         {# Партия производства #}
@@ -74,32 +59,15 @@
                 </h2>
             </div>
 
-            {# <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
-            #}{# {{ form_start(profile) }}
-                <div class="d-flex justify-content-end position-relative my-1 gap-3">
-
-                    <div class="w-50">
-                        {{ form_widget(profile.profile, {
-                            placeholder: 'Выберите профиль из списка ...', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}
-                    </div>
-                </div>
-                {{ form_end(profile) }} #}{#
-            </div> #}
-
         </div>
 
         {% set products = query.order_products|json_decode %}
 
-        {# {{ dd(products) }} #}
-
         <div class="border border-light rounded-4 p-3">
 
             <div class="d-flex justify-content-between align-items-start gap-3">
-
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
-
-
             </div>
 
 

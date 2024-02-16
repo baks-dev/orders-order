@@ -12,39 +12,16 @@
 <link rel="preload" href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" />
  {% endblock %}
 
-{# ---- HEADER-БЛОК ------------------------------------------------------------ #}
-{# {% block header %}
-    {{ include(_self|replace({ "template.html.twig": "header.html.twig" })) }}
-{% endblock %} #}
-
-
-{# ---- LEFT-БЛОК ------------------------------------------------------------ #}
-{# {% block left %} #}
-{#   {% include '@Template/flowers/left.html.twig' %} #}
-{# {% endblock %} #}
 
 {% set isProducts = baks_basket.counter > 0 ? true : false %}
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
-
 	{{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
-
-{#{{ dump(form.vars.data) }}#}
-
 {% endblock %}
 
-
-{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
-{# {% block footer %}
-    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
-{% endblock %} #}
-
- {% block javascript %}
-
-
+{% block javascript %}
 <script nonce='{{ csp_nonce() }}' async class='lazy' data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" ></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/order_orders/orders_draft.js?v={{ version }}" class='lazy'></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/field_address/script.min.js?v={{ version }}" class='lazy'></script>
-
 {% endblock %}

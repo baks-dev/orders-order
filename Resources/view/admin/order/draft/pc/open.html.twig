@@ -1,27 +1,7 @@
 {% trans_default_domain 'orders-order.admin' %}
 
-
-{#{{ dump(opens) }}#}
-
 <section class="card card-flush alert alert-warning p-0 w-100 "
          style="background-image: var(--bs-gradient);">
-
-    {# <div class="px-3 pt-3 d-flex gap-3">
-        <div class="w-50 d-flex align-items-center gap-3">
-
-            <span class="badge text-bg-danger"> #}{# {{ opens.complete|trans({}, 'manufacture.complete') }} #}{# </span>
-    #}{# {{ opens.marketplace|trans({}, 'manufacture.marketplace') }} #}{#
-    #}{# <div><small class="opacity-50">Категория:</small> &nbsp; <strong>{{ opens.category_name }}</strong></div> #}{#
-    </div>
-
-    <div class="w-100">
-        <strong> #}{# {{ opens.category_name }} #}{# : </strong> &nbsp;
-            <small class="opacity-50">
-                последний добавленный продукт</small>
-        </div>
-
-    </div> #}
-
 
     <div class="card-body d-flex justify-content-between">
 
@@ -77,7 +57,7 @@
         <div id="product-{{ opens.order_event }}" class="w-100 d-flex gap-3 align-items-center justify-content-start">
 
             {% if opens.product_event %}
-                 {{ include('@orders-order/admin/order/add/pc/product.html.twig', { product : opens }) }}
+                {{ include('@orders-order/admin/order/add/pc/product.html.twig', { product : opens }) }}
             {% else %}
                 <small>В заказе отстутвует продукция</small>
             {% endif %}
@@ -99,19 +79,12 @@
                data-bs-target="#modal"
                title="Отпарвить заказ на упаковку"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
+                     viewBox="0 0 16 16">
                     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                 </svg>
             </a>
         </div>
-
-        {# <div class="text-end w-25">
-            <a href="#"
-               class="btn modal-btn modal-link disabled btn-primary" data-bs-toggle="modal" data-bs-target="#modal"
-               title="Открыть поставку">
-                Открыть партию
-            </a>
-        </div> #}
 
     </div>
 </section>

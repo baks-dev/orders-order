@@ -39,5 +39,5 @@ interface AllOrdersInterface
 
     public function status(OrderStatus|OrderStatusInterface|string $status): self;
 
-    public function fetchAllOrdersAssociative(UserProfileUid|UserUid $usr): PaginatorInterface;
+    public function findAllPaginator(UserProfileUid|UserUid $usr): PaginatorInterface;
 }

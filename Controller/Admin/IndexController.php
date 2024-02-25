@@ -41,10 +41,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_ORDERS')]
 final class IndexController extends AbstractController
 {
-    #[Route('/admin/orders/{page<\d+>}', name: 'admin.index', methods: [
-        'GET',
-        'POST',
-    ])]
+    #[Route('/admin/orders/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
         OpenOrderDraftInterface $draft,
@@ -72,7 +69,8 @@ final class IndexController extends AbstractController
             $orders[$status->getOrderStatusValue()] = $allOrders
                 ->search($search)
                 ->status($status)
-                ->fetchAllOrdersAssociative($this->getProfileUid())->getData();
+                ->findAllPaginator($this->getProfileUid())
+                ->getData();
         }
 
         return $this->render(

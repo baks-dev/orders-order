@@ -42,6 +42,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
@@ -105,9 +106,8 @@ final class AllOrdersQuery implements AllOrdersInterface
     /**
      * Метод возвращает список заказов
      */
-    public function fetchAllOrdersAssociative(UserProfileUid|UserUid $usr): PaginatorInterface
+    public function findAllPaginator(UserProfileUid|UserUid $usr): PaginatorInterface
     {
-
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -117,18 +117,42 @@ final class AllOrdersQuery implements AllOrdersInterface
         $dbal->addSelect('orders.number AS order_number');
         $dbal->from(Order::TABLE, 'orders');
 
+
         $dbal
             ->addSelect('order_event.created AS order_created')
             ->addSelect('order_event.status AS order_status')
-            ->addSelect('order_event.comment AS order_comment')
+            ->addSelect('order_event.comment AS order_comment');
+
+
+        if($this->status->equals(OrderStatusNew::class))
+        {
+            $dbal
+                ->join(
+                    'orders',
+                    OrderEvent::TABLE,
+                    'order_event',
+                    'order_event.id = orders.event AND order_event.profile IS NULL'
+
+                );
+        }
+        else
+        {
+            $dbal
             ->join(
                 'orders',
                 OrderEvent::TABLE,
                 'order_event',
-                'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
-            '
+                'order_event.id = orders.event AND order_event.profile IS NOT NULL'
+
+            );
+
+            $dbal->andWhereExists(
+                OrderEvent::class,
+                'profile_exists',
+                'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
             )
-            ->setParameter('profile', $usr, UserProfileUid::TYPE);
+                ->setParameter('profile', $usr, UserProfileUid::TYPE);
+        }
 
 
         $dbal->addSelect('orders_modify.mod_date AS modify');
@@ -227,8 +251,6 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'delivery_price',
                 'delivery_price.event = delivery_event.id'
             );
-
-
 
 
         // Профиль пользователя (Клиент)

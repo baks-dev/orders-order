@@ -114,7 +114,7 @@
 
                             {% else %}
 
-                                <button type="button" class="btn btn-sm btn-light draggable-handle"
+                                <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         data-bs-delay='{"show":600,"hide":100}'
@@ -137,9 +137,9 @@
 
 
             <div class="card-footer d-flex flex-column small gap-1 p-2">
-				<span class="badge bg-light text-dark fw-bolder px-1 py-1 text-start">
+				<div class="fw-bolder text-primary">
 					{{ order.order_profile }}
-				</span>
+				</div>
 
                 {% set users = order.order_user|json_decode %}
 

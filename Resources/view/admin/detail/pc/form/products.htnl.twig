@@ -17,8 +17,10 @@
 
         {% if card %}
 
+
             <tr id='item_{{ product.vars.id }}'>
                 <td>
+
                     <div class="row">
                         <div class="col-3">
 
@@ -85,9 +87,13 @@
 				</span> #}
                 </td>
 
-                <td class="vertical-middle">
 
-                    <div class="d-flex justify-content-center align-items-center text-center">
+                <td class="vertical-middle text-center">
+
+                    {# Запрет на редактирвоание количества #}
+                    {% set isNotEdit = order.order_status == 'package' or order.order_status == 'extradition' or order.order_status == 'delivery' %}
+
+                    <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
 
 
                         <button type="button" class="btn btn-sm minus"
@@ -119,6 +125,11 @@
                             <span class="h5 text-muted opacity-50">+</span>
                         </button>
                     </div>
+
+                    {% if isNotEdit %}
+                        {{ product.price.total.vars.data }}
+                    {% endif %}
+
 
                 </td>
 

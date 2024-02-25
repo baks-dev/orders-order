@@ -12,13 +12,13 @@
 
 <div class='px-3 mb-3'>
 
-    <div class='d-flex gap-3'>
+    <div class='d-flex gap-3 align-items-center'>
         {# bg-danger bg-light bg-primary bg-success #}
         <div class="badge" style='background-color: {{ status.color }};'>
             {{ order.order_status|trans({}, 'status.order') }}
         </div>
 
-        <h5 class="offcanvas-title flex-grow-1 lh-normal">
+        <h5 class="offcanvas-title flex-grow-1 mb-0">
             Заказ #{{ order.order_number }}
         </h5>
 

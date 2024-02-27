@@ -87,7 +87,9 @@ final class AllController extends AbstractController
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            ->findAllPaginator($this->getUsr()?->getId());
+            //->findAllPaginator($this->getUsr()?->getId())
+            ->findAllPaginator($this->getProfileUid())
+        ;
 
 
         return $this->render(

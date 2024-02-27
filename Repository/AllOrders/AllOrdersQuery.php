@@ -124,7 +124,7 @@ final class AllOrdersQuery implements AllOrdersInterface
             ->addSelect('order_event.comment AS order_comment');
 
 
-        if($this->status->equals(OrderStatusNew::class))
+        if($this->status?->equals(OrderStatusNew::class))
         {
             $dbal
                 ->join(
@@ -145,6 +145,8 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'order_event.id = orders.event AND order_event.profile IS NOT NULL'
 
             );
+
+            //'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
 
             $dbal->andWhereExists(
                 OrderEvent::class,
@@ -268,9 +270,10 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'user_profile',
                 UserProfileInfo::TABLE,
                 'user_profile_info',
-                'user_profile_info.profile = user_profile.profile '.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
+                'user_profile_info.profile = user_profile.profile ' //.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
             )
-            ->setParameter('user', $usr, UserUid::TYPE);
+            //->setParameter('user', $usr, UserUid::TYPE)
+        ;
 
 
         $dbal->leftJoin(

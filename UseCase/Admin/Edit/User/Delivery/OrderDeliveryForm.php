@@ -38,6 +38,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -107,6 +108,17 @@ final class OrderDeliveryForm extends AbstractType
                 }
             )
         );
+
+        /**
+         * Дата доставки заказа
+         */
+        $builder->add('deliveryDate', DateType::class, [
+            'widget' => 'single_text',
+            'html5' => false,
+            'required' => false,
+            'format' => 'dd.MM.yyyy',
+            'input' => 'datetime_immutable',
+        ]);
 
 
         /* Коллекция пользовательских свойств */

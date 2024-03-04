@@ -7,21 +7,25 @@
 
 {# ---- CSS ------------------------------------------------------------ #}
  {% block stylesheets %}
-<link rel="preconnect" href="https://api-maps.yandex.ru" />
-{#<link rel="preconnect" href="https://yastatic.net" />#}
-<link rel="preload" href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" />
+     <link rel="preconnect" href="https://api-maps.yandex.ru"/>
+     {# <link rel="preconnect" href="https://yastatic.net" /> #}
+     <link rel="preload"
+           href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"/>
+     <link href="/assets//plugins/datepicker/datepicker.min.css" rel="stylesheet">
  {% endblock %}
+
 
 
 {% set isProducts = baks_basket.counter > 0 ? true : false %}
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
-	{{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
+    {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
 {% endblock %}
 
 {% block javascript %}
 <script nonce='{{ csp_nonce() }}' async class='lazy' data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" ></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/order_orders/orders_draft.js?v={{ version }}" class='lazy'></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/field_address/script.min.js?v={{ version }}" class='lazy'></script>
+<script nonce="{{ csp_nonce() }}" data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" defer class="lazy"></script>
 {% endblock %}

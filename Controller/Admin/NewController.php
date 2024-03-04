@@ -68,7 +68,6 @@ final class NewController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('draft'))
         {
-
             $handle = $OrderHandler->handle($OrderDTO);
 
             $this->addFlash

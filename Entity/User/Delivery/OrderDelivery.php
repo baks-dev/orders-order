@@ -32,7 +32,9 @@ use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryUid;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -79,6 +81,10 @@ class OrderDelivery extends EntityEvent
     #[ORM\Column(type: GpsLongitude::TYPE, nullable: true)]
     private ?GpsLongitude $longitude = null;
 
+    /** Дата доставки заказа */
+    // #[Assert\NotBlank]
+    #[ORM\Column(name: 'delivery_date', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $deliveryDate = null;
 
     public function __construct(OrderUser $usr)
     {

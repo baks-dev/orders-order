@@ -1,4 +1,4 @@
-
+{% trans_default_domain('orders-order.admin') %}
 
 		<nav class="small" style="--bs-breadcrumb-divider: '-';" aria-label="breadcrumb">
 			<ol class="breadcrumb text-secondary small opacity-75">
@@ -16,7 +16,9 @@
 				</li>
 
 				<li class="breadcrumb-item">
-					<a href="{{ path('core:user.homepage') }}" class="text-muted"
+					<a href="{{ path('core:user.homepage') }}"
+					   class="text-decoration-none"
+					   aria-label="{{ 'breadcrumb.homepage.user'|trans({}, 'pages') }}"
 					   title="{{ 'breadcrumb.homepage.user'|trans({}, 'pages') }}">
 						{{ 'breadcrumb.homepage.user'|trans({}, 'pages') }}
 					</a>
@@ -27,6 +29,15 @@
 					   class="text-decoration-none"
 					   title="{{ 'breadcrumb.homepage.admin'|trans({}, 'core') }}">
 						{{ 'breadcrumb.homepage.admin'|trans({}, 'core') }}
+					</a>
+				</li>
+
+
+				<li class="breadcrumb-item">
+					<a href="{{ path('orders-order:admin.index') }}"
+					   class="text-decoration-none"
+					   title="{{ 'breadcrumb.index'|trans }}">
+						{{ 'breadcrumb.index'|trans }}
 					</a>
 				</li>
 

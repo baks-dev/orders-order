@@ -231,14 +231,17 @@ final class AllOrdersQuery implements AllOrdersInterface
         // Доставка
 
 
-        $dbal->leftJoin(
+        $dbal
+            ->addSelect('order_delivery.delivery_date AS delivery_date')
+            ->leftJoin(
             'order_user',
             OrderDelivery::TABLE,
             'order_delivery',
             'order_delivery.usr = order_user.id'
         );
 
-        $dbal->leftJoin(
+        $dbal
+            ->leftJoin(
             'order_delivery',
             DeliveryEvent::TABLE,
             'delivery_event',

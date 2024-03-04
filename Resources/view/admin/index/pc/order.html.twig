@@ -44,10 +44,13 @@
                                 class="small {{ day ? 'text-danger' : 'text-success' }}">
                             {{ day ? day~' д. ' }}{{ hour ? hour~' ч. ' }}{{ day and hour is not null ? null : difference.i~' м.' }}
                         </strong>
+
+
                     </div>
 
+
                     <span class="fw-bolder d-flex justify-content-between align-items-center">
-							
+
 						{% set arr_price = order.product_price|json_decode %}
 
 
@@ -65,12 +68,10 @@
 
                         {#  Прибавляем стомиость доставки  #}
                         {% set price = price + order.delivery_price %}
-							
+
 							<span class='h5 lh-1 '>{{ money(price, order.order_currency) }}</span>
-							
+
 						</span>
-
-
                 </div>
 
                 <div class="d-flex flex-column justify-content-between gap-1">
@@ -78,8 +79,6 @@
                     <div class="text-end">
 
                         {% if order.order_status != 'completed' %}
-
-
 
                             {% if order.order_move %}
 
@@ -137,9 +136,9 @@
 
 
             <div class="card-footer d-flex flex-column small gap-1 p-2">
-				<div class="fw-bolder text-primary">
-					{{ order.order_profile }}
-				</div>
+                <div class="fw-bolder text-primary">
+                    {{ order.order_profile }}
+                </div>
 
                 {% set users = order.order_user|json_decode %}
 
@@ -148,6 +147,82 @@
                         {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
                     </div>
                 {% endfor %}
+
+                {% if order.order_status != 'delivery' and  order.order_status != 'completed' %}
+
+                    <div>
+
+                        {% if order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
+                            <span class="badge bg-danger small">Опоздание:</span>
+
+                        {% else %}
+                            <span class="text-muted small">Доставка:</span>
+                        {% endif %}
+
+                         &nbsp;
+
+                        {% set deliveryDedline = date(order.delivery_date) %}
+                        {% set deliveryDifference = deliveryDedline.diff(date("now")) %}
+
+                        {% set deliveryDay = deliveryDifference.days ?: null %}
+
+
+
+                        {% if deliveryDay is null or deliveryDay == 1 %}
+
+
+                            {% if order.order_status != 'package' %}
+
+
+                                {% if  order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
+
+                                    {{ order.delivery_date|date('d.m.Y') }}
+
+                                {% else %}
+
+                                    {% if deliveryDay == 1 %}
+                                        <strong class="small text-danger">
+                                            Завтра
+                                        </strong>
+                                    {% else %}
+                                        {{ order.delivery_date|date('d.m.Y') }}
+                                    {% endif %}
+
+
+                                {% endif %}
+
+                            {% else %}
+
+
+                                {% if  order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
+
+                                    {{ order.delivery_date|date('d.m.Y') }}
+
+                                {% else %}
+
+                                    {% if deliveryDay == 1 %}
+                                        <strong class="small text-danger">
+                                            Завтра
+                                        </strong>
+                                    {% else %}
+                                        {{ order.delivery_date|date('d.m.Y') }}
+                                    {% endif %}
+
+
+                                {% endif %}
+
+
+                            {% endif %}
+
+                        {% else %}
+                            <strong class="small">
+                                {{ order.delivery_date|date('d.m.Y') }}
+                            </strong>
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
 
             </div>
         </div>

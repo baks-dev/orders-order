@@ -34,7 +34,7 @@ use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Type\Event\ProductStockEventUid;
 use Doctrine\DBAL\Connection;
 
-final class OrderDelivery implements OrderDeliveryInterface
+final class OrderDeliveryRepository implements OrderDeliveryInterface
 {
     private Connection $connection;
 

@@ -56,7 +56,6 @@ class BasketController extends AbstractController
         AppCacheInterface $cache,
     ): Response
     {
-
         $AppCache = $cache->init('orders-order');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 

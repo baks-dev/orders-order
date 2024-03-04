@@ -21,17 +21,15 @@
  */
 
 
-
 userProfileType = document.getElementById('new_order_form_usr_userProfile_type');
 
-if (userProfileType)
-{
+if (userProfileType) {
     userProfileType.addEventListener('change', function (event) {
 
-    let forms = this.closest('form');
-    submitProfileForm(forms);
-    return false;
-});
+        let forms = this.closest('form');
+        submitProfileForm(forms);
+        return false;
+    });
 }
 
 // document.querySelectorAll('input[name="new_order_form[usr][userProfile][type]"]').forEach(function (userProfileType) {
@@ -72,7 +70,7 @@ async function submitDeliveryForm(forms) {
 
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -80,7 +78,7 @@ async function submitDeliveryForm(forms) {
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-           // 'X-Requested-With': 'XMLHttpChange'
+            // 'X-Requested-With': 'XMLHttpChange'
             'X-Requested-With': 'XMLHttpRequest'
         },
         redirect: 'follow', // manual, *follow, error
@@ -138,9 +136,37 @@ async function submitDeliveryForm(forms) {
                 });
 
 
+                /** Инициируем календарь */
+                document.querySelectorAll('.js-datepicker').forEach((datepicker) => {
 
-                /** Персчет всего количество */
-                //total();
+                    let $elementDate = document.getElementById(datepicker.id).value;
+                    const [day, month, year] = $elementDate.split('.');
+                    $selectedDate = new Date(+year, month - 1, +day);
+
+                    let currentDate = new Date();
+                    let nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+
+                    currentDate = new Date();
+                    let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
+
+                    MCDatepicker.create({
+                        el: '#' + datepicker.id,
+                        bodyType: 'modal', // ‘modal’, ‘inline’, or ‘permanent’.
+                        autoClose: false,
+                        closeOndblclick: true,
+                        closeOnBlur: false,
+                        customOkBTN: 'OK',
+                        customClearBTN: datapickerLang[$lang].customClearBTN,
+                        customCancelBTN: datapickerLang[$lang].customCancelBTN,
+                        firstWeekday: datapickerLang[$lang].firstWeekday,
+                        dateFormat: 'DD.MM.YYYY',
+                        customWeekDays: datapickerLang[$lang].customWeekDays,
+                        customMonths: datapickerLang[$lang].customMonths,
+                        selectedDate: $selectedDate === 'Invalid Date' ? new Date() : $selectedDate,
+                        minDate: nextDay,
+                        maxDate: limitDay,
+                    });
+                });
 
 
                 /** Сбрасываем значения геолокации */
@@ -151,7 +177,7 @@ async function submitDeliveryForm(forms) {
                 let dataUserAddress = document.querySelectorAll('[data-address]');
 
                 if (dataUserAddress) {
-                    dataUserAddress.forEach(function (area){
+                    dataUserAddress.forEach(function (area) {
                         area.value = '';
                     });
                 }
@@ -167,7 +193,9 @@ async function submitDeliveryForm(forms) {
                         return;
                     }
 
-                    if (limitOxMvRIBczY > 1000) { return; }
+                    if (limitOxMvRIBczY > 1000) {
+                        return;
+                    }
 
                     limitOxMvRIBczY = limitOxMvRIBczY * 2;
 
@@ -177,8 +205,6 @@ async function submitDeliveryForm(forms) {
 
                 /** Определяем поле с адресом */
                 //initAdddress();
-
-
 
 
             }
@@ -196,10 +222,10 @@ async function submitDeliveryForm(forms) {
 async function submitRegionForm(forms, id) {
 
 
-    console.log('submitRegionForm');
+    //console.log('submitRegionForm');
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
 
     await fetch(forms.action, {
@@ -259,7 +285,9 @@ async function submitRegionForm(forms, id) {
                         return;
                     }
 
-                    if (limitZJzxDhmvtC > 1000) { return; }
+                    if (limitZJzxDhmvtC > 1000) {
+                        return;
+                    }
 
                     limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
 
@@ -281,10 +309,10 @@ async function submitRegionForm(forms, id) {
 
 async function submitPaymentForm(forms) {
 
-    console.log('submitPaymentForm');
+    //console.log('submitPaymentForm');
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -357,7 +385,7 @@ async function submitProfileForm(forms) {
     //console.log('submitProfileForm');
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -426,7 +454,7 @@ async function submitProfileForm(forms) {
                 let user_delivery = doc.getElementById('user_delivery');
                 document.getElementById('user_delivery').replaceWith(user_delivery);
 
-                /** Пересобираем поля для способа дотсавки */
+                /** Пересобираем поля для способа доставки */
                 document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function (user_delivery) {
                     user_delivery.addEventListener('change', function (event) {
 
@@ -448,11 +476,45 @@ async function submitProfileForm(forms) {
                 });
 
 
-                /** Пересобирваем tooltip */
+                /** Пересобираем tooltip */
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
+
+                /** Инициируем календарь */
+                document.querySelectorAll('.js-datepicker').forEach((datepicker) => {
+
+                    let $elementDate = document.getElementById(datepicker.id).value;
+                    const [day, month, year] = $elementDate.split('.');
+                    $selectedDate = new Date(+year, month - 1, +day);
+
+                    let currentDate = new Date();
+                    let nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+
+                    currentDate = new Date();
+                    let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
+
+                    MCDatepicker.create({
+                        el: '#' + datepicker.id,
+                        bodyType: 'modal', // ‘modal’, ‘inline’, or ‘permanent’.
+                        autoClose: false,
+                        closeOndblclick: true,
+                        closeOnBlur: false,
+                        customOkBTN: 'OK',
+                        customClearBTN: datapickerLang[$lang].customClearBTN,
+                        customCancelBTN: datapickerLang[$lang].customCancelBTN,
+                        firstWeekday: datapickerLang[$lang].firstWeekday,
+                        dateFormat: 'DD.MM.YYYY',
+                        customWeekDays: datapickerLang[$lang].customWeekDays,
+                        customMonths: datapickerLang[$lang].customMonths,
+                        selectedDate: $selectedDate === 'Invalid Date' ? nextDay : $selectedDate,
+                        minDate: nextDay, //  Огранчииваем указаной датой (на завтра)
+                        maxDate: limitDay, // ограничиваем 7 дней
+                    });
+                });
+
+
             }
 
         });
@@ -467,7 +529,7 @@ async function submitProfileForm(forms) {
 }
 
 
-if (document.readyState == 'loading') {
+if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFormDraft);
 } else {
     initFormDraft();
@@ -477,14 +539,15 @@ function initFormDraft() {
 
     let form = document.querySelector('#modal form');  //getElementById('modal');
 
-    if (typeof form == 'undefined')
-    {
+    if (typeof form == 'undefined' || !form) {
         return;
     }
 
+    //console.log(form);
+
     let name = form.name;
 
-    input = form.querySelector('#'+name+'_price_total'); //basket.getElementById('order_product_form_price_total');
+    input = form.querySelector('#' + name + '_price_total'); //basket.getElementById('order_product_form_price_total');
 
     if (input) {
 
@@ -492,17 +555,16 @@ function initFormDraft() {
         input.addEventListener('input', orderModalCounter.debounce(300));
 
 
-
         /** Счетчик  */
         form.querySelector('#plus').addEventListener('click', () => {
 
-            let price_total = form.querySelector('#'+name+'_price_total');
+            let price_total = form.querySelector('#' + name + '_price_total');
             let result = price_total.value * 1;
             let max = price_total.dataset.max * 1;
 
             if (result < max) {
                 result = result + 1;
-                form.querySelector('#'+name+'_price_total').value = result;
+                form.querySelector('#' + name + '_price_total').value = result;
                 orderModalSum(result);
             }
 
@@ -510,12 +572,12 @@ function initFormDraft() {
 
 
         form.querySelector('#minus').addEventListener('click', () => {
-            let price_total = form.querySelector('#'+name+'_price_total');
+            let price_total = form.querySelector('#' + name + '_price_total');
             let result = price_total.value * 1;
 
             if (result > 1) {
                 result = result - 1
-                form.querySelector('#'+name+'_price_total').value = result;
+                form.querySelector('#' + name + '_price_total').value = result;
                 orderModalSum(result);
             }
         });
@@ -532,8 +594,8 @@ function initFormDraft() {
         let max = this.dataset.max * 1;
 
         if (result > max) {
-            form.querySelector('#'+name+'_price_total').value = max;
-            form.querySelector('#summ_'+name+'_price_total').value = max;
+            form.querySelector('#' + name + '_price_total').value = max;
+            form.querySelector('#summ_' + name + '_price_total').value = max;
             result = max;
         }
 
@@ -542,7 +604,7 @@ function initFormDraft() {
 
     function orderModalSum(result) {
 
-        let product_summ = form.querySelector('#summ_'+name+'_price_total');
+        let product_summ = form.querySelector('#summ_' + name + '_price_total');
 
         let result_product_sum = result * product_summ.dataset.price;
 
@@ -550,8 +612,7 @@ function initFormDraft() {
             result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
         }
 
-        if (product_summ.dataset.currency)
-        {
+        if (product_summ.dataset.currency) {
             result_product_sum = result_product_sum / 100;
             result_product_sum = new Intl.NumberFormat($lang, {
                 style: 'currency',

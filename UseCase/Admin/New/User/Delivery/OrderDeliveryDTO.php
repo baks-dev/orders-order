@@ -31,6 +31,8 @@ use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDeliveryInterface;
 use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -64,9 +66,17 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     /** Координаты на карте */
     private ?GeocodeAddressUid $geocode = null;
 
+
+    /** Дата доставки заказа */
+    #[Assert\NotBlank]
+    private ?DateTimeImmutable $deliveryDate;
+
     public function __construct()
     {
         $this->field = new ArrayCollection();
+
+        $now = (new DateTimeImmutable())->setTime(0, 0, 0);
+        $this->deliveryDate = $now->add(new DateInterval('P1D'));
     }
 
     /** Способ доставки */
@@ -111,7 +121,6 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         {
             return;
         }
-
 
         if (!$this->field->contains($field))
         {
@@ -162,5 +171,18 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         $this->longitude = $longitude;
     }
 
+    /**
+     * DeliveryDate
+     */
+    public function getDeliveryDate(): ?DateTimeImmutable
+    {
+        return $this->deliveryDate;
+    }
+
+    public function setDeliveryDate(DateTimeImmutable $deliveryDate): self
+    {
+        $this->deliveryDate = $deliveryDate;
+        return $this;
+    }
 
 }

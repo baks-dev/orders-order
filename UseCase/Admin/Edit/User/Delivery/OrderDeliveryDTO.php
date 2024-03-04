@@ -30,6 +30,8 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDeliveryInterface;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -59,9 +61,19 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     #[Assert\NotBlank]
     private ?GpsLongitude $longitude = null;
 
+
+
+    /** Дата доставки заказа */
+    #[Assert\NotBlank]
+    private ?DateTimeImmutable $deliveryDate;
+
+
     public function __construct()
     {
         $this->field = new ArrayCollection();
+
+        $now = (new DateTimeImmutable())->setTime(0, 0, 0);
+        $this->deliveryDate = $now->add(new DateInterval('P1D'));
     }
 
     /** Способ доставки */
@@ -135,6 +147,21 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     public function setLongitude(?GpsLongitude $longitude): void
     {
         $this->longitude = $longitude;
+    }
+
+
+    /**
+     * DeliveryDate
+     */
+    public function getDeliveryDate(): ?DateTimeImmutable
+    {
+        return $this->deliveryDate;
+    }
+
+    public function setDeliveryDate(DateTimeImmutable $deliveryDate): self
+    {
+        $this->deliveryDate = $deliveryDate;
+        return $this;
     }
 
 }

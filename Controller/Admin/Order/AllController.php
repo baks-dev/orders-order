@@ -58,7 +58,9 @@ final class AllController extends AbstractController
 
         // Поиск
         $search = new SearchDTO();
-        $searchForm = $this->createForm(SearchForm::class, $search);
+        $searchForm = $this->createForm(SearchForm::class, $search,
+            ['action' => $this->generateUrl('orders-order:admin.order.all')]
+        );
         $searchForm->handleRequest($request);
 
 

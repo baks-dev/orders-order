@@ -194,10 +194,10 @@ final class AllOrdersQuery implements AllOrdersInterface
             $endOfDay = $date->setTime(23, 59, 59);
 
             //($date ? ' AND part_modify.mod_date = :date' : '')
-            $dbal->andWhere('order_event.created BETWEEN :start AND :end');
+            $dbal->andWhere('orders_modify.mod_date BETWEEN :start AND :end');
 
-            $dbal->setParameter('start', $startOfDay->format("Y-m-d H:i:s"));
-            $dbal->setParameter('end', $endOfDay->format("Y-m-d H:i:s"));
+            $dbal->setParameter('start', $startOfDay, 'datetime_immutable');
+            $dbal->setParameter('end', $endOfDay, 'datetime_immutable');
         }
 
         $dbal->leftJoin(
@@ -357,6 +357,8 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'move_event',
                 'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)'
             );
+
+
 
             $dbalExist->join(
                 'move_event',
@@ -539,7 +541,10 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         $dbal->allGroupByExclude();
 
-        $dbal->setMaxResults(20);
+
+        //$dbal->setMaxResults(500);
+
+
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

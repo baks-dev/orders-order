@@ -5,9 +5,6 @@
         {# Пользовательское меню #}
         {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }}
     </td>
-    <td class="text-center text-nowrap">
-        {{ item.order_created|date('d.m.Y H:i') }}
-    </td>
 
     <td class="text-center">
         <span data-bs-toggle="tooltip"
@@ -89,6 +86,10 @@
     </td>
     <td class="text-center">
         {{ order_status(item.order_status) }}
+    </td>
+
+    <td class="text-center text-nowrap">
+        {{ item.order_created|date('d.m.Y H:i') }}
     </td>
     <td class="text-nowrap">
         {{ item.modify|date('d.m.Y H:i') }}

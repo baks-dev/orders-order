@@ -22,35 +22,48 @@
 
 order_form_status = document.getElementById('order_form_status');
 
-if (order_form_status)
+if(order_form_status)
 {
-    order_form_status.addEventListener('change', function (event) {
+    order_form_status.addEventListener('change', function(event)
+    {
         changeObjectOrderStatus(this.dataset.order, this.value);
 
         let btn = document.getElementById('order_form_order');
         btn.setAttribute('disabled', 'disabled');
 
     });
+
 }
 
+/* вешаем события на модальные ссылки */
+document.querySelectorAll('.modal-link')
+    .forEach(function(item, i, arr)
+    {
+        modalLink(item);
+    });
 
-function changeObjectOrderStatus(id, status) {
 
-    fetch('/admin/order/'+status+'/'+id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(function (response) {
+function changeObjectOrderStatus(id, status)
+{
+
+    fetch('/admin/order/' + status + '/' + id, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+        .then(function(response)
+        {
             return response.status === 200 ? response.text() : false;
         })
-        .then(function (html) {
+        .then(function(html)
+        {
 
             /** Если писутствует прелоад-форма статуса - показываем в модальном окне  */
-            if (html)
+            if(html)
             {
                 const modal = document.getElementById('modal');
                 document.getElementById('modal').innerHTML = html;
                 new bootstrap.Modal(modal).show();
 
                 /** Инициируем LAZYLOAD  */
-                modal.addEventListener('shown.bs.modal', function (event){
+                modal.addEventListener('shown.bs.modal', function(event)
+                {
 
                     let lazy = document.createElement('script');
                     lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
@@ -58,10 +71,12 @@ function changeObjectOrderStatus(id, status) {
 
                 });
 
-                modal.querySelectorAll('form').forEach(function (forms) {
+                modal.querySelectorAll('form').forEach(function(forms)
+                {
 
                     /* событие отправки формы */
-                    forms.addEventListener('submit', function (event) {
+                    forms.addEventListener('submit', function(event)
+                    {
                         event.preventDefault();
                         submitModalForm(forms);
                         return false;
@@ -71,7 +86,7 @@ function changeObjectOrderStatus(id, status) {
                 return;
             }
 
-            submitLink( '/admin/order/status/'+status+'/'+id);
+            submitLink('/admin/order/status/' + status + '/' + id);
 
             // if (order_form_status)
             // {
@@ -79,14 +94,16 @@ function changeObjectOrderStatus(id, status) {
             // }
 
 
-        }).catch(function (err) {
+        }).catch(function(err)
+    {
         // There was an error
         console.warn('Something went wrong.', err);
     });
 }
 
 
-function resolve() {
+function resolve()
+{
 
     location.reload();
 }

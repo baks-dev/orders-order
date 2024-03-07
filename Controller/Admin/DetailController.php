@@ -65,6 +65,13 @@ final class DetailController extends AbstractController
         string $id,
     ): Response
     {
+        // приходный кассовый ордер
+        // cash receipt order
+
+        // расходная накладная
+        // Sales Invoice
+
+
         /** Получаем активное событие заказа */
         $Event = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
 

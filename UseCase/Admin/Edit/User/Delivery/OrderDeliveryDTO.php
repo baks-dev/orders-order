@@ -158,8 +158,14 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->deliveryDate;
     }
 
-    public function setDeliveryDate(DateTimeImmutable $deliveryDate): self
+    public function setDeliveryDate(?DateTimeImmutable $deliveryDate): self
     {
+        if(!$deliveryDate)
+        {
+            $now = (new DateTimeImmutable())->setTime(0, 0, 0);
+            $deliveryDate = $now->add(new DateInterval('P1D'));
+        }
+
         $this->deliveryDate = $deliveryDate;
         return $this;
     }

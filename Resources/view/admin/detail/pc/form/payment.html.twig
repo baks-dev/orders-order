@@ -10,13 +10,11 @@
         <div class="w-75">
 
             {% for payment in form.usr.payment.payment %}
-
                 <div class="form-check">
                     <label class="form-check-label" for="payment1">
                         {{ form_widget(payment) }}
                     </label>
                 </div>
-
             {% endfor %}
 
             {# <div class="form-check">

@@ -375,7 +375,7 @@ final class AllOrdersQuery implements AllOrdersInterface
 
 
             $dbal
-                ->join(
+                ->leftJoin(
                     'orders',
                     ProductStockOrder::class,
                     'stock_order',
@@ -383,7 +383,7 @@ final class AllOrdersQuery implements AllOrdersInterface
                 );
 
             $dbal
-                ->join(
+                ->leftJoin(
                     'stock_order',
                     ProductStock::class,
                     'stock',

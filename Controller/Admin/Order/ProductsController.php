@@ -31,6 +31,8 @@ use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,14 +68,11 @@ final class ProductsController extends AbstractController
         $searchForm->handleRequest($request);
 
         /**
-         * Фильтр заказов
+         * Фильтр продукции по ТП
          */
-
-        $filter = new WbOrdersProductFilterDTO($request);
-
-
-        $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
+        $filter = new ProductFilterDTO($request);
+        $filterForm = $this->createForm(ProductFilterForm::class, $filter, [
+            'action' => $this->generateUrl('orders-order:admin.order.products'),
         ]);
         $filterForm->handleRequest($request);
         !$filterForm->isSubmitted() ?: $this->redirectToReferer();

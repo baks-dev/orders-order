@@ -65,12 +65,6 @@ final class DetailController extends AbstractController
         string $id,
     ): Response
     {
-        // приходный кассовый ордер
-        // cash receipt order
-
-        // расходная накладная
-        // Sales Invoice
-
 
         /** Получаем активное событие заказа */
         $Event = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
@@ -80,9 +74,16 @@ final class DetailController extends AbstractController
             throw new RouteNotFoundException('Page Not Found');
         }
 
+        /** Информация о заказе */
+        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getMain());
+
+        if(!$OrderInfo)
+        {
+            return new Response('404 Page Not Found');
+        }
+
         $OrderDTO = new EditOrderDTO($Order->getId());
         $Event->getDto($OrderDTO);
-
 
         /** @var OrderProductDTO $product */
         foreach($OrderDTO->getProduct() as $product)
@@ -133,8 +134,7 @@ final class DetailController extends AbstractController
             return $this->redirectToRoute('orders-order:admin.index');
         }
 
-        /** Информация о заказе */
-        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getMain());
+
         
         /** История изменения статусов */
         $History = $orderHistory->fetchHistoryAllAssociative($Event->getMain());
@@ -156,7 +156,7 @@ final class DetailController extends AbstractController
                 'form' => $form->createView(),
                 'order' => $OrderInfo,
                 'history' => $History,
-                'status' => $collection->from($OrderInfo['order_status']),
+                'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
                 'statuses' => $collection,
 
                 // 'query' =>  $orders,

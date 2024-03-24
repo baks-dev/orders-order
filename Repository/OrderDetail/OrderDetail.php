@@ -83,23 +83,30 @@ final class OrderDetail implements OrderDetailInterface
         //$qb = $this->entityManager->getConnection()->createQueryBuilder();
         $qb = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
-            ->bindLocal()
-        ;
+            ->bindLocal();
 
         /** ЛОКАЛЬ */
         //$locale = new Locale($this->translator->getLocale());
         //$qb->setParameter('local', $locale, Locale::TYPE);
 
-        $qb->select('orders.id AS order_id')->addGroupBy('orders.id');
-        $qb->addSelect('orders.event AS order_event')->addGroupBy('orders.event');
-        $qb->addSelect('orders.number AS order_number')->addGroupBy('orders.number');
+        $qb
+            ->select('orders.id AS order_id')
+            ->addGroupBy('orders.id')
+            ->addSelect('orders.event AS order_event')
+            ->addGroupBy('orders.event')
+            ->addSelect('orders.number AS order_number')
+            ->addGroupBy('orders.number')
+            ->from(OrderEntity\Order::TABLE, 'orders')
+            ->where('orders.id = :order')
+            ->setParameter('order', $order, OrderUid::TYPE);
 
-        $qb->from(OrderEntity\Order::TABLE, 'orders');
-        $qb->where('orders.id = :order');
-        $qb->setParameter('order', $order, OrderUid::TYPE);
+        $qb
+            ->addSelect('event.status AS order_status')
+            ->addGroupBy('event.status')
+            ->join('orders', OrderEntity\Event\OrderEvent::TABLE, 'event', 'event.id = orders.event');
 
-        $qb->addSelect('event.status AS order_status')->addGroupBy('event.status');
-        $qb->join('orders', OrderEntity\Event\OrderEvent::TABLE, 'event', 'event.id = orders.event');
+
+
 
         $qb->leftJoin(
             'orders',
@@ -107,7 +114,8 @@ final class OrderDetail implements OrderDetailInterface
             'order_user',
             'order_user.event = orders.event'
         );
-
+        //        $qb->select('*');
+        //        dd($qb->fetchAssociative());
 
         /* Продукция в заказе  */
 
@@ -148,7 +156,6 @@ final class OrderDetail implements OrderDetailInterface
             'product_trans',
             'product_trans.event = product_event.id AND product_trans.local = :local'
         );
-
 
         /** Торговое предложение */
         $qb->leftJoin(
@@ -260,9 +267,7 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
         /** Категория продукта */
-
 
 
         /* Категория */
@@ -281,7 +286,8 @@ final class OrderDetail implements OrderDetailInterface
             'category.id = product_event_category.category'
         );
 
-       // $qb->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
+
+        // $qb->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
 
         $qb->leftJoin(
             'category',
@@ -381,7 +387,6 @@ final class OrderDetail implements OrderDetailInterface
         );
 
 
-
         /* Доставка */
 
         $qb->leftJoin(
@@ -419,7 +424,6 @@ final class OrderDetail implements OrderDetailInterface
             'delivery_geocode',
             'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
         );
-
 
 
         /* Профиль пользователя */
@@ -493,16 +497,16 @@ final class OrderDetail implements OrderDetailInterface
 
         /** Артикул продукта */
 
-//        $qb->addSelect("
-//					CASE
-//					   WHEN product_modification.article IS NOT NULL THEN product_modification.article
-//					   WHEN product_variation.article IS NOT NULL THEN product_variation.article
-//					   WHEN product_offer.article IS NOT NULL THEN product_offer.article
-//					   WHEN product_info.article IS NOT NULL THEN product_info.article
-//					   ELSE NULL
-//					END AS product_article
-//				"
-//        );
+        //        $qb->addSelect("
+        //					CASE
+        //					   WHEN product_modification.article IS NOT NULL THEN product_modification.article
+        //					   WHEN product_variation.article IS NOT NULL THEN product_variation.article
+        //					   WHEN product_offer.article IS NOT NULL THEN product_offer.article
+        //					   WHEN product_info.article IS NOT NULL THEN product_info.article
+        //					   ELSE NULL
+        //					END AS product_article
+        //				"
+        //        );
 
         $qb->addSelect(
             "JSON_AGG
@@ -521,7 +525,7 @@ final class OrderDetail implements OrderDetailInterface
 			)
 			AS order_user"
         );
-        
+
         return $qb->fetchAssociative() ?: null;
     }
 

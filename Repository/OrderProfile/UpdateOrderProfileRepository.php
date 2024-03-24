@@ -154,7 +154,7 @@ final class UpdateOrderProfileRepository implements UpdateOrderProfileInterface
             ->andWhere("status = :status")
             ->setParameter('status', $status, OrderStatus::TYPE);
 
-        $dbal->andWhere('profile IS NULL');
+
 
         return $dbal->executeStatement();
     }

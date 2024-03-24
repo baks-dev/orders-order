@@ -54,12 +54,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderHandler extends AbstractHandler
 {
-    private RegistrationHandler $registrationHandler;
+    //private RegistrationHandler $registrationHandler;
     private UserProfileHandler $profileHandler;
-    private AccountEventActiveByEmailInterface $accountEventActiveByEmail;
-    private UserPasswordHasherInterface $passwordHasher;
+    //private AccountEventActiveByEmailInterface $accountEventActiveByEmail;
+    //private UserPasswordHasherInterface $passwordHasher;
     private CurrentUserProfileEventInterface $currentUserProfileEvent;
-    private TokenStorageInterface $tokenStorage;
+    //private TokenStorageInterface $tokenStorage;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -67,22 +67,22 @@ final class OrderHandler extends AbstractHandler
         ValidatorCollectionInterface $validatorCollection,
         ImageUploadInterface $imageUpload,
         FileUploadInterface $fileUpload,
-        RegistrationHandler $registrationHandler,
+        //RegistrationHandler $registrationHandler,
         UserProfileHandler $profileHandler,
-        AccountEventActiveByEmailInterface $accountEventActiveByEmail,
-        UserPasswordHasherInterface $passwordHasher,
+        //AccountEventActiveByEmailInterface $accountEventActiveByEmail,
+        //UserPasswordHasherInterface $passwordHasher,
         CurrentUserProfileEventInterface $currentUserProfileEvent,
-        TokenStorageInterface $tokenStorage
+        //TokenStorageInterface $tokenStorage
     )
     {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
 
-        $this->registrationHandler = $registrationHandler;
+        //$this->registrationHandler = $registrationHandler;
         $this->profileHandler = $profileHandler;
-        $this->accountEventActiveByEmail = $accountEventActiveByEmail;
-        $this->passwordHasher = $passwordHasher;
+        //$this->accountEventActiveByEmail = $accountEventActiveByEmail;
+        //$this->passwordHasher = $passwordHasher;
         $this->currentUserProfileEvent = $currentUserProfileEvent;
-        $this->tokenStorage = $tokenStorage;
+        //$this->tokenStorage = $tokenStorage;
     }
 
 
@@ -198,7 +198,6 @@ final class OrderHandler extends AbstractHandler
             $OrderUserDTO->setProfile($UserProfileEvent);
         }
 
-
         $this->main = new Order();
         $this->event = new OrderEvent();
 
@@ -224,10 +223,6 @@ final class OrderHandler extends AbstractHandler
         //dd($this->event);
 
         $this->entityManager->flush();
-
-
-
-
 
 
         /* Отправляем сообщение в шину */

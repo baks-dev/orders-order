@@ -40,7 +40,6 @@ use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Stocks\Entity\ProductStock;
-use BaksDev\Products\Stocks\Repository\ProductStocksMoveByOrder\ProductStocksMoveByOrderInterface;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockDTO;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockForm;
@@ -51,6 +50,7 @@ use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockHandler;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,7 +72,6 @@ final class PackageController extends AbstractController
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        //ProductStocksMoveByOrderInterface $productStocksMoveByOrder,
         PackageOrderProductsInterface $packageOrderProducts,
     ): Response
     {
@@ -91,6 +90,10 @@ final class PackageController extends AbstractController
 
         $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
 
+        if(!$OrderEvent)
+        {
+            throw new InvalidArgumentException('Page not found');
+        }
 
         /** Создаем заявку на сборку для склада */
         $PackageOrderDTO = new PackageOrderDTO($this->getUsr()?->getId());
@@ -101,6 +104,7 @@ final class PackageController extends AbstractController
         ]);
 
         $form->handleRequest($request);
+
 
         if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {

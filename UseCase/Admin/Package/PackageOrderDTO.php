@@ -154,4 +154,12 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this->current;
     }
 
+    /**
+     * Status
+     */
+    public function getStatus(): OrderStatus
+    {
+        return $this->status;
+    }
+
 }

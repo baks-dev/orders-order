@@ -31,12 +31,15 @@ use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity as DeliveryEntity;
 use BaksDev\Orders\Order\Entity as OrderEntity;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Products\Category\Entity\Info\ProductCategoryInfo;
 use BaksDev\Products\Category\Entity\Offers\ProductCategoryOffers;
 use BaksDev\Products\Category\Entity\Offers\Trans\ProductCategoryOffersTrans;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\ProductCategoryModification;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\Trans\ProductCategoryModificationTrans;
 use BaksDev\Products\Category\Entity\Offers\Variation\ProductCategoryVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Trans\ProductCategoryVariationTrans;
+use BaksDev\Products\Category\Entity\Trans\ProductCategoryTrans;
+use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
@@ -258,6 +261,44 @@ final class OrderDetail implements OrderDetailInterface
 
 
 
+        /** Категория продукта */
+
+
+
+        /* Категория */
+        $qb->join(
+            'product_event',
+            ProductCategory::TABLE,
+            'product_event_category',
+            'product_event_category.event = product_event.id AND product_event_category.root = true'
+        );
+
+
+        $qb->join(
+            'product_event_category',
+            \BaksDev\Products\Category\Entity\ProductCategory::TABLE,
+            'category',
+            'category.id = product_event_category.category'
+        );
+
+       // $qb->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
+
+        $qb->leftJoin(
+            'category',
+            ProductCategoryTrans::TABLE,
+            'category_trans',
+            'category_trans.event = category.event AND category_trans.local = :local'
+        );
+
+        //$qb->addSelect('category_info.url AS category_url'); //->addGroupBy('category_info.url');
+        $qb->leftJoin(
+            'category',
+            ProductCategoryInfo::TABLE,
+            'category_info',
+            'category_info.event = category.event'
+        );
+
+
         $qb->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -327,7 +368,12 @@ final class OrderDetail implements OrderDetailInterface
 
 						'product_total', order_product_price.total,
 						'product_price', order_product_price.price,
-						'product_price_currency', order_product_price.currency
+						'product_price_currency', order_product_price.currency,
+						
+						
+						'category_name', category_trans.name,
+						'category_url', category_info.url
+		
 					)
 			
 			)

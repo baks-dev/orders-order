@@ -131,15 +131,6 @@ final class OrderProducts implements OrderProductsInterface
             );
 
 
-
-
-
-
-
-
-
-
-
         $qb
             ->addSelect('product_event.main AS product_id')
             ->leftJoin(

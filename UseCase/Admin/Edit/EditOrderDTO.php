@@ -27,6 +27,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -52,7 +53,8 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ?User\OrderUserDTO $usr;
 
-
+    /** Ответственный */
+    private ?UserProfileUid $profile = null;
 
     public function __construct(OrderUid $order = null)
     {
@@ -146,5 +148,17 @@ final class EditOrderDTO implements OrderEventInterface
         return $this->order;
     }
 
+    /**
+     * Profile
+     */
+    public function getProfile(): ?UserProfileUid
+    {
+        return $this->profile;
+    }
 
+    public function setProfile(?UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
 }

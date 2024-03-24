@@ -172,6 +172,6 @@ class OrderEvent extends EntityEvent
      */
     public function getDelivery(): ?OrderDelivery
     {
-        return $this->users->getDelivery();
+        return $this->usr->getDelivery();
     }
 }

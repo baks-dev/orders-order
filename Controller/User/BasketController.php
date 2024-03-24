@@ -68,10 +68,12 @@ class BasketController extends AbstractController
 
         // Получаем корзину
 
-        if($AppCache->hasItem($key))
+        if(!$AppCache->hasItem($key))
         {
-            $this->products = ($AppCache->getItem($key))->get();
+            return $this->render(['form' => null]);
         }
+
+        $this->products = ($AppCache->getItem($key))->get();
 
         if(null === $this->products)
         {

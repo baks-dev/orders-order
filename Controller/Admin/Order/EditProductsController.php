@@ -48,7 +48,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class EditProductsController extends AbstractController
 {
     /**
-     * Добавить продукцию в производственную партию
+     * Редактировать продукцию
      */
     #[Route('/admin/order/product/edit/{id}', name: 'admin.order.edit', methods: ['GET', 'POST'])]
     public function news(

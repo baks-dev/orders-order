@@ -54,7 +54,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class AddProductsController extends AbstractController
 {
     /**
-     * Добавить продукцию в производственную партию
+     * Добавить продукцию в заказ
      */
     #[Route('/admin/order/product/add/{total}', name: 'admin.order.add', methods: ['GET', 'POST'])]
     public function news(

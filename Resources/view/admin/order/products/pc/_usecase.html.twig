@@ -1,6 +1,6 @@
 {# Пользовательское меню #}
 
-<button class="btn btn-link btn-sm p-0 me-1 mb-1"
+<button class="btn btn-link btn-sm p-0 mb-1"
 		id="usecase-"
 		data-bs-container="body"
 		data-bs-toggle="popover"
@@ -25,13 +25,13 @@
 
 
 
-{#<div id="usecase-{{ identifier }}-content" class="d-none">
+<div id="usecase-{{ item.product_id }}-content" class="d-none">
 	<ul class="leader list-group list-group-flush ">
 		
 
-		#}{# Редактировать #}{#
+		{# Редактировать #}
 		<li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-			<a href="{{ path('manufacture-part:admin.newedit.edit', {id: identifier }) }}"
+			<a href="{{ path('orders-order:admin.order.edit', { id: item.product_id }) }}"
 			   class="text-decoration-none text-dark w-100 modal-link disabled"
 			   data-bs-toggle="modal"
 			   data-bs-target="#modal"
@@ -40,7 +40,7 @@
 			</a>
 		</li>
 		
-		#}{# Удалить #}{#
+		{# Удалить #}{#
 		<li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
 				<a href="{{ path('manufacture-part:admin.delete', { id: identifier }) }}"
 				   class="text-decoration-none text-dark w-100 modal-link disabled"
@@ -49,10 +49,10 @@
 				   title="{{ 'btn.delete'|trans({}, 'core.btn') }}">
 					{{ 'btn.delete'|trans({}, 'core.btn') }}
 				</a>
-			</li>
+			</li>#}
 	
 	</ul>
-</div>#}
+</div>
 
 
 

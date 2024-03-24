@@ -33,8 +33,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
-use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
-use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -50,11 +49,12 @@ final class ProductsController extends AbstractController
     #[Route('/admin/order/products/{id}/{page<\d+>}', name: 'admin.order.products', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        Order $Order,
+        #[MapEntity] Order $Order,
         OrderDetailInterface $orderDetail,
         int $page = 0,
     ): Response
     {
+
         /**
          * Поиск
          */
@@ -72,7 +72,7 @@ final class ProductsController extends AbstractController
          */
         $filter = new ProductFilterDTO($request);
         $filterForm = $this->createForm(ProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('orders-order:admin.order.products'),
+            'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
         ]);
         $filterForm->handleRequest($request);
         !$filterForm->isSubmitted() ?: $this->redirectToReferer();

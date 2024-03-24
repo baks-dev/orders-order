@@ -62,8 +62,7 @@ final class OrderMessage
 	{
 		return $this->event;
 	}
-	
-	
+
 	/** Идентификатор предыдущего события */
 	
 	public function getLast() : ?OrderEventUid

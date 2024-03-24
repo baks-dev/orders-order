@@ -112,17 +112,17 @@ final class AllOrdersQuery implements AllOrdersInterface
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
-        $dbal->select('orders.id AS order_id');
-        $dbal->addSelect('orders.event AS order_event');
-        $dbal->addSelect('orders.number AS order_number');
-        $dbal->from(Order::TABLE, 'orders');
+        $dbal
+            ->select('orders.id AS order_id')
+            ->addSelect('orders.event AS order_event')
+            ->addSelect('orders.number AS order_number')
+            ->from(Order::TABLE, 'orders');
 
 
         $dbal
             ->addSelect('order_event.created AS order_created')
             ->addSelect('order_event.status AS order_status')
             ->addSelect('order_event.comment AS order_comment');
-
 
         if($this->status?->equals(OrderStatusNew::class))
         {
@@ -131,40 +131,43 @@ final class AllOrdersQuery implements AllOrdersInterface
                     'orders',
                     OrderEvent::TABLE,
                     'order_event',
-                    'order_event.id = orders.event AND order_event.profile IS NULL'
+                    'order_event.id = orders.event AND (order_event.profile = :profile OR order_event.profile IS NULL)'
 
                 );
         }
         else
         {
             $dbal
-            ->join(
-                'orders',
-                OrderEvent::TABLE,
-                'order_event',
-                'order_event.id = orders.event AND order_event.profile IS NOT NULL'
+                ->join(
+                    'orders',
+                    OrderEvent::TABLE,
+                    'order_event',
+                    'order_event.id = orders.event AND order_event.profile IS NOT NULL'
 
-            );
+                );
 
             //'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
 
-            $dbal->andWhereExists(
-                OrderEvent::class,
-                'profile_exists',
-                'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
-            )
-                ->setParameter('profile', $usr, UserProfileUid::TYPE);
+            $dbal
+                ->andWhereExists(
+                    OrderEvent::class,
+                    'profile_exists',
+                    'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
+                );
         }
 
 
-        $dbal->addSelect('orders_modify.mod_date AS modify');
+        $dbal->setParameter('profile', $usr, UserProfileUid::TYPE);
 
-        $dbal->leftJoin(
-            'orders',
-            OrderModify::TABLE,
-            'orders_modify',
-            'orders_modify.event = orders.event'
-        );
+
+        $dbal
+            ->addSelect('orders_modify.mod_date AS modify')
+            ->leftJoin(
+                'orders',
+                OrderModify::TABLE,
+                'orders_modify',
+                'orders_modify.event = orders.event'
+            );
 
         if($this->status)
         {
@@ -200,18 +203,17 @@ final class AllOrdersQuery implements AllOrdersInterface
             $dbal->setParameter('end', $endOfDay, 'datetime_immutable');
         }
 
-        $dbal->leftJoin(
-            'orders',
-            OrderProduct::TABLE,
-            'order_products',
-            'order_products.event = orders.event'
-        );
-
-
-        $dbal->addSelect('order_products_price.currency AS order_currency');
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderProduct::TABLE,
+                'order_products',
+                'order_products.event = orders.event'
+            );
 
 
         $dbal
+            ->addSelect('order_products_price.currency AS order_currency')
             ->leftJoin(
                 'order_products',
                 OrderPrice::TABLE,
@@ -234,19 +236,19 @@ final class AllOrdersQuery implements AllOrdersInterface
         $dbal
             ->addSelect('order_delivery.delivery_date AS delivery_date')
             ->leftJoin(
-            'order_user',
-            OrderDelivery::TABLE,
-            'order_delivery',
-            'order_delivery.usr = order_user.id'
-        );
+                'order_user',
+                OrderDelivery::TABLE,
+                'order_delivery',
+                'order_delivery.usr = order_user.id'
+            );
 
         $dbal
             ->leftJoin(
-            'order_delivery',
-            DeliveryEvent::TABLE,
-            'delivery_event',
-            'delivery_event.id = order_delivery.event'
-        );
+                'order_delivery',
+                DeliveryEvent::TABLE,
+                'delivery_event',
+                'delivery_event.id = order_delivery.event'
+            );
 
         $dbal
             ->addSelect('delivery_price.price AS delivery_price')
@@ -260,12 +262,13 @@ final class AllOrdersQuery implements AllOrdersInterface
 
         // Профиль пользователя (Клиент)
 
-        $dbal->leftJoin(
-            'order_user',
-            UserProfileEvent::TABLE,
-            'user_profile',
-            'user_profile.id = order_user.profile'
-        );
+        $dbal
+            ->leftJoin(
+                'order_user',
+                UserProfileEvent::TABLE,
+                'user_profile',
+                'user_profile.id = order_user.profile'
+            );
 
         $dbal
             ->addSelect('user_profile_info.discount AS order_profile_discount')
@@ -274,25 +277,26 @@ final class AllOrdersQuery implements AllOrdersInterface
                 UserProfileInfo::TABLE,
                 'user_profile_info',
                 'user_profile_info.profile = user_profile.profile ' //.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
-            )
-            //->setParameter('user', $usr, UserUid::TYPE)
+            )//->setParameter('user', $usr, UserUid::TYPE)
         ;
 
 
-        $dbal->leftJoin(
-            'user_profile',
-            UserProfileValue::TABLE,
-            'user_profile_value',
-            'user_profile_value.event = user_profile.id'
-        );
+        $dbal
+            ->leftJoin(
+                'user_profile',
+                UserProfileValue::TABLE,
+                'user_profile_value',
+                'user_profile_value.event = user_profile.id'
+            );
 
 
-        $dbal->leftJoin(
-            'user_profile',
-            TypeProfile::TABLE,
-            'type_profile',
-            'type_profile.id = user_profile.type'
-        );
+        $dbal
+            ->leftJoin(
+                'user_profile',
+                TypeProfile::TABLE,
+                'type_profile',
+                'type_profile.id = user_profile.type'
+            );
 
 
         /** Название типа профиля */
@@ -305,19 +309,21 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
             );
 
-        $dbal->leftJoin(
-            'user_profile_value',
-            TypeProfileSectionField::TABLE,
-            'type_profile_field',
-            'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
-        );
+        $dbal
+            ->leftJoin(
+                'user_profile_value',
+                TypeProfileSectionField::TABLE,
+                'type_profile_field',
+                'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
+            );
 
-        $dbal->leftJoin(
-            'type_profile_field',
-            TypeProfileSectionFieldTrans::TABLE,
-            'type_profile_field_trans',
-            'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
-        );
+        $dbal
+            ->leftJoin(
+                'type_profile_field',
+                TypeProfileSectionFieldTrans::TABLE,
+                'type_profile_field_trans',
+                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
+            );
 
         $dbal->addSelect(
             "JSON_AGG
@@ -347,9 +353,10 @@ final class AllOrdersQuery implements AllOrdersInterface
         {
             $dbalExist = $this->DBALQueryBuilder->builder();
 
-            $dbalExist->select('1');
-            $dbalExist->from(ProductStockMove::TABLE, 'move');
-            $dbalExist->where('move.ord = orders.id');
+            $dbalExist
+                ->select('1')
+                ->from(ProductStockMove::TABLE, 'move')
+                ->where('move.ord = orders.id');
 
             $dbalExist->join(
                 'move',
@@ -357,7 +364,6 @@ final class AllOrdersQuery implements AllOrdersInterface
                 'move_event',
                 'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)'
             );
-
 
 
             $dbalExist->join(
@@ -543,7 +549,6 @@ final class AllOrdersQuery implements AllOrdersInterface
 
 
         //$dbal->setMaxResults(500);
-
 
 
         return $this->paginator->fetchAllAssociative($dbal);

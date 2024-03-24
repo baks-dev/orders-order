@@ -572,7 +572,7 @@ final class ProductUserBasket implements ProductUserBasketInterface
         );
 
 
-        /** Свойства, учавствующие в карточке */
+        /** Свойства, участвующие в карточке */
 
         $qb->leftJoin(
             'category_section',

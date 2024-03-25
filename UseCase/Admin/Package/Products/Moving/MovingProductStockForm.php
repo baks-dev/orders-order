@@ -80,9 +80,13 @@ final class MovingProductStockForm extends AbstractType
 
                     $Destination = $data->getMove()->getDestination();
 
-                    $warehouses = array_filter($warehouses, function ($v, $k) use ($Destination) {
-                        return !$v->equals($Destination);
-                    }, ARRAY_FILTER_USE_BOTH);
+                    if($warehouses)
+                    {
+                        $warehouses = array_filter($warehouses, function ($v, $k) use ($Destination) {
+                            return !$v->equals($Destination);
+                        }, ARRAY_FILTER_USE_BOTH);
+
+                    }
 
                     if ($warehouses)
                     {

@@ -13,7 +13,6 @@
 
     <div class='px-3 mb-3'>
 
-
         <div class='d-flex gap-3 align-items-center'>
             {# bg-danger bg-light bg-primary bg-success #}
             <div class="badge" style='background-color: {{ status.color }};'>
@@ -76,10 +75,18 @@
                     </button>
 
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Накладная</a></li>
+                        <li>
+                            <a href="{{ path('orders-order:admin.document.sales', { id : order.order_id }) }}"
+                               class="dropdown-item modal-link disabled"
+                               data-bs-toggle="modal"
+                               data-bs-target="#modal"
+                            >
+                                Накладная
+                            </a>
+                        </li>
                         <li>
 
-                            <a href="{{ path('orders-order:admin.document.receipt', { id : order.order_event }) }}"
+                            <a href="{{ path('orders-order:admin.document.receipt', { id : order.order_id }) }}"
                                class="dropdown-item modal-link disabled"
                                data-bs-toggle="modal"
                                data-bs-target="#modal"
@@ -93,6 +100,8 @@
             </li>
 
         </ul>
+
+
 
         <div class="tab-content w-100 h-100 pt-3" id="pills-tabContent">
 

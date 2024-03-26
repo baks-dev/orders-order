@@ -1,0 +1,243 @@
+{# ПЕЧАТЬ #}
+
+{% set organization = 'ИП Тавруев Александр Владимирович' %}
+{% set organization_transcript = 'Тавруев А.В.' %}
+
+{% set money =  0 %}
+
+{% set products = order.order_products|json_decode %}
+
+{% for product in products %}
+
+    {# {% set money =  (product.product_total * product.product_price) + money %} #}
+
+    {% set money = (product.product_total * product.product_price) + money %}
+    {# {% set discount = user_profile_discount(summ) %} #}
+
+    {# {% if discount %}
+        {% set money =  discount + money %}
+    {% else %} #}
+    {# {% set money =  summ + money %} #}
+    {# {% endif %} #}
+
+{% endfor %}
+
+{# {% set money =  money / 100 %} #}
+
+
+{#
+<style>
+    .border {
+        border-width: 2px !important;
+        border-color: black !important;
+    }
+</style>
+#}
+
+
+{% set order_user = order.order_user|json_decode %}
+
+
+<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 "
+     style="width: 850px">
+
+
+    {# <img width="15" src="./ПРИХОДНЫЙ КАССОВЫЙ ОРДЕР_files/cut.png"> #}
+
+
+    <div class="d-flex w-100 align-items-center gap-2 mb-2">
+        <img src='{{ qrcode }}' alt='QR Code' style="width: 100px;"/>
+        <img src="/logo.webp" style="max-height: 60px;" alt="...">
+    </div>
+
+    <div class="d-flex w-100 justify-content-between gap-2 border-bottom">
+        <h5>Расходная накладная #{{ order.order_number }} от {{ order.order_data|date('d.m.Y') }}</h5>
+        <h6>trianglerus.ru</h6>
+    </div>
+
+    <ul class="small p-0 m-0 mb-2">
+        <li class="list-group-item">Поставщик: <strong>Интернет-магазин shina88.ru</strong></li>
+        <li class="list-group-item">Покупатель:</li>
+
+        {% for user in order_user %}
+            <li class="list-group-item">{{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    <table class="table w-100 mb-2">
+        <thead>
+        <tr>
+            <th scope="col"> №
+            <th scope="col"> Товар
+            <th scope="col"> Кол-во
+            <th scope="col"> Ед.
+            <th scope="col"> Цена
+            <th scope="col"> Сумма
+
+        <tbody>
+
+
+        {% set counter = 0 %}
+
+        {% for card in products %}
+
+        <tr>
+            <th scope="row"> {{ loop.index }}
+            <td> {#{{ product.product_name }} Triangle Group TR259 225/65 R17 106V#}
+
+                {{ card.product_name }}
+
+                {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+                {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+                {# Постфикс торгового предложения #}
+                {{ card.product_offer_postfix }}
+                {# Постфикс множественного варианта #}
+                {{ card.product_variation_postfix }}
+                {# Постфикс модификации #}
+                {{ card.product_modification_postfix }}
+
+            <td> {{ card.product_total }}
+            <td> шт
+            <td> {{ card.product_price / 100 }}
+            <td> {{ (card.product_price * card.product_total) / 100 }}
+
+           {# {{ dump(card) }}#}
+
+                {% set counter = loop.index %}
+
+        {% endfor %}
+
+
+                {#{{ money(money) }} ( {{ money_word(money / 100) }} )#}
+
+        <tfoot>
+        <tr>
+            <td colspan="6" class="text-end">Итого: {{ money(money) }}
+
+    </table>
+
+    <div>
+        <div>Всего  наименований {{ counter }}, на сумму {{ money(money) }}</div>
+        <div><strong>{{ money_word(money / 100) }}</strong></div>
+    </div>
+
+    <hr>
+
+    <div class="w-100 d-flex gap-3 mb-2">
+
+        <div class="fw-bolder">Отпустил</div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>подпись</small></div>
+        </div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>расшифровка подписи</small></div>
+        </div>
+    </div>
+
+
+    <div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
+        <strong>Адрес доставки (самовывоз):</strong> {{ order.delivery_geocode_address }}
+
+        <p><strong>Комментарий:</strong></p>
+
+    </div>
+
+    <section class="small">
+
+        <h5>Гарантийные обязательства</h5>
+
+        <p>На всю продукцию предоставляется гарантия 1 год. Основанием для предъявления претензии является расходная
+            накладная.</p>
+
+        <p>Возврат товара надлежащего качества производится в течении 14 дней не считая дня покупки. Возврат товара
+            надлежащего качества возможен в случае, если сохранены его товарный вид, потребительские свойства, а также
+            документ, подтверждающий факт и условия покупки указанного товара в нашем магазине. Возврат денег Покупателю
+            за
+            товар производится в течении 3-х дней с момента получения товара и заявления от покупателя с соответствующим
+            требованием. Последствия продажи товара ненадлежащего качества установлены положениями, предусмотренными
+            статьями 18-24 Закона «О защите прав потребителей».</p>
+
+        <p>Брак, выявленный в ходе эксплуатации автомобильных шин, принимается в качестве рекламации после
+            положительного решения по экспертизе НИИШП (научно-исследовательского института шинной промышленности, г.
+            Москва, ул.
+            Буракова, д. 27, по дискам - Института профессиональной оценки активов АТК МАДИ (ГТУ).</p>
+
+        <p><b>Пожалуйста, не забудьте оценить качество магазина trianglerus.ru на Яндекс.Маркете. Для нас это очень
+                важно!</b>
+        </p>
+    </section>
+
+
+    <div class="w-100">Товар принял. К количеству, комплектации и внешнему виду претензий не имею:</div>
+
+    <div class="w-100 d-flex gap-3">
+
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>подпись</small></div>
+        </div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>расшифровка подписи</small></div>
+        </div>
+    </div>
+
+</div>
+
+{% if app.request.headers.get('X-Requested-With') is not null %}
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 620px;">
+
+        <div class="modal-content p-3 border-bottom border-5 border-primary d-print-none">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{ 'Расходная накладная'|trans }}
+                </h5>
+            </div>
+
+            <div class="modal-body">
+                <h4>#{{ order.order_number }} от {{ order.order_data|date('d.m.Y') }}</h4>
+            </div>
+
+            <div class="modal-footer">
+
+                <div class="mt-3 gap-3 d-flex">
+                    {# Отмена #}
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                    </button>
+
+                    {# Печать #}
+                    <button id="print_all" type="button" class="btn btn-primary">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-printer-fill"
+                             viewBox="0 0 16 16">
+                            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+                            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                        </svg>
+
+                        Печать
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endif %}
+
+
+
+

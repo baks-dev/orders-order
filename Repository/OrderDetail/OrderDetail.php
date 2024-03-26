@@ -27,9 +27,14 @@ namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Core\Type\Locale\Locale;
-use BaksDev\Delivery\Entity as DeliveryEntity;
-use BaksDev\Orders\Order\Entity as OrderEntity;
+use BaksDev\Delivery\Entity\Event\DeliveryEvent;
+use BaksDev\Delivery\Entity\Price\DeliveryPrice;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Products\Category\Entity\Info\ProductCategoryInfo;
 use BaksDev\Products\Category\Entity\Offers\ProductCategoryOffers;
@@ -51,10 +56,17 @@ use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
-use BaksDev\Users\Profile\TypeProfile\Entity as TypeProfileEntity;
-use BaksDev\Users\Profile\UserProfile\Entity as UserProfileEntity;
+use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
+use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
+use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
+use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
+use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 
 final class OrderDetail implements OrderDetailInterface
 {
@@ -81,7 +93,7 @@ final class OrderDetail implements OrderDetailInterface
     public function fetchDetailOrderAssociative(OrderUid $order): ?array
     {
         //$qb = $this->entityManager->getConnection()->createQueryBuilder();
-        $qb = $this->DBALQueryBuilder
+        $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
@@ -89,95 +101,93 @@ final class OrderDetail implements OrderDetailInterface
         //$locale = new Locale($this->translator->getLocale());
         //$qb->setParameter('local', $locale, Locale::TYPE);
 
-        $qb
+        $dbal
             ->select('orders.id AS order_id')
-            ->addGroupBy('orders.id')
             ->addSelect('orders.event AS order_event')
-            ->addGroupBy('orders.event')
             ->addSelect('orders.number AS order_number')
-            ->addGroupBy('orders.number')
-            ->from(OrderEntity\Order::TABLE, 'orders')
+            ->from(Order::class, 'orders')
             ->where('orders.id = :order')
             ->setParameter('order', $order, OrderUid::TYPE);
 
-        $qb
+        $dbal
             ->addSelect('event.status AS order_status')
-            ->addGroupBy('event.status')
-            ->join('orders', OrderEntity\Event\OrderEvent::TABLE, 'event', 'event.id = orders.event');
+            ->addSelect('event.created AS order_data')
+            ->join(
+                'orders',
+                OrderEvent::class,
+                'event',
+                'event.id = orders.event'
+            );
 
 
-
-
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'orders',
-            OrderEntity\User\OrderUser::TABLE,
+            OrderUser::class,
             'order_user',
             'order_user.event = orders.event'
         );
-        //        $qb->select('*');
-        //        dd($qb->fetchAssociative());
 
         /* Продукция в заказе  */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'orders',
-            OrderEntity\Products\OrderProduct::TABLE,
+            OrderProduct::class,
             'order_product',
             'order_product.event = orders.event'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_product',
-            OrderEntity\Products\Price\OrderPrice::TABLE,
+            OrderPrice::class,
             'order_product_price',
             'order_product_price.product = order_product.id'
         );
 
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_product',
-            ProductEvent::TABLE,
+            ProductEvent::class,
             'product_event',
             'product_event.id = order_product.product'
         );
 
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_event',
-            ProductInfo::TABLE,
+            ProductInfo::class,
             'product_info',
             'product_info.product = product_event.main '
-        )->addGroupBy('product_info.article');
+        );
 
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_event',
-            ProductTrans::TABLE,
+            ProductTrans::class,
             'product_trans',
             'product_trans.event = product_event.id AND product_trans.local = :local'
         );
 
         /** Торговое предложение */
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_event',
-            ProductOffer::TABLE,
+            ProductOffer::class,
             'product_offer',
             'product_offer.id = order_product.offer AND product_offer.event = product_event.id'
         );
 
 
         /** Тип торгового предложения */
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_offer',
-            ProductCategoryOffers::TABLE,
+            ProductCategoryOffers::class,
             'category_offer',
             'category_offer.id = product_offer.category_offer'
         );
 
         /** Название торгового предложения */
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'category_offer',
-            ProductCategoryOffersTrans::TABLE,
+            ProductCategoryOffersTrans::class,
             'category_offer_trans',
             'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local'
         );
@@ -186,26 +196,26 @@ final class OrderDetail implements OrderDetailInterface
         /** Множественный вариант */
 
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_offer',
-            ProductVariation::TABLE,
+            ProductVariation::class,
             'product_variation',
             'product_variation.id = order_product.variation AND product_variation.offer = product_offer.id'
         );
 
         /* Получаем тип множественного варианта */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_variation',
-            ProductCategoryVariation::TABLE,
+            ProductCategoryVariation::class,
             'category_variation',
             'category_variation.id = product_variation.category_variation'
         );
 
         /* Получаем название множественного варианта */
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'category_variation',
-            ProductCategoryVariationTrans::TABLE,
+            ProductCategoryVariationTrans::class,
             'category_variation_trans',
             'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local'
         );
@@ -213,24 +223,24 @@ final class OrderDetail implements OrderDetailInterface
 
         /* Получаем тип модификации множественного варианта */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_variation',
-            ProductModification::TABLE,
+            ProductModification::class,
             'product_modification',
             'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_modification',
-            ProductCategoryModification::TABLE,
+            ProductCategoryModification::class,
             'category_modification',
             'category_modification.id = product_modification.category_modification'
         );
 
         /* Получаем название типа модификации */
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'category_modification',
-            ProductCategoryModificationTrans::TABLE,
+            ProductCategoryModificationTrans::class,
             'category_modification_trans',
             'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
         );
@@ -238,30 +248,30 @@ final class OrderDetail implements OrderDetailInterface
 
         /* Фото продукта */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_event',
-            ProductPhoto::TABLE,
+            ProductPhoto::class,
             'product_photo',
             'product_photo.event = product_event.id AND product_photo.root = true'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_offer',
-            ProductOfferImage::TABLE,
+            ProductOfferImage::class,
             'product_offer_image',
             'product_offer_image.offer = product_offer.id AND product_offer_image.root = true'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_variation',
-            ProductVariationImage::TABLE,
+            ProductVariationImage::class,
             'product_variation_image',
             'product_variation_image.variation = product_variation.id AND product_variation_image.root = true'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'product_modification',
-            ProductModificationImage::TABLE,
+            ProductModificationImage::class,
             'product_modification_image',
             'product_modification_image.modification = product_modification.id AND product_modification_image.root = true'
         );
@@ -271,41 +281,39 @@ final class OrderDetail implements OrderDetailInterface
 
 
         /* Категория */
-        $qb->join(
+        $dbal->join(
             'product_event',
-            ProductCategory::TABLE,
+            ProductCategory::class,
             'product_event_category',
             'product_event_category.event = product_event.id AND product_event_category.root = true'
         );
 
 
-        $qb->join(
+        $dbal->join(
             'product_event_category',
-            \BaksDev\Products\Category\Entity\ProductCategory::TABLE,
+            \BaksDev\Products\Category\Entity\ProductCategory::class,
             'category',
             'category.id = product_event_category.category'
         );
 
 
-        // $qb->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
-
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'category',
-            ProductCategoryTrans::TABLE,
+            ProductCategoryTrans::class,
             'category_trans',
             'category_trans.event = category.event AND category_trans.local = :local'
         );
 
-        //$qb->addSelect('category_info.url AS category_url'); //->addGroupBy('category_info.url');
-        $qb->leftJoin(
+        $dbal->addSelect('category_info.url AS category_url');
+        $dbal->leftJoin(
             'category',
-            ProductCategoryInfo::TABLE,
+            ProductCategoryInfo::class,
             'category_info',
             'category_info.event = category.event'
         );
 
 
-        $qb->addSelect(
+        $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
 				
@@ -338,13 +346,13 @@ final class OrderDetail implements OrderDetailInterface
 						
 						'product_image', CASE
 						                   WHEN product_modification_image.name IS NOT NULL THEN
-                                                CONCAT ( '/upload/".ProductModificationImage::TABLE."' , '/', product_modification_image.name)
+                                                CONCAT ( '/upload/".$dbal->table(ProductModificationImage::class)."' , '/', product_modification_image.name)
                                            WHEN product_variation_image.name IS NOT NULL THEN
-                                                CONCAT ( '/upload/".ProductVariationImage::TABLE."' , '/', product_variation_image.name)
+                                                CONCAT ( '/upload/".$dbal->table(ProductVariationImage::class)."' , '/', product_variation_image.name)
                                            WHEN product_offer_image.name IS NOT NULL THEN
-                                                CONCAT ( '/upload/".ProductOfferImage::TABLE."' , '/', product_offer_image.name)
+                                                CONCAT ( '/upload/".$dbal->table(ProductOfferImage::class)."' , '/', product_offer_image.name)
                                            WHEN product_photo.name IS NOT NULL THEN
-                                                CONCAT ( '/upload/".ProductPhoto::TABLE."' , '/', product_photo.name)
+                                                CONCAT ( '/upload/".$dbal->table(ProductPhoto::class)."' , '/', product_photo.name)
                                            ELSE NULL
                                         END,
                                         
@@ -389,38 +397,39 @@ final class OrderDetail implements OrderDetailInterface
 
         /* Доставка */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_user',
-            OrderEntity\User\Delivery\OrderDelivery::TABLE,
+            OrderDelivery::class,
             'order_delivery',
             'order_delivery.usr = order_user.id'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_delivery',
-            DeliveryEntity\Event\DeliveryEvent::TABLE,
+            DeliveryEvent::class,
             'delivery_event',
             'delivery_event.id = order_delivery.event'
         );
 
-        $qb->addSelect('delivery_price.price AS delivery_price')
-            ->addGroupBy('delivery_price.price');
-        $qb->leftJoin(
+        $dbal
+            ->addSelect('delivery_price.price AS delivery_price');
+
+        $dbal->leftJoin(
             'delivery_event',
-            DeliveryEntity\Price\DeliveryPrice::TABLE,
+            DeliveryPrice::class,
             'delivery_price',
             'delivery_price.event = delivery_event.id'
         );
 
         /* Адрес доставки */
 
-        $qb->addSelect('delivery_geocode.longitude AS delivery_geocode_longitude')->addGroupBy('delivery_geocode.longitude');
-        $qb->addSelect('delivery_geocode.latitude AS delivery_geocode_latitude')->addGroupBy('delivery_geocode.latitude');
-        $qb->addSelect('delivery_geocode.address AS delivery_geocode_address')->addGroupBy('delivery_geocode.address');
+        $dbal->addSelect('delivery_geocode.longitude AS delivery_geocode_longitude');
+        $dbal->addSelect('delivery_geocode.latitude AS delivery_geocode_latitude');
+        $dbal->addSelect('delivery_geocode.address AS delivery_geocode_address');
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_delivery',
-            GeocodeAddress::TABLE,
+            GeocodeAddress::class,
             'delivery_geocode',
             'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
         );
@@ -428,71 +437,69 @@ final class OrderDetail implements OrderDetailInterface
 
         /* Профиль пользователя */
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'order_user',
-            UserProfileEntity\Event\UserProfileEvent::TABLE,
+            UserProfileEvent::class,
             'user_profile',
             'user_profile.id = order_user.profile'
         );
 
-        $qb->addSelect('user_profile_info.discount AS order_profile_discount')->addGroupBy('user_profile_info.discount');
+        $dbal->addSelect('user_profile_info.discount AS order_profile_discount');
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'user_profile',
-            UserProfileEntity\Info\UserProfileInfo::TABLE,
+            UserProfileInfo::class,
             'user_profile_info',
             'user_profile_info.profile = user_profile.profile'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'user_profile',
-            UserProfileEntity\Value\UserProfileValue::TABLE,
+            UserProfileValue::class,
             'user_profile_value',
             'user_profile_value.event = user_profile.id'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'user_profile',
-            TypeProfileEntity\TypeProfile::TABLE,
+            TypeProfile::class,
             'type_profile',
             'type_profile.id = user_profile.type'
         );
 
-        $qb->addSelect('type_profile_trans.name AS order_profile')->addGroupBy('type_profile_trans.name');
-        $qb->leftJoin(
+        $dbal->addSelect('type_profile_trans.name AS order_profile');
+        $dbal->leftJoin(
             'type_profile',
-            TypeProfileEntity\Trans\TypeProfileTrans::TABLE,
+            TypeProfileTrans::class,
             'type_profile_trans',
             'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'user_profile_value',
-            TypeProfileEntity\Section\Fields\TypeProfileSectionField::TABLE,
+            TypeProfileSectionField::class,
             'type_profile_field',
             'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
         );
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'type_profile_field',
-            TypeProfileEntity\Section\Fields\Trans\TypeProfileSectionFieldTrans::TABLE,
+            TypeProfileSectionFieldTrans::class,
             'type_profile_field_trans',
             'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
         );
 
         /* Автарка профиля клиента */
-        $qb->addSelect("CONCAT ( '/upload/".UserProfileEntity\Avatar\UserProfileAvatar::TABLE."' , '/', profile_avatar.name) AS profile_avatar_name")
-            ->addGroupBy('profile_avatar.name');
+        $dbal->addSelect("CONCAT ( '/upload/".$dbal->table(UserProfileAvatar::class)."' , '/', profile_avatar.name) AS profile_avatar_name");
 
-        $qb->addSelect('profile_avatar.ext AS profile_avatar_ext')->addGroupBy('profile_avatar.ext');
-        $qb->addSelect('profile_avatar.cdn AS profile_avatar_cdn')->addGroupBy('profile_avatar.cdn');
-
-        $qb->leftJoin(
-            'user_profile',
-            UserProfileEntity\Avatar\UserProfileAvatar::TABLE,
-            'profile_avatar',
-            'profile_avatar.event = user_profile.id'
-        );
+        $dbal->addSelect('profile_avatar.ext AS profile_avatar_ext')
+            ->addSelect('profile_avatar.cdn AS profile_avatar_cdn')
+            ->leftJoin(
+                'user_profile',
+                UserProfileAvatar::class,
+                'profile_avatar',
+                'profile_avatar.event = user_profile.id'
+            );
 
 
         /** Артикул продукта */
@@ -508,7 +515,7 @@ final class OrderDetail implements OrderDetailInterface
         //				"
         //        );
 
-        $qb->addSelect(
+        $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
 				
@@ -526,18 +533,20 @@ final class OrderDetail implements OrderDetailInterface
 			AS order_user"
         );
 
-        return $qb->fetchAssociative() ?: null;
+        $dbal->allGroupByExclude();
+
+        return $dbal->fetchAssociative() ?: null;
     }
 
     public function getDetailOrder(OrderUid $order): mixed
     {
-        $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-        $qb->select('orders');
-        $qb->from(OrderEntity\Order::class, 'orders');
-        $qb->where('orders.id = :order');
-        $qb->setParameter('order', $order, OrderUid::TYPE);
+        $orm->select('orders');
+        $orm->from(Order::class, 'orders');
+        $orm->where('orders.id = :order');
+        $orm->setParameter('order', $order, OrderUid::TYPE);
 
-        return $qb->enableCache('orders-order', 86400)->getOneOrNullResult();
+        return $orm->enableCache('orders-order', 86400)->getOneOrNullResult();
     }
 }

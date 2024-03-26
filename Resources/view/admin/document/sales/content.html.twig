@@ -1,0 +1,171 @@
+{#<style>
+
+
+    /*html, body, div, blockquote, img, label, p, h1, h2, h3, h4, h5, h6, pre, ul,
+    ol, li, dl, dt, dd, form, a, fieldset, th, td  {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        outline: none;
+        font-size: 14px;!*1em; !* 12px *!
+        font-weight: inherit;
+        font-style: inherit;
+        font-family: inherit;
+        vertical-align: baseline;
+    }
+    html, body, div, blockquote, label, p, h1, h2, h3, h4, h5, h6, pre, ul,
+    ol, li, dl, dt, dd, form, a, input, textarea, th, td {
+        font-family: Arial,Helvetica,FreeSans,"Liberation Sans","Nimbus Sans L",sans-serif;
+    }
+    html {
+        height: 100%;
+        color: #000;
+        font-size: 79%; !* 12px *!
+    }
+    body {
+        height: 100%;
+    }
+    p, h1, h2, h3, h4, h5, h6, ul, ol, table {margin-bottom:.8em}*/
+
+
+    /* === basic === */
+    /*.clear {clear:both;}*/
+    /*.left {text-align:left;}*/
+    /*.right  {text-align:right;}*/
+    /*.center {text-align: center;}*/
+    /*.bold {font-weight:bold;}*/
+    /*.fl_left {float:left;}*/
+
+   /* h1 {	font-size: 145%;
+        font-weight: bold;
+        margin-bottom:5px;
+        text-align: center;}
+*/
+
+    /*#layout_body {
+        height:auto !important;
+        height:100%;
+        min-height:100%;
+        margin: 0px;
+        padding: 0px;
+    }*/
+    /*#container {
+        margin:0 auto;
+        position:relative;
+        width:980px;
+    }*/
+    /*img {
+        position:absolute;
+        top:350px;
+        left:663px;
+    }*/
+    #left_col {
+        border-right: 1px dashed;
+        float:left;
+        padding:0 15px;
+        width:640px;
+    }
+
+
+    .small {
+        font-size:10px;
+        text-align:center;
+    }
+    .small_r {
+        font-size:10px;
+        text-align:right;
+    }
+    /*#left_col > div {
+        float:left;
+    }*/
+    #org {
+        margin:15px 15px 0 0;
+        text-align:center;
+        width:400px;
+    }
+    #code {
+        margin-top: 30px;
+        margin-right:5px;
+        text-align:right;
+        width:100px;
+    }
+    #left_col h1 {
+        float:left;
+        margin: 5px 16px;
+    }
+    table {
+        border-collapse:collapse;
+        float:right;
+    }
+    th, td {
+        padding:4px;
+        border:1px solid #000;
+        text-align:center;
+        vertical-align:middle;
+        width:72px;
+    }
+    td {
+        font-size:13px;
+    }
+    .border {
+        border:2px solid #000;
+    }
+    td table {
+        margin:0;
+        border:none;
+    }
+    #sign > div {
+        float:left;
+        width:200px;
+        margin-left:107px;
+    }
+    #sign > div  p{
+        text-align:center;
+    }
+    #left_col #sign > p {
+        float:left;
+        width:125px;
+        margin-right:-100px;
+    }
+    #right_col #sign > div {
+        float:left;
+        width:120px;
+        margin:0;
+    }
+    #right_col #sign > div.marg {
+        margin-right:50px;
+    }
+    #right_col #sign p {
+        margin-bottom:0;
+    }
+    #right_col #sign p.bold {
+        margin-bottom:7px;
+    }
+/*    .und {
+        border-bottom:1px solid #000;
+        margin-bottom:0;
+    }*/
+    .date {
+        float:right;
+        width:200px;
+    }
+    .date p {
+        float:right;
+        text-align:center;
+        width:180px;
+    }
+    .marg_bot {
+        margin-bottom:88px;
+    }
+    #right_col {
+        float:right;
+        padding:0 9px 0 10px;
+        width:290px;
+    }
+
+</style>#}
+
+{{ include(_self|replace({ "content.html.twig": "pc/content.html.twig" })) }}
+
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/print.min.js?v={{ version }}" class="lazy"></script>
+

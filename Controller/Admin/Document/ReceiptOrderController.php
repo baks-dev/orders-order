@@ -35,6 +35,7 @@ use BaksDev\Delivery\UseCase\Admin\NewEdit\DeliveryForm;
 use BaksDev\Delivery\UseCase\Admin\NewEdit\DeliveryHandler;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
@@ -52,36 +53,21 @@ final class ReceiptOrderController extends AbstractController
      * Приходный кассовый ордер
      */
     #[Route('/admin/order/document/receipt/{id}', name: 'admin.document.receipt', methods: ['GET', 'POST'])]
-    public function edit(
-        Request $request,
-        #[MapEntity] OrderEvent $OrderEvent,
-        EditOrderHandler $OrderHandler,
+    public function receipt(
+        #[MapEntity] Order $Order,
+        OrderDetailInterface $orderDetail,
     ): Response
     {
-//        $OrderDTO = new EditOrderDTO();
-//        $OrderEvent->getDto($OrderDTO);
-//
-//        // Форма
-//        $form = $this->createForm(EditOrderForm::class, $OrderDTO, [
-//            'action' => $this->generateUrl('orders-order:admin.document.receipt', ['id' => $OrderDTO->getEvent()]),
-//        ]);
-//        $form->handleRequest($request);
-//
-//        if($form->isSubmitted() && $form->isValid() && $form->has('order'))
-//        {
-//            $handle = $OrderHandler->handle($OrderDTO);
-//
-//            $this->addFlash
-//            (
-//                'page.edit',
-//                $handle instanceof Order ? 'success.edit' : 'danger.edit',
-//                'order.admin',
-//                $handle
-//            );
-//
-//            return $this->redirectToRoute('Order:admin.index');
-//        }
+        /** Информация о заказе */
+        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Order->getId());
 
-        return $this->render(/*['form' => $form->createView()]*/);
+        if(!$OrderInfo)
+        {
+            return new Response('404 Page Not Found');
+        }
+
+        return $this->render([
+            'order' => $OrderInfo
+        ]);
     }
 }

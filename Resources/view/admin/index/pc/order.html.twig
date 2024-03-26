@@ -53,9 +53,6 @@
 
 						{% set arr_price = order.product_price|json_decode %}
 
-                        {{ dump(order.product_price) }}
-
-
                         {% set price = 0 %}
 
                         {% for order_price in arr_price %}

@@ -141,7 +141,7 @@ final class PackageOrderProductForm extends AbstractType
 
 
 
-                    /* Если в заказе количество больше, чем в наличие на складе - добавляем перемещение */
+                    /* Если в заказе количество больше, чем в наличии на складе - добавляем перемещение */
                     if($Delivery->isPickup() === false && $data->getPrice()->getTotal() > $totalStock)
                     {
 

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User;
 
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoice;
+use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use Symfony\Component\Form\AbstractType;
@@ -50,10 +50,10 @@ final class OrderUserForm extends AbstractType
     //	}
 
 
-    private TypeProfileChoice $profileChoice;
+    private TypeProfileChoiceRepository $profileChoice;
 
     public function __construct(
-        TypeProfileChoice $profileChoice
+        TypeProfileChoiceRepository $profileChoice
 
     )
     {

@@ -30,7 +30,7 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
 use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoice;
+use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -49,13 +49,13 @@ final class OrderDeliveryForm extends AbstractType
     private DeliveryByTypeProfileChoiceInterface $deliveryChoice;
 
     private FieldByDeliveryChoiceInterface $deliveryFields;
-    private TypeProfileChoice $profileChoice;
+    private TypeProfileChoiceRepository $profileChoice;
 
 
     public function __construct(
         DeliveryByTypeProfileChoiceInterface $deliveryChoice,
         FieldByDeliveryChoiceInterface $deliveryFields,
-        TypeProfileChoice $profileChoice
+        TypeProfileChoiceRepository $profileChoice
     )
     {
         $this->deliveryChoice = $deliveryChoice;

@@ -31,7 +31,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Entity AS UserProfileEntity;
 use Doctrine\DBAL\Connection;
 
-final class OrderHistory implements OrderHistoryInterface
+final class OrderHistoryRepository implements OrderHistoryInterface
 {
 	
 	private Connection $connection;

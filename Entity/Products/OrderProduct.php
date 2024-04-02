@@ -72,7 +72,7 @@ class OrderProduct extends EntityEvent
     private ?ProductModificationUid $modification;
 
     /** Стоимость покупки */
-    #[ORM\OneToOne(mappedBy: 'product', targetEntity: Price\OrderPrice::class, cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: Price\OrderPrice::class, mappedBy: 'product', cascade: ['all'])]
     private Price\OrderPrice $price;
 
     public function __construct(OrderEvent $event)

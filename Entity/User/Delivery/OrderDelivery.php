@@ -68,7 +68,7 @@ class OrderDelivery extends EntityEvent
     private DeliveryEventUid $event;
 
     /** Пользовательские поля */
-    #[ORM\OneToMany(mappedBy: 'delivery', targetEntity: Field\OrderDeliveryField::class, cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: Field\OrderDeliveryField::class, mappedBy: 'delivery', cascade: ['all'])]
     private Collection $field;
 
     /** Координаты адреса доставки */

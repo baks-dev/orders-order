@@ -38,7 +38,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
-final class ExistsOrderProduct implements ExistsOrderProductInterface
+final class ExistsOrderProductRepository implements ExistsOrderProductInterface
 {
     private DBALQueryBuilder $DBALQueryBuilder;
 

@@ -64,7 +64,7 @@ use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class AllOrdersQuery implements AllOrdersInterface
+final class AllOrdersRepository implements AllOrdersInterface
 {
     private PaginatorInterface $paginator;
 

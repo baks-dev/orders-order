@@ -30,7 +30,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
-final class ExistOrderEventByStatus implements ExistOrderEventByStatusInterface
+final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatusInterface
 {
     private DBALQueryBuilder $DBALQueryBuilder;
 

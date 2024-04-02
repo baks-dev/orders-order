@@ -68,7 +68,7 @@ class OrderEvent extends EntityEvent
     /** Товары в заказе */
     //#[Assert\Count(min: 1)]
     #[Assert\When(expression: 'this.getStatus().getOrderStatusValue() != "draft"', constraints: new Assert\Count(min: 1))]
-    #[ORM\OneToMany(mappedBy: 'event', targetEntity: OrderProduct::class, cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
     private Collection $product;
 
     /** Дата заказа */
@@ -86,11 +86,11 @@ class OrderEvent extends EntityEvent
     private ?UserProfileUid $profile = null;
 
     /** Модификатор */
-    #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderModify::class, cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'])]
     private OrderModify $modify;
 
     /** Пользователь */
-    #[ORM\OneToOne(mappedBy: 'event', targetEntity: OrderUser::class, cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
     private OrderUser $usr;
 
     /** Комментарий к заказу */

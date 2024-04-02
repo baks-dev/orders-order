@@ -57,7 +57,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Personal\UserProfilePersonal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
-final class OpenOrderDraft implements OpenOrderDraftInterface
+final class OpenOrderDraftRepository implements OpenOrderDraftInterface
 {
     private DBALQueryBuilder $DBALQueryBuilder;
     private ORMQueryBuilder $ORMQueryBuilder;

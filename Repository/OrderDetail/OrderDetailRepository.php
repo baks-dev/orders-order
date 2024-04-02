@@ -68,7 +68,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 
-final class OrderDetail implements OrderDetailInterface
+final class OrderDetailRepository implements OrderDetailInterface
 {
     private EntityManagerInterface $entityManager;
 

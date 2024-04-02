@@ -33,7 +33,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class CurrentOrderEvent implements CurrentOrderEventInterface
+final class CurrentOrderEventRepository implements CurrentOrderEventInterface
 {
     private ORMQueryBuilder $ORMQueryBuilder;
 

@@ -34,7 +34,7 @@ use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCard;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardVariation;
 
-final class OrderProducts implements OrderProductsInterface
+final class OrderProductsRepository implements OrderProductsInterface
 {
     private DBALQueryBuilder $DBALQueryBuilder;
 

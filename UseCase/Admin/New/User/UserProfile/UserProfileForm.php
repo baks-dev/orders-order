@@ -24,7 +24,7 @@
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\UserProfile;
 
 use App\Module\Materials\Material\Type\Id\MaterialUid;
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoice;
+use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
@@ -48,11 +48,11 @@ final class UserProfileForm extends AbstractType
 {
     private FieldValueFormInterface $fieldValue;
 
-    private TypeProfileChoice $profileChoice;
+    private TypeProfileChoiceRepository $profileChoice;
 
 
     public function __construct(
-        TypeProfileChoice $profileChoice,
+        TypeProfileChoiceRepository $profileChoice,
         FieldValueFormInterface $fieldValue,
     )
     {

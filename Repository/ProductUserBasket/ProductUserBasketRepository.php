@@ -56,7 +56,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class ProductUserBasket implements ProductUserBasketInterface
+final class ProductUserBasketRepository implements ProductUserBasketInterface
 {
     private DBALQueryBuilder $DBALQueryBuilder;
 

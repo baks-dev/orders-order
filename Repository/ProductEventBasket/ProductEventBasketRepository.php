@@ -39,7 +39,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class ProductEventBasket implements ProductEventBasketInterface
+final class ProductEventBasketRepository implements ProductEventBasketInterface
 {
     private EntityManagerInterface $entityManager;
 

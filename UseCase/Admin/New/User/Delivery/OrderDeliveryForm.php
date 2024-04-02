@@ -31,14 +31,12 @@ use BaksDev\Delivery\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfil
 use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -49,6 +47,7 @@ final class OrderDeliveryForm extends AbstractType
     private DeliveryByTypeProfileChoiceInterface $deliveryChoice;
 
     private FieldByDeliveryChoiceInterface $deliveryFields;
+
     private TypeProfileChoiceRepository $profileChoice;
 
 

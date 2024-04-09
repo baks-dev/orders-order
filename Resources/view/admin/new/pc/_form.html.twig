@@ -52,6 +52,11 @@
 
                 <div class="tab-pane fade show active" id="client">
                     {{ include(_self|replace({ "_form.html.twig": "form/userprofile.html.twig" })) }}
+
+                    <hr>
+
+                    {{ form_widget(form.comment, {  attr: { placeholder : 'Комментарий к заказу'} }) }}
+
                 </div>
 
                 <div class="tab-pane fade" id="delivery">

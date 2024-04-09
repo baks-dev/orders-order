@@ -47,7 +47,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDER_EDIT')]
+//#[RoleSecurity('ROLE_ORDER_EDIT')]
 final class SalesInvoiceController extends AbstractController
 {
     /**

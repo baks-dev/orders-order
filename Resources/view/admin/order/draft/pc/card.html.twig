@@ -117,7 +117,7 @@
                         </form>#}
                     </div>
 
-                    {% if is_granted('ROLE_MANUFACTURE_PART_ADD') or  is_granted('ROLE_ADMIN') %}
+                    {% if is_granted('ROLE_ORDERS_NEW') or  is_granted('ROLE_ADMIN') %}
 
                         {% if opens %}
 
@@ -151,7 +151,7 @@
 
                         {% else %}
 
-                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANUFACTURE_PART_NEW') %}
+                            {% if is_granted('ROLE_ORDERS_NEW') or is_granted('ROLE_ADMIN') %}
                                 <span
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"

@@ -144,7 +144,7 @@
 
 
                 {# ПРОДУКЦИЯ  #}
-                <div class="d-flex flex-column gap-3 mt-4">
+                <div class="d-flex flex-column gap-3 my-3">
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="text-uppercase fw-bolder py-2">Продукция</h5>
@@ -162,6 +162,7 @@
                     </div>
                 </div>
 
+                {{ form_widget(form.comment, {  attr: { placeholder : 'Комментарий к заказу'} }) }}
 
             </div>
 

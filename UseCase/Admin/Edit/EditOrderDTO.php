@@ -56,6 +56,9 @@ final class EditOrderDTO implements OrderEventInterface
     /** Ответственный */
     private ?UserProfileUid $profile = null;
 
+    /** Комментарий к заказу */
+    private ?string $comment = null;
+
     public function __construct(OrderUid $order = null)
     {
         if($order)
@@ -159,6 +162,20 @@ final class EditOrderDTO implements OrderEventInterface
     public function setProfile(?UserProfileUid $profile): self
     {
         $this->profile = $profile;
+        return $this;
+    }
+
+    /**
+     * Comment
+     */
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
         return $this;
     }
 }

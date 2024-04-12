@@ -29,6 +29,7 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -71,6 +72,8 @@ final class EditOrderForm extends AbstractType
 //			])
 //		;
 
+
+        $builder->add('comment', TextareaType::class);
 	
 		/* Сохранить ******************************************************/
 		$builder->add(

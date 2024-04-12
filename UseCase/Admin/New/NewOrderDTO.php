@@ -58,8 +58,7 @@ final class NewOrderDTO implements OrderEventInterface
     private User\OrderUserDTO $usr;
 
     /** Комментарий к заказу */
-    #[Assert\NotBlank]
-    private string $comment;
+    private ?string $comment = null;
 
     public function __construct(UserProfileUid $profile)
     {
@@ -128,12 +127,12 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Comment
      */
-    public function getComment(): string
+    public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    public function setComment(string $comment): self
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
         return $this;

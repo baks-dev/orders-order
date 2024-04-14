@@ -45,7 +45,7 @@ final class NewOrderForm extends AbstractType
     {
         $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
-        $builder->add('comment', TextareaType::class);
+        $builder->add('comment', TextareaType::class, ['required' => false]);
 
         $builder->add(
             'draft',

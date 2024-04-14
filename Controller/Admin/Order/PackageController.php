@@ -39,7 +39,9 @@ use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\ProductStock;
+use BaksDev\Products\Stocks\Repository\ProductStocksTotal\ProductStocksTotalInterface;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockDTO;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockForm;
@@ -72,9 +74,11 @@ final class PackageController extends AbstractController
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        PackageOrderProductsInterface $packageOrderProducts,
+        ?PackageOrderProductsInterface $packageOrderProducts = null,
+        ?ProductStocksTotalInterface $productStocksTotal = null
     ): Response
     {
+
 
         // Отправляем сокет для скрытия заказа у других менеджеров
 
@@ -131,35 +135,60 @@ final class PackageController extends AbstractController
             ///* @var \BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO $const */
             foreach($PackageOrderDTO->getProduct() as $const)
             {
+
                 $ProductStockDTO = new \BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO();
 
                 $ProductStockDTO->setTotal($const->getPrice()->getTotal());
 
-
                 $constProduct = $entityManager->getRepository(ProductEvent::class)->find($const->getProduct());
+
+                if(!$constProduct)
+                {
+                    $this->addFlash('danger', 'danger.update', 'orders-order.admin');
+                    return $this->redirectToReferer();
+                }
+
 
                 $ProductStockDTO->setProduct($constProduct->getMain());
 
                 if($const->getOffer())
                 {
                     $constOffer = $entityManager->getRepository(ProductOffer::class)->find($const->getOffer());
-                    $ProductStockDTO->setOffer($constOffer->getConst());
+                    $ProductStockDTO->setOffer($constOffer?->getConst());
                 }
 
                 if($const->getVariation())
                 {
                     $constVariation = $entityManager->getRepository(ProductVariation::class)->find($const->getVariation());
-                    $ProductStockDTO->setVariation($constVariation->getConst());
+                    $ProductStockDTO->setVariation($constVariation?->getConst());
                 }
 
                 if($const->getModification())
                 {
                     $constModification = $entityManager->getRepository(ProductModification::class)->find($const->getModification());
-                    $ProductStockDTO->setModification($constModification->getConst());
+                    $ProductStockDTO->setModification($constModification?->getConst());
+                }
+
+
+                /** Проверяем наличие продукции с учетом резерва на любом */
+                if($productStocksTotal && class_exists(BaksDevProductsStocksBundle::class))
+                {
+                    $isExist = $productStocksTotal->getProductStocksTotalByReserve(
+                        $ProductStockDTO->getProduct(),
+                        $ProductStockDTO->getOffer(),
+                        $ProductStockDTO->getVariation(),
+                        $ProductStockDTO->getModification()
+                    );
+
+                    if($isExist <= 0)
+                    {
+                        $this->addFlash('danger', 'danger.update', 'orders-order.admin');
+                        return $this->redirectToReferer();
+                    }
                 }
 
                 /** Проверяем, что все товары имеют параметры упаковки */
-                if(class_exists(BaksDevDeliveryTransportBundle::class))
+                if($packageOrderProducts && class_exists(BaksDevDeliveryTransportBundle::class))
                 {
                     /* Параметры упаковки товара */
                     $parameter = $packageOrderProducts->fetchParameterProductAssociative(
@@ -209,7 +238,6 @@ final class PackageController extends AbstractController
 
                     // Присваиваем идентификатор заказа
                     $MoveProductStockDTO->getOrd()->setOrd($Order->getId());
-
 
                     /*
                      * Группируем однотипные заявки
@@ -272,7 +300,6 @@ final class PackageController extends AbstractController
             }
 
 
-
             /**
              * Обновляем статус заказа и присваиваем профиль склада упаковки.
              */
@@ -285,7 +312,6 @@ final class PackageController extends AbstractController
 
             if(!$OrderStatusHandler instanceof Order)
             {
-
                 /* В случае ошибки удаляем заявку на упаковку */
                 $entityManager->remove($PackageProductStock);
                 $entityManager->flush();

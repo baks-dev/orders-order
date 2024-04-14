@@ -1,39 +1,12 @@
 {# ПЕЧАТЬ #}
 
-{% set organization = 'ИП Тавруев Александр Владимирович' %}
-{% set organization_transcript = 'Тавруев А.В.' %}
-
 {% set money =  0 %}
 
 {% set products = order.order_products|json_decode %}
 
 {% for product in products %}
-
-    {#{% set money =  (product.product_total * product.product_price) + money %}#}
-
     {% set money = (product.product_total * product.product_price) + money %}
-    {#{% set discount = user_profile_discount(summ) %}#}
-
-    {#{% if discount %}
-        {% set money =  discount + money %}
-    {% else %}#}
-       {# {% set money =  summ + money %}#}
-    {#{% endif %}#}
-
 {% endfor %}
-
-{#{% set money =  money / 100 %}#}
-
-
-{#
-<style>
-    .border {
-        border-width: 2px !important;
-        border-color: black !important;
-    }
-</style>
-#}
-
 
 <div class=" {{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0" style="width: 550px">
 
@@ -49,7 +22,7 @@
                 <div class="d-flex gap-3 mb-3">
 
                     <div class="w-75 text-center" id="org">
-                        <div class="border-bottom border-dark">{{ organization }}</div>
+                        <div class="border-bottom border-dark">Интернет-магазин {{ app.request.server.get('HOST') }}</div>
                         <div class="small"><small>организация</small></div>
 
                         <div class="border-bottom">&nbsp;</div>
@@ -169,7 +142,7 @@
                         </div>
 
                         <div class="w-100 text-center">
-                            <div class="border-bottom">{{ organization_transcript }}</div>
+                            <div class="border-bottom">{{ app.request.server.get('HOST') }}</div>
                             <div class="small"><small>расшифровка подписи</small></div>
                         </div>
                     </div>
@@ -182,7 +155,7 @@
                         </div>
 
                         <div class="w-100 text-center">
-                            <div class="border-bottom">{{ organization_transcript }}</div>
+                            <div class="border-bottom">{{ app.request.server.get('HOST') }}</div>
                             <div class="small"><small>расшифровка подписи</small></div>
                         </div>
                     </div>
@@ -194,7 +167,7 @@
         <div class="w-25" style="min-width: 250px;">
 
             <div class="text-center mb-3">
-                <div class="border-bottom fw-bolder">{{ organization }}</div>
+                <div class="border-bottom fw-bolder">Интернет-магазин {{ app.request.server.get('HOST') }}</div>
                 <div class="small mb-3">организация</div>
 
                 <h1 class="h4 mb-0">КВИТАНЦИЯ</h1>
@@ -246,7 +219,7 @@
                     </div>
 
                     <div class="w-100">
-                        <div class="border-bottom">{{ organization_transcript }}</div>
+                        <div class="border-bottom">{{ app.request.server.get('HOST') }}</div>
                         <div class="small"><small>расшифровка подписи</small></div>
                     </div>
                 </div>
@@ -262,7 +235,7 @@
                     </div>
 
                     <div class="w-100">
-                        <div class="border-bottom">{{ organization_transcript }}</div>
+                        <div class="border-bottom">{{ app.request.server.get('HOST') }}</div>
                         <div class="small"><small>расшифровка подписи</small></div>
                     </div>
                 </div>

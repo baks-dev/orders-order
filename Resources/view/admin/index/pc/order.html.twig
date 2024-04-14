@@ -32,7 +32,7 @@
 
                     <div class="small">
 
-                        <span class="small text-muted ">{{ order.order_created|date('d.m.Y') }} | </span>
+                        <span class="small text-muted ">от {{ order.order_created|format_datetime(pattern="d MMMM") }} | </span>
                         <strong
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
@@ -65,17 +65,6 @@
 							<span class='h5 mb-0'>{{ money(price, order.order_currency) }}</span>
 
 						</span>
-
-                    {# Стоимость доставки #}
-                    {% if order.delivery_price %}
-                        <div class="small text-nowrap me-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                 class="text-secondary" viewBox="0 0 16 16">
-                                <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-                            </svg>
-                            +{{ money(order.delivery_price, order.order_currency) }}
-                        </div>
-                    {% endif %}
                 </div>
 
                 <div class="d-flex flex-column justify-content-between gap-1">
@@ -158,7 +147,7 @@
             </div>
 
 
-            <div class="card-footer d-flex flex-column small gap-1 p-2">
+            <div class="card-footer d-flex flex-column small p-2">
                 <div class="fw-bolder text-primary">
                     {{ order.order_profile }}
                 </div>
@@ -173,11 +162,26 @@
 
                 {% if order.order_status != 'delivery' and  order.order_status != 'completed' %}
 
-                    <div>
+                    <div class="border-top mt-2">
+                        <div class="mb-1">
+                            {# Стоимость доставки #}
+                            {% if order.delivery_price %}
+                                <span class="small text-nowrap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+                                         class="text-secondary" viewBox="0 0 16 16">
+                                        <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                    </svg>
+                                    +{{ money(order.delivery_price, order.order_currency) }}
+                                </span>
+                            {% endif %}
 
-                        {% if order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
-                            <span class="badge bg-danger small">Опоздание:</span>
+                            <span class="text-muted small">{{ order.delivery_name }}</span>
+                        </div>
 
+                        {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd') %}
+                            <span class="badge bg-danger small">Просрочен:</span>
+                        {% elseif order.delivery_date|date('Ymd') == date("now")|date('Ymd') %}
+                            <span class="badge bg-warning text-dark small">Опоздание:</span>
                         {% else %}
                             <span class="text-muted small">Доставка:</span>
                         {% endif %}
@@ -188,7 +192,6 @@
                         {% set deliveryDifference = deliveryDedline.diff(date("now")) %}
 
                         {% set deliveryDay = deliveryDifference.days ?: null %}
-
 
 
                         {% if deliveryDay is null or deliveryDay == 1 %}
@@ -208,7 +211,7 @@
                                             Завтра
                                         </strong>
                                     {% else %}
-                                        {{ order.delivery_date|date('d.m.Y') }}
+                                        {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
                                     {% endif %}
 
 
@@ -219,7 +222,7 @@
 
                                 {% if  order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
 
-                                    {{ order.delivery_date|date('d.m.Y') }}
+                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
 
                                 {% else %}
 
@@ -228,19 +231,24 @@
                                             Завтра
                                         </strong>
                                     {% else %}
-                                        {{ order.delivery_date|date('d.m.Y') }}
+                                        {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
                                     {% endif %}
 
-
                                 {% endif %}
-
 
                             {% endif %}
 
                         {% else %}
-                            <strong class="small">
-                                {{ order.delivery_date|date('d.m.Y') }}
-                            </strong>
+                            {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd')  %}
+                                <strong class="small text-danger">
+                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                                </strong>
+                            {% else %}
+                                <strong class="small">
+                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                                </strong>
+                            {% endif %}
+
                         {% endif %}
 
                     </div>
@@ -251,4 +259,3 @@
         </div>
     </div>
 </div>
-

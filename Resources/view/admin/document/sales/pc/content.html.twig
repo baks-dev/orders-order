@@ -1,49 +1,19 @@
 {# ПЕЧАТЬ #}
 
-{% set organization = 'ИП Тавруев Александр Владимирович' %}
-{% set organization_transcript = 'Тавруев А.В.' %}
-
 {% set money =  0 %}
 
 {% set products = order.order_products|json_decode %}
 
 {% for product in products %}
-
-    {# {% set money =  (product.product_total * product.product_price) + money %} #}
-
     {% set money = (product.product_total * product.product_price) + money %}
-    {# {% set discount = user_profile_discount(summ) %} #}
-
-    {# {% if discount %}
-        {% set money =  discount + money %}
-    {% else %} #}
-    {# {% set money =  summ + money %} #}
-    {# {% endif %} #}
-
 {% endfor %}
-
-{# {% set money =  money / 100 %} #}
-
-
-{#
-<style>
-    .border {
-        border-width: 2px !important;
-        border-color: black !important;
-    }
-</style>
-#}
 
 
 {% set order_user = order.order_user|json_decode %}
 
 
-<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 "
-     style="width: 850px">
-
-
-    {# <img width="15" src="./ПРИХОДНЫЙ КАССОВЫЙ ОРДЕР_files/cut.png"> #}
-
+<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
+        {# style="width: 850px" #}>
 
     <div class="d-flex w-100 align-items-center gap-2 mb-2">
         <img src='{{ qrcode }}' alt='QR Code' style="width: 100px;"/>
@@ -52,19 +22,20 @@
 
     <div class="d-flex w-100 justify-content-between gap-2 border-bottom">
         <h5>Расходная накладная #{{ order.order_number }} от {{ order.order_data|date('d.m.Y') }}</h5>
-        <h6>trianglerus.ru</h6>
+        <h6>{{ app.request.server.get('HOST') }}</h6>
     </div>
 
     <ul class="small p-0 m-0 mb-2">
-        <li class="list-group-item">Поставщик: <strong>Интернет-магазин shina88.ru</strong></li>
+        <li class="list-group-item">Поставщик: <strong>Интернет-магазин {{ app.request.server.get('HOST') }}</strong>
+        </li>
         <li class="list-group-item">Покупатель:</li>
 
         {% for user in order_user %}
-            <li class="list-group-item">{{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+            <li class="list-group-item">
+                {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
             </li>
         {% endfor %}
     </ul>
-
 
     <table class="table w-100 mb-2">
         <thead>
@@ -85,9 +56,9 @@
 
         <tr>
             <th scope="row"> {{ loop.index }}
-            <td> {#{{ product.product_name }} Triangle Group TR259 225/65 R17 106V#}
+            <td> {# {{ product.product_name }} Triangle Group TR259 225/65 R17 106V #}
 
-                {{ card.product_name }}
+                {{ card.product_name }}<br>
 
                 {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
                 card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
@@ -109,10 +80,7 @@
 
                 {% set counter = loop.index %}
 
-        {% endfor %}
-
-
-                {#{{ money(money) }} ( {{ money_word(money / 100) }} )#}
+                {% endfor %}
 
         <tfoot>
         <tr>
@@ -121,7 +89,7 @@
     </table>
 
     <div>
-        <div>Всего  наименований {{ counter }}, на сумму {{ money(money) }}</div>
+        <div>Всего наименований {{ counter }}, на сумму {{ money(money) }}</div>
         <div><strong>{{ money_word(money / 100) }}</strong></div>
     </div>
 
@@ -160,19 +128,10 @@
         <p>Возврат товара надлежащего качества производится в течении 14 дней не считая дня покупки. Возврат товара
             надлежащего качества возможен в случае, если сохранены его товарный вид, потребительские свойства, а также
             документ, подтверждающий факт и условия покупки указанного товара в нашем магазине. Возврат денег Покупателю
-            за
-            товар производится в течении 3-х дней с момента получения товара и заявления от покупателя с соответствующим
-            требованием. Последствия продажи товара ненадлежащего качества установлены положениями, предусмотренными
-            статьями 18-24 Закона «О защите прав потребителей».</p>
+            за товар производится в течении 3-х дней с момента получения товара и заявления от покупателя с
+            соответствующим требованием. Последствия продажи товара ненадлежащего качества установлены положениями,
+            предусмотренными статьями 18-24 Закона «О защите прав потребителей».</p>
 
-        <p>Брак, выявленный в ходе эксплуатации автомобильных шин, принимается в качестве рекламации после
-            положительного решения по экспертизе НИИШП (научно-исследовательского института шинной промышленности, г.
-            Москва, ул.
-            Буракова, д. 27, по дискам - Института профессиональной оценки активов АТК МАДИ (ГТУ).</p>
-
-        <p><b>Пожалуйста, не забудьте оценить качество магазина trianglerus.ru на Яндекс.Маркете. Для нас это очень
-                важно!</b>
-        </p>
     </section>
 
 

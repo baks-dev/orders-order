@@ -31,6 +31,7 @@ use BaksDev\Core\Type\Locale\Locale;
 
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
+use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -260,6 +261,16 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
 
+        $dbal
+            ->addSelect('delivery_trans.name AS delivery_name')
+            ->leftJoin(
+                'delivery_event',
+                DeliveryTrans::TABLE,
+                'delivery_trans',
+                'delivery_trans.event = delivery_event.id'
+            );
+
+
         // Профиль пользователя (Клиент)
 
         $dbal
@@ -299,7 +310,10 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
 
-        /** Название типа профиля */
+        /**
+         * Название типа профиля (Заказа)
+         */
+
         $dbal
             ->addSelect('type_profile_trans.name AS order_profile')
             ->leftJoin(

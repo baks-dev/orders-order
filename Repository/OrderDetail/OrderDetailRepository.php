@@ -36,14 +36,15 @@ use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Products\Category\Entity\Info\ProductCategoryInfo;
-use BaksDev\Products\Category\Entity\Offers\ProductCategoryOffers;
-use BaksDev\Products\Category\Entity\Offers\Trans\ProductCategoryOffersTrans;
-use BaksDev\Products\Category\Entity\Offers\Variation\Modification\ProductCategoryModification;
-use BaksDev\Products\Category\Entity\Offers\Variation\Modification\Trans\ProductCategoryModificationTrans;
-use BaksDev\Products\Category\Entity\Offers\Variation\ProductCategoryVariation;
-use BaksDev\Products\Category\Entity\Offers\Variation\Trans\ProductCategoryVariationTrans;
-use BaksDev\Products\Category\Entity\Trans\ProductCategoryTrans;
+use BaksDev\Products\Category\Entity\CategoryProduct;
+use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
+use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
+use BaksDev\Products\Category\Entity\Offers\Trans\CategoryProductOffersTrans;
+use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
+use BaksDev\Products\Category\Entity\Offers\Variation\Modification\Trans\CategoryProductModificationTrans;
+use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
+use BaksDev\Products\Category\Entity\Offers\Variation\Trans\CategoryProductVariationTrans;
+use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
@@ -179,7 +180,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         /** Тип торгового предложения */
         $dbal->leftJoin(
             'product_offer',
-            ProductCategoryOffers::class,
+            CategoryProductOffers::class,
             'category_offer',
             'category_offer.id = product_offer.category_offer'
         );
@@ -187,7 +188,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         /** Название торгового предложения */
         $dbal->leftJoin(
             'category_offer',
-            ProductCategoryOffersTrans::class,
+            CategoryProductOffersTrans::class,
             'category_offer_trans',
             'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local'
         );
@@ -207,7 +208,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->leftJoin(
             'product_variation',
-            ProductCategoryVariation::class,
+            CategoryProductVariation::class,
             'category_variation',
             'category_variation.id = product_variation.category_variation'
         );
@@ -215,7 +216,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         /* Получаем название множественного варианта */
         $dbal->leftJoin(
             'category_variation',
-            ProductCategoryVariationTrans::class,
+            CategoryProductVariationTrans::class,
             'category_variation_trans',
             'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local'
         );
@@ -232,7 +233,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->leftJoin(
             'product_modification',
-            ProductCategoryModification::class,
+            CategoryProductModification::class,
             'category_modification',
             'category_modification.id = product_modification.category_modification'
         );
@@ -240,7 +241,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         /* Получаем название типа модификации */
         $dbal->leftJoin(
             'category_modification',
-            ProductCategoryModificationTrans::class,
+            CategoryProductModificationTrans::class,
             'category_modification_trans',
             'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
         );
@@ -291,7 +292,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->join(
             'product_event_category',
-            \BaksDev\Products\Category\Entity\ProductCategory::class,
+            CategoryProduct::class,
             'category',
             'category.id = product_event_category.category'
         );
@@ -299,7 +300,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->leftJoin(
             'category',
-            ProductCategoryTrans::class,
+            CategoryProductTrans::class,
             'category_trans',
             'category_trans.event = category.event AND category_trans.local = :local'
         );
@@ -307,7 +308,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal->addSelect('category_info.url AS category_url');
         $dbal->leftJoin(
             'category',
-            ProductCategoryInfo::class,
+            CategoryProductInfo::class,
             'category_info',
             'category_info.event = category.event'
         );

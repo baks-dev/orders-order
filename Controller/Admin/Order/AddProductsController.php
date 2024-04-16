@@ -116,7 +116,6 @@ final class AddProductsController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_products'))
         {
-
             $isExists = $existsOrderProduct->isExistsProductDraft($this->getProfileUid(), $product, $offer, $variation, $modification);
 
             if($isExists)
@@ -128,6 +127,13 @@ final class AddProductsController extends AbstractController
 
                 return $this->redirectToRoute('orders-order:admin.order.draft', status: $request->isXmlHttpRequest() ? 200 : 302);
             }
+
+
+            /** Проверяем, что продукция имеется в наличии в карточке (т.к. склад для упаковки еще не известен) */
+
+            $isExistsProduct = false;
+
+
 
             $OrderPriceDTO = $AddProductBasketDTO->getPrice();
             $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));

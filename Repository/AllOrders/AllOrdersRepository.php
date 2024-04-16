@@ -542,6 +542,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 ->addSearchEqualUid('orders.event')
                 ->addSearchLike('orders.number')
                 ->addSearchLike('user_profile_value.value')
+                ->addSearchLike('delivery_trans.name')
                 //                ->addSearchLike('product_offer.article')
                 //                ->addSearchLike('product_offer_modification.article')
                 //                ->addSearchLike('product_offer_variation.article')

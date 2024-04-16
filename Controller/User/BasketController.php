@@ -101,55 +101,41 @@ class BasketController extends AbstractController
                     $product->getModification()
                 );
 
-                if($ProductDetail)
+                if(!$ProductDetail)
                 {
-                    // Если событие продукта изменилось - удаляем из корзины
-                    if($ProductDetail['event'] !== $ProductDetail['current_event'])
+                    /**
+                     * Удаляем из корзины, если карточка товара не найдена
+                     * @var OrderProductDTO $element
+                     */
+
+                    $predicat = function($key, OrderProductDTO $element) use ($product) {
+                        return $element === $product;
+                    };
+
+                    $removeElement = $this->products->findFirst($predicat);
+
+                    if($removeElement)
                     {
-                        /** @var OrderProductDTO $element */
-                        $predicat = function($key, OrderProductDTO $element) use ($product) {
-                            return $element === $product;
-                        };
+                        // Удаляем кеш
+                        $AppCache->delete($key);
 
-                        $removeElement = $this->products->findFirst($predicat);
+                        // Запоминаем новый кеш
+                        $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+                            $item->expiresAfter($expires);
+                            $this->products->removeElement($removeElement);
 
-                        if($removeElement)
-                        {
-                            // Удаляем кеш
-                            $AppCache->delete($key);
+                            return $this->products;
+                        });
 
-                            // Запоминаем новый кеш
-                            $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
-                                $item->expiresAfter($expires);
-                                $this->products->removeElement($removeElement);
-
-                                return $this->products;
-                            });
-                        }
-
-                        $this->addFlash(
-                            'danger',
-                            sprintf(
-                                'К сожалению произошли некоторые изменения в продукции %s. Убедителсь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                                $ProductDetail['product_name']
-                            ),
-                        );
-
-                        // Редирект на страницу товара
-                        return $this->redirectToRoute('products-product:user.detail', [
-                            'url' => $ProductDetail['product_url'],
-                            'offer' => $ProductDetail['product_offer_value'],
-                            'variation' => $ProductDetail['product_variation_value'],
-                            'modification' => $ProductDetail['product_modification_value'],
-                        ]);
+                        return $this->redirectToReferer();
                     }
-
-                    $product->setCard($ProductDetail);
-
-                    $OrderPriceDTO = $product->getPrice();
-                    $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
-                    $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
                 }
+
+                $product->setCard($ProductDetail);
+
+                $OrderPriceDTO = $product->getPrice();
+                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
+                $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
             }
 
             $OrderDTO->setProduct($this->products);
@@ -170,6 +156,70 @@ class BasketController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
+            /**
+             * Проверяем, что продукция в наличии в карточке
+             */
+
+            foreach($OrderDTO->getProduct() as $product)
+            {
+                $ProductDetail = $product->getCard();
+
+                //dd($ProductDetail);
+
+                if(
+                    $ProductDetail['event'] !== $ProductDetail['current_event'] ||
+                    $product->getPrice()->getTotal() > $ProductDetail['product_quantity']
+                )
+                {
+
+                    /**
+                     * Удаляем из корзины продукцию
+                     * @var OrderProductDTO $element
+                     */
+                    $predicat = function($key, OrderProductDTO $element) use ($product) {
+                        return $element === $product;
+                    };
+
+                    $removeElement = $this->products->findFirst($predicat);
+
+                    if($removeElement)
+                    {
+                        // Удаляем кеш
+                        $AppCache->delete($key);
+
+                        // Запоминаем новый кеш
+                        $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+                            $item->expiresAfter($expires);
+                            $this->products->removeElement($removeElement);
+
+                            return $this->products;
+                        });
+                    }
+                    
+                    $this->addFlash(
+                        'danger',
+                        sprintf(
+                            'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
+                            $ProductDetail['product_name']
+                        ),
+                    );
+
+                    // Редирект на страницу товара
+
+                    $postfix = ($ProductDetail['product_modification_postfix'] ?: $ProductDetail['product_variation_postfix'] ?: $ProductDetail['product_offer_postfix'] ?: null);
+
+                    return $this->redirectToRoute('products-product:user.detail', [
+                        'category' => $ProductDetail['category_url'],
+                        'url' => $ProductDetail['product_url'],
+                        'offer' => $ProductDetail['product_offer_value'],
+                        'variation' => $ProductDetail['product_variation_value'],
+                        'modification' => $ProductDetail['product_modification_value'],
+                        'postfix' => $postfix ? str_replace('/', '-', $postfix) : null
+
+                    ]);
+                }
+            }
+
             $Order = $handler->handle($OrderDTO);
 
             if($Order instanceof Order)
@@ -186,8 +236,12 @@ class BasketController extends AbstractController
 
         }
 
+
         return $this->render([
             'form' => $form->createView(),
         ]);
     }
+
+
+    public function remove(): void {}
 }

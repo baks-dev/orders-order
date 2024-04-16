@@ -188,67 +188,23 @@
 
                         &nbsp;
 
-                        {% set deliveryDedline = date(order.delivery_date) %}
+                        {#{% set deliveryDedline = date(order.delivery_date) %}
                         {% set deliveryDifference = deliveryDedline.diff(date("now")) %}
 
-                        {% set deliveryDay = deliveryDifference.days ?: null %}
+                        {% set deliveryDay = deliveryDifference.days ?: null %}#}
 
-
-                        {% if deliveryDay is null or deliveryDay == 1 %}
-
-
-                            {% if order.order_status != 'package' %}
-
-
-                                {% if  order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
-
-                                    {{ order.delivery_date|date('d.m.Y') }}
-
-                                {% else %}
-
-                                    {% if deliveryDay == 1 %}
-                                        <strong class="small text-danger">
-                                            Завтра
-                                        </strong>
-                                    {% else %}
-                                        {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
-                                    {% endif %}
-
-
-                                {% endif %}
-
-                            {% else %}
-
-
-                                {% if  order.delivery_date|date('d.m.Y') == date("now")|date('d.m.Y') %}
-
-                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
-
-                                {% else %}
-
-                                    {% if deliveryDay == 1 %}
-                                        <strong class="small text-danger">
-                                            Завтра
-                                        </strong>
-                                    {% else %}
-                                        {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
-                                    {% endif %}
-
-                                {% endif %}
-
-                            {% endif %}
-
+                        {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd') %}
+                            <strong class="small text-danger">
+                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                            </strong>
+                        {% elseif date("now")|date('Ymd') == order.delivery_date|date('Ymd') %}
+                            <strong class="small">
+                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                            </strong>
                         {% else %}
-                            {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd')  %}
-                                <strong class="small text-danger">
-                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
-                                </strong>
-                            {% else %}
-                                <strong class="small">
-                                    {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
-                                </strong>
-                            {% endif %}
-
+                            <small class="small">
+                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                            </small>
                         {% endif %}
 
                     </div>

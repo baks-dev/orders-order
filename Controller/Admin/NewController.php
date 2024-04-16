@@ -29,9 +29,12 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
+use BaksDev\Reference\Currency\Type\Currency;
+use BaksDev\Reference\Money\Type\Money;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,7 +48,8 @@ final class NewController extends AbstractController
     public function news(
         Request $request,
         OpenOrderDraftInterface $draft,
-        NewOrderHandler $OrderHandler
+        NewOrderHandler $OrderHandler,
+        ProductUserBasketInterface $userBasket,
     ): Response
     {
 
@@ -68,6 +72,46 @@ final class NewController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('draft'))
         {
+            if($OrderDTO->getProduct()->isEmpty())
+            {
+                return $this->redirectToRoute('orders-order:admin.index');
+            }
+
+            foreach($OrderDTO->getProduct() as $product)
+            {
+                $ProductDetail = $userBasket->fetchProductBasketAssociative(
+                    $product->getProduct(),
+                    $product->getOffer(),
+                    $product->getVariation(),
+                    $product->getModification()
+                );
+
+                /** Редирект, если продукции не найдено */
+                if(!$ProductDetail)
+                {
+                    return $this->redirectToRoute('orders-order:admin.index');
+                }
+
+                /** Редирект, если продукции не достаточно в наличии */
+                if($product->getPrice()->getTotal() > $ProductDetail['product_quantity'])
+                {
+                    $this->addFlash(
+                        'danger',
+                        sprintf(
+                            'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
+                            $ProductDetail['product_name']
+                        ),
+                    );
+
+                    return $this->redirectToRoute('orders-order:admin.index');
+                }
+
+
+                $OrderPriceDTO = $product->getPrice();
+                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
+                $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
+            }
+
             $handle = $OrderHandler->handle($OrderDTO);
 
             $this->addFlash
@@ -80,7 +124,7 @@ final class NewController extends AbstractController
 
             if($handle instanceof Order)
             {
-                return $this->redirectToRoute('orders-order:admin.order.draft');
+                return $this->redirectToRoute('orders-order:admin.index');
             }
 
         }

@@ -27,7 +27,14 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusDraft;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
+use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -39,9 +46,12 @@ final class NewOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
-//    /** Коллекция продукции в заказе */
-//    #[Assert\Valid]
-//    private ArrayCollection $product;
+    /** Коллекция продукции в заказе */
+    #[Assert\Valid]
+    private ArrayCollection $product;
+
+
+    private preProduct\PreProductDTO $preProduct;
 
 
     /** Статус заказа */
@@ -60,11 +70,16 @@ final class NewOrderDTO implements OrderEventInterface
     /** Комментарий к заказу */
     private ?string $comment = null;
 
+
+
+
     public function __construct(UserProfileUid $profile)
     {
         $this->profile = $profile;
+        $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
-        $this->status = new OrderStatus(OrderStatusDraft::class);
+        $this->preProduct = new preProduct\PreProductDTO();
+        $this->status = new OrderStatus(OrderStatusNew::class);
     }
 
     public function getEvent() : ?OrderEventUid
@@ -77,29 +92,30 @@ final class NewOrderDTO implements OrderEventInterface
         $this->id = null;
     }
 
-//    /** Коллекция продукции в заказе */
-//    public function getProduct() : ArrayCollection
-//    {
-//        return $this->product;
-//    }
-//
-//    public function setProduct(ArrayCollection $product) : void
-//    {
-//        $this->product = $product;
-//    }
+    /** Коллекция продукции в заказе */
 
-//    public function addProduct(Add\OrderProductDTO $product) : void
-//    {
-//        if (!$this->product->contains($product))
-//        {
-//            $this->product->add($product);
-//        }
-//    }
-//
-//    public function removeProduct(Add\OrderProductDTO $product) : void
-//    {
-//        $this->product->removeElement($product);
-//    }
+    public function getProduct(): ArrayCollection
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ArrayCollection $product): void
+    {
+        $this->product = $product;
+    }
+
+    public function addProduct(Products\NewOrderProductDTO $product): void
+    {
+        if(!$this->product->contains($product))
+        {
+            $this->product->add($product);
+        }
+    }
+
+    public function removeProduct(Products\NewOrderProductDTO $product): void
+    {
+        $this->product->removeElement($product);
+    }
 
     /** Статус заказа */
     public function getStatus(): OrderStatus
@@ -137,4 +153,20 @@ final class NewOrderDTO implements OrderEventInterface
         $this->comment = $comment;
         return $this;
     }
+
+    /**
+     * PreProduct
+     */
+    public function getPreProduct(): preProduct\PreProductDTO
+    {
+        return $this->preProduct;
+    }
+
+    public function setPreProduct(preProduct\PreProductDTO $preProduct): self
+    {
+        $this->preProduct = $preProduct;
+        return $this;
+    }
+
+
 }

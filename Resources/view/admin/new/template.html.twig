@@ -12,6 +12,8 @@
      <link rel="preload"
            href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"/>
      <link href="/assets//plugins/datepicker/datepicker.min.css" rel="stylesheet">
+     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+
  {% endblock %}
 
 
@@ -28,4 +30,9 @@
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/order_orders/orders_draft.js?v={{ version }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/field_address/script.min.js?v={{ version }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" defer class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
+
+
+{#<script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script>#}
+
 {% endblock %}

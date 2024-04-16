@@ -32,7 +32,7 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 interface ExistsOrderProductInterface
 {
     /**
-     * Мотод проверяет, имеется ли такая продукция в заказе
+     * Метод проверяет, имеется ли такая продукция в заказе
      */
     public function isExistsProductDraft(
         UserProfileUid $profile,

@@ -1,0 +1,109 @@
+<div id='user_products'>
+
+    {% set productWidth = 100 %}
+
+    {% if form.preProduct.preOffer.vars.label %}
+        {% set productWidth = 75 %}
+    {% endif %}
+
+
+    <div class="{{ field_value(form.usr.userProfile.type) ?: 'd-none' }}">
+
+        <div class="d-flex gap-3 align-content-center">
+
+            <div class="w-100" id="preProduct">
+
+                {{ form_row(form.preProduct.preProduct, {
+                    label: 'Продукт',
+                    placeholder: 'Выберите продукцию из списка...',
+                    attr: { 'data-select' : 'select2', placeholder: form.preProduct.preProduct.vars.data ?: 'Продукция на складе отстутсвует', } }) }}
+            </div>
+
+            <div id="preOffer" class="d-flex gap-3">
+
+                <div >{{ form_row(form.preProduct.preOffer) }}</div>
+
+                <div id="preVariation" class="d-flex w-100 gap-3">
+
+                    <div>{{ form_row(form.preProduct.preVariation) }}</div>
+
+                    <div id="preModification">
+                        <div>{{ form_row(form.preProduct.preModification) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        {# <div class="d-flex justify-content-evenly gap-1 align-items-end">
+                <div class="p-1">
+                    <div class="mb-3"><button type="button" id="category_form_sections_0_DeleteSection" name="category_form[sections][0][DeleteSection]" class="btn btn-sm  btn-light-danger del-item-section btn"><span class="svg-icon svg-icon-2 text-nowrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+                                    <rect opacity="0.5" x="7.05025" y="15.5356" width="12" height="2" rx="1" transform="rotate(-45 7.05025 15.5356)" fill="black"></rect>
+                                    <rect x="8.46447" y="7.05029" width="12" height="2" rx="1" transform="rotate(45 8.46447 7.05029)" fill="black"></rect>
+                                </svg>Удалить секцию</span></button></div>
+
+                </div>
+
+                <div class="w-100">
+                    <div class="mb-3"><label for="category_form_sections_0_sort" class="form-label required">Сортировка секции</label><input type="number" id="category_form_sections_0_sort" name="category_form[sections][0][sort]" required="required" min="0" max="999" class="form-control" value="110">        </div>
+                </div>
+            </div> #}
+
+
+        <div class="w-100 d-flex justify-content-between align-items-end gap-2">
+
+            {#<div class="w-100" id="targetWarehouse">
+                #}{# {{ form_row(form.targetWarehouse, { label: 'Склад отгрузки', placeholder: 'Выберите целевой склад...', attr: { 'data-select' : 'select2' } }) }} #}{#
+            </div>#}
+
+           {# <div class="w-100">
+                #}{# {{ form_row(form.destinationWarehouse, { label: 'Склад назначения', placeholder: 'Выберите Cклад назначения...', attr: { 'data-select' : 'select2' } }) }} #}{#
+            </div>#}
+
+            <div class="w-100">
+                {{ form_row(form.preProduct.preTotal, { label: 'Количество', attr: { min : 1 } }) }}
+            </div>
+
+            <div class="mb-3 w-25 text-end">
+
+                <button type="button" id="new_order_form_addProduct"
+                        class="btn btn-outline-primary border-0 text-nowrap"
+                        data-index="0"
+                        data-prototype="{{ include(_self|replace({ "products.html.twig": "prototype.product.html.twig"}))|e('html_attr') }}"
+                >
+                    <span class="svg-icon svg-icon-2">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none"><rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"
+                                                  transform="rotate(-90 11 18)" fill="currentColor">
+
+                            </rect>
+                            <rect x="6"
+                                  y="11"
+                                  width="12"
+                                  height="2"
+                                  rx="1"
+                                  fill="currentColor"></rect>
+                        </svg>
+                    </span>
+                    Добавить в заказ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if not field_value(form.usr.userProfile.type) %}
+        <div class="w-100 alert alert-warning mb-0" role="alert">
+            Выберите тип заказа для выбора продукции
+        </div>
+    {% endif %}
+
+    <div class="modal-footer" id="collectionProductOrder">
+
+    </div>
+
+
+</div>

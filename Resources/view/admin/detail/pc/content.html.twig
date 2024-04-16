@@ -27,7 +27,7 @@
 
         <hr>
 
-        <ul class="nav nav-pills d-flex gap-5 pb-4 sticky-top bg-body" id="pills-tab" role="tablist">
+        <ul class="nav nav-pills d-flex gap-3 pb-4 sticky-top bg-body" id="pills-tab" role="tablist">
 
             <li class="nav-item" role="presentation">
                 <button class="btn nav-link fw-bolder rounded-3 border active"
@@ -48,7 +48,21 @@
                         aria-controls="pills-delivery"
                         type="button"
                         role="tab"
-                        aria-selected="false" tabindex="-1"><span class="text-uppercase px-3">Доставка и оплата</span>
+                        aria-selected="false" tabindex="-1">
+                    <span class="text-uppercase px-3">Доставка</span>
+                </button>
+            </li>
+
+
+            <li class="nav-item " role="presentation">
+                <button class="btn nav-link fw-bolder rounded-3 border"
+                        id="payment" data-bs-toggle="pill"
+                        data-bs-target="#pills-payment"
+                        aria-controls="pills-payment"
+                        type="button"
+                        role="tab"
+                        aria-selected="false" tabindex="-1">
+                    <span class="text-uppercase px-3">Оплата</span>
                 </button>
             </li>
 
@@ -100,7 +114,6 @@
             </li>
 
         </ul>
-
 
 
         <div class="tab-content w-100 h-100 pt-3" id="pills-tabContent">
@@ -167,22 +180,18 @@
             </div>
 
 
+            <div class="tab-pane fade " id="pills-payment" role="tabpanel" tabindex="0">
+                {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
+            </div>
+
             {# ОПЛАТА И ДОСТАВКА #}
+
 
             <div class="tab-pane fade " id="pills-delivery" role="tabpanel" tabindex="0">
 
-                <div class="d-flex gap-5 small mb-3">
 
-                    <div class="w-50 d-flex flex-column gap-3">
-                        {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
-                    </div>
+                {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
 
-
-                    <div class="w-50 d-flex flex-column gap-3">
-                        {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
-                    </div>
-
-                </div>
 
                 {% set address = order.delivery_geocode_address %}
 

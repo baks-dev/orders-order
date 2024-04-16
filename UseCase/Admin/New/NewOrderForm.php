@@ -43,6 +43,21 @@ final class NewOrderForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        $builder->add('preProduct', preProduct\PreProductForm::class, ['label' => false]);
+
+
+        /* Коллекция продукции */
+        $builder->add('product', CollectionType::class, [
+            'entry_type' => Products\NewOrderProductForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__product__',
+        ]);
+
         $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
         $builder->add('comment', TextareaType::class, ['required' => false]);

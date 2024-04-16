@@ -150,13 +150,10 @@ final class OrderReserveProduct
                     'total' => $product->getTotal(),
                 ]
             );
-			
 		}
-		
-		
+
 	}
-	
-	
+
 	public function changeReserve(OrderProduct $product, string $method) : void
 	{
 		$Quantity = null;

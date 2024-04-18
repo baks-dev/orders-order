@@ -34,7 +34,7 @@ interface ExistsOrderProductInterface
     /**
      * Метод проверяет, имеется ли такая продукция в заказе
      */
-    public function isExistsProductDraft(
+    public function isExists(
         UserProfileUid $profile,
         ProductEventUid $product,
         ?ProductOfferUid $offer = null,

@@ -28,7 +28,6 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
@@ -47,17 +46,10 @@ final class NewController extends AbstractController
     #[Route('/admin/order/new', name: 'admin.new', methods: ['GET', 'POST'])]
     public function news(
         Request $request,
-        OpenOrderDraftInterface $draft,
         NewOrderHandler $OrderHandler,
         ProductUserBasketInterface $userBasket,
     ): Response
     {
-
-        if($draft->existsOpenDraft($this->getProfileUid()))
-        {
-            return $this->redirectToRoute('orders-order:admin.order.draft');
-        }
-
 
         $OrderDTO = new NewOrderDTO($this->getProfileUid());
 
@@ -70,7 +62,7 @@ final class NewController extends AbstractController
         $form->createView();
 
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('draft'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('order_new'))
         {
             if($OrderDTO->getProduct()->isEmpty())
             {

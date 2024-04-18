@@ -14,26 +14,13 @@
                 </h1>
             </div>
 
-
-            {% if opens %}
-
-                <a href="{{ path('orders-order:admin.order.draft') }}"
-                   class="btn btn-danger text-nowrap"
-                   title="Открытый заказ">
-                    Открытый заказ
-                </a>
-
-            {% else %}
-                <a href="{{ path('orders-order:admin.new') }}"
-                   class="btn modal-btn modal-link disabled disabled btn-primary text-nowrap"
-                   data-bs-toggle="modal"
-                   data-bs-target="#modal"
-                   title="Добавить">
-                    Добавить
-                </a>
-            {% endif %}
-
-
+            <a href="{{ path('orders-order:admin.new') }}"
+               class="btn modal-btn modal-link disabled disabled btn-primary text-nowrap"
+               data-bs-toggle="modal"
+               data-bs-target="#modal"
+               title="Добавить">
+                Добавить заказ
+            </a>
 
             <button
                     class="btn btn-light opacity-25"
@@ -75,7 +62,7 @@
 
             <div class="d-flex justify-content-between gap-2 cards-box p-2 mt-3">
 
-                {% for stats in status |filter(v => v.getValue() != 'canceled' and v.getValue() != 'draft') %}
+                {% for stats in status |filter(v => v.getValue() != 'canceled') %}
 
                     {% set color = stats.color() %}
                     {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}

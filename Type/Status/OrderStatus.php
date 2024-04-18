@@ -109,11 +109,6 @@ final class OrderStatus
             /** @var OrderStatusInterface $declared */
             $class = new $declared;
 
-            if($class->getValue() === 'draft')
-            {
-                continue;
-            }
-
             $case[$class::priority().$key] = new self($class);
         }
 

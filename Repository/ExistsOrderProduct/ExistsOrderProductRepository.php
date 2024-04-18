@@ -31,7 +31,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusDraft;
+
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -49,11 +49,10 @@ final class ExistsOrderProductRepository implements ExistsOrderProductInterface
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
-
     /**
-     * Мотод проверяет, имеется ли такая продукция в быстром заказе
+     * Метод проверяет, имеется ли такая продукция в заказе
      */
-    public function isExistsProductDraft(
+    public function isExists(
         UserProfileUid $profile,
         ProductEventUid $product,
         ?ProductOfferUid $offer = null,
@@ -70,9 +69,6 @@ final class ExistsOrderProductRepository implements ExistsOrderProductInterface
             ->andWhere('event.profile = :profile')
             ->setParameter('profile', $profile, UserProfileUid::TYPE);
 
-        $dbal
-            ->andWhere('event.status = :status')
-            ->setParameter('status', OrderStatusDraft::STATUS);
 
         $dbal->join(
             'event',

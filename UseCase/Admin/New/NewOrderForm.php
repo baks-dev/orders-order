@@ -63,7 +63,7 @@ final class NewOrderForm extends AbstractType
         $builder->add('comment', TextareaType::class, ['required' => false]);
 
         $builder->add(
-            'draft',
+            'order_new',
             SubmitType::class,
             ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
         );

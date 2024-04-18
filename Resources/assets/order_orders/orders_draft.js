@@ -1386,7 +1386,6 @@ async function submitProfileForm(forms)
                     });
                 });
 
-
             }
 
         });

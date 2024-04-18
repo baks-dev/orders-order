@@ -66,8 +66,7 @@ class OrderEvent extends EntityEvent
     private ?OrderUid $orders = null;
 
     /** Товары в заказе */
-    //#[Assert\Count(min: 1)]
-    #[Assert\When(expression: 'this.getStatus().getOrderStatusValue() != "draft"', constraints: new Assert\Count(min: 1))]
+    #[Assert\Count(min: 1)]
     #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
     private Collection $product;
 

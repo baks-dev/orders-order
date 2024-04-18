@@ -29,7 +29,6 @@ use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
-use BaksDev\Orders\Order\Repository\OrderDraft\OpenOrderDraftInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +46,6 @@ final class IndexController extends AbstractController
     #[Route('/admin/orders/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        OpenOrderDraftInterface $draft,
         AllOrdersInterface $allOrders,
         OrderStatusCollection $collection,
         TokenUserGenerator $tokenUserGenerator,
@@ -66,7 +64,7 @@ final class IndexController extends AbstractController
         /** @var OrderStatus $status */
         foreach (OrderStatus::cases() as $status)
         {
-            if ($status->equals('canceled') || $status->equals('draft')) {
+            if ($status->equals('canceled')) {
                 continue;
             }
 
@@ -81,7 +79,6 @@ final class IndexController extends AbstractController
         return $this->render(
             [
                 'query' => $orders,
-                'opens' => $draft->existsOpenDraft($this->getProfileUid()),
                 'status' => $collection->cases(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
                 'search' => $searchForm->createView(),

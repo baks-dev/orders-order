@@ -31,38 +31,19 @@
             </a>
         </li> #}
 
-        {% if item.order_status != 'canceled' and item.order_status != 'completed'  %}
+        {% if item.order_status != 'canceled' and item.order_status != 'completed' and ( is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') ) %}
 
-
-
-            {# Удалить черновик #}
-            {% if item.order_status == 'draft' and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
-                <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                    <a href="{{ path('orders-order:admin.order.delete', { id: item.order_event }) }}"
-                       class="text-decoration-none text-dark w-100 modal-link disabled"
-                       data-bs-toggle="modal"
-                       data-bs-target="#modal"
-                       title="{{ 'btn.cancel'|trans({}, 'core.btn') }}">
-                        {{ 'btn.delete'|trans({}, 'core.btn') }}
-                    </a>
-                </li>
-            {% elseif is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') %}
-
-                <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                    <a href="{{ path('orders-order:admin.order.canceled', { id: item.order_event }) }}"
-                       class="text-decoration-none text-dark w-100 modal-link disabled"
-                       data-bs-toggle="modal"
-                       data-bs-target="#modal"
-                       title="{{ 'btn.cancel'|trans({}, 'core.btn') }}">
-                        {{ 'btn.cancel'|trans({}, 'core.btn') }}
-                    </a>
-                </li>
-
-            {% endif %}
+            <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
+                <a href="{{ path('orders-order:admin.order.canceled', { id: item.order_event }) }}"
+                   class="text-decoration-none text-dark w-100 modal-link disabled"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="{{ 'btn.cancel'|trans({}, 'core.btn') }}">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </a>
+            </li>
 
         {% endif %}
-
-
 
 
     </ul>

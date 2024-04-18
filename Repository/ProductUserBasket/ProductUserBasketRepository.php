@@ -507,28 +507,21 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         $dbal->addSelect("
 			CASE
-			   WHEN product_modification_quantity.quantity IS NOT NULL AND product_modification_quantity.reserve IS NOT NULL 
+			
+			
+			    WHEN product_modification_quantity.quantity > 0 AND product_modification_quantity.quantity > product_modification_quantity.reserve 
 			   THEN (product_modification_quantity.quantity - product_modification_quantity.reserve)
-			   
-			   WHEN product_modification_quantity.quantity IS NOT NULL 
-			   THEN product_modification_quantity.quantity
 
-			   WHEN product_variation_quantity.quantity IS NOT NULL AND product_variation_quantity.reserve  IS NOT NULL 
+			   WHEN product_variation_quantity.quantity > 0 AND product_variation_quantity.quantity > product_variation_quantity.reserve  
 			   THEN (product_variation_quantity.quantity - product_variation_quantity.reserve)
-			   
-			   WHEN product_variation_quantity.quantity IS NOT NULL 
-			   THEN product_variation_quantity.quantity
-
-			   WHEN product_offer_quantity.quantity IS NOT NULL  AND product_offer_quantity.reserve IS NOT NULL 
+			
+			   WHEN product_offer_quantity.quantity > 0 AND product_offer_quantity.quantity > product_offer_quantity.reserve 
 			   THEN (product_offer_quantity.quantity - product_offer_quantity.reserve)
-			 
-			   WHEN product_offer_quantity.quantity IS NOT NULL 
-			   THEN product_offer_quantity.quantity
-			   
-			   WHEN product_price.quantity IS NOT NULL AND product_price.reserve IS NOT NULL THEN (product_price.quantity - product_price.reserve)
-			   WHEN product_price.quantity IS NOT NULL THEN product_price.quantity
-			   
-			   ELSE NULL
+
+			   WHEN product_price.quantity > 0 AND product_price.quantity > product_price.reserve 
+			   THEN (product_price.quantity - product_price.reserve)
+
+			   ELSE 0
 			END AS product_quantity
 		"
         );

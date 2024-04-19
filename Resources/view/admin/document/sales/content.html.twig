@@ -1,171 +1,154 @@
-{#<style>
+{# ПЕЧАТЬ #}
+
+{% set money =  0 %}
+
+{% set products = order.order_products|json_decode %}
+
+{% for product in products %}
+    {% set money = (product.product_total * product.product_price) + money %}
+{% endfor %}
 
 
-    /*html, body, div, blockquote, img, label, p, h1, h2, h3, h4, h5, h6, pre, ul,
-    ol, li, dl, dt, dd, form, a, fieldset, th, td  {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        outline: none;
-        font-size: 14px;!*1em; !* 12px *!
-        font-weight: inherit;
-        font-style: inherit;
-        font-family: inherit;
-        vertical-align: baseline;
-    }
-    html, body, div, blockquote, label, p, h1, h2, h3, h4, h5, h6, pre, ul,
-    ol, li, dl, dt, dd, form, a, input, textarea, th, td {
-        font-family: Arial,Helvetica,FreeSans,"Liberation Sans","Nimbus Sans L",sans-serif;
-    }
-    html {
-        height: 100%;
-        color: #000;
-        font-size: 79%; !* 12px *!
-    }
-    body {
-        height: 100%;
-    }
-    p, h1, h2, h3, h4, h5, h6, ul, ol, table {margin-bottom:.8em}*/
+{% set order_user = order.order_user|json_decode %}
 
 
-    /* === basic === */
-    /*.clear {clear:both;}*/
-    /*.left {text-align:left;}*/
-    /*.right  {text-align:right;}*/
-    /*.center {text-align: center;}*/
-    /*.bold {font-weight:bold;}*/
-    /*.fl_left {float:left;}*/
 
-   /* h1 {	font-size: 145%;
-        font-weight: bold;
-        margin-bottom:5px;
-        text-align: center;}
-*/
+<div class="d-flex w-100 align-items-center gap-2 mb-2">
+    <img src='{{ qrcode }}' alt='QR Code' style="width: 100px;"/>
+    <img src="/logo.webp" style="max-height: 60px;" alt="...">
+</div>
 
-    /*#layout_body {
-        height:auto !important;
-        height:100%;
-        min-height:100%;
-        margin: 0px;
-        padding: 0px;
-    }*/
-    /*#container {
-        margin:0 auto;
-        position:relative;
-        width:980px;
-    }*/
-    /*img {
-        position:absolute;
-        top:350px;
-        left:663px;
-    }*/
-    #left_col {
-        border-right: 1px dashed;
-        float:left;
-        padding:0 15px;
-        width:640px;
-    }
+<div class="d-flex w-100 justify-content-between gap-2 border-bottom">
+    <h5>Расходная накладная #{{ order.order_number }} от {{ order.order_data|date('d.m.Y') }}</h5>
+    <h6>{{ app.request.server.get('HOST') }}</h6>
+</div>
+
+<ul class="small p-0 m-0 mb-2">
+    <li class="list-group-item">Поставщик: <strong>Интернет-магазин {{ app.request.server.get('HOST') }}</strong>
+    </li>
+    <li class="list-group-item">Покупатель:</li>
+
+    {% for user in order_user %}
+        <li class="list-group-item">
+            {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+        </li>
+    {% endfor %}
+</ul>
+
+<table class="table w-100 mb-2">
+    <thead>
+    <tr>
+        <th scope="col"> №
+        <th scope="col"> Товар
+        <th scope="col"> Кол-во
+        <th scope="col"> Ед.
+        <th scope="col"> Цена
+        <th scope="col"> Сумма
+
+    <tbody>
 
 
-    .small {
-        font-size:10px;
-        text-align:center;
-    }
-    .small_r {
-        font-size:10px;
-        text-align:right;
-    }
-    /*#left_col > div {
-        float:left;
-    }*/
-    #org {
-        margin:15px 15px 0 0;
-        text-align:center;
-        width:400px;
-    }
-    #code {
-        margin-top: 30px;
-        margin-right:5px;
-        text-align:right;
-        width:100px;
-    }
-    #left_col h1 {
-        float:left;
-        margin: 5px 16px;
-    }
-    table {
-        border-collapse:collapse;
-        float:right;
-    }
-    th, td {
-        padding:4px;
-        border:1px solid #000;
-        text-align:center;
-        vertical-align:middle;
-        width:72px;
-    }
-    td {
-        font-size:13px;
-    }
-    .border {
-        border:2px solid #000;
-    }
-    td table {
-        margin:0;
-        border:none;
-    }
-    #sign > div {
-        float:left;
-        width:200px;
-        margin-left:107px;
-    }
-    #sign > div  p{
-        text-align:center;
-    }
-    #left_col #sign > p {
-        float:left;
-        width:125px;
-        margin-right:-100px;
-    }
-    #right_col #sign > div {
-        float:left;
-        width:120px;
-        margin:0;
-    }
-    #right_col #sign > div.marg {
-        margin-right:50px;
-    }
-    #right_col #sign p {
-        margin-bottom:0;
-    }
-    #right_col #sign p.bold {
-        margin-bottom:7px;
-    }
-/*    .und {
-        border-bottom:1px solid #000;
-        margin-bottom:0;
-    }*/
-    .date {
-        float:right;
-        width:200px;
-    }
-    .date p {
-        float:right;
-        text-align:center;
-        width:180px;
-    }
-    .marg_bot {
-        margin-bottom:88px;
-    }
-    #right_col {
-        float:right;
-        padding:0 9px 0 10px;
-        width:290px;
-    }
+    {% set counter = 0 %}
 
-</style>#}
+    {% for card in products %}
 
-{{ include(_self|replace({ "content.html.twig": "pc/content.html.twig" })) }}
+    <tr>
+        <th scope="row"> {{ loop.index }}
+        <td> {# {{ product.product_name }} Triangle Group TR259 225/65 R17 106V #}
 
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/print.min.js?v={{ version }}" class="lazy"></script>
+            {{ card.product_name }}<br>
+
+            {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+            card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+            {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+            {# Постфикс торгового предложения #}
+            {{ card.product_offer_postfix }}
+            {# Постфикс множественного варианта #}
+            {{ card.product_variation_postfix }}
+            {# Постфикс модификации #}
+            {{ card.product_modification_postfix }}
+
+        <td> {{ card.product_total }}
+        <td> шт
+        <td> {{ card.product_price / 100 }}
+        <td> {{ (card.product_price * card.product_total) / 100 }}
+
+
+            {% set counter = loop.index %}
+
+            {% endfor %}
+
+    <tfoot>
+    <tr>
+        <td colspan="6" class="text-end">Итого: {{ money(money) }}
+
+</table>
+
+<div>
+    <div>Всего наименований {{ counter }}, на сумму {{ money(money) }}</div>
+    <div><strong>{{ money_word(money / 100) }}</strong></div>
+</div>
+
+<hr>
+
+<div class="w-100 d-flex gap-3 mb-2">
+
+    <div class="fw-bolder">Отпустил</div>
+
+    <div class="w-25">
+        <div class="border-bottom">&nbsp;</div>
+        <div class="small"><small>подпись</small></div>
+    </div>
+
+    <div class="w-25">
+        <div class="border-bottom">&nbsp;</div>
+        <div class="small"><small>расшифровка подписи</small></div>
+    </div>
+</div>
+
+
+<div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
+    <strong>Адрес доставки (самовывоз):</strong> {{ order.delivery_geocode_address }}
+
+    <p><strong>Комментарий:</strong></p>
+
+</div>
+
+<section class="small">
+
+    <h5>Гарантийные обязательства</h5>
+
+    <p>На всю продукцию предоставляется гарантия 1 год. Основанием для предъявления претензии является расходная
+        накладная.</p>
+
+    <p>Возврат товара надлежащего качества производится в течении 14 дней не считая дня покупки. Возврат товара
+        надлежащего качества возможен в случае, если сохранены его товарный вид, потребительские свойства, а также
+        документ, подтверждающий факт и условия покупки указанного товара в нашем магазине. Возврат денег Покупателю
+        за товар производится в течении 3-х дней с момента получения товара и заявления от покупателя с
+        соответствующим требованием. Последствия продажи товара ненадлежащего качества установлены положениями,
+        предусмотренными статьями 18-24 Закона «О защите прав потребителей».</p>
+
+</section>
+
+
+<div class="w-100">Товар принял. К количеству, комплектации и внешнему виду претензий не имею:</div>
+
+<div class="w-100 d-flex gap-3">
+
+
+    <div class="w-25">
+        <div class="border-bottom">&nbsp;</div>
+        <div class="small"><small>подпись</small></div>
+    </div>
+
+    <div class="w-25">
+        <div class="border-bottom">&nbsp;</div>
+        <div class="small"><small>расшифровка подписи</small></div>
+    </div>
+</div>
+
+
+
 

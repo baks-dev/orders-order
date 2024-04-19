@@ -1352,6 +1352,10 @@ async function submitProfileForm(forms)
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 
+                /** Перезапускаем lazyload */
+                let lazy = document.createElement('script');
+                lazy.src = '/assets/js/lazyload.min.js';
+                document.head.appendChild(lazy);
 
                 /** Инициируем календарь */
                 document.querySelectorAll('.js-datepicker').forEach((datepicker) =>

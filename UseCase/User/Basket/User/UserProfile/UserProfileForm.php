@@ -23,131 +23,121 @@
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile;
 
-use App\Module\Materials\Material\Type\Id\MaterialUid;
 use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class UserProfileForm extends AbstractType
 {
-	private FieldValueFormInterface $fieldValue;
-	
-	private TypeProfileChoiceRepository $profileChoice;
-	
-	
-	public function __construct(
-		TypeProfileChoiceRepository $profileChoice,
-		FieldValueFormInterface $fieldValue,
-	)
-	{
-		$this->fieldValue = $fieldValue;
-		$this->profileChoice = $profileChoice;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				$form = $event->getForm();
-				/** @var UserProfileDTO $data */
-				$data = $event->getData();
-				
-				//dump($data);
-				
-				$profileChoice = $this->profileChoice->getPublicTypeProfileChoice();
-                $profileChoice = iterator_to_array($profileChoice);
-				
-				/* Получаем все поля для заполнения */
-				$profileType = $data->getType() ?: current($profileChoice);
+    private FieldValueFormInterface $fieldValue;
 
-				$data->setType($profileType);
-				$fields = $this->fieldValue->get($profileType);
-				
-				
-				$form
-					->add('type', ChoiceType::class, [
-						'choices' => $profileChoice,
-						'choice_value' => function(?TypeProfileUid $type) {
-							return $type?->getValue();
-						},
-						
-						'choice_label' => function(TypeProfileUid $type) {
-							return $type->getOption();
-						},
-						
-						'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
-							return ['checked' => ($choice->equals($profileType))];
-						},
-						'attr' => ['class' => 'd-flex gap-3'],
-						'label' => false,
-						'expanded' => true,
-						'multiple' => false,
-						'required' => true,
-					])
-				;
-				
-				
-				$data->resetValue();
-				$form->remove('value');
-				
-				/** @var FieldValueFormDTO $field */
-				foreach($fields as $field)
-				{
-					//$field = end($field);
-					
-					/** Обязательные поля для заполнения */
-					if($field->isRequired())
-					{
-						$value = new Value\ValueDTO();
-						$value->setField($field->getField());
-						$value->updSection($field);
-						$data->addValue($value);
-					}
-				}
-				
-				$form->add('value', CollectionType::class, [
-					'entry_type' => Value\ValueForm::class,
-					'entry_options' => ['label' => false, 'fields' => $fields],
-					'label' => false,
-					'by_reference' => false,
-					'allow_delete' => true,
-					'allow_add' => true,
-				]);
-			}
-		);
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults
-		(
-			[
-				'data_class' => UserProfileDTO::class,
-				'method' => 'POST',
-				'attr' => ['class' => 'w-100'],
-			]
-		);
-	}
-	
+    private TypeProfileChoiceRepository $profileChoice;
+
+
+    public function __construct(
+        TypeProfileChoiceRepository $profileChoice,
+        FieldValueFormInterface $fieldValue,
+    )
+    {
+        $this->fieldValue = $fieldValue;
+        $this->profileChoice = $profileChoice;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                $form = $event->getForm();
+                /** @var UserProfileDTO $data */
+                $data = $event->getData();
+
+                //dump($data);
+
+
+                $profileChoice = $this->profileChoice->getPublicTypeProfileChoice();
+                $profileChoice = iterator_to_array($profileChoice);
+
+                /* Получаем все поля для заполнения */
+                $profileType = $data->getType() ?: current($profileChoice);
+
+                $data->setType($profileType);
+                $fields = $this->fieldValue->get($profileType);
+
+
+                $form
+                    ->add('type', ChoiceType::class, [
+                        'choices' => $profileChoice,
+                        'choice_value' => function(?TypeProfileUid $type) {
+                            return $type?->getValue();
+                        },
+
+                        'choice_label' => function(TypeProfileUid $type) {
+                            return $type->getOption();
+                        },
+
+                        'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
+                            return ['checked' => ($choice->equals($profileType))];
+                        },
+                        'attr' => ['class' => 'd-flex gap-3'],
+                        'label' => false,
+                        'expanded' => true,
+                        'multiple' => false,
+                        'required' => true,
+                    ]);
+
+
+                $data->resetValue();
+                $form->remove('value');
+
+                /** @var FieldValueFormDTO $field */
+                foreach($fields as $field)
+                {
+                    //$field = end($field);
+
+                    /** Обязательные поля для заполнения */
+
+                    $value = new Value\ValueDTO();
+                    $value->setField($field->getField());
+                    $value->updSection($field);
+                    $data->addValue($value);
+
+                }
+
+                $form->add('value', CollectionType::class, [
+                    'entry_type' => Value\ValueForm::class,
+                    'entry_options' => ['label' => false, 'fields' => $fields],
+                    'label' => false,
+                    'by_reference' => false,
+                    'allow_delete' => true,
+                    'allow_add' => true,
+                ]);
+            }
+        );
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults
+        (
+            [
+                'data_class' => UserProfileDTO::class,
+                'method' => 'POST',
+                'attr' => ['class' => 'w-100'],
+            ]
+        );
+    }
+
 }

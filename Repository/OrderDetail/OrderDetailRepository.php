@@ -29,6 +29,7 @@ use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
+use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -410,6 +411,15 @@ final class OrderDetailRepository implements OrderDetailInterface
             DeliveryEvent::class,
             'delivery_event',
             'delivery_event.id = order_delivery.event'
+        );
+
+        $dbal
+            ->addSelect('delivery_trans.name AS delivery_name')
+            ->leftJoin(
+            'delivery_event',
+            DeliveryTrans::class,
+            'delivery_trans',
+            'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local'
         );
 
         $dbal

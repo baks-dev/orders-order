@@ -40,7 +40,6 @@ final class OrderFilterForm extends AbstractType
     private RequestStack $request;
 
     public function __construct(
-
         RequestStack $request,
     ) {
 
@@ -94,7 +93,7 @@ final class OrderFilterForm extends AbstractType
                 $data = $event->getData();
 
                 $this->request->getSession()->set(OrderFilterDTO::date, $data->getDate());
-                //$this->request->getSession()->set(ManufactureFilterDTO::status, $data->getStatus());
+                $this->request->getSession()->set(OrderFilterDTO::status, $data->getStatus());
             }
         );
 

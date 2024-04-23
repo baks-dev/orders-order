@@ -24,83 +24,82 @@
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\Value;
 
 use BaksDev\Core\Services\Fields\FieldsChoice;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-use PHPUnit\Util\Log\TeamCity;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class ValueForm extends AbstractType
 {
-	
-	private FieldValueFormInterface $fieldValue;
-	
-	private FieldsChoice $fieldsChoice;
-	
-	public function __construct(
-		FieldValueFormInterface $fieldValue,
-		FieldsChoice $fieldsChoice,
-	)
-	{
-		$this->fieldValue = $fieldValue;
-		$this->fieldsChoice = $fieldsChoice;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		
-		/* TextType */
-		//$builder->add('value', HiddenType::class, ['label' => false]);
-		//$builder->add('value', TextType::class, ['required' => false]);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) use ($options) {
-				/* @var ValueDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				if($data)
-				{
+
+    private FieldValueFormInterface $fieldValue;
+
+    private FieldsChoice $fieldsChoice;
+
+    public function __construct(
+        FieldValueFormInterface $fieldValue,
+        FieldsChoice $fieldsChoice,
+    )
+    {
+        $this->fieldValue = $fieldValue;
+        $this->fieldsChoice = $fieldsChoice;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /* @var ValueDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if($data)
+                {
                     $field = $this->fieldValue->getFieldById($data->getField());
 
                     $fieldType = $this->fieldsChoice->getChoice($field->getType());
 
                     if($fieldType)
                     {
-                        $form->add
-                        (
-                            'value',
-                            $fieldType->form(),
-                            [
-                                'label' => $field->getFieldName(),
-                                'required' => $field->isRequired(),
-                                'help' => $field->getFieldDescription(),
-                            ]
-                        );
+                        $options['label'] = $field->getFieldName();
+                        $options['required'] = $field->isRequired();
+                        $options['help'] = $field->getFieldDescription();
+
+                        if($field->isRequired())
+                        {
+                            $options['constraints'][] = new Assert\NotBlank();
+                        }
+
+                        if($fieldType->constraints())
+                        {
+                            foreach($fieldType->constraints() as $constraint)
+                            {
+                                $options['constraints'][] = $constraint;
+                            }
+                        }
+
+                        $form->add('value', $fieldType->form(), $options);
                     }
-				}
-			}
-		);
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults
-		(
-			[
-				'data_class' => ValueDTO::class,
-				'fields' => null,
-			]
-		);
-	}
-	
+                }
+            }
+        );
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults
+        (
+            [
+                'data_class' => ValueDTO::class,
+                'fields' => null,
+            ]
+        );
+    }
 }

@@ -37,10 +37,8 @@ final class ValueDTO implements UserProfileValueInterface
 	private TypeProfileSectionFieldUid $field;
 	
 	/** Заполненное значение */
-	#[Assert\NotBlank]
 	private ?string $value = null;
-	
-	
+
 	/** Вспомогательные свойства */
 	
 	private ?TypeProfileSectionUid $section = null;
@@ -51,13 +49,7 @@ final class ValueDTO implements UserProfileValueInterface
 	
 	private string $type;
 	
-	
-//	public function __construct()
-//	{
-//
-//		$this->type = new InputField('input_field');
-//	}
-	
+
 	
 	/* FIELD */
 	

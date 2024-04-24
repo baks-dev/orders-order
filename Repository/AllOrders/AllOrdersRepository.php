@@ -77,6 +77,8 @@ final class AllOrdersRepository implements AllOrdersInterface
 
     private ?OrderFilterDTO $filter = null;
 
+    private ?int $limit = null;
+
     public function __construct(
         DBALQueryBuilder $DBALQueryBuilder,
         PaginatorInterface $paginator,
@@ -85,6 +87,14 @@ final class AllOrdersRepository implements AllOrdersInterface
         $this->paginator = $paginator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
+
+
+    public function setLimit(int $limit) :self
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
 
     public function search(SearchDTO $search): self
     {
@@ -562,9 +572,10 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         $dbal->allGroupByExclude();
 
-
-        //$dbal->setMaxResults(500);
-
+        if($this->limit)
+        {
+            $this->paginator->setLimit($this->limit);
+        }
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

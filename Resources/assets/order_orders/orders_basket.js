@@ -47,60 +47,60 @@ document.querySelectorAll('.order-basket').forEach(function (forms) {
     }
 });
 
-var $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
 
-if($elementDeliveryDate)
+initDatepicker();
+
+function initDatepicker()
 {
-    let JrKZvcNyRepeat = 100;
+    var $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
 
-    setTimeout(function JrKZvcNy() {
+    if($elementDeliveryDate)
+    {
+        let JrKZvcNyRepeat = 100;
 
-        if (JrKZvcNyRepeat >= 1000) { return; }
+        setTimeout(function JrKZvcNy() {
 
-     if (typeof MCDatepicker === 'object') {
+            if (JrKZvcNyRepeat >= 1000) { return; }
 
-
-         const [day, month, year] = $elementDeliveryDate.value.split('.');
-         $selectedDate = new Date(+year, month - 1, +day);
-
-         let currentDate = new Date();
-         const nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
-
-         currentDate = new Date();
-         const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
-
-         MCDatepicker.create({
-             el: '#'+$elementDeliveryDate.id,
-             bodyType: 'modal',
-             autoClose: false,
-             closeOndblclick: true,
-             closeOnBlur: false,
-             customOkBTN: 'OK',
-             customClearBTN: datapickerLang[$lang].customClearBTN,
-             customCancelBTN: datapickerLang[$lang].customCancelBTN,
-             firstWeekday: datapickerLang[$lang].firstWeekday,
-             dateFormat: 'DD.MM.YYYY',
-             customWeekDays: datapickerLang[$lang].customWeekDays,
-             customMonths: datapickerLang[$lang].customMonths,
-             selectedDate: $selectedDate,
-             minDate: nextDay,
-             maxDate: limitDay,
-         });
-
-        return;
-     }
-
-        JrKZvcNyRepeat = JrKZvcNyRepeat * 2;
-     setTimeout(JrKZvcNy, 100);
-
-     }, 100);
+            if (typeof MCDatepicker === 'object') {
 
 
+                const [day, month, year] = $elementDeliveryDate.value.split('.');
+                $selectedDate = new Date(+year, month - 1, +day);
+
+                let currentDate = new Date();
+                const nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+
+                currentDate = new Date();
+                const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
+
+                MCDatepicker.create({
+                    el: '#'+$elementDeliveryDate.id,
+                    bodyType: 'modal',
+                    autoClose: false,
+                    closeOndblclick: true,
+                    closeOnBlur: false,
+                    customOkBTN: 'OK',
+                    customClearBTN: datapickerLang[$lang].customClearBTN,
+                    customCancelBTN: datapickerLang[$lang].customCancelBTN,
+                    firstWeekday: datapickerLang[$lang].firstWeekday,
+                    dateFormat: 'DD.MM.YYYY',
+                    customWeekDays: datapickerLang[$lang].customWeekDays,
+                    customMonths: datapickerLang[$lang].customMonths,
+                    selectedDate: $selectedDate,
+                    minDate: nextDay,
+                    maxDate: limitDay,
+                });
+
+                return;
+            }
+
+            JrKZvcNyRepeat = JrKZvcNyRepeat * 2;
+            setTimeout(JrKZvcNy, 100);
+
+        }, 100);
+    }
 }
-
-
-
-
 
 
 function resolve(forms) {
@@ -425,8 +425,6 @@ async function submitDeliveryForm(forms) {
                 });
 
 
-
-
                 /** Персчет всего количество */
                 total();
 
@@ -456,6 +454,8 @@ async function submitDeliveryForm(forms) {
 
                 /** Определяем поле с адресом */
                 //initAdddress();
+
+                initDatepicker();
 
             }
         });
@@ -714,6 +714,8 @@ async function submitOrderForm(forms) {
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
+
+                initDatepicker();
             }
 
         });

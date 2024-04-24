@@ -40,7 +40,8 @@ final class MovingProductStockForm extends AbstractType
 
     public function __construct(
         ProductWarehouseChoiceInterface $productWarehouseChoice,
-    ) {
+    )
+    {
         $this->productWarehouseChoice = $productWarehouseChoice;
     }
 
@@ -49,13 +50,12 @@ final class MovingProductStockForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void
-            {
+            function(FormEvent $event): void {
                 /** @var MovingProductStockDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if (!$data->getProduct()->isEmpty())
+                if(!$data->getProduct()->isEmpty())
                 {
                     /** @var Products\ProductStockDTO $product */
                     $product = $data->getProduct()->current();
@@ -64,41 +64,41 @@ final class MovingProductStockForm extends AbstractType
 
                     if($product->getUsr())
                     {
-                        $warehouses = $this->productWarehouseChoice
-                            ->fetchWarehouseByProduct(
-                                $product->getUsr(),
-                                $product->getProduct(),
-                                $product->getOffer(),
-                                $product->getVariation(),
-                                $product->getModification()
-                            );
+                        $this->productWarehouseChoice
+                            ->user($product->getUsr())
+                            ->product($product->getProduct());
+
+                        $product->getOffer() ? $this->productWarehouseChoice->offerConst($product->getOffer()) : null;
+                        $product->getVariation() ? $this->productWarehouseChoice->variationConst($product->getVariation()) : null;
+                        $product->getModification() ? $this->productWarehouseChoice->modificationConst($product->getModification()) : null;
+
+                        $warehouses = $this->productWarehouseChoice->fetchWarehouseByProduct();
                     }
-
-
-
-                    // $data->getDestination()
 
                     $Destination = $data->getMove()->getDestination();
 
                     if($warehouses)
                     {
-                        $warehouses = array_filter($warehouses, function ($v, $k) use ($Destination) {
+                        $warehouses = iterator_to_array($warehouses);
+
+                        $warehouses = array_filter($warehouses, function($v, $k) use ($Destination) {
                             return !$v->equals($Destination);
                         }, ARRAY_FILTER_USE_BOTH);
 
                     }
 
-                    if ($warehouses)
+                    if($warehouses)
                     {
                         $form->add(
                             'profile',
                             ChoiceType::class,
                             [
                                 'choices' => $warehouses,
-                                'choice_value' => function (?UserProfileUid $profile) {
+                                'choice_value' => function(?UserProfileUid $profile) {
                                     return $profile?->getValue();
                                 },
-                                'choice_label' => function (UserProfileUid $profile) {
+
+                                'choice_label' => function(UserProfileUid $profile) {
                                     return $profile->getAttr().' ( '.$profile->getProperty().' )';
                                 },
 

@@ -68,11 +68,15 @@ final class IndexController extends AbstractController
                 continue;
             }
 
+            if($status->equals('completed'))
+            {
+                $allOrders->setLimit(10);
+            }
+
             // Получаем список
             $orders[$status->getOrderStatusValue()] = $allOrders
                 ->search($search)
                 ->status($status)
-                ->setLimit(10)
                 ->findAllPaginator($this->getProfileUid())
                 ->getData();
         }

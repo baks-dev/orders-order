@@ -43,7 +43,7 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
 
     private static int $sort = 200;
 
-    private static string $color = '#ff3945';
+    private static string $color = '#8000FF';
 
     /** Возвращает значение (value) */
     public function getValue(): string

@@ -152,13 +152,42 @@
                     {{ order.order_profile }}
                 </div>
 
-                {% set users = order.order_user|json_decode %}
+                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty) %}
 
-                {% for user in users %}
-                    <div class='{{ loop.first ? "fw-bolder" }}'>
-                        {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
-                    </div>
-                {% endfor %}
+                {% if users is not empty %}
+
+                    {% for user in users %}
+                        <div class='text-truncate {{ loop.first ? "fw-bolder" }}'
+                             style="max-width: 150px;"
+                             data-bs-toggle="tooltip"
+                             data-bs-placement="bottom"
+                             data-bs-delay='{"show":600,"hide":100}'
+                             title='{{ user.profile_value }}'
+                        >
+                            {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                        </div>
+                    {% endfor %}
+
+                {% else %}
+
+                    {% if order.account_email %}
+                        <div class="text-truncate" style="max-width: 150px;">
+                            <a href="mailto:{{ order.account_email }}"
+                               class="text-decoration-none"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="bottom"
+                               data-bs-delay='{"show":600,"hide":100}'
+                               title='{{ order.account_email }}'
+                            >
+                               @ {{ order.account_email }}
+                            </a>
+                        </div>
+                    {% endif %}
+
+                {% endif %}
+
+
+                {% endif %}
 
                 {% if order.order_status != 'delivery' and  order.order_status != 'completed' %}
 

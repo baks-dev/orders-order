@@ -157,6 +157,13 @@
 
             {% endif %}
 
+            <div class="offcanvas offcanvas-start" tabindex="-1"
+                 id="offcanvas"
+                 style="--bs-offcanvas-width: 800px;"
+            >
+            </div>
+
+
         </div>
 
         {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}

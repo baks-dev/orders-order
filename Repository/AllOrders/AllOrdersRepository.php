@@ -23,6 +23,8 @@
 
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
+use BaksDev\Auth\Email\Entity\Account;
+use BaksDev\Auth\Email\Entity\Event\AccountEvent;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
@@ -319,6 +321,26 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'type_profile.id = user_profile.type'
             );
 
+
+        /** Email-аккаунт пользователя */
+
+        $dbal
+            ->leftJoin(
+                'user_profile_info',
+                Account::class,
+                'account',
+                'account.id = user_profile_info.usr'
+            );
+
+
+        $dbal
+            ->addSelect('account_event.email AS account_email')
+            ->leftJoin(
+                'account',
+                AccountEvent::class,
+                'account_event',
+                'account_event.id = account.event'
+            );
 
         /**
          * Название типа профиля (Заказа)

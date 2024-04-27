@@ -33,13 +33,15 @@
 
     <td class="w-100">
 
-        <a href="{{ path('orders-order:admin.order.products', { id: item.order_id }) }}"
-           class="fw-bolder mb-1 text-decoration-none product-name">
+        <button data-href='{{ path('orders-order:admin.detail', { id: item.order_id }) }}'
+                data-id='{{ item.order_id }}'
+                class="btn btn-sm btn-link fw-bolder mb-1 text-decoration-none product-name offcanvas-link"
+        >
             {{ item.order_number }}
             <span class="badge bg-light text-dark fw-bolder p1 text-start ms-3">
                 {{ item.order_profile }}
             </span>
-        </a>
+        </button>
 
 
         &nbsp;

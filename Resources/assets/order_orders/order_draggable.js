@@ -24,26 +24,6 @@
 
 var containers = document.querySelectorAll(".draggable-zone");
 
-/** Обновляем offcanvas событиями orders_basket */
-var myOffcanvas = document.getElementById('offcanvas');
-myOffcanvas.addEventListener('show.bs.offcanvas', function (event) {
-
-    /** Обновляем Preload */
-
-    let lazy = document.createElement('script');
-    lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
-    document.head.appendChild(lazy);
-
-    // var head= document.getElementsByTagName('head')[0];
-    //
-    // var ordersScript = document.createElement('script');
-    // ordersScript.src= '/assets/order_orders/orders_basket.min.js';
-    // head.appendChild(ordersScript);
-
-});
-
-
-
 
 function getToken(url, ctx) {
     return new Promise((resolve, reject) => {

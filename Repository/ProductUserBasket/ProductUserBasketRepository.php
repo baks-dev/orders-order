@@ -604,7 +604,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ProductProperty::class,
             'product_property',
             'product_property.event = product_event.id AND 
-            product_property.field = category_section_field.id'
+            product_property.field = category_section_field.const'
         );
 
 
@@ -617,6 +617,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 					'0', category_section_field.sort, /* сортирвока */
 				
 					'field_uid', category_section_field.id,
+					'field_const', category_section_field.const,
 					'field_name', category_section_field.name,
 					'field_alternative', category_section_field.alternative,
 					'field_public', category_section_field.public,

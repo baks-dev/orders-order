@@ -27,6 +27,7 @@ use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileCh
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -34,6 +35,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class UserProfileForm extends AbstractType
 {
@@ -41,14 +43,18 @@ final class UserProfileForm extends AbstractType
 
     private TypeProfileChoiceRepository $profileChoice;
 
+    private TokenStorageInterface $tokenStorage;
+
 
     public function __construct(
         TypeProfileChoiceRepository $profileChoice,
         FieldValueFormInterface $fieldValue,
+        TokenStorageInterface $tokenStorage
     )
     {
         $this->fieldValue = $fieldValue;
         $this->profileChoice = $profileChoice;
+        $this->tokenStorage = $tokenStorage;
     }
 
 
@@ -63,40 +69,47 @@ final class UserProfileForm extends AbstractType
                 /** @var UserProfileDTO $data */
                 $data = $event->getData();
 
-                //dump($data);
-
 
                 $profileChoice = $this->profileChoice->getPublicTypeProfileChoice();
                 $profileChoice = iterator_to_array($profileChoice);
 
-                /* Получаем все поля для заполнения */
-                $profileType = $data->getType() ?: current($profileChoice);
+                $User = $this->tokenStorage->getToken()?->getUser();
 
-                $data->setType($profileType);
-                $fields = $this->fieldValue->get($profileType);
+                /** Если пользователь не авторизован - предоставляем выбор тип профиля и поля для заполнения */
+                if($User)
+                {
+                    $this->fieldValue->userFilter($User);
+                }
+                else
+                {
 
+                    /* Получаем все поля для заполнения */
+                    $profileType = $data->getType() ?: current($profileChoice);
+                    $data->setType($profileType);
 
-                $form
-                    ->add('type', ChoiceType::class, [
-                        'choices' => $profileChoice,
-                        'choice_value' => function(?TypeProfileUid $type) {
-                            return $type?->getValue();
-                        },
+                    $form
+                        ->add('type', ChoiceType::class, [
+                            'choices' => $profileChoice,
+                            'choice_value' => function(?TypeProfileUid $type) {
+                                return $type?->getValue();
+                            },
 
-                        'choice_label' => function(TypeProfileUid $type) {
-                            return $type->getOption();
-                        },
+                            'choice_label' => function(TypeProfileUid $type) {
+                                return $type->getOption();
+                            },
 
-                        'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
-                            return ['checked' => ($choice->equals($profileType))];
-                        },
-                        'attr' => ['class' => 'd-flex gap-3'],
-                        'label' => false,
-                        'expanded' => true,
-                        'multiple' => false,
-                        'required' => true,
-                    ]);
+                            'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
+                                return ['checked' => ($choice->equals($profileType))];
+                            },
+                            'attr' => ['class' => 'd-flex gap-3'],
+                            'label' => false,
+                            'expanded' => true,
+                            'multiple' => false,
+                            'required' => true,
+                        ]);
+                }
 
+                $fields = $this->fieldValue->get($data->getType());
 
                 $data->resetValue();
                 $form->remove('value');

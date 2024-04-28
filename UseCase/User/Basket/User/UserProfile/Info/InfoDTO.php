@@ -43,7 +43,7 @@ final class InfoDTO implements UserProfileInfoInterface
 	private bool $active = false;
 	
 	/** Статус профиля (модерация, активен, заблокирован) */
-	private readonly UserProfileStatus $status;
+	private UserProfileStatus $status;
 	
 	
 	public function __construct()
@@ -73,6 +73,13 @@ final class InfoDTO implements UserProfileInfoInterface
 	{
 		return $this->status;
 	}
+
+    public function setStatus(mixed $status): self
+    {
+        $this->status = new UserProfileStatus($status);
+
+        return $this;
+    }
 	
 	
 	/**

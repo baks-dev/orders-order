@@ -152,7 +152,7 @@
                     {{ order.order_profile }}
                 </div>
 
-                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty) %}
+                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
 
                 {% if users is not empty %}
 
@@ -186,8 +186,6 @@
 
                 {% endif %}
 
-
-                {% endif %}
 
                 {% if order.order_status != 'delivery' and  order.order_status != 'completed' %}
 

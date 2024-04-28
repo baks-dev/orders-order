@@ -35,100 +35,104 @@ use Symfony\Component\Validator\Constraints\Valid;
 
 final class OrderUserForm extends AbstractType
 {
-	private CurrentUserProfileInterface $currentUserProfile;
-	
-	
-	public function __construct(
-		
-		CurrentUserProfileInterface $currentUserProfile,
-	)
-	{
-		$this->currentUserProfile = $currentUserProfile;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
-		$builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				/** @var OrderUserDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				$userProfileType = $data->getUserProfile()?->getType();
+    private CurrentUserProfileInterface $currentUserProfile;
 
-				/**Если пользователь авторизован */
-				if($data->getUsr() && $userProfileType === null)
-				{
-					$CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUsr());
 
-					if($CurrentUserProfile)
-					{
-						/* Присваиваем идентификатор события профиля */
-						$data->setProfile($CurrentUserProfile->getEvent());
-						
-						/* Присваиваем тип профиля пользователя  */
-						$userProfileType = $CurrentUserProfile->getType();
-					}
-				}
+    public function __construct(
+
+        CurrentUserProfileInterface $currentUserProfile,
+    )
+    {
+        $this->currentUserProfile = $currentUserProfile;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
+        $builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /** @var OrderUserDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                $userProfileType = $data->getUserProfile()?->getType();
+
+                /** Если пользователь авторизован */
+                if($data->getUsr() && $userProfileType === null)
+                {
+                    $CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUsr());
+
+                    //dump('CurrentUserProfile '.$CurrentUserProfile?->getType());
+
+                    if($CurrentUserProfile)
+                    {
+                        /* Присваиваем идентификатор события профиля */
+                        $data->setProfile($CurrentUserProfile->getEvent());
+
+                        /* Присваиваем тип профиля пользователя  */
+                        $userProfileType = $CurrentUserProfile->getType();
+
+                        $data->getUserProfile()?->setType($userProfileType);
+                    }
+                }
 
 
                 if(!$data->getUsr())
                 {
-					$form->add('userAccount',
-						UserAccount\UserAccountForm::class, [
-							'label' => false,
-							'constraints' => [new Valid()],
-						]
-					);
-				}
-				
-				if(!$data->getProfile())
-				{
-					$form->add('userProfile',
-						UserProfile\UserProfileForm::class, [
-							'label' => false,
-							'constraints' => [new Valid()],
-						]
-					);
-				}
-				
+                    $form->add('userAccount',
+                        UserAccount\UserAccountForm::class, [
+                            'label' => false,
+                            'constraints' => [new Valid()],
+                        ]
+                    );
+                }
 
-				if($userProfileType)
-				{
-					$form->add('payment',
-						Payment\OrderPaymentForm::class,
-						[
-							'label' => false,
-							'user_profile_type' => $userProfileType,
-						]
-					);
-					
-					$form->add('delivery',
-						Delivery\OrderDeliveryForm::class,
-						[
-							'label' => false,
-							'user_profile_type' => $userProfileType,
-						]
-					);
-				}
-				
-			}
-		);
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderUserDTO::class,
-		]);
-	}
-	
+                //if(!$data->getProfile())
+                //{
+                $form->add('userProfile',
+                    UserProfile\UserProfileForm::class, [
+                        'label' => false,
+                        'constraints' => [new Valid()],
+                    ]
+                );
+                //}
+
+
+                if($userProfileType)
+                {
+                    $form->add('payment',
+                        Payment\OrderPaymentForm::class,
+                        [
+                            'label' => false,
+                            'user_profile_type' => $userProfileType,
+                        ]
+                    );
+
+                    $form->add('delivery',
+                        Delivery\OrderDeliveryForm::class,
+                        [
+                            'label' => false,
+                            'user_profile_type' => $userProfileType,
+                        ]
+                    );
+                }
+
+            }
+        );
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderUserDTO::class,
+        ]);
+    }
+
 }

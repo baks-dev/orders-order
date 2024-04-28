@@ -360,7 +360,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile_value',
                 TypeProfileSectionField::TABLE,
                 'type_profile_field',
-                'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
+                'type_profile_field.id = user_profile_value.field'
             );
 
         $dbal

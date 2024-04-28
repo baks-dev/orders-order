@@ -39,8 +39,10 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
+use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
 use BaksDev\Users\User\Entity\User;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -84,6 +86,9 @@ final class OrderHandler extends AbstractHandler
 
         $OrderUserDTO = $command->getUsr();
 
+
+
+
         /**
          * Создаем профиль пользователя если отсутствует
          */
@@ -121,6 +126,40 @@ final class OrderHandler extends AbstractHandler
 
             $OrderUserDTO->setProfile($UserProfileEvent);
         }
+
+        /** Если профиль пользователя добавлен, но имеются незаполненные поля - присваиваем */
+        elseif($OrderUserDTO->getProfile() && $profileValues = $OrderUserDTO->getUserProfile()?->getValue())
+        {
+            $UserProfileEvent = $this->currentUserProfileEvent->findByEvent($OrderUserDTO->getProfile());
+            $UserProfileDTO = new UserProfileDTO();
+            $UserProfileEvent->getDto($UserProfileDTO);
+
+            if(!$profileValues->isEmpty())
+            {
+                /** Добавляем профилю пользователя незаполненные свойства */
+                foreach($profileValues as $value)
+                {
+                    $UserProfileDTO->addValue($value);
+                }
+
+                /** Если профиль пользовательский - делаем активным */
+                if($UserProfileDTO->getType()?->equals(TypeProfileUid::userProfileType()))
+                {
+                    $UserProfileDTO->getInfo()->setStatus(UserProfileStatusActive::class);
+                }
+
+                $UserProfile = $this->profileHandler->handle($UserProfileDTO);
+
+                if(!$UserProfile instanceof UserProfile)
+                {
+                    return $UserProfile;
+                }
+
+                $UserProfileEvent = $UserProfile->getEvent();
+                $OrderUserDTO->setProfile($UserProfileEvent);
+            }
+        }
+
 
         $this->main = new Order();
         $this->event = new OrderEvent();

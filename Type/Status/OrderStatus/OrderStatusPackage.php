@@ -41,7 +41,7 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
     /** Упаковка заказов */
     public const STATUS = 'package';
 
-    private static int $sort = 200;
+    private static int $sort = 500;
 
     private static string $color = '#8000FF';
 

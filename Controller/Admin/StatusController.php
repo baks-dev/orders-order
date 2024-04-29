@@ -29,18 +29,22 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Delivery\BaksDevDeliveryBundle;
 use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use InvalidArgumentException;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -55,25 +59,87 @@ final class StatusController extends AbstractController
     public function status(
         //Request $request,
         #[MapEntity] Order $Order,
+        CurrentOrderEventInterface $currentOrderEvent,
         OrderStatus\Collection\OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish,
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
+        TranslatorInterface $translator,
         string $status,
     ): Response
     {
+
+
+        $OrderEvent = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
+
+        if(!$OrderEvent)
+        {
+            throw new InvalidArgumentException('Invalid Argument Order');
+        }
+
+        /** @var EditOrderDTO $EditOrderDTO */
+
+        $EditOrderDTO = $OrderEvent->getDto(new EditOrderDTO());
+        $currentPriority = $EditOrderDTO->getStatus()->getOrderStatus()::priority();
+
+
+        $OrderStatus = $orderStatusCollection->from($status);
+
+        /**
+         * Статус заказа можно двигать только вперед
+         */
+
+        if($currentPriority > $OrderStatus->getOrderStatus()::priority())
+        {
+            return new JsonResponse(
+                [
+                    'type' => 'danger',
+                    'header' => 'Заказ #'.$Order->getNumber(),
+                    'message' => 'Невозможно вернуть заказ на обратную стадию!',
+                    'status' => 400,
+                ],
+                400
+            );
+        }
+
         /**
          * Обновляем статус заказа
          */
-        $OrderStatus = $orderStatusCollection->from($status);
+
         $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
+        $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
+
+
+        /** Невозможно применить повторно статус */
+        $isExistsStatus = $existOrderEventByStatus->isExists(
+            $Order->getId(),
+            $OrderStatusDTO->getStatus()
+        );
+
+        if($isExistsStatus)
+        {
+            return new JsonResponse(
+                [
+                    'type' => 'danger',
+                    'header' => 'Заказ #'.$Order->getNumber(),
+                    'message' => 'Невозможно применить повторно статус '.$OrderStatusName,
+                    'status' => 400,
+                ],
+                400
+            );
+        }
+
+
+        /**
+         * Изменить статус выполненного заказа невозможно
+         */
 
         $isExistsCompleted = $existOrderEventByStatus->isExists(
             $Order->getId(),
             new OrderStatus(OrderStatus\OrderStatusCompleted::class)
         );
 
-        /** Изменить статус выполненного заказа невозможно*/
+
         if($isExistsCompleted)
         {
             return new JsonResponse(
@@ -88,9 +154,13 @@ final class StatusController extends AbstractController
         }
 
 
+        //$OrderStatusDTO->getStatus()->getOrderStatus()::priority();
+
+
         if(class_exists(BaksDevProductsStocksBundle::class))
         {
-            /** Если имеется модуль склада - в статус Completed «Выполнен» можно только после сборки
+            /**
+             * Если имеется модуль склада - в статус Completed «Выполнен» можно только после сборки
              * Extradition «Готов к выдаче»
              */
             if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusCompleted::class))
@@ -150,7 +220,7 @@ final class StatusController extends AbstractController
 
         if(!$OrderStatusHandler instanceof Order)
         {
-            // Отпарвляем сокет для скрытия заказа у других менеджеров
+            // Отправляем сокет для скрытия заказа у других менеджеров
             $socket = $publish
                 ->addData(['order' => (string) $OrderStatusHandler->getId()])
                 ->addData(['profile' => (string) $this->getProfileUid()])

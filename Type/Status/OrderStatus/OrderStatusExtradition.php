@@ -41,7 +41,7 @@ class OrderStatusExtradition implements OrderStatusInterface, VoterInterface
 
     public const STATUS = 'extradition';
 
-    private static int $sort = 230;
+    private static int $sort = 700;
 
     private static string $color = '#FF7F00';
 

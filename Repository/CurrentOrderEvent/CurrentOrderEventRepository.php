@@ -45,7 +45,7 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEvent(?OrderUid $order): ?OrderEvent
+    public function getCurrentOrderEvent(Order|OrderUid|string|null $order): ?OrderEvent
     {
 
         if(Kernel::isTestEnvironment())
@@ -54,6 +54,16 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
         }
 
         if(!$order) { return null; }
+
+        if($order instanceof Order)
+        {
+            $order = $order->getId();
+        }
+
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
 
         $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 

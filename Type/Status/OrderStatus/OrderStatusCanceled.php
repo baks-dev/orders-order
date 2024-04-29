@@ -40,7 +40,7 @@ class OrderStatusCanceled implements OrderStatusInterface, VoterInterface
 {
     public const STATUS = 'canceled';
 
-    private static int $sort = 400;
+    private static int $sort = 999;
 
     private static string $color = '#DC3545';
 

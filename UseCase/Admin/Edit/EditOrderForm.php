@@ -73,7 +73,7 @@ final class EditOrderForm extends AbstractType
 //		;
 
 
-        $builder->add('comment', TextareaType::class);
+        $builder->add('comment', TextareaType::class, ['required' => false]);
 	
 		/* Сохранить ******************************************************/
 		$builder->add(

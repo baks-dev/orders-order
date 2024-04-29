@@ -24,10 +24,11 @@
 namespace BaksDev\Orders\Order\Repository\CurrentOrderEvent;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface CurrentOrderEventInterface
 {
-	public function getCurrentOrderEvent(?OrderUid $order) : ?OrderEvent;
+	public function getCurrentOrderEvent(Order|OrderUid|string $order) : ?OrderEvent;
 	
 }

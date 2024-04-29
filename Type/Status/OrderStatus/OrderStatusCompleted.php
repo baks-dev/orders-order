@@ -40,7 +40,7 @@ class OrderStatusCompleted implements OrderStatusInterface, VoterInterface
 {
     public const STATUS = 'completed';
 
-    private static int $sort = 300;
+    private static int $sort = 800;
 
     private static string $color = '#198754';
 

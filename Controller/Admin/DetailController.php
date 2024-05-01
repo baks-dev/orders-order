@@ -131,11 +131,10 @@ final class DetailController extends AbstractController
                 $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderHandler);
             }
 
-            return $this->redirectToRoute('orders-order:admin.index');
+            return $this->redirectToReferer();
         }
 
 
-        
         /** История изменения статусов */
         $History = $orderHistory->fetchHistoryAllAssociative($Event->getMain());
 

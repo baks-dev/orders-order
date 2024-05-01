@@ -84,10 +84,28 @@ final class StatusController extends AbstractController
 
 
         $OrderStatus = $orderStatusCollection->from($status);
+        $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
+        $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
+
+
 
         /**
          * Статус заказа можно двигать только вперед
          */
+
+
+        if($currentPriority === $OrderStatus->getOrderStatus()::priority())
+        {
+            return new JsonResponse(
+                [
+                    'type' => 'danger',
+                    'header' => 'Заказ #'.$Order->getNumber(),
+                    'message' => sprintf('Заказ уже находится в статусе %s', $OrderStatusName),
+                    'status' => 400,
+                ],
+                400
+            );
+        }
 
         if($currentPriority > $OrderStatus->getOrderStatus()::priority())
         {
@@ -105,10 +123,6 @@ final class StatusController extends AbstractController
         /**
          * Обновляем статус заказа
          */
-
-        $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
-        $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
-
 
         /** Невозможно применить повторно статус */
         $isExistsStatus = $existOrderEventByStatus->isExists(

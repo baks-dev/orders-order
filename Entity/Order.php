@@ -60,28 +60,43 @@ class Order
         return (string) $this->id;
     }
 
+    /**
+     * Id
+     */
     public function getId(): OrderUid
     {
         return $this->id;
     }
 
+    public function setId(OrderUid $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Number
+     */
     public function getNumber(): string
     {
         return $this->number;
     }
 
-    public function setId(OrderUid $id): void
+    public function setNumber(string $number): self
     {
-        $this->id = $id;
+        $this->number = $number;
+        return $this;
     }
+
 
     public function getEvent(): OrderEventUid
     {
         return $this->event;
     }
 
-    public function setEvent(OrderEventUid|OrderEvent $event): void
+    public function setEvent(OrderEventUid|OrderEvent $event): self
     {
         $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
+        return $this;
     }
 }

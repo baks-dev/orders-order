@@ -39,6 +39,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfileUser;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
@@ -143,7 +144,7 @@ final class OrderHandler extends AbstractHandler
                 }
 
                 /** Если профиль пользовательский - делаем активным */
-                if($UserProfileDTO->getType()?->equals(TypeProfileUid::userProfileType()))
+                if($UserProfileDTO->getType()?->getTypeProfile() instanceof TypeProfileUser)
                 {
                     $UserProfileDTO->getInfo()->setStatus(UserProfileStatusActive::class);
                 }

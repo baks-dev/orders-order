@@ -51,8 +51,7 @@ final class OrderUserDTO implements OrderUserInterface
 	/** Новый профиль пользователя */
 	private UserProfile\UserProfileDTO $userProfile;
 	
-	
-	
+
 	/** Способ оплаты */
 	#[Assert\Valid]
 	private Payment\OrderPaymentDTO $payment;
@@ -61,8 +60,7 @@ final class OrderUserDTO implements OrderUserInterface
 	#[Assert\Valid]
 	private Delivery\OrderDeliveryDTO $delivery;
 	
-	
-	
+
 	public function __construct()
 	{
 		$this->userAccount = new UserAccount\UserAccountDTO();

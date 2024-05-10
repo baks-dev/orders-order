@@ -13,10 +13,10 @@ $ composer require baks-dev/orders-order
 
 ## Дополнительно
 
-Должен быть запущен воркер 'orders' для обработки асинхронных сообщений 
+Должен быть запущен воркер 'orders-order' для обработки асинхронных сообщений 
 
 ``` bash
-$ php bin/console messenger:consume orders
+$ php bin/console messenger:consume orders-order
 ```
 
 Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом 'baks.order.status'

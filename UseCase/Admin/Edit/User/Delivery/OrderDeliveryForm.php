@@ -120,6 +120,10 @@ final class OrderDeliveryForm extends AbstractType
             'input' => 'datetime_immutable',
         ]);
 
+        $builder->add('price',
+            Price\OrderDeliveryPriceForm::class, ['label' => false]
+        );
+
 
         /* Коллекция пользовательских свойств */
         $builder->add('field', CollectionType::class, [

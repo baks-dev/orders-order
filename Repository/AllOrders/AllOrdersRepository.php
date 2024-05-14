@@ -42,6 +42,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
@@ -255,6 +256,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_delivery.usr = order_user.id'
             );
 
+
         $dbal
             ->leftJoin(
                 'order_delivery',
@@ -270,6 +272,18 @@ final class AllOrdersRepository implements AllOrdersInterface
                 DeliveryPrice::class,
                 'delivery_price',
                 'delivery_price.event = delivery_event.id'
+            );
+
+
+        /** Стоимость доставки администратором */
+        $dbal
+            ->addSelect('order_delivery_price.price AS order_delivery_price')
+            ->addSelect('order_delivery_price.currency AS order_delivery_currency')
+            ->leftJoin(
+                'order_delivery',
+                OrderDeliveryPrice::class,
+                'order_delivery_price',
+                'order_delivery_price.delivery = order_delivery.id'
             );
 
 

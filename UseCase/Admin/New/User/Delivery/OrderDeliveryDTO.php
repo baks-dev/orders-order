@@ -71,9 +71,16 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     #[Assert\NotBlank]
     private ?DateTimeImmutable $deliveryDate;
 
+
+    /** Стоимость доставки заказа */
+    #[Assert\Valid]
+    private Price\OrderDeliveryPriceDTO $price;
+
+
     public function __construct()
     {
         $this->field = new ArrayCollection();
+        $this->price = new Price\OrderDeliveryPriceDTO();
 
         $now = (new DateTimeImmutable())->setTime(0, 0, 0);
         $this->deliveryDate = $now->add(new DateInterval('P1D'));
@@ -182,6 +189,20 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     public function setDeliveryDate(DateTimeImmutable $deliveryDate): self
     {
         $this->deliveryDate = $deliveryDate;
+        return $this;
+    }
+
+    /**
+     * Price
+     */
+    public function getPrice(): Price\OrderDeliveryPriceDTO
+    {
+        return $this->price;
+    }
+
+    public function setPrice(Price\OrderDeliveryPriceDTO $price): self
+    {
+        $this->price = $price;
         return $this;
     }
 

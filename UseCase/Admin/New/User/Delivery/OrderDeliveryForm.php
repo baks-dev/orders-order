@@ -133,7 +133,6 @@ final class OrderDeliveryForm extends AbstractType
         );
 
 
-
         /* Коллекция пользовательских свойств */
         $builder->add('field', CollectionType::class, [
             'entry_type' => Field\OrderDeliveryFieldForm::class,
@@ -157,6 +156,12 @@ final class OrderDeliveryForm extends AbstractType
             'format' => 'dd.MM.yyyy',
             'input' => 'datetime_immutable',
         ]);
+
+
+        $builder->add('price',
+            Price\OrderDeliveryPriceForm::class, ['label' => false]
+        );
+
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
@@ -276,8 +281,6 @@ final class OrderDeliveryForm extends AbstractType
                 }
             }
         );
-
-
 
 
     }

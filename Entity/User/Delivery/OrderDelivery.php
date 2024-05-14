@@ -32,6 +32,7 @@ use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryUid;
+use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -85,6 +86,10 @@ class OrderDelivery extends EntityEvent
     // #[Assert\NotBlank]
     #[ORM\Column(name: 'delivery_date', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $deliveryDate = null;
+
+    /** Стоимость покупки */
+    #[ORM\OneToOne(targetEntity: Price\OrderDeliveryPrice::class, mappedBy: 'delivery', cascade: ['all'])]
+    private ?Price\OrderDeliveryPrice $price = null;
 
     public function __construct(OrderUser $usr)
     {

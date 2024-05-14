@@ -100,6 +100,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 					
 					if($DeliveryField->getType())
 					{
+
 						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
 
 

@@ -49,7 +49,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $dbal
-            ->from(OrderEvent::TABLE, 'event')
+            ->from(OrderEvent::class, 'event')
 
             ->where('event.orders = :ord')
             ->setParameter('ord', $order, OrderUid::TYPE)

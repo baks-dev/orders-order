@@ -47,13 +47,15 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
      */
     public function getCurrentOrderEvent(Order|OrderUid|string|null $order): ?OrderEvent
     {
-
         if(Kernel::isTestEnvironment())
         {
             return EntityTestGenerator::get(OrderEvent::class);
         }
 
-        if(!$order) { return null; }
+        if(!$order)
+        {
+            return null;
+        }
 
         if($order instanceof Order)
         {
@@ -65,15 +67,23 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
             $order = new OrderUid($order);
         }
 
-        $qb = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-        $qb->select('event');
-        $qb->from(Order::class, 'orders');
-        $qb->join(OrderEvent::class, 'event', 'WITH', 'event.id = orders.event');
-        $qb->where('orders.id = :order');
-        $qb->setParameter('order', $order, OrderUid::TYPE);
+        $orm
+            ->from(Order::class, 'orders')
+            ->where('orders.id = :order')
+            ->setParameter('order', $order, OrderUid::TYPE);
 
-        return $qb->getOneOrNullResult();
+        $orm
+            ->select('event')
+            ->join(
+                OrderEvent::class,
+                'event',
+                'WITH',
+                'event.id = orders.event'
+            );
+
+        return $orm->getOneOrNullResult();
     }
 
 }

@@ -33,9 +33,7 @@ final class OrderEventRepository implements OrderEventInterface
 {
     private ORMQueryBuilder $ORMQueryBuilder;
 
-    public function __construct(
-        ORMQueryBuilder $ORMQueryBuilder,
-    )
+    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
     {
         $this->ORMQueryBuilder = $ORMQueryBuilder;
     }

@@ -25,87 +25,105 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderHistory;
 
-use BaksDev\Auth\Email\Entity as AccountEntity;
-use BaksDev\Orders\Order\Entity as OrderEntity;
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Modify\OrderModify;
+use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Users\Profile\UserProfile\Entity AS UserProfileEntity;
-use Doctrine\DBAL\Connection;
+use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\Personal\UserProfilePersonal;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 
 final class OrderHistoryRepository implements OrderHistoryInterface
 {
-	
-	private Connection $connection;
-	
-	
-	public function __construct(
-		Connection $connection,
-	)
-	{
-		$this->connection = $connection;
-	}
-	
-	
-	public function fetchHistoryAllAssociative(OrderUid $order) : array
-	{
-		$qb = $this->connection->createQueryBuilder();
-		
-		
-		$qb->addSelect('event.status');
-		$qb->from(OrderEntity\Event\OrderEvent::TABLE, 'event');
-		$qb->where('event.orders = :order');
-		$qb->setParameter('order', $order, OrderUid::TYPE);
-		
-		$qb->addSelect('modify.mod_date');
-		$qb->addSelect('modify.action');
-		$qb->leftJoin('event', OrderEntity\Modify\OrderModify::TABLE, 'modify', 'modify.event = event.id');
-		
-		
-		
-		$qb->addSelect('order_user.profile AS order_profile_id');
-		$qb->leftJoin('event', OrderEntity\User\OrderUser::TABLE, 'order_user',
-			'order_user.event = event.id');
 
-		
-		$qb->leftJoin('modify',
-			UserProfileEntity\Info\UserProfileInfo::TABLE,
-			'profile_info',
-			'profile_info.usr = modify.usr AND profile_info.active = true'
-		);
-		
-		
-		$qb->addSelect('profile.id AS user_profile_id'); /* ID профиля */
-		//$qb->addSelect('profile.event AS user_profile_event'); /* ID события профиля */
-		$qb->leftJoin(
-			'profile_info',
-			UserProfileEntity\UserProfile::TABLE,
-			'profile',
-			'profile.id = profile_info.profile'
-		);
-		
-		$qb->addSelect('profile_personal.username AS profile_username'); /* Username */
 
-		$qb->leftJoin(
-			'profile',
-			UserProfileEntity\Personal\UserProfilePersonal::TABLE,
-			'profile_personal',
-			'profile_personal.event = profile.event'
-		);
-		
-		
-		$qb->addSelect('profile_avatar.name AS profile_avatar_name');
-		$qb->addSelect('profile_avatar.ext AS profile_avatar_ext');
-		$qb->addSelect('profile_avatar.cdn AS profile_avatar_cdn');
-		
-		$qb->leftJoin(
-			'profile',
-			UserProfileEntity\Avatar\UserProfileAvatar::TABLE,
-			'profile_avatar',
-			'profile_avatar.event = profile.event'
-		);
-		
-		$qb->orderBy('modify.mod_date');
-		
-		return $qb->fetchAllAssociative();
-	}
-	
+    private DBALQueryBuilder $DBALQueryBuilder;
+
+    public function __construct(DBALQueryBuilder $DBALQueryBuilder)
+    {
+        $this->DBALQueryBuilder = $DBALQueryBuilder;
+    }
+
+
+    public function fetchHistoryAllAssociative(OrderUid|string $order): array
+    {
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
+        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $qb
+            ->addSelect('event.status')
+            ->from(OrderEvent::class, 'event')
+            ->where('event.orders = :order')
+            ->setParameter('order', $order, OrderUid::TYPE);
+
+        $qb
+            ->addSelect('modify.mod_date')
+            ->addSelect('modify.action')
+            ->leftJoin(
+                'event',
+                OrderModify::class,
+                'modify',
+                'modify.event = event.id'
+            );
+
+
+        $qb
+            ->addSelect('order_user.profile AS order_profile_id')
+            ->leftJoin(
+                'event',
+                OrderUser::class,
+                'order_user',
+                'order_user.event = event.id'
+            );
+
+
+        $qb->leftJoin(
+            'modify',
+            UserProfileInfo::class,
+            'profile_info',
+            'profile_info.usr = modify.usr AND profile_info.active = true'
+        );
+
+
+        $qb
+            ->addSelect('profile.id AS user_profile_id')
+            ->leftJoin(
+                'profile_info',
+                UserProfile::class,
+                'profile',
+                'profile.id = profile_info.profile'
+            );
+
+        $qb
+            ->addSelect('profile_personal.username AS profile_username')
+            ->leftJoin(
+                'profile',
+                UserProfilePersonal::class,
+                'profile_personal',
+                'profile_personal.event = profile.event'
+            );
+
+
+        $qb
+            ->addSelect('profile_avatar.name AS profile_avatar_name')
+            ->addSelect('profile_avatar.ext AS profile_avatar_ext')
+            ->addSelect('profile_avatar.cdn AS profile_avatar_cdn')
+            ->leftJoin(
+                'profile',
+                UserProfileAvatar::class,
+                'profile_avatar',
+                'profile_avatar.event = profile.event'
+            );
+
+        $qb->orderBy('modify.mod_date');
+
+        return $qb->fetchAllAssociative();
+    }
+
 }

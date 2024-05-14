@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Repository\OrderDelivery;
 use BaksDev\Contacts\Region\Entity\Call\ContactsRegionCall;
 use BaksDev\Contacts\Region\Entity\Call\Info\ContactsRegionCallInfo;
 use BaksDev\Contacts\Region\Entity\ContactsRegion;
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Entity as EntityOrder;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
@@ -36,12 +37,11 @@ use Doctrine\DBAL\Connection;
 
 final class OrderDeliveryRepository implements OrderDeliveryInterface
 {
-    private Connection $connection;
+    private DBALQueryBuilder $DBALQueryBuilder;
 
-    public function __construct(
-        Connection $connection,
-    ) {
-        $this->connection = $connection;
+    public function __construct(DBALQueryBuilder $DBALQueryBuilder)
+    {
+        $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
     /**
@@ -50,7 +50,7 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
     public function fetchProductStocksGps(ProductStockEventUid $event): array|bool
     {
 
-        $qbOrder = $this->connection->createQueryBuilder();
+        $qbOrder = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $qbOrder->from(ProductStockOrder::TABLE, 'stock_order');
 
@@ -88,8 +88,8 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
          * ПЕРЕМЕЩЕНИЕ
          */
 
-        $qbMove = $this->connection->createQueryBuilder();
-  
+        $qbMove = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
         $qbMove->from(ProductStockMove::TABLE, 'stock_move');
 
         $qbMove->join(
@@ -120,7 +120,7 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
         $qbMove->where('stock_move.event = :event');
 
         /** Выполняем результат запроса UNION */
-        $qb = $this->connection->prepare($qbOrder->getSQL().' UNION '.$qbMove->getSQL().' ');
+        $qb = $this->DBALQueryBuilder->prepare($qbOrder->getSQL().' UNION '.$qbMove->getSQL());
         $qb->bindValue('event', $event, ProductStockEventUid::TYPE);
 
         return $qb->executeQuery()->fetchAssociative();

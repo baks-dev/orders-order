@@ -30,5 +30,5 @@ interface OrderProductsInterface
     /**
      * Метод возвращает продукцию в заказе
      */
-    public function fetchAllOrderProducts(OrderUid $order): ?array;
+    public function fetchAllOrderProducts(OrderUid|string $order): ?array;
 }

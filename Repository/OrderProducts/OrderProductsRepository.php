@@ -48,14 +48,19 @@ final class OrderProductsRepository implements OrderProductsInterface
     /**
      * Метод возвращает продукцию в заказе (идентификаторы)
      */
-    public function fetchAllOrderProducts(OrderUid $order): ?array
+    public function fetchAllOrderProducts(OrderUid|string $order): ?array
     {
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $qb
             ->addSelect('ord.id AS oder_id')
             ->addSelect('ord.event AS oder_event')
-            ->from(Order::TABLE, 'ord')
+            ->from(Order::class, 'ord')
             ->where('ord.id = :order')
             ->setParameter('order', $order, OrderUid::TYPE);
 
@@ -66,7 +71,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             ->addSelect('products.modification AS product_modification')
             ->join(
                 'ord',
-                OrderProduct::TABLE,
+                OrderProduct::class,
                 'products',
                 'products.event = ord.event'
             );
@@ -75,7 +80,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             ->addSelect('product_event.main AS product_id')
             ->leftJoin(
                 'products',
-                ProductEvent::TABLE,
+                ProductEvent::class,
                 'product_event',
                 'product_event.id = products.product'
             );
@@ -86,7 +91,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             $qb
                 ->leftJoin(
                     'products',
-                    ProductVariation::TABLE,
+                    ProductVariation::class,
                     'product_variation',
                     'product_variation.id = products.variation'
                 );
@@ -95,7 +100,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 ->addSelect('wb_card_variation.barcode')
                 ->leftJoin(
                     'product_variation',
-                    WbProductCardVariation::TABLE,
+                    WbProductCardVariation::class,
                     'wb_card_variation',
                     'wb_card_variation.variation = product_variation.const'
                 );
@@ -107,14 +112,20 @@ final class OrderProductsRepository implements OrderProductsInterface
     }
 
 
-    public function fetchAllOrderProductsDetail(OrderUid $order): ?array
+    public function fetchAllOrderProductsDetail(OrderUid|string $order): ?array
     {
+
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $qb
             ->addSelect('ord.id AS oder_id')
             ->addSelect('ord.event AS oder_event')
-            ->from(Order::TABLE, 'ord')
+            ->from(Order::class, 'ord')
             ->where('ord.id = :order')
             ->setParameter('order', $order, OrderUid::TYPE);
 
@@ -125,7 +136,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             ->addSelect('products.modification AS product_modification')
             ->join(
                 'ord',
-                OrderProduct::TABLE,
+                OrderProduct::class,
                 'products',
                 'products.event = ord.event'
             );
@@ -135,7 +146,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             ->addSelect('product_event.main AS product_id')
             ->leftJoin(
                 'products',
-                ProductEvent::TABLE,
+                ProductEvent::class,
                 'product_event',
                 'product_event.id = products.product'
             );
@@ -146,7 +157,7 @@ final class OrderProductsRepository implements OrderProductsInterface
             $qb
                 ->leftJoin(
                     'products',
-                    ProductVariation::TABLE,
+                    ProductVariation::class,
                     'product_variation',
                     'product_variation.id = products.variation'
                 );
@@ -155,7 +166,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 ->addSelect('wb_card_variation.barcode')
                 ->leftJoin(
                     'product_variation',
-                    WbProductCardVariation::TABLE,
+                    WbProductCardVariation::class,
                     'wb_card_variation',
                     'wb_card_variation.variation = product_variation.const'
                 );

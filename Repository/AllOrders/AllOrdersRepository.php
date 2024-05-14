@@ -129,7 +129,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
             ->addSelect('orders.number AS order_number')
-            ->from(Order::TABLE, 'orders');
+            ->from(Order::class, 'orders');
 
 
         $dbal
@@ -142,7 +142,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             $dbal
                 ->join(
                     'orders',
-                    OrderEvent::TABLE,
+                    OrderEvent::class,
                     'order_event',
                     'order_event.id = orders.event AND (order_event.profile = :profile OR order_event.profile IS NULL)'
 
@@ -153,7 +153,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             $dbal
                 ->join(
                     'orders',
-                    OrderEvent::TABLE,
+                    OrderEvent::class,
                     'order_event',
                     'order_event.id = orders.event AND order_event.profile IS NOT NULL'
 
@@ -177,7 +177,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('orders_modify.mod_date AS modify')
             ->leftJoin(
                 'orders',
-                OrderModify::TABLE,
+                OrderModify::class,
                 'orders_modify',
                 'orders_modify.event = orders.event'
             );
@@ -219,7 +219,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'orders',
-                OrderProduct::TABLE,
+                OrderProduct::class,
                 'order_products',
                 'order_products.event = orders.event'
             );
@@ -229,7 +229,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('order_products_price.currency AS order_currency')
             ->leftJoin(
                 'order_products',
-                OrderPrice::TABLE,
+                OrderPrice::class,
                 'order_products_price',
                 'order_products_price.product = order_products.id'
             );
@@ -238,7 +238,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'orders',
-                OrderUser::TABLE,
+                OrderUser::class,
                 'order_user',
                 'order_user.event = orders.event'
             );
@@ -250,7 +250,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('order_delivery.delivery_date AS delivery_date')
             ->leftJoin(
                 'order_user',
-                OrderDelivery::TABLE,
+                OrderDelivery::class,
                 'order_delivery',
                 'order_delivery.usr = order_user.id'
             );
@@ -258,7 +258,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'order_delivery',
-                DeliveryEvent::TABLE,
+                DeliveryEvent::class,
                 'delivery_event',
                 'delivery_event.id = order_delivery.event'
             );
@@ -267,7 +267,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('delivery_price.price AS delivery_price')
             ->leftJoin(
                 'delivery_event',
-                DeliveryPrice::TABLE,
+                DeliveryPrice::class,
                 'delivery_price',
                 'delivery_price.event = delivery_event.id'
             );
@@ -277,7 +277,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('delivery_trans.name AS delivery_name')
             ->leftJoin(
                 'delivery_event',
-                DeliveryTrans::TABLE,
+                DeliveryTrans::class,
                 'delivery_trans',
                 'delivery_trans.event = delivery_event.id'
             );
@@ -288,7 +288,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'order_user',
-                UserProfileEvent::TABLE,
+                UserProfileEvent::class,
                 'user_profile',
                 'user_profile.id = order_user.profile'
             );
@@ -297,7 +297,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('user_profile_info.discount AS order_profile_discount')
             ->leftJoin(
                 'user_profile',
-                UserProfileInfo::TABLE,
+                UserProfileInfo::class,
                 'user_profile_info',
                 'user_profile_info.profile = user_profile.profile ' //.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
             )//->setParameter('user', $usr, UserUid::TYPE)
@@ -307,7 +307,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'user_profile',
-                UserProfileValue::TABLE,
+                UserProfileValue::class,
                 'user_profile_value',
                 'user_profile_value.event = user_profile.id'
             );
@@ -316,7 +316,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'user_profile',
-                TypeProfile::TABLE,
+                TypeProfile::class,
                 'type_profile',
                 'type_profile.id = user_profile.type'
             );
@@ -350,7 +350,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('type_profile_trans.name AS order_profile')
             ->leftJoin(
                 'type_profile',
-                TypeProfileTrans::TABLE,
+                TypeProfileTrans::class,
                 'type_profile_trans',
                 'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
             );
@@ -358,7 +358,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'user_profile_value',
-                TypeProfileSectionField::TABLE,
+                TypeProfileSectionField::class,
                 'type_profile_field',
                 'type_profile_field.id = user_profile_value.field'
             );
@@ -366,7 +366,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'type_profile_field',
-                TypeProfileSectionFieldTrans::TABLE,
+                TypeProfileSectionFieldTrans::class,
                 'type_profile_field_trans',
                 'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
             );
@@ -397,16 +397,16 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         if(!$this->status?->equals(OrderStatus\OrderStatusNew::class) && class_exists(ProductStock::class))
         {
-            $dbalExist = $this->DBALQueryBuilder->builder();
+            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
             $dbalExist
                 ->select('1')
-                ->from(ProductStockMove::TABLE, 'move')
+                ->from(ProductStockMove::class, 'move')
                 ->where('move.ord = orders.id');
 
             $dbalExist->join(
                 'move',
-                ProductStockEvent::TABLE,
+                ProductStockEvent::class,
                 'move_event',
                 'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)'
             );
@@ -414,7 +414,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
             $dbalExist->join(
                 'move_event',
-                ProductStock::TABLE,
+                ProductStock::class,
                 'move_stock',
                 'move_stock.event = move_event.id'
             );
@@ -479,7 +479,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
             //            $dbal->leftJoin(
             //                'order_user',
-            //                UserProfileEvent::TABLE,
+            //                UserProfileEvent::class,
             //                'user_profile',
             //                'user_profile.id = order_user.profile'
             //            );
@@ -495,22 +495,22 @@ final class AllOrdersRepository implements AllOrdersInterface
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
         if(class_exists(DeliveryTransport::class))
         {
-            $dbalExistMoveError = $this->DBALQueryBuilder->builder();
+            $dbalExistMoveError = $this->DBALQueryBuilder->createQueryBuilder(self::class);
             $dbalExistMoveError->select('1');
 
-            $dbalExistMoveError->from(ProductStockMove::TABLE, 'move');
+            $dbalExistMoveError->from(ProductStockMove::class, 'move');
             $dbalExistMoveError->where('move.ord = orders.id');
 
             $dbalExistMoveError->join(
                 'move',
-                ProductStockEvent::TABLE,
+                ProductStockEvent::class,
                 'move_event',
                 'move_event.id = move.event AND move_event.status = :error'
             );
 
             $dbalExistMoveError->join(
                 'move_event',
-                ProductStock::TABLE,
+                ProductStock::class,
                 'move_stock',
                 'move_stock.event = move_event.id'
             );
@@ -518,26 +518,27 @@ final class AllOrdersRepository implements AllOrdersInterface
             $dbal->addSelect(sprintf('EXISTS(%s) AS move_error', $dbalExistMoveError->getSQL()));
 
 
-            $dbalExistOrderError = $this->DBALQueryBuilder->builder();
+            $dbalExistOrderError = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
             $dbalExistOrderError->select('1');
 
-            $dbalExistOrderError->from(ProductStockOrder::TABLE, 'stock_order');
+            $dbalExistOrderError->from(ProductStockOrder::class, 'stock_order');
             $dbalExistOrderError->where('stock_order.ord = orders.id');
 
             $dbalExistOrderError->join(
                 'stock_order',
-                ProductStockEvent::TABLE,
+                ProductStockEvent::class,
                 'stock_order_event',
                 'stock_order_event.id = stock_order.event AND stock_order_event.status = :error'
             );
 
             $dbalExistOrderError->join(
                 'stock_order_event',
-                ProductStock::TABLE,
+                ProductStock::class,
                 'stock_order_stock',
                 'stock_order_stock.event = stock_order_event.id'
             );
+
 
             $dbal->addSelect(sprintf('EXISTS(%s) AS order_error', $dbalExistOrderError->getSQL()));
 

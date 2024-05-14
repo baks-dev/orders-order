@@ -103,7 +103,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 			
 			AND (
 				CASE
-				   WHEN product_active.active_to IS NOT NULL THEN product_active.active_to > NOW()
+				   WHEN product_active.active_to IS NOT NULL 
+				   THEN product_active.active_to > NOW()
 				   ELSE TRUE
 				END
 			)
@@ -137,10 +138,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_price',
                 'product_price.event = product_event.id'
             );
-        //            ->addGroupBy('product_price.price')
-        //            ->addGroupBy('product_price.currency')
-        //            ->addGroupBy('product_price.quantity')
-        //            ->addGroupBy('product_price.reserve');
 
         /* ProductInfo */
 
@@ -174,7 +171,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             $dbal->setParameter('product_offer', $offer, ProductOfferUid::TYPE);
         }
 
-        /** Цена торгового предожения */
+        /** Цена торгового предложения */
         $dbal->leftJoin(
             'product_offer',
             ProductOfferPrice::class,
@@ -635,11 +632,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         $dbal->allGroupByExclude();
 
         // Не кешируем результат для актуальной проверки наличия
-        return $dbal
-            //->enableCache('orders-order', 3600)
-            ->fetchAssociative();
+        return $dbal->fetchAssociative();
 
     }
-
 
 }

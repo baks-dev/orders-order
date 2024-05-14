@@ -72,36 +72,25 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class OrderDetailRepository implements OrderDetailInterface
 {
-    private EntityManagerInterface $entityManager;
 
-    private TranslatorInterface $translator;
     private DBALQueryBuilder $DBALQueryBuilder;
     private ORMQueryBuilder $ORMQueryBuilder;
 
     public function __construct(
         DBALQueryBuilder $DBALQueryBuilder,
         ORMQueryBuilder $ORMQueryBuilder,
-
-        //EntityManagerInterface $entityManager,
-        //TranslatorInterface $translator
     )
     {
-        //$this->entityManager = $entityManager;
-        //$this->translator = $translator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
         $this->ORMQueryBuilder = $ORMQueryBuilder;
     }
 
     public function fetchDetailOrderAssociative(OrderUid $order): ?array
     {
-        //$qb = $this->entityManager->getConnection()->createQueryBuilder();
+
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
-
-        /** ЛОКАЛЬ */
-        //$locale = new Locale($this->translator->getLocale());
-        //$qb->setParameter('local', $locale, Locale::TYPE);
 
         $dbal
             ->select('orders.id AS order_id')
@@ -416,11 +405,11 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal
             ->addSelect('delivery_trans.name AS delivery_name')
             ->leftJoin(
-            'delivery_event',
-            DeliveryTrans::class,
-            'delivery_trans',
-            'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local'
-        );
+                'delivery_event',
+                DeliveryTrans::class,
+                'delivery_trans',
+                'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local'
+            );
 
         $dbal
             ->addSelect('delivery_price.price AS delivery_price');

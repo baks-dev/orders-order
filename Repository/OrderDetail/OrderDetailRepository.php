@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -393,6 +394,17 @@ final class OrderDetailRepository implements OrderDetailInterface
             OrderDelivery::class,
             'order_delivery',
             'order_delivery.usr = order_user.id'
+        );
+
+
+        $dbal
+            ->addSelect('order_delivery_price.price AS order_delivery_price')
+            ->addSelect('order_delivery_price.currency AS order_delivery_currency')
+            ->leftJoin(
+            'order_delivery',
+            OrderDeliveryPrice::class,
+            'order_delivery_price',
+            'order_delivery_price.delivery = order_delivery.id'
         );
 
         $dbal->leftJoin(

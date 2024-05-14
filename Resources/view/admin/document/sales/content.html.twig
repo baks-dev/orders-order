@@ -110,7 +110,27 @@
 
 
 <div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
+
+    <p>
     <strong>Адрес доставки (самовывоз):</strong> {{ order.delivery_geocode_address }}
+
+
+    {% set delivery_price = order.order_delivery_price / 100 %}
+
+    <br><strong>Стоимость доставки:</strong>
+
+        {% if order.order_delivery_price %}
+            {% if order.order_delivery_price %}
+                {{ money(order.order_delivery_price) }} ({{ money_word(delivery_price) }})
+            {% endif %}
+
+            {% set in_total = money + order.order_delivery_price %}
+
+            <br><strong>Итого c доставкой:</strong> {{ money(in_total) }} ({{ money_word(in_total / 100) }})
+        {% else %}
+            бесплатно
+        {% endif %}
+    </p>
 
     <p><strong>Комментарий:</strong></p>
 

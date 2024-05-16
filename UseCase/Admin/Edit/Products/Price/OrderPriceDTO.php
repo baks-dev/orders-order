@@ -48,6 +48,7 @@ final class OrderPriceDTO implements OrderPriceInterface
 	
 	public function __construct()
 	{
+		$this->price = new Money(0);
 		$this->currency = new Currency();
 	}
 	

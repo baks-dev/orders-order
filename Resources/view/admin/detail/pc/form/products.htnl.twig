@@ -92,14 +92,16 @@
 
                 <td class="vertical-middle">
 
-                    {{ money(product.vars.data.price.price, card.product_currency) }}
+                    {% if product.vars.data.price.price == '0' %}
+                        <span class="text-danger">Не указана</span>
+                    {% else %}
+                        {{ money(product.vars.data.price.price, card.product_currency) }}
 
-                    {% if card.product_price != (product.vars.data.price.price.value * 100) %}
-                        &nbsp; <strike class="small text-muted">
-                        {{ money(card.product_price, card.product_currency) }}</strike>
+                        {% if card.product_price != (product.vars.data.price.price.value * 100) %}
+                            &nbsp; <strike class="small text-muted">
+                            {{ money(card.product_price, card.product_currency) }}</strike>
+                        {% endif %}
                     {% endif %}
-
-
 
                 </td>
 

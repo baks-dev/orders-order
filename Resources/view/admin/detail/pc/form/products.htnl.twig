@@ -15,6 +15,7 @@
 
         {% set card = product.vars.data.card %}
 
+
         {% if card %}
 
             <tr id='item_{{ product.vars.id }}'>
@@ -68,7 +69,7 @@
                                 {{ card.product_name }}
 
                                 {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
-                                 card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+                                card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
 
                                 {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
 
@@ -91,10 +92,15 @@
 
                 <td class="vertical-middle">
 
-                    {{ money(card.product_price, card.product_currency) }}
-                    {# <span class="badge bg-danger rounded-2 ms-1">
-					<span class="text-uppercase">-20%</span>
-				</span> #}
+                    {{ money(product.vars.data.price.price, card.product_currency) }}
+
+                    {% if card.product_price != (product.vars.data.price.price.value * 100) %}
+                        &nbsp; <strike class="small text-muted">
+                        {{ money(card.product_price, card.product_currency) }}</strike>
+                    {% endif %}
+
+
+
                 </td>
 
 
@@ -145,7 +151,8 @@
 
 
                 <td class="vertical-middle">
-                    {% set summ = (product.price.vars.data.total * card.product_price) %}
+
+                    {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
 
                     {% set discount = user_profile_discount(summ) %}
 

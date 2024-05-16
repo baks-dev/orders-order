@@ -122,38 +122,42 @@
                  id="pills-order"
                  tabindex="0"
             >
-                {# Клиент #}
-                <div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
 
-                    <div>
+                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
 
-                        {# Обложка  #}
-                        {% set image_path = '/assets/img/blank.svg' %}
+                {% if users %}
 
-                        {% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
-                            {% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}
-                            {% set img_dir = order.profile_avatar_name %}
-                            {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ order.profile_avatar_ext %}
-                            {% set image_path = img_host ~ img_dir ~ img_file %}
-                        {% endif %}
+                    {# Клиент #}
+                    <div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
 
-                        <span class="icon rounded-circle bg-contain lazy p-1 mb-2 entered loaded"
-                              style="width: 43px; height: 43px; background-image: url('{{ image_path }}');"
-                        ></span>
+                        <div>
+
+                            {# Обложка  #}
+                            {% set image_path = '/assets/img/blank.svg' %}
+
+                            {% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
+                                {% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}
+                                {% set img_dir = order.profile_avatar_name %}
+                                {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ order.profile_avatar_ext %}
+                                {% set image_path = img_host ~ img_dir ~ img_file %}
+                            {% endif %}
+
+                            <span class="icon rounded-circle bg-contain lazy p-1 mb-2 entered loaded"
+                                  style="width: 43px; height: 43px; background-image: url('{{ image_path }}');"
+                            ></span>
+                        </div>
+
+
+                        {% for user in users %}
+                            <div class='d-flex flex-column small'>
+                                <small class="small text-muted">{{ user.profile_name }}</small>
+                                <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>
+                            </div>
+                        {% endfor %}
+
                     </div>
 
-
-                    {% set users = order.order_user|json_decode %}
-
-                    {% for user in users %}
-                        <div class='d-flex flex-column small'>
-                            <small class="small text-muted">{{ user.profile_name }}</small>
-                            <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>
-                        </div>
-                    {% endfor %}
-
-                </div>
-
+                {% endif %}
 
                 {# ПРОДУКЦИЯ  #}
                 <div class="d-flex flex-column gap-3 my-3">
@@ -285,7 +289,8 @@
         {% set card = product.vars.data.card %}
 
         {% if card %}
-            {% set summ = (product.price.vars.data.total * card.product_price) %}
+            {#{% set summ = (product.price.vars.data.total * card.product_price) %}#}
+            {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
             {% set total_summ_product = total_summ_product + summ %}
             {% set total_summ_currency = card.product_currency %}
         {% endif %}

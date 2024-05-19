@@ -75,10 +75,29 @@
                              data-status="{{ stats.getValue() }}"
                              data-level="{{ stats.getValue() == 'new' ? 'restricted' }}"
                         >
-                            <div class="w-100 badge p-2 sticky-top z-index-5"
-                                 style="top: 5rem; background-color: {{ color }};">
-                                {{ stats.getValue()|trans({}, 'status.order') }}
-                            </div>
+                            {% set href = null %}
+
+                            {% if stats.getValue() == 'package' and (is_granted('ROLE_PRODUCT_STOCK_PACKAGE') or is_granted('ROLE_ADMIN')) %}
+                                {% set href = 'products-stocks:admin.package.index' %}
+                            {% elseif stats.getValue() == 'extradition' and (is_granted('ROLE_PRODUCT_STOCK_PICKUP') or is_granted('ROLE_ADMIN')) %}
+                                {% set href = 'products-stocks:admin.pickup.index' %}
+                            {% endif %}
+
+                            {% if href %}
+                                <a href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-index-5"
+                                     style="top: 5rem; background-color: {{ color }};">
+                                    {{ stats.getValue()|trans({}, 'status.order') }}
+                                </a>
+                            {% else %}
+
+                                <div class="w-100 badge p-2 sticky-top z-index-5"
+                                     style="top: 5rem; background-color: {{ color }};">
+                                    {{ stats.getValue()|trans({}, 'status.order') }}
+                                </div>
+
+                            {% endif %}
+
+
 
                             {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
 								title="Быстрая сделка">+ Быстрая сделка</a> #}

@@ -273,7 +273,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
 
         /* Категория */
-        $dbal->join(
+        $dbal->leftJoin(
             'product_event',
             ProductCategory::class,
             'product_event_category',
@@ -281,7 +281,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         );
 
 
-        $dbal->join(
+        $dbal->leftJoin(
             'product_event_category',
             CategoryProduct::class,
             'category',
@@ -544,6 +544,8 @@ final class OrderDetailRepository implements OrderDetailInterface
 			)
 			AS order_user"
         );
+
+
 
         $dbal->allGroupByExclude();
 

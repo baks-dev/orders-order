@@ -2,12 +2,12 @@
 
 # systemctl daemon-reload
 
-# systemctl enable baks-nginx-unit@1.service
-# systemctl disable baks-nginx-unit@1.service
+# systemctl enable baks-orders-order@1.service
+# systemctl disable baks-orders-order@1.service
 
-# systemctl start baks-nginx-unit@1.service
-# systemctl restart baks-nginx-unit@1.service
-# systemctl stop baks-nginx-unit@1.service
+# systemctl start baks-orders-order@1.service
+# systemctl restart baks-orders-order@1.service
+# systemctl stop baks-orders-order@1.service
 
 [Unit]
 Description=Symfony messenger nginx-unit %i
@@ -15,7 +15,7 @@ StartLimitBurst=5
 StartLimitIntervalSec=0
 
 [Service]
-ExecStart=php /.....PATH_TO_PROJECT..../bin/console messenger:consume nginx-unit --memory-limit=128m --time-limit=3600 --limit=100
+ExecStart=php /.....PATH_TO_PROJECT..../bin/console messenger:consume orders-order --memory-limit=128m --time-limit=3600 --limit=100
 Restart=always
 
 User=unit

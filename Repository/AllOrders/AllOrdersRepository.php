@@ -601,11 +601,15 @@ final class AllOrdersRepository implements AllOrdersInterface
         {
             $dbal->addOrderBy('orders_modify.mod_date', 'ASC');
         }
-        else
+
+        else if((string) $this->status === 'completed')
         {
             $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
         }
-
+        else
+        {
+            $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+        }
 
         $dbal->allGroupByExclude();
 

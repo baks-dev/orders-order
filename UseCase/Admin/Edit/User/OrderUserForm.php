@@ -64,7 +64,7 @@ final class OrderUserForm extends AbstractType
                 if($data->getProfile())
                 {
                     $CurrentUserProfile = $this->currentUserProfile->findUserProfileEvent($data->getProfile());
-                    $userProfileType = $CurrentUserProfile->getType();
+                    $userProfileType = $CurrentUserProfile?->getType();
 
                     if($userProfileType)
                     {
@@ -87,8 +87,6 @@ final class OrderUserForm extends AbstractType
                 }
             }
         );
-
-
     }
 
 

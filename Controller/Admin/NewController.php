@@ -64,6 +64,8 @@ final class NewController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_new'))
         {
+            $this->refreshTokenForm($form);
+
             if($OrderDTO->getProduct()->isEmpty())
             {
                 return $this->redirectToRoute('orders-order:admin.index');

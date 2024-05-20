@@ -120,6 +120,8 @@ final class DetailController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
+            $this->refreshTokenForm($form);
+
             $OrderHandler = $handler->handle($OrderDTO);
 
             if($OrderHandler instanceof Order)

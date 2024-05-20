@@ -86,6 +86,8 @@ final class CanceledController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_cancel'))
         {
+            $this->refreshTokenForm($form);
+
             /**
              * Отправляем сокет для скрытия заказа у других менеджеров
              */

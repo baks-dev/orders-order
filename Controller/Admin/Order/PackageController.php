@@ -59,12 +59,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class PackageController extends AbstractController
 {
-    /** Упаковка (сборка) заказов */
+    /**
+     * Упаковка (сборка) заказов
+     */
     #[Route('/admin/order/package/{id}', name: 'admin.order.package', methods: ['GET', 'POST'])]
     public function package(
         Request $request,
@@ -74,8 +78,12 @@ final class PackageController extends AbstractController
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
+        CsrfTokenManagerInterface $csrfTokenManager,
         ?PackageOrderProductsInterface $packageOrderProducts = null,
         ?ProductStocksTotalAccessInterface $productStocksTotalAccess = null,
+
+
+
     ): Response
     {
 
@@ -99,7 +107,10 @@ final class PackageController extends AbstractController
             throw new InvalidArgumentException('Page not found');
         }
 
-        /** Создаем заявку на сборку для склада */
+        /**
+         * Создаем складскую заявку на упаковку заказа
+         */
+
         $PackageOrderDTO = new PackageOrderDTO($this->getUsr()?->getId());
         $OrderEvent->getDto($PackageOrderDTO);
 
@@ -109,9 +120,9 @@ final class PackageController extends AbstractController
 
         $form->handleRequest($request);
 
-
         if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {
+            $this->refreshTokenForm($form);
 
             /**
              * Отправляем сокет для скрытия заказа у других менеджеров

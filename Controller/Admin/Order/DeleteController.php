@@ -61,6 +61,8 @@ final class DeleteController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_delete'))
         {
+            $this->refreshTokenForm($form);
+
             $handle = $OrderDeleteHandler->handle($OrderCancelDTO);
 
             $this->addFlash

@@ -60,7 +60,7 @@ final class OrderStatusHandler extends AbstractHandler
 
 
     /** @see Order */
-    public function handle(OrderStatusDTO $command): string|Order
+    public function handle(OrderEventInterface $command): string|Order
     {
 
         /** Валидация DTO  */
@@ -97,7 +97,7 @@ final class OrderStatusHandler extends AbstractHandler
         /* Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-            transport: 'order'
+            transport: 'orders-order'
         );
 
         return $this->main;

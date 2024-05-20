@@ -59,8 +59,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -78,15 +76,10 @@ final class PackageController extends AbstractController
         PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        CsrfTokenManagerInterface $csrfTokenManager,
         ?PackageOrderProductsInterface $packageOrderProducts = null,
         ?ProductStocksTotalAccessInterface $productStocksTotalAccess = null,
-
-
-
     ): Response
     {
-
 
         // Отправляем сокет для скрытия заказа у других менеджеров
 

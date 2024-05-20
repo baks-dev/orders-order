@@ -73,7 +73,12 @@
                         <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
                              style="overflow-y: visible;"
                              data-status="{{ stats.getValue() }}"
-                             data-level="{{ stats.getValue() == 'new' ? 'restricted' }}"
+                             data-level="{{
+                                 stats.getValue() == 'new' or
+                                 stats.getValue() == 'delivery'  or
+                                 stats.getValue() == 'extradition'  or
+                                 stats.getValue() == 'completed'
+                             ? 'restricted' }}"
                         >
                             {% set href = null %}
 

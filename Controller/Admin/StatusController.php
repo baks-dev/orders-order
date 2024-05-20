@@ -88,7 +88,6 @@ final class StatusController extends AbstractController
         $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
 
 
-
         /**
          * Статус заказа можно двигать только вперед
          */
@@ -153,7 +152,6 @@ final class StatusController extends AbstractController
             new OrderStatus(OrderStatus\OrderStatusCompleted::class)
         );
 
-
         if($isExistsCompleted)
         {
             return new JsonResponse(
@@ -166,9 +164,6 @@ final class StatusController extends AbstractController
                 400
             );
         }
-
-
-        //$OrderStatusDTO->getStatus()->getOrderStatus()::priority();
 
 
         if(class_exists(BaksDevProductsStocksBundle::class))
@@ -234,27 +229,28 @@ final class StatusController extends AbstractController
 
         if(!$OrderStatusHandler instanceof Order)
         {
-            // Отправляем сокет для скрытия заказа у других менеджеров
-            $socket = $publish
-                ->addData(['order' => (string) $OrderStatusHandler->getId()])
-                ->addData(['profile' => (string) $this->getProfileUid()])
-                ->send('orders');
-
-            if($socket->isError())
-            {
-                return new JsonResponse($socket->getMessage());
-            }
-
             return new JsonResponse(
                 [
                     'type' => 'danger',
                     'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => 'Ошибка при обновлении заказа',
+                    'message' => sprintf('%s: Ошибка при обновлении заказа', $OrderStatusHandler),
                     'status' => 400,
                 ],
                 400
             );
         }
+
+        // Отправляем сокет для скрытия заказа у других менеджеров
+        $socket = $publish
+            ->addData(['order' => (string) $OrderStatusHandler->getId()])
+            ->addData(['profile' => (string) $this->getProfileUid()])
+            ->send('orders');
+
+        if($socket->isError())
+        {
+            return new JsonResponse($socket->getMessage());
+        }
+
 
         return new JsonResponse(
             [

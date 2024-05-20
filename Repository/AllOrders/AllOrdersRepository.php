@@ -138,38 +138,51 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('order_event.status AS order_status')
             ->addSelect('order_event.comment AS order_comment');
 
-        if($this->status?->equals(OrderStatusNew::class))
+//        if($this->status)
+//        {
+//            $dbal
+//                ->andWhere('order_event.status = :status')
+//                ->setParameter('status', $this->status, OrderStatus::TYPE);
+//        }
+
+
+        if($this->filter?->getStatus())
         {
-            $dbal
-                ->join(
-                    'orders',
-                    OrderEvent::class,
-                    'order_event',
-                    'order_event.id = orders.event AND (order_event.profile = :profile OR order_event.profile IS NULL)'
-
-                );
-        }
-        else
-        {
-            $dbal
-                ->join(
-                    'orders',
-                    OrderEvent::class,
-                    'order_event',
-                    'order_event.id = orders.event AND order_event.profile IS NOT NULL'
-
-                );
-
-            //'order_event.id = orders.event '.($usr instanceof UserProfileUid ? ' AND (order_event.profile IS NULL OR order_event.profile = :profile)' : '').'
-
-            $dbal
-                ->andWhereExists(
-                    OrderEvent::class,
-                    'profile_exists',
-                    'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
-                );
+            $this->status = $this->filter->getStatus();
         }
 
+
+        $condition = 'order_event.id = orders.event';
+
+        if($this->status)
+        {
+            $condition .= ' AND order_event.status = :status';
+            $dbal->setParameter('status', $this->status, OrderStatus::TYPE);
+
+            if($this->status->equals(OrderStatusNew::class))
+            {
+                $condition .= ' AND (order_event.profile = :profile OR order_event.profile IS NULL)';
+            }
+            else
+            {
+                $condition .= ' AND order_event.profile IS NOT NULL';
+
+                $dbal
+                    ->andWhereExists(
+                        OrderEvent::class,
+                        'profile_exists',
+                        'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
+                    );
+            }
+        }
+
+        $dbal
+            ->join(
+                'orders',
+                OrderEvent::class,
+                'order_event',
+                $condition
+            );
 
         $dbal->setParameter('profile', $usr, UserProfileUid::TYPE);
 
@@ -183,21 +196,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders_modify.event = orders.event'
             );
 
-        if($this->status)
-        {
-            $dbal
-                ->andWhere('order_event.status = :status')
-                ->setParameter('status', $this->status, OrderStatus::TYPE);
-        }
-
-
-        if($this->filter?->getStatus())
-        {
-            $dbal
-                ->andWhere('order_event.status = :status')
-                ->setParameter('status', $this->filter->getStatus(), OrderStatus::TYPE);
-        }
-
 
         // Продукция
 
@@ -207,6 +205,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
             // Начало дня
             $startOfDay = $date->setTime(0, 0, 0);
+
             // Конец дня
             $endOfDay = $date->setTime(23, 59, 59);
 

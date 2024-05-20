@@ -25,112 +25,81 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Status;
 
+use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Validator\ValidatorCollectionInterface;
+use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
+use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use DomainException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class OrderStatusHandler
+final class OrderStatusHandler extends AbstractHandler
 {
-    private EntityManagerInterface $entityManager;
 
-    private ValidatorInterface $validator;
-
-    private LoggerInterface $logger;
-
-    private MessageDispatchInterface $messageDispatch;
+    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator,
-        LoggerInterface $logger,
-        MessageDispatchInterface $messageDispatch
-
+        MessageDispatchInterface $messageDispatch,
+        ValidatorCollectionInterface $validatorCollection,
+        ImageUploadInterface $imageUpload,
+        FileUploadInterface $fileUpload,
+        ExistOrderEventByStatusInterface $existOrderEventByStatus
     )
     {
-        $this->entityManager = $entityManager;
-        $this->validator = $validator;
-        $this->logger = $logger;
-        $this->messageDispatch = $messageDispatch;
+        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
+        $this->existOrderEventByStatus = $existOrderEventByStatus;
     }
 
 
-    public function handle(
-        OrderEventInterface $command,
-    ): string|Order
+    /** @see Order */
+    public function handle(OrderStatusDTO $command): string|Order
     {
-        /* Валидация DTO */
-        $errors = $this->validator->validate($command);
 
-        if(count($errors) > 0)
+        /** Валидация DTO  */
+        $this->validatorCollection->add($command);
+
+        $this->main = new Order();
+        $this->event = new OrderEvent();
+
+        try
         {
-            /** Ошибка валидации */
-            $uniqid = uniqid('', false);
-            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-
-            return $uniqid;
+            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
+        }
+        catch(DomainException $errorUniqid)
+        {
+            return $errorUniqid->getMessage();
         }
 
-        $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
-            $command->getEvent()
-        );
-
-        if($EventRepo === null)
+        /** Валидация всех объектов */
+        if($this->validatorCollection->isInvalid())
         {
-            $uniqid = uniqid('', false);
-            $errorsString = sprintf(
-                'Not found %s by id: %s',
-                OrderEvent::class,
-                $command->getEvent()
-            );
-            $this->logger->error($uniqid.': '.$errorsString);
-
-            return $uniqid;
+            return $this->validatorCollection->getErrorUniqid();
         }
 
-        $EventRepo->setEntity($command);
-        $EventRepo->setEntityManager($this->entityManager);
-        $Event = $EventRepo->cloneEntity();
-//        $this->entityManager->clear();
-//        $this->entityManager->persist($Event);
+        /** Статус заказа может присваиваться только единожды */
+        $exists = $this->existOrderEventByStatus->isExists($this->main->getId(), $command->getStatus());
 
-
-        /** @var Order $Main */
-        $Main = $this->entityManager->getRepository(Order::class)
-            ->findOneBy(['event' => $command->getEvent()]);
-
-        if(empty($Main))
+        if($exists)
         {
-            $uniqid = uniqid('', false);
-            $errorsString = sprintf(
-                'Not found %s by event: %s',
-                Order::class,
-                $command->getEvent()
-            );
-            $this->logger->error($uniqid.': '.$errorsString);
-
-            return $uniqid;
+            return 'exists';
         }
-
-
-
-        /* присваиваем событие корню */
-        $Main->setEvent($Event);
 
         $this->entityManager->flush();
 
-
         /* Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
-            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
-            transport: 'orders-order'
+            message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+            transport: 'order'
         );
 
-        return $Main;
+        return $this->main;
     }
-
 }

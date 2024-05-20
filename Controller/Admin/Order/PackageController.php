@@ -41,7 +41,7 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\ProductStock;
-use BaksDev\Products\Stocks\Repository\ProductStocksTotal\ProductStocksTotalInterface;
+use BaksDev\Products\Stocks\Repository\ProductStocksTotalAccess\ProductStocksTotalAccessInterface;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockDTO;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\ProductStockForm;
@@ -75,7 +75,7 @@ final class PackageController extends AbstractController
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
         ?PackageOrderProductsInterface $packageOrderProducts = null,
-        ?ProductStocksTotalInterface $productStocksTotal = null
+        ?ProductStocksTotalAccessInterface $productStocksTotalAccess = null,
     ): Response
     {
 
@@ -170,17 +170,19 @@ final class PackageController extends AbstractController
                 }
 
 
-                /** Проверяем наличие продукции с учетом резерва на любом */
-                if($productStocksTotal && class_exists(BaksDevProductsStocksBundle::class))
+                /** Проверяем наличие продукции с учетом резерва на любом складе */
+                if($productStocksTotalAccess && class_exists(BaksDevProductsStocksBundle::class))
                 {
-                    $isExist = $productStocksTotal->getProductStocksTotalByReserve(
-                        $ProductStockDTO->getProduct(),
-                        $ProductStockDTO->getOffer(),
-                        $ProductStockDTO->getVariation(),
-                        $ProductStockDTO->getModification()
-                    );
 
-                    if($isExist <= 0)
+                    // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
+                   $isAccess = $productStocksTotalAccess
+                        ->product($ProductStockDTO->getProduct())
+                        ->offer($ProductStockDTO->getOffer())
+                        ->variation($ProductStockDTO->getVariation())
+                        ->modification($ProductStockDTO->getModification())
+                        ->get();
+
+                    if($isAccess <= 0)
                     {
                         $this->addFlash('danger', 'danger.update', 'orders-order.admin');
                         return $this->redirectToReferer();

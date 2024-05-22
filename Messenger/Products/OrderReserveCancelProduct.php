@@ -43,144 +43,151 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class OrderReserveCancelProduct
 {
-	private EntityManagerInterface $entityManager;
-	
-	private CurrentQuantityByModificationInterface $quantityByModification;
-	
-	private CurrentQuantityByVariationInterface $quantityByVariation;
-	
-	private CurrentQuantityByOfferInterface $quantityByOffer;
-	
-	private CurrentQuantityByEventInterface $quantityByEvent;
+    private EntityManagerInterface $entityManager;
+
+    private CurrentQuantityByModificationInterface $quantityByModification;
+
+    private CurrentQuantityByVariationInterface $quantityByVariation;
+
+    private CurrentQuantityByOfferInterface $quantityByOffer;
+
+    private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
 
 
     public function __construct(
-		EntityManagerInterface $entityManager,
-		CurrentQuantityByModificationInterface $quantityByModification,
-		CurrentQuantityByVariationInterface $quantityByVariation,
-		CurrentQuantityByOfferInterface $quantityByOffer,
-		CurrentQuantityByEventInterface $quantityByEvent,
+        EntityManagerInterface $entityManager,
+        CurrentQuantityByModificationInterface $quantityByModification,
+        CurrentQuantityByVariationInterface $quantityByVariation,
+        CurrentQuantityByOfferInterface $quantityByOffer,
+        CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger
-	)
-	{
-		$this->entityManager = $entityManager;
-		$this->entityManager->clear();
-		
-		$this->quantityByModification = $quantityByModification;
-		$this->quantityByVariation = $quantityByVariation;
-		$this->quantityByOffer = $quantityByOffer;
-		$this->quantityByEvent = $quantityByEvent;
+    )
+    {
+        $this->entityManager = $entityManager;
+        $this->entityManager->clear();
+
+        $this->quantityByModification = $quantityByModification;
+        $this->quantityByVariation = $quantityByVariation;
+        $this->quantityByOffer = $quantityByOffer;
+        $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
     }
-	
-	
-	/** Снимаем резерв с продукции при отмене заказа  */
-	public function __invoke(OrderMessage $message) : void
-	{
 
-		/* Получаем всю продукцию в заказе */
-		
-		/**
-		 * Новое событие заказа
-		 *
-		 * @var OrderEvent $OrderEvent
-		 */
-		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
-		
-		/** Если статус не "ОТМЕНА" - завершаем обработчик */
-		if(!$OrderEvent || !$OrderEvent->getStatus()->equals(OrderStatusCanceled::class))
-		{
-			return;
-		}
-		
-		if($message->getLast())
-		{
-			/**
-			 * Предыдущее событие заказа
-			 *
-			 * @var OrderEvent $OrderEventLast
-			 */
-			$OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
-			
-			/** Если статус предыдущего события "ВЫПОЛНЕН" - не снимаем резерв или наличие (просто удаляем)  */
-			if($OrderEventLast->getStatus()->equals(OrderStatusCompleted::class))
-			{
-				return;
-			}
-		}
-		
-		/** @var OrderProduct $product */
-		foreach($OrderEvent->getProduct() as $product)
-		{
-			/** Снимаем резерв отмененного заказа */
-			$this->changeReserve($product);
 
-            $this->logger->info('Сняли общий резерв продукции в карточке при отмене заказа',
+    /** Снимаем резерв с продукции при отмене заказа  */
+    public function __invoke(OrderMessage $message): void
+    {
+        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
+
+        if(!$OrderEvent)
+        {
+            return;
+        }
+
+        /** Если статус не "ОТМЕНА" - завершаем обработчик */
+        if(false === $OrderEvent->getStatus()->equals(OrderStatusCanceled::class))
+        {
+            return;
+        }
+
+        if($message->getLast())
+        {
+            /**
+             * Предыдущее событие заказа
+             *
+             * @var OrderEvent $OrderEventLast
+             */
+            $OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
+
+            /** Если статус предыдущего события "ВЫПОЛНЕН" - не снимаем резерв или наличие (просто удаляем)  */
+            if($OrderEventLast->getStatus()->equals(OrderStatusCompleted::class))
+            {
+                return;
+            }
+        }
+
+        /** @var OrderProduct $product */
+        foreach($OrderEvent->getProduct() as $product)
+        {
+            $this->logger->info('Снимаем общий резерв продукции в карточке при отмене заказа',
                 [
                     __FILE__.':'.__LINE__,
-                    'product' => $product->getProduct(),
-                    'offer' => $product->getOffer(),
-                    'variation' => $product->getVariation(),
-                    'modification' => $product->getModification(),
                     'total' => $product->getTotal(),
+                    'product' => (string) $product->getProduct(),
+                    'offer' => (string) $product->getOffer(),
+                    'variation' => (string) $product->getVariation(),
+                    'modification' => (string) $product->getModification(),
+
                 ]
             );
 
-		}
-	}
-	
-	
-	public function changeReserve(OrderProduct $product) : void
-	{
-		$Quantity = null;
-		
-		/** Обновляем резерв модификации множественного варианта торгового предложения */
-		if(!$Quantity && $product->getModification())
-		{
-			/** @var ProductModificationQuantity $Quantity */
-			$Quantity = $this->quantityByModification->getModificationQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-				$product->getVariation(),
-				$product->getModification()
-			);
-		}
-		
-		/** Обновляем резерв множественного варианта торгового предложения */
-		if(!$Quantity && $product->getVariation())
-		{
-			/** @var ProductVariationQuantity $Quantity */
-			$Quantity = $this->quantityByVariation->getVariationQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-				$product->getVariation()
-			);
-		}
-		
-		/** Обновляем резерв торгового предложения */
-		if(!$Quantity && $product->getOffer())
-		{
-			$Quantity = $this->quantityByOffer->getOfferQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-			);
-		}
-		
-		/** Обновляем резерв продукта */
-		if(!$Quantity && $product->getProduct())
-		{
-			$Quantity = $this->quantityByEvent->getQuantity(
-				$product->getProduct()
-			);
-		}
-		
-		if($Quantity)
-		{
-			$Quantity->subReserve($product->getTotal());
-			$this->entityManager->flush();
-		}
-		
-	}
-	
+            /** Снимаем резерв отмененного заказа */
+            $this->changeReserve($product);
+        }
+    }
+
+
+    public function changeReserve(OrderProduct $product): void
+    {
+        $Quantity = null;
+
+        /** Обновляем резерв модификации множественного варианта торгового предложения */
+        if(!$Quantity && $product->getModification())
+        {
+            /** @var ProductModificationQuantity $Quantity */
+            $Quantity = $this->quantityByModification->getModificationQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+                $product->getVariation(),
+                $product->getModification()
+            );
+        }
+
+        /** Обновляем резерв множественного варианта торгового предложения */
+        if(!$Quantity && $product->getVariation())
+        {
+            /** @var ProductVariationQuantity $Quantity */
+            $Quantity = $this->quantityByVariation->getVariationQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+                $product->getVariation()
+            );
+        }
+
+        /** Обновляем резерв торгового предложения */
+        if(!$Quantity && $product->getOffer())
+        {
+            $Quantity = $this->quantityByOffer->getOfferQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+            );
+        }
+
+        /** Обновляем резерв продукта */
+        if(!$Quantity && $product->getProduct())
+        {
+            $Quantity = $this->quantityByEvent->getQuantity(
+                $product->getProduct()
+            );
+        }
+
+        if($Quantity && $Quantity->subReserve($product->getTotal()))
+        {
+            $this->entityManager->flush();
+            return;
+        }
+
+        $this->logger->critical('Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+            [
+                __FILE__.':'.__LINE__,
+                'total' => (string) $product->getTotal(),
+                'product' => (string) $product->getProduct(),
+                'offer' => (string) $product->getOffer(),
+                'variation' => (string) $product->getVariation(),
+                'modification' => (string) $product->getModification(),
+            ]
+        );
+
+    }
 }

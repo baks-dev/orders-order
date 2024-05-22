@@ -24,15 +24,21 @@
 </div>
 
 <ul class="small p-0 m-0 mb-2">
-    <li class="list-group-item">Поставщик: <strong>Интернет-магазин {{ app.request.server.get('HOST') }}</strong>
-    </li>
-    <li class="list-group-item">Покупатель:</li>
 
-    {% for user in order_user %}
-        <li class="list-group-item">
-            {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
-        </li>
-    {% endfor %}
+    <li class="list-group-item">
+        Поставщик: <strong>Интернет-магазин {{ app.request.server.get('HOST') }}</strong>
+    </li>
+
+    {% set client = order_user|filter(v => v.profile_name is not empty and v.profile_value is not empty ) %}
+
+    {% if client is not empty %}
+        <li class="list-group-item">Покупатель:</li>
+        {% for user in client %}
+            <li class="list-group-item">{{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+            </li>
+        {% endfor %}
+    {% endif %}
+
 </ul>
 
 <table class="table w-100 mb-2">

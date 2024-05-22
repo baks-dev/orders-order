@@ -30,6 +30,7 @@ use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
 use BaksDev\Products\Product\Repository\CurrentQuantity\CurrentQuantityByEventInterface;
@@ -43,177 +44,139 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class OrderReserveProduct
 {
-	private EntityManagerInterface $entityManager;
-	
-	private CurrentQuantityByModificationInterface $quantityByModification;
-	
-	private CurrentQuantityByVariationInterface $quantityByVariation;
-	
-	private CurrentQuantityByOfferInterface $quantityByOffer;
-	
-	private CurrentQuantityByEventInterface $quantityByEvent;
+    private EntityManagerInterface $entityManager;
+
+    private CurrentQuantityByModificationInterface $quantityByModification;
+
+    private CurrentQuantityByVariationInterface $quantityByVariation;
+
+    private CurrentQuantityByOfferInterface $quantityByOffer;
+
+    private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
 
 
     public function __construct(
-		EntityManagerInterface $entityManager,
-		CurrentQuantityByModificationInterface $quantityByModification,
-		CurrentQuantityByVariationInterface $quantityByVariation,
-		CurrentQuantityByOfferInterface $quantityByOffer,
-		CurrentQuantityByEventInterface $quantityByEvent,
+        EntityManagerInterface $entityManager,
+        CurrentQuantityByModificationInterface $quantityByModification,
+        CurrentQuantityByVariationInterface $quantityByVariation,
+        CurrentQuantityByOfferInterface $quantityByOffer,
+        CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger
-	)
-	{
-		$this->entityManager = $entityManager;
-		$this->entityManager->clear();
-		
-		$this->quantityByModification = $quantityByModification;
-		$this->quantityByVariation = $quantityByVariation;
-		$this->quantityByOffer = $quantityByOffer;
-		$this->quantityByEvent = $quantityByEvent;
+    )
+    {
+        $this->entityManager = $entityManager;
+        $this->entityManager->clear();
+
+        $this->quantityByModification = $quantityByModification;
+        $this->quantityByVariation = $quantityByVariation;
+        $this->quantityByOffer = $quantityByOffer;
+        $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
     }
-	
-	
-	/**
-     * Сообщение ставит продукцию в резерв
+
+
+    /**
+     * Сообщение ставит продукцию в резерв в карточке товара
      */
-	public function __invoke(OrderMessage $message) : void
-	{
-        $this->logger->info('MessageHandler', ['handler' => self::class]);
+    public function __invoke(OrderMessage $message): void
+    {
+        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
-		/* Получаем всю продукцию в заказе */
-		
-		/**
-		 * Новое событие заказа
-		 *
-		 * @var OrderEvent $OrderEvent
-		 */
-		$OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
-		
-		if(!$OrderEvent)
-		{
-			return;
-		}
-		
-		/** Если статус "ОТМЕНА" или "ВЫПОЛНЕН"  */
-		if(
-			$OrderEvent->getStatus()->equals(OrderStatusCanceled::class) === true ||
-			$OrderEvent->getStatus()->equals(OrderStatusCompleted::class) === true
-		)
-		{
-			return;
-		}
+        if(!$OrderEvent)
+        {
+            return;
+        }
 
-		if($message->getLast())
-		{
-			/**
-			 * Предыдущее событие заказа
-			 *
-			 * @var OrderEvent $OrderEventLast
-			 */
-			$OrderEventLast = $this->entityManager->getRepository(OrderEvent::class)->find($message->getLast());
-			
-			/** Если статус предыдущего события не "ОТМЕНА" и не "ВЫПОЛНЕН" - Снимаем весь старый резерв продукции в заказе  */
-			if(
-				$OrderEventLast->getStatus()->equals(OrderStatusCanceled::class) === false &&
-				$OrderEventLast->getStatus()->equals(OrderStatusCompleted::class) === false
-			)
-			{
-				
-				/** @var OrderProduct $lastProduct */
-				foreach($OrderEventLast->getProduct() as $lastProduct)
-				{
-					/** Снимаем весь старый резерв продукции в заказе
-					 * (если в новой коллекции будет отсутствовать данный продукт - следует продукт не должен быть в резерве)
-					 */
-					$this->changeReserve($lastProduct, 'sub');
-				}
-				
-			}
-		}
-		
-		
-		/** @var OrderProduct $product */
-		foreach($OrderEvent->getProduct() as $product)
-		{
-			/** Устанавливаем новый резерв продукции в заказе */
-			$this->changeReserve($product, 'add');
+        /** Если заказ не является новым - завершаем обработчик  */
+        if(false === $OrderEvent->getStatus()->equals(OrderStatusNew::class))
+        {
+            return;
+        }
 
-            $this->logger->info('Добавили общий резерв продукции в карточке',
+
+        /** @var OrderProduct $product */
+        foreach($OrderEvent->getProduct() as $product)
+        {
+
+            $this->logger->info('Добавляем общий резерв продукции в карточке',
                 [
                     __FILE__.':'.__LINE__,
-                    'product' => $product->getProduct(),
-                    'offer' => $product->getOffer(),
-                    'variation' => $product->getVariation(),
-                    'modification' => $product->getModification(),
                     'total' => $product->getTotal(),
+                    'ProductEventUid' => (string) $product->getProduct(),
+                    'ProductOfferUid' => (string) $product->getOffer(),
+                    'ProductVariationUid' => (string) $product->getVariation(),
+                    'ProductModificationUid' => (string) $product->getModification(),
                 ]
             );
-		}
 
-	}
+            /** Устанавливаем новый резерв продукции в заказе */
+            $this->changeReserve($product, 'add');
 
-	public function changeReserve(OrderProduct $product, string $method) : void
-	{
-		$Quantity = null;
-		
-		/** Обновляем резерв модификации множественного варианта торгового предложения */
-		if(!$Quantity && $product->getModification())
-		{
-			/** @var ProductModificationQuantity $Quantity */
-			$Quantity = $this->quantityByModification->getModificationQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-				$product->getVariation(),
-				$product->getModification()
-			);
-		}
-		
-		/** Обновляем резерв множественного варианта торгового предложения */
-		if(!$Quantity && $product->getVariation())
-		{
-			/** @var ProductVariationQuantity $Quantity */
-			$Quantity = $this->quantityByVariation->getVariationQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-				$product->getVariation()
-			);
-		}
-		
-		/** Обновляем резерв торгового предложения */
-		if(!$Quantity && $product->getOffer())
-		{
-			$Quantity = $this->quantityByOffer->getOfferQuantity(
-				$product->getProduct(),
-				$product->getOffer(),
-			);
-		}
-		
-		/** Обновляем резерв продукта */
-		if(!$Quantity && $product->getProduct())
-		{
-			$Quantity = $this->quantityByEvent->getQuantity(
-				$product->getProduct()
-			);
-		}
-		
+        }
 
-		if($Quantity)
-		{
-			if($method === 'add')
-			{
-				$Quantity->addReserve($product->getTotal());
-			}
-			
-			if($method === 'sub')
-			{
-				$Quantity->subReserve($product->getTotal());
-			}
-			
-			$this->entityManager->flush();
-		}
-		
-	}
-	
+    }
+
+    public function changeReserve(OrderProduct $product, string $method): void
+    {
+        $Quantity = null;
+
+        /** Обновляем резерв модификации множественного варианта торгового предложения */
+        if(!$Quantity && $product->getModification())
+        {
+            /** @var ProductModificationQuantity $Quantity */
+            $Quantity = $this->quantityByModification->getModificationQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+                $product->getVariation(),
+                $product->getModification()
+            );
+        }
+
+        /** Обновляем резерв множественного варианта торгового предложения */
+        if(!$Quantity && $product->getVariation())
+        {
+            /** @var ProductVariationQuantity $Quantity */
+            $Quantity = $this->quantityByVariation->getVariationQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+                $product->getVariation()
+            );
+        }
+
+        /** Обновляем резерв торгового предложения */
+        if(!$Quantity && $product->getOffer())
+        {
+            $Quantity = $this->quantityByOffer->getOfferQuantity(
+                $product->getProduct(),
+                $product->getOffer(),
+            );
+        }
+
+        /** Обновляем резерв продукта */
+        if(!$Quantity && $product->getProduct())
+        {
+            $Quantity = $this->quantityByEvent->getQuantity(
+                $product->getProduct()
+            );
+        }
+
+        if($Quantity && $Quantity->addReserve($product->getTotal()))
+        {
+            $this->entityManager->flush();
+            return;
+        }
+
+        $this->logger->critical('Невозможно добавить резерв на новый заказ: карточка не найдена либо недостаточное количество для резерва)',
+            [
+                __FILE__.':'.__LINE__,
+                'total' => (string) $product->getTotal(),
+                'ProductEventUid' => (string) $product->getProduct(),
+                'ProductOfferUid' => (string) $product->getOffer(),
+                'ProductVariationUid' => (string) $product->getVariation(),
+                'ProductModificationUid' => (string) $product->getModification(),
+            ]
+        );
+
+    }
 }

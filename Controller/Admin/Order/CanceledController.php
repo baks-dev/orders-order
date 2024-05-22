@@ -51,51 +51,40 @@ final class CanceledController extends AbstractController
     public function canceled(
         Request $request,
         #[MapEntity] Order $Order,
-        OrderStatusHandler $statusHandler,
-        MovingProductStockHandler $movingHandler,
-        PackageProductStockHandler $packageHandler,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        //ProductStocksMoveByOrderInterface $productStocksMoveByOrder,
-        PackageOrderProductsInterface $packageOrderProducts,
         OrderStatusHandler $OrderStatusHandler
     ): Response
     {
 
-        // Отправляем сокет для скрытия заказа у других менеджеров
-
-        $socket = $publish
+        /**
+         * Отправляем сокет для скрытия заказа у других менеджеров
+         */
+        $publish
             ->addData(['order' => (string) $Order->getId()])
             ->addData(['profile' => (string) $this->getProfileUid()])
             ->send('orders');
 
-        if($socket->isError())
-        {
-            return new JsonResponse($socket->getMessage());
-        }
 
         $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
 
+        if(!$OrderEvent)
+        {
+            return $this->redirectToReferer();
+        }
 
         $OrderCanceledDTO = new OrderCanceledDTO($this->getProfileUid());
         $OrderEvent->getDto($OrderCanceledDTO);
+
         $form = $this->createForm(OrderCanceledForm::class, $OrderCanceledDTO, [
             'action' => $this->generateUrl('orders-order:admin.order.canceled', ['id' => $Order->getId()]),
         ]);
+
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_cancel'))
         {
             $this->refreshTokenForm($form);
-
-            /**
-             * Отправляем сокет для скрытия заказа у других менеджеров
-             */
-            $socket = $publish
-                ->addData(['order' => (string) $Order->getId()])
-                ->addData(['profile' => (string) $this->getProfileUid()])
-                ->send('orders');
-
 
             $handle = $OrderStatusHandler->handle($OrderCanceledDTO);
 
@@ -107,26 +96,12 @@ final class CanceledController extends AbstractController
                 $handle
             );
 
-            return $this->redirectToRoute('orders-order:admin.index');
+            return $this->redirectToReferer();  // отмена заказа может происходить в других разделах
         }
 
         return $this->render([
             'form' => $form->createView(),
             'number' => $Order->getNumber()
-            //'name' => $OrderEvent->getNameByLocale($this->getLocale()), // название согласно локали
         ]);
     }
-
-    //    public function errorMessage(string $number, string $code): Response
-    //    {
-    //        return new JsonResponse(
-    //            [
-    //                'type' => 'danger',
-    //                'header' => sprintf('Заказ #%s', $number),
-    //                'message' => sprintf('Ошибка %s при обновлении заказа', $code),
-    //                'status' => 400,
-    //            ],
-    //            400
-    //        );
-    //    }
 }

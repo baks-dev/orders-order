@@ -79,15 +79,15 @@ final class OrderReserveCompletedProduct
     public function __invoke(OrderMessage $message): void
     {
 
-        /* Получаем всю продукцию в заказе */
-
-        /**
-         * @var OrderEvent $OrderEvent
-         */
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
+        if(!$OrderEvent)
+        {
+            return;
+        }
+
         /** Если статус не Completed «Выполнен» - завершаем обработчик */
-        if(!$OrderEvent || !$OrderEvent->getStatus()->equals(OrderStatusCompleted::class))
+        if(false === $OrderEvent->getStatus()->equals(OrderStatusCompleted::class))
         {
             return;
         }
@@ -95,22 +95,20 @@ final class OrderReserveCompletedProduct
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-            /** Снимаем резерв выполненного заказа */
-            $this->changeReserve($product);
-
-            $this->logger->info('Сняли общий резерв продукции в карточке при выполненном заказе',
+            $this->logger->info('Снимаем общий резерв и наличие продукции в карточке при выполненном заказе',
                 [
                     __FILE__.':'.__LINE__,
-                    'product' => $product->getProduct(),
-                    'offer' => $product->getOffer(),
-                    'variation' => $product->getVariation(),
-                    'modification' => $product->getModification(),
-                    'total' => $product->getTotal(),
+                    'total' => (string) $product->getTotal(),
+                    'ProductEventUid' => (string) $product->getProduct(),
+                    'ProductOfferUid' => (string) $product->getOffer(),
+                    'ProductVariationUid' => (string) $product->getVariation(),
+                    'ProductModificationUid' => (string) $product->getModification(),
                 ]
             );
 
+            /** Снимаем резерв выполненного заказа */
+            $this->changeReserve($product);
         }
-
     }
 
 
@@ -158,14 +156,25 @@ final class OrderReserveCompletedProduct
             );
         }
 
-        if($Quantity)
+        /* Снимаем резерв и наличие */
+
+        if($Quantity && $Quantity->subReserve($product->getTotal()) && $Quantity->subQuantity($product->getTotal()))
         {
-            /* Снимаем резерв и снимаем наличие */
-            $Quantity->subReserve($product->getTotal());
-            $Quantity->subQuantity($product->getTotal());
             $this->entityManager->flush();
+            return;
         }
 
+        $this->logger->critical('Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена либо недостаточное количество в резерве)',
+            [
+                __FILE__.':'.__LINE__,
+                'total' => $product->getTotal(),
+                'product' => (string) $product->getProduct(),
+                'offer' => (string) $product->getOffer(),
+                'variation' => (string) $product->getVariation(),
+                'modification' => (string) $product->getModification(),
+
+            ]
+        );
     }
 
 }

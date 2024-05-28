@@ -156,9 +156,7 @@ class BasketController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-
             $this->refreshTokenForm($form);
-
 
             /**
              * Проверяем, что продукция в наличии в карточке

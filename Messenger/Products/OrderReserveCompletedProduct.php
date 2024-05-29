@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Messenger\Products;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
@@ -53,6 +54,7 @@ final class OrderReserveCompletedProduct
     private CurrentQuantityByEventInterface $quantityByEvent;
 
     private LoggerInterface $logger;
+    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
 
 
     public function __construct(
@@ -62,6 +64,7 @@ final class OrderReserveCompletedProduct
         CurrentQuantityByOfferInterface $quantityByOffer,
         CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger,
+        ExistOrderEventByStatusInterface $existOrderEventByStatus
     )
     {
         $this->entityManager = $entityManager;
@@ -72,13 +75,13 @@ final class OrderReserveCompletedProduct
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
+        $this->existOrderEventByStatus = $existOrderEventByStatus;
     }
 
 
     /** Снимаем резерв и наличие с продукта если заказ выполнен  */
     public function __invoke(OrderMessage $message): void
     {
-
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
         if(!$OrderEvent)
@@ -91,6 +94,19 @@ final class OrderReserveCompletedProduct
         {
             return;
         }
+
+        /** Не снимаем резерв и наличие с продукта если дублируется событие */
+        $isOtherExists = $this->existOrderEventByStatus->isOtherExists(
+            $message->getId(),
+            $message->getEvent(),
+            OrderStatusCompleted::class
+        );
+
+        if($isOtherExists)
+        {
+            return;
+        }
+
 
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)

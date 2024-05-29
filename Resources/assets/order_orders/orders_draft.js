@@ -948,7 +948,7 @@ async function submitDeliveryForm(forms)
                     $selectedDate = new Date(+year, month - 1, +day);
 
                     let currentDate = new Date();
-                    let nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+                    let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
 
                     currentDate = new Date();
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
@@ -1366,7 +1366,7 @@ async function submitProfileForm(forms)
                     $selectedDate = new Date(+year, month - 1, +day);
 
                     let currentDate = new Date();
-                    let nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+                    let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
 
                     currentDate = new Date();
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));

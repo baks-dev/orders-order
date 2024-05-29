@@ -27,7 +27,10 @@ namespace BaksDev\Orders\Order\Repository\ExistOrderEventByStatus;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatusInterface
@@ -44,8 +47,18 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
     /**
      * Метод проверяет, имеется ли событие у заказа с указанным статусом
      */
-    public function isExists(OrderUid $order, OrderStatus $status): bool
+    public function isExists(OrderUid|string $order, OrderStatus|OrderStatusInterface|string $status): bool
     {
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
+        if(is_string($status) || $status instanceof OrderStatusInterface)
+        {
+            $status = new OrderStatus($status);
+        }
+
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $dbal
@@ -60,4 +73,55 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
 
         return $dbal->fetchExist();
     }
+
+
+    /**
+     * Метод проверяет, имеется ли другое событие заказа с указанным статусом
+     */
+    public function isOtherExists(
+        OrderUid|string $order,
+        OrderEventUid|string $event,
+        OrderStatus|OrderStatusInterface|string $status
+    ): bool
+    {
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
+        if(is_string($event))
+        {
+            $event = new OrderEventUid($event);
+        }
+
+        if(is_string($status) || $status instanceof OrderStatusInterface)
+        {
+            $status = new OrderStatus($status);
+        }
+
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+
+        $dbal
+            ->from(Order::class, 'main')
+            ->where('main.id = :ord')
+            ->setParameter('ord', $order, OrderUid::TYPE)
+        ;
+
+        $dbal
+            ->join(
+                'main',
+                OrderEvent::class,
+                'event',
+                'event.orders = main.id AND event.id != :event AND event.status = :status'
+            )
+            ->setParameter('event', $event, OrderEventUid::TYPE)
+            ->setParameter('status', $status, OrderStatus::TYPE)
+        ;
+
+        $dbal->andWhere('main.event = event.id');
+
+        return $dbal->fetchExist();
+    }
+
 }

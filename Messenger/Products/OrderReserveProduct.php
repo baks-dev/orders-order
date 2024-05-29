@@ -28,6 +28,8 @@ namespace BaksDev\Orders\Order\Messenger\Products;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
@@ -41,7 +43,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 1)]
 final class OrderReserveProduct
 {
     private EntityManagerInterface $entityManager;
@@ -54,6 +56,8 @@ final class OrderReserveProduct
 
     private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
+    private CurrentOrderEventInterface $currentOrderEvent;
+    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
 
 
     public function __construct(
@@ -62,7 +66,9 @@ final class OrderReserveProduct
         CurrentQuantityByVariationInterface $quantityByVariation,
         CurrentQuantityByOfferInterface $quantityByOffer,
         CurrentQuantityByEventInterface $quantityByEvent,
-        LoggerInterface $ordersOrderLogger
+        LoggerInterface $ordersOrderLogger,
+        CurrentOrderEventInterface $currentOrderEvent,
+        ExistOrderEventByStatusInterface $existOrderEventByStatus
     )
     {
         $this->entityManager = $entityManager;
@@ -73,6 +79,8 @@ final class OrderReserveProduct
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
+        $this->currentOrderEvent = $currentOrderEvent;
+        $this->existOrderEventByStatus = $existOrderEventByStatus;
     }
 
 
@@ -81,15 +89,34 @@ final class OrderReserveProduct
      */
     public function __invoke(OrderMessage $message): void
     {
-        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
+        /** Новый заказ не имеет предыдущего события */
+        if($message->getLast())
+        {
+            return;
+        }
+
+        $OrderEvent = $this->currentOrderEvent->getCurrentOrderEvent($message->getId());
 
         if(!$OrderEvent)
         {
             return;
         }
 
-        /** Если заказ не является новым - завершаем обработчик  */
+        /** Если заказ не является новым - завершаем обработчик */
         if(false === $OrderEvent->getStatus()->equals(OrderStatusNew::class))
+        {
+            return;
+        }
+
+        /** Не ставим продукцию в резерв в карточке товара если дублируется событие */
+        $isOtherExists = $this->existOrderEventByStatus
+            ->isOtherExists(
+                $message->getId(),
+                $message->getEvent(),
+                OrderStatusNew::class
+            );
+
+        if($isOtherExists)
         {
             return;
         }
@@ -111,13 +138,12 @@ final class OrderReserveProduct
             );
 
             /** Устанавливаем новый резерв продукции в заказе */
-            $this->changeReserve($product, 'add');
+            $this->handle($product);
 
         }
-
     }
 
-    public function changeReserve(OrderProduct $product, string $method): void
+    public function handle(OrderProduct $product): void
     {
         $Quantity = null;
 

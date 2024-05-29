@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Messenger\Products;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
@@ -53,6 +54,7 @@ final class OrderReserveCancelProduct
 
     private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
+    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
 
 
     public function __construct(
@@ -61,7 +63,8 @@ final class OrderReserveCancelProduct
         CurrentQuantityByVariationInterface $quantityByVariation,
         CurrentQuantityByOfferInterface $quantityByOffer,
         CurrentQuantityByEventInterface $quantityByEvent,
-        LoggerInterface $ordersOrderLogger
+        LoggerInterface $ordersOrderLogger,
+        ExistOrderEventByStatusInterface $existOrderEventByStatus
     )
     {
         $this->entityManager = $entityManager;
@@ -72,12 +75,14 @@ final class OrderReserveCancelProduct
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
+        $this->existOrderEventByStatus = $existOrderEventByStatus;
     }
 
 
     /** Снимаем резерв с продукции при отмене заказа  */
     public function __invoke(OrderMessage $message): void
     {
+
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
         if(!$OrderEvent)
@@ -90,6 +95,20 @@ final class OrderReserveCancelProduct
         {
             return;
         }
+
+        /** Не снимаем резерв с продукта если дублируется событие */
+        $isOtherExists = $this->existOrderEventByStatus->isOtherExists(
+            $message->getId(),
+            $message->getEvent(),
+            OrderStatusCanceled::class
+        );
+
+        if($isOtherExists)
+        {
+            return;
+        }
+
+
 
         if($message->getLast())
         {

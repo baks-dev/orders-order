@@ -26,14 +26,12 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\Notifier;
 
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
-use BaksDev\Auth\Telegram\Repository\AccountTelegramRole\AccountTelegramRoleInterface;
 use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
-use BaksDev\Telegram\Api\TelegramSendMessage;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileValues\UserProfileValuesInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -49,8 +47,6 @@ final class SendClientEmailOrderNews
 {
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
-    private TelegramSendMessage $telegramSendMessage;
-    private AccountTelegramRoleInterface $accountTelegramRole;
     private OrderDetailInterface $orderDetail;
     private UserProfileValuesInterface $userProfileValues;
     private MailerInterface $mailer;
@@ -61,8 +57,6 @@ final class SendClientEmailOrderNews
         #[Autowire(env: 'HOST')] string $HOST,
         EntityManagerInterface $entityManager,
         LoggerInterface $ordersOrderLogger,
-        TelegramSendMessage $telegramSendMessage,
-        AccountTelegramRoleInterface $accountTelegramRole,
         OrderDetailInterface $orderDetail,
         UserProfileValuesInterface $userProfileValues,
         MailerInterface $mailer,
@@ -73,12 +67,8 @@ final class SendClientEmailOrderNews
         $this->entityManager = $entityManager;
         $this->entityManager->clear();
         $this->logger = $ordersOrderLogger;
-        $this->telegramSendMessage = $telegramSendMessage;
-        $this->accountTelegramRole = $accountTelegramRole;
         $this->orderDetail = $orderDetail;
-
         $this->userProfileValues = $userProfileValues;
-
 
         $this->mailer = $mailer;
         $this->parameters = $parameters;
@@ -90,6 +80,11 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
+        /** Новый заказ не имеет предыдущего события */
+        if($message->getLast())
+        {
+            return;
+        }
 
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
@@ -153,7 +148,6 @@ final class SendClientEmailOrderNews
 
         // Отправляем письмо пользователю
         $this->mailer->send($email);
-
 
         $this->logger->notice('Оправили уведомление клиенту на Email '.$AccountEmail);
 

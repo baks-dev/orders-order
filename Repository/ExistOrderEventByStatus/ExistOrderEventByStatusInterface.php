@@ -23,13 +23,24 @@
 
 namespace BaksDev\Orders\Order\Repository\ExistOrderEventByStatus;
 
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 
 interface ExistOrderEventByStatusInterface
 {
     /**
      * Метод проверяет, имеется ли событие у заказа с указанным статусом
      */
-    public function isExists(OrderUid $order, OrderStatus $status): bool;
+    public function isExists(OrderUid|string $order, OrderStatus|OrderStatusInterface|string $status): bool;
+
+    /**
+     * Метод проверяет, имеется ли другое событие заказа с указанным статусом
+     */
+    public function isOtherExists(
+        OrderUid|string $order,
+        OrderEventUid|string $event,
+        OrderStatus|OrderStatusInterface|string $status
+    ): bool;
 }

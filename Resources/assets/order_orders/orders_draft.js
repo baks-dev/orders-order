@@ -947,10 +947,11 @@ async function submitDeliveryForm(forms)
                     const [day, month, year] = $elementDate.split('.');
                     $selectedDate = new Date(+year, month - 1, +day);
 
-                    let currentDate = new Date();
-                    let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
 
-                    currentDate = new Date();
+                    //let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
+                    let nextDay = new Date();
+
+                    let currentDate = new Date();
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                     MCDatepicker.create({
@@ -1365,10 +1366,11 @@ async function submitProfileForm(forms)
                     const [day, month, year] = $elementDate.split('.');
                     $selectedDate = new Date(+year, month - 1, +day);
 
-                    let currentDate = new Date();
-                    let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
 
-                    currentDate = new Date();
+                   // let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
+                    let nextDay = new Date();
+
+                    let currentDate = new Date();
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                     MCDatepicker.create({

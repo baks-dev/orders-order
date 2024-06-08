@@ -23,6 +23,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
 use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldType;
 use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldUid;
 use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryType;
@@ -71,11 +72,10 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
 
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
 
     $emDefault->mapping('orders-order')
 		->type('attribute')
-		->dir($MODULE.'Entity')
+		->dir(BaksDevOrdersOrderBundle::PATH.'Entity')
 		->isBundle(false)
 		->prefix('BaksDev\Orders\Order\Entity')
 		->alias('orders-order')

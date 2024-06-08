@@ -40,6 +40,7 @@ use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Entity\ProductStock;
 use BaksDev\Products\Stocks\Repository\ProductStocksTotalAccess\ProductStocksTotalAccessInterface;
 use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
@@ -98,6 +99,14 @@ final class PackageController extends AbstractController
         if(!$OrderEvent)
         {
             throw new InvalidArgumentException('Page not found');
+        }
+
+        /** Делаем проверку на отсутствие упаковки с данным заказом */
+        $isExistsProductStockOrder = $entityManager->getRepository(ProductStockOrder::class)->findBy(['ord' => $Order->getId()]);
+
+        if($isExistsProductStockOrder)
+        {
+            return $this->redirectToRoute('orders-order:admin.index');
         }
 
         /**

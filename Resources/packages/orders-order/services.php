@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
@@ -33,25 +34,25 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 
 
 return static function(ContainerConfigurator $configurator) {
+
     $services = $configurator->services()
         ->defaults()
         ->autowire()
         ->autoconfigure();
 
-    $NAMESPACE = 'BaksDev\Orders\Order\\';
+    $NAMESPACE = BaksDevOrdersOrderBundle::NAMESPACE;
+    $PATH = BaksDevOrdersOrderBundle::PATH;
 
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
-
-    $services->load($NAMESPACE, $MODULE)
+    $services->load($NAMESPACE, $PATH)
         ->exclude([
-            $MODULE.'{Entity,Resources,Type}',
-            $MODULE.'**/*Message.php',
-            $MODULE.'**/*DTO.php',
+            $PATH.'{Entity,Resources,Type}',
+            $PATH.'**/*Message.php',
+            $PATH.'**/*DTO.php',
         ])
     ;
 
     /* Статусы заказов */
-    $services->load($NAMESPACE.'Type\Status\OrderStatus\\', $MODULE.'Type/Status/OrderStatus');
+    $services->load($NAMESPACE.'Type\Status\OrderStatus\\', $PATH.'Type/Status/OrderStatus');
 
 
     /** @see https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type */

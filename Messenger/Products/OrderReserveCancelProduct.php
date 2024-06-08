@@ -109,7 +109,6 @@ final class OrderReserveCancelProduct
         }
 
 
-
         if($message->getLast())
         {
             /**

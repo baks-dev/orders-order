@@ -128,4 +128,10 @@ class OrderDelivery extends EntityEvent
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
+
+    public function setDeliveryFree(): self
+    {
+        $this->price = null;
+        return $this;
+    }
 }

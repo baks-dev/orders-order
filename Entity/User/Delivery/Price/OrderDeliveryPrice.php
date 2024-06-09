@@ -85,6 +85,7 @@ class OrderDeliveryPrice extends EntityEvent
         {
             if($dto->getPrice() === null || empty($dto->getPrice()->getValue()))
             {
+                $this->delivery->setDeliveryFree();
                 return false;
             }
 
@@ -92,10 +93,5 @@ class OrderDeliveryPrice extends EntityEvent
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-    }
-
-    public function getTotal(): int
-    {
-        return $this->total;
     }
 }

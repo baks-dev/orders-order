@@ -21,6 +21,7 @@
   ],
   "require": {
     "php": ">=8.3",
+    "baks-dev/delivery": "^7.1",
     "baks-dev/payment": "^7.1"
   },
   "require-dev": {

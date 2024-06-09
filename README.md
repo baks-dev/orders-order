@@ -1,6 +1,6 @@
 # BaksDev Order
 
-[![Version](https://img.shields.io/badge/version-7.1.2-blue)](https://github.com/baks-dev/orders-order/releases)
+[![Version](https://img.shields.io/badge/version-7.1.3-blue)](https://github.com/baks-dev/orders-order/releases)
 ![php 8.3+](https://img.shields.io/badge/php-min%208.3-red.svg)
 
 Модуль системных заказов
@@ -12,6 +12,12 @@ $ composer require baks-dev/orders-order
 ```
 
 ## Дополнительно
+
+Установка конфигурации и файловых ресурсов:
+
+``` bash
+$ php bin/console baks:assets:install
+```
 
 Должен быть запущен воркер 'orders-order' для обработки асинхронных сообщений 
 
@@ -36,11 +42,7 @@ class OrderStatusDelivery implements OrderStatusInterface
 }
 ```
 
-Установка файловых ресурсов в публичную директорию (javascript, css, image ...):
 
-``` bash
-$ php bin/console baks:assets:install
-```
 
 Изменения в схеме базы данных с помощью миграции
 
@@ -49,7 +51,8 @@ $ php bin/console doctrine:migrations:diff
 
 $ php bin/console doctrine:migrations:migrate
 ```
-Тесты
+
+## Тестирование
 
 ``` bash
 $ php bin/phpunit --group=orders-order

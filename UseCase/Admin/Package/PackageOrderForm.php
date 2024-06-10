@@ -26,12 +26,10 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 
 use BaksDev\Contacts\Region\Repository\ContactCallByGeocode\ContactCallByGeocodeInterface;
-use BaksDev\Contacts\Region\Repository\WarehouseChoice\WarehouseChoiceInterface;
-use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
-use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileChoice\UserProfileChoiceInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -47,14 +45,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class PackageOrderForm extends AbstractType
 {
-    //private WarehouseChoiceInterface $warehouseChoice;
-
     private GeocodeAddressInterface $geocodeAddress;
 
     private GeocodeDistance $geocodeDistance;
-
-
-
 
     /** Ближайший склад */
     private ?UserProfileUid $nearestWarehouse = null;
@@ -65,21 +58,17 @@ final class PackageOrderForm extends AbstractType
     /** Выбранный склад */
     private ?UserProfileUid $currentProfile = null;
 
-
-
-
     private ContactCallByGeocodeInterface $contactCallByGeocode;
+
     private UserProfileChoiceInterface $userProfileChoice;
 
     public function __construct(
         UserProfileChoiceInterface $userProfileChoice,
-        //WarehouseChoiceInterface $warehouseChoice,
         GeocodeAddressInterface $geocodeAddress,
         GeocodeDistance $geocodeDistance,
         ContactCallByGeocodeInterface $contactCallByGeocode,
     )
     {
-        //$this->warehouseChoice = $warehouseChoice;
         $this->geocodeAddress = $geocodeAddress;
         $this->geocodeDistance = $geocodeDistance;
         $this->contactCallByGeocode = $contactCallByGeocode;

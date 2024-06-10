@@ -34,44 +34,28 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use BaksDev\Products\Stocks\Repository\ProductChoice\ProductChoiceWarehouseInterface;
-use BaksDev\Products\Stocks\Repository\ProductModificationChoice\ProductModificationChoiceWarehouseInterface;
-use BaksDev\Products\Stocks\Repository\ProductOfferChoice\ProductOfferChoiceWarehouseInterface;
-use BaksDev\Products\Stocks\Repository\ProductVariationChoice\ProductVariationChoiceWarehouseInterface;
-use BaksDev\Products\Stocks\Repository\ProductWarehouseChoice\ProductWarehouseChoiceInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileChoice\UserProfileChoiceInterface;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class PreProductForm extends AbstractType
 {
 
-    private ProductChoiceWarehouseInterface $productChoiceWarehouse;
-
-    private ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse;
-
-    private ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse;
-
-    private ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse;
-
-    private ProductWarehouseChoiceInterface $productWarehouseChoice;
-
-    private UserProfileChoiceInterface $userProfileChoice;
-
-    private UserUid $user;
-
-    private TokenStorageInterface $tokenStorage;
+//    private ProductChoiceWarehouseInterface $productChoiceWarehouse;
+//    private ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse;
+//    private ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse;
+//    private ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse;
+//    private ProductWarehouseChoiceInterface $productWarehouseChoice;
+//    private UserProfileChoiceInterface $userProfileChoice;
+//    private TokenStorageInterface $tokenStorage;
+//    private UserUid $user;
 
     private ProductChoiceInterface $productChoice;
     private ProductOfferChoiceInterface $productOfferChoice;
@@ -79,13 +63,13 @@ final class PreProductForm extends AbstractType
     private ProductModificationChoiceInterface $productModificationChoice;
 
     public function __construct(
-        UserProfileChoiceInterface $userProfileChoice,
-        ProductChoiceWarehouseInterface $productChoiceWarehouse,
-        ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse,
-        ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse,
-        ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse,
-        ProductWarehouseChoiceInterface $productWarehouseChoice,
-        TokenStorageInterface $tokenStorage,
+//        UserProfileChoiceInterface $userProfileChoice,
+//        ProductChoiceWarehouseInterface $productChoiceWarehouse,
+//        ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse,
+//        ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse,
+//        ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse,
+//        ProductWarehouseChoiceInterface $productWarehouseChoice,
+//        TokenStorageInterface $tokenStorage,
 
         ProductChoiceInterface $productChoice,
         ProductOfferChoiceInterface $productOfferChoice,
@@ -96,13 +80,13 @@ final class PreProductForm extends AbstractType
     )
     {
 
-        $this->productChoiceWarehouse = $productChoiceWarehouse;
-        $this->productOfferChoiceWarehouse = $productOfferChoiceWarehouse;
-        $this->productVariationChoiceWarehouse = $productVariationChoiceWarehouse;
-        $this->productModificationChoiceWarehouse = $productModificationChoiceWarehouse;
-        $this->productWarehouseChoice = $productWarehouseChoice;
-        $this->userProfileChoice = $userProfileChoice;
-        $this->tokenStorage = $tokenStorage;
+//        $this->productChoiceWarehouse = $productChoiceWarehouse;
+//        $this->productOfferChoiceWarehouse = $productOfferChoiceWarehouse;
+//        $this->productVariationChoiceWarehouse = $productVariationChoiceWarehouse;
+//        $this->productModificationChoiceWarehouse = $productModificationChoiceWarehouse;
+//        $this->productWarehouseChoice = $productWarehouseChoice;
+//        $this->userProfileChoice = $userProfileChoice;
+//        $this->tokenStorage = $tokenStorage;
 
 
         $this->productChoice = $productChoice;

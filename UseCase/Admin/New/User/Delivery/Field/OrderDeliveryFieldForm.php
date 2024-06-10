@@ -27,9 +27,8 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field;
 
 use BaksDev\Contacts\Region\Form\ContactRegionChoice\ContactRegionFieldForm;
 use BaksDev\Core\Services\Fields\FieldsChoice;
-use BaksDev\Delivery\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
-use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
+use BaksDev\Orders\Order\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -42,40 +41,37 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderDeliveryFieldForm extends AbstractType
 {
-	
-	private FieldsChoice $fieldsChoice;
-    private DeliveryByTypeProfileChoiceInterface $deliveryFields;
+
+    private FieldsChoice $fieldsChoice;
 
     public function __construct(
-        DeliveryByTypeProfileChoiceInterface $deliveryFields,
-		FieldsChoice $fieldsChoice,
-	)
-	{
-		$this->fieldsChoice = $fieldsChoice;
-        $this->deliveryFields = $deliveryFields;
+        FieldsChoice $fieldsChoice,
+    )
+    {
+        $this->fieldsChoice = $fieldsChoice;
     }
 
 
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('field', HiddenType::class);
-		
-		$builder->get('field')->addModelTransformer
-		(
-			new CallbackTransformer(
-				function($field) {
-					return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
-				},
-				function($field) {
-					return new DeliveryFieldUid($field);
-				}
-			)
-		);
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('field', HiddenType::class);
+
+        $builder->get('field')->addModelTransformer
+        (
+            new CallbackTransformer(
+                function($field) {
+                    return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
+                },
+                function($field) {
+                    return new DeliveryFieldUid($field);
+                }
+            )
+        );
 
 
-		//$builder->add('call', HiddenType::class, ['required' => false]);
+        //$builder->add('call', HiddenType::class, ['required' => false]);
 
-		$builder->add('value', HiddenType::class, ['required' => false]);
+        $builder->add('value', HiddenType::class, ['required' => false]);
 
 
         $builder->add
@@ -85,23 +81,23 @@ final class OrderDeliveryFieldForm extends AbstractType
         );
 
 
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				/* @var OrderDeliveryFieldDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
 
-				if($data)
-				{
-					/** @var DeliveryFieldUid $DeliveryField */
-					$DeliveryField = $data->getField();
-					
-					if($DeliveryField->getType())
-					{
+                /* @var OrderDeliveryFieldDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
 
-						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
+                if($data)
+                {
+                    /** @var DeliveryFieldUid $DeliveryField */
+                    $DeliveryField = $data->getField();
+
+                    if($DeliveryField->getType())
+                    {
+
+                        $fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
 
 
                         if($fieldType->form() === ContactRegionFieldForm::class)
@@ -140,19 +136,19 @@ final class OrderDeliveryFieldForm extends AbstractType
                             );
                         }
 
-					}
-				}
-			}
-		);
+                    }
+                }
+            }
+        );
 
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderDeliveryFieldDTO::class,
-		]);
-	}
-	
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderDeliveryFieldDTO::class,
+        ]);
+    }
+
 }

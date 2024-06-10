@@ -25,6 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order;
 
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusExtradition;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 use DirectoryIterator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -35,4 +41,38 @@ class BaksDevOrdersOrderBundle extends AbstractBundle
     public const NAMESPACE = __NAMESPACE__.'\\';
 
     public const PATH = __DIR__.DIRECTORY_SEPARATOR;
+
+    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        $services = $container->services()
+            ->defaults()
+            ->autowire()
+            ->autoconfigure();
+
+        $services->load(self::NAMESPACE, self::PATH)
+            ->exclude([
+                self::PATH.'{Entity,Resources,Type}',
+                self::PATH.'**/*Message.php',
+                self::PATH.'**/*DTO.php',
+            ]);
+
+        /* Статусы заказов */
+        $services->load(
+            self::NAMESPACE.'Type\Status\OrderStatus\\',
+            self::PATH.'Type/Status/OrderStatus'
+        );
+
+
+        /** @see https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type */
+
+        $services->alias(OrderStatusInterface::class.' $orderStatusCanceled', OrderStatusCanceled::class);
+        $services->alias(OrderStatusInterface::class.' $orderStatusCompleted', OrderStatusCompleted::class);
+
+        $services->alias(OrderStatusInterface::class.' $orderStatusExtradition', OrderStatusExtradition::class);
+        $services->alias(OrderStatusInterface::class.' $orderStatusPackage', OrderStatusPackage::class);
+        $services->alias(OrderStatusInterface::class.' $orderStatusNew', OrderStatusNew::class);
+
+
+        $services->alias(OrderStatusInterface::class, OrderStatusNew::class);
+    }
 }

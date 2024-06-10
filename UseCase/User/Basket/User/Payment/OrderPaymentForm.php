@@ -25,8 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Payment;
 
-use BaksDev\Payment\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
-use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
+use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
+
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
@@ -41,62 +42,59 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderPaymentForm extends AbstractType
 {
-	private PaymentByTypeProfileChoiceInterface $paymentChoice;
-	
-	private FieldByPaymentChoiceInterface $paymentFields;
-	
-	
-	public function __construct(
-		PaymentByTypeProfileChoiceInterface $paymentChoice,
-		FieldByPaymentChoiceInterface $paymentFields
-	)
-	{
-		$this->paymentChoice = $paymentChoice;
-		$this->paymentFields = $paymentFields;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('payment', HiddenType::class);
-		
-		/* Коллекция пользовательских свойств */
-		$builder->add('field', CollectionType::class, [
-			'entry_type' => Field\OrderPaymentFieldForm::class,
-			'entry_options' => ['label' => false],
-			'label' => false,
-			'by_reference' => false,
-			'allow_delete' => true,
-			'allow_add' => true,
-			'prototype_name' => '__payment_field__',
-		]);
-		
-		
-		
-		
-		$builder->get('payment')->addModelTransformer(
-			new CallbackTransformer(
-				function($payment) {
-					return $payment instanceof PaymentUid ? $payment->getValue() : $payment;
-				},
-				function($payment) {
-					
-					return new PaymentUid($payment);
-				}
-			)
-		);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) use ($options) {
-				
-				if($options['user_profile_type'])
-				{
-					$data = $event->getData();
-					$form = $event->getForm();
+    private PaymentByTypeProfileChoiceInterface $paymentChoice;
 
-					$paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
-					$currentPayment = current($paymentChoice);
+    private FieldByPaymentChoiceInterface $paymentFields;
+
+    public function __construct(
+        PaymentByTypeProfileChoiceInterface $paymentChoice,
+        FieldByPaymentChoiceInterface $paymentFields
+    )
+    {
+        $this->paymentChoice = $paymentChoice;
+        $this->paymentFields = $paymentFields;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('payment', HiddenType::class);
+
+        /* Коллекция пользовательских свойств */
+        $builder->add('field', CollectionType::class, [
+            'entry_type' => Field\OrderPaymentFieldForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__payment_field__',
+        ]);
+
+
+        $builder->get('payment')->addModelTransformer(
+            new CallbackTransformer(
+                function($payment) {
+                    return $payment instanceof PaymentUid ? $payment->getValue() : $payment;
+                },
+                function($payment) {
+
+                    return new PaymentUid($payment);
+                }
+            )
+        );
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) use ($options) {
+
+                if($options['user_profile_type'])
+                {
+                    $data = $event->getData();
+                    $form = $event->getForm();
+
+                    $paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
+                    $currentPayment = current($paymentChoice);
 
                     $paymentHelp = null;
                     $paymentChecked = null;
@@ -106,96 +104,92 @@ final class OrderPaymentForm extends AbstractType
                         $paymentHelp = $currentPayment->getAttr();
                         $paymentChecked = $currentPayment;
                     }
-					
 
 
-					
-					/** @var PaymentUid $Payment */
-					$Payment = $data->getPayment();
-					
-					if($Payment)
-					{
-						$paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
-							return $v->equals($Payment);
-						}, ARRAY_FILTER_USE_BOTH);
+                    /** @var PaymentUid $Payment */
+                    $Payment = $data->getPayment();
 
-						if($paymentCheckedFilter)
-						{
-							$paymentChecked = current($paymentCheckedFilter);
-							$paymentHelp = $paymentChecked?->getAttr();
-						}
-					}
+                    if($Payment)
+                    {
+                        $paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
+                            return $v->equals($Payment);
+                        }, ARRAY_FILTER_USE_BOTH);
 
-					
-					$form
-						->add('payment', ChoiceType::class, [
-							'choices' => $paymentChoice,
-							'choice_value' => function(?PaymentUid $payment) {
-								return $payment?->getValue();
-							},
-							
-							'choice_label' => function(PaymentUid $payment) {
-								return $payment->getOption();
-							},
-							
-							'choice_attr' => function(PaymentUid $choice) use ($paymentChecked) {
-								return ['checked' => ($choice->equals($paymentChecked))];
-							},
-							
-							'attr' => ['class' => 'd-flex gap-3'],
-							'help' => $paymentHelp,
-							'label' => false,
-							'expanded' => true,
-							'multiple' => false,
-							'required' => true,
-						])
-					;
-					
-					/** Получаем пользовательские поля */
-					if($paymentChecked)
-					{
+                        if($paymentCheckedFilter)
+                        {
+                            $paymentChecked = current($paymentCheckedFilter);
+                            $paymentHelp = $paymentChecked?->getAttr();
+                        }
+                    }
 
-						$fields =  $this->paymentFields->fetchPaymentFields($paymentChecked);
-						
-					
-						
-						$data->setField(new ArrayCollection());
-						
-						foreach($fields as $field)
-						{
-							$OrderPaymentFieldDTO = new Field\OrderPaymentFieldDTO();
-							$OrderPaymentFieldDTO->setField($field);
-							$data->addField($OrderPaymentFieldDTO);
-							
-						}
-						
-						/* Коллекция продукции */
-						$form->add('field', CollectionType::class, [
-							'entry_type' => Field\OrderPaymentFieldForm::class,
-							'entry_options' => ['label' => false],
-							'label' => false,
-							'by_reference' => false,
-							'allow_delete' => true,
-							'allow_add' => true,
-							'prototype_name' => '__payment_field__',
-						]);
-						
-						//dump($fields);
-					}
-					
-				}
-			}
-		);
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderPaymentDTO::class,
-			'user_profile_type' => null,
-		]);
-	}
-	
+
+                    $form
+                        ->add('payment', ChoiceType::class, [
+                            'choices' => $paymentChoice,
+                            'choice_value' => function(?PaymentUid $payment) {
+                                return $payment?->getValue();
+                            },
+
+                            'choice_label' => function(PaymentUid $payment) {
+                                return $payment->getOption();
+                            },
+
+                            'choice_attr' => function(PaymentUid $choice) use ($paymentChecked) {
+                                return ['checked' => ($choice->equals($paymentChecked))];
+                            },
+
+                            'attr' => ['class' => 'd-flex gap-3'],
+                            'help' => $paymentHelp,
+                            'label' => false,
+                            'expanded' => true,
+                            'multiple' => false,
+                            'required' => true,
+                        ]);
+
+                    /** Получаем пользовательские поля */
+                    if($paymentChecked)
+                    {
+
+                        $fields = $this->paymentFields->fetchPaymentFields($paymentChecked);
+
+
+                        $data->setField(new ArrayCollection());
+
+                        foreach($fields as $field)
+                        {
+                            $OrderPaymentFieldDTO = new Field\OrderPaymentFieldDTO();
+                            $OrderPaymentFieldDTO->setField($field);
+                            $data->addField($OrderPaymentFieldDTO);
+
+                        }
+
+                        /* Коллекция продукции */
+                        $form->add('field', CollectionType::class, [
+                            'entry_type' => Field\OrderPaymentFieldForm::class,
+                            'entry_options' => ['label' => false],
+                            'label' => false,
+                            'by_reference' => false,
+                            'allow_delete' => true,
+                            'allow_add' => true,
+                            'prototype_name' => '__payment_field__',
+                        ]);
+
+                        //dump($fields);
+                    }
+
+                }
+            }
+        );
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderPaymentDTO::class,
+            'user_profile_type' => null,
+        ]);
+    }
+
 }

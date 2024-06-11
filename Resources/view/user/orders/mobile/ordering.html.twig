@@ -1,0 +1,144 @@
+<div class="w-100 d-flex flex-column">
+
+	<div class="mb-3">
+		<label for="region" class="pb-1 small">Регион получателя: *</label>
+		<select class="form-select rounded-3 py-2" aria-label="region" required="">
+			<option selected="">Москва и Московская обл.</option>
+		</select>
+	</div>
+
+	<div class="mb-3">
+		<label for="township" class="pb-1 small">Населенный пункт: *</label>
+		<select class="form-select rounded-3 py-2" aria-label="township" required="">
+			<option selected="">Москва</option>
+		</select>
+	</div>
+
+	<div class="alert alert-secondary opacity-50 lh-1 small rounded-3 p-2" role="alert">
+		Если вашего города нет в списке — выберите областной центр и напишите город в комментарии к
+		заказу
+	</div>
+
+	<div class="mb-3">
+		<label for="fio" class="pb-1 small">ФИО получателя: *</label>
+		<input class="form-control rounded-3" type="text" id="fio" required="">
+	</div>
+
+	<div class="mb-3">
+		<label for="phone" class="pb-1 small">Контактный телефон: *</label>
+		<input class="form-control rounded-3" type="text" id="phone" required="" aria-label="Контактный телефон">
+	</div>
+
+	<div class="mb-3">
+		<label for="email" class="pb-1 small">Email: *</label>
+		<input class="form-control rounded-3" type="text" id="email" required="" aria-label="Email">
+	</div>
+
+	<div class="mb-3">
+		<label for="address" class="pb-1 small">Адрес доставки: *</label>
+		<input class="form-control rounded-3" type="text" id="address" required="" aria-label="Адрес доставки">
+	</div>
+
+	<div class="mb-3">
+		<label class="w-100">
+			<textarea class="form-control rounded-3" rows="3" placeholder="Комментарий к заказу">
+			</textarea>
+		</label>
+	</div>
+
+	<div class="mt-3">
+
+		<label class="mb-3">Способ оплаты: *</label>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="radio" name="payment" id="payment1" checked>
+			<label class="form-check-label" for="payment1">
+				Наличными курьеру
+			</label>
+		</div>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="radio" name="payment" id="payment2">
+			<label class="form-check-label" for="payment2">
+				Перевод с карты на карту Сбербанк
+			</label>
+		</div>
+	</div>
+
+	<div class="alert alert-secondary opacity-50 lh-1 small rounded-3 p-2" role="alert">
+		Оплата производится наличными деньгами, в момент получения заказа. Подтверждением вашей оплаты
+		является фискальный кассовый чек, вручаемый во время получения и оплаты заказа.
+	</div>
+
+	<div class="mt-3">
+
+		<label class="mb-3">Способ доставки: *</label>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="radio" name="delivery" id="delivery1" checked>
+			<label class="form-check-label" for="delivery1">
+				Доставка по москве (Стоимость 400 руб.)
+			</label>
+		</div>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="radio" name="delivery" id="delivery2">
+			<label class="form-check-label" for="delivery2">
+				Доставка по России до терминала ТК в москве:
+
+				{#- Деловые линии
+					- ПЕК
+					- ЖелДорЭкспедиция
+					- СДЕК #}
+			</label>
+		</div>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="radio" name="delivery" id="delivery3">
+			<label class="form-check-label" for="delivery3">
+				Самовывоз (Москва) бесплатно от 1 до 3 дней
+			</label>
+		</div>
+
+	</div>
+
+	<div class="alert alert-secondary opacity-50 lh-1 small rounded-3 p-2" role="alert">
+		Доставка осуществляется в течение дня в удобное для вас время.
+	</div>
+
+	<div class="mb-3">
+		<label for="coupon" class="pb-1 small">Купон на скидку:</label>
+		<input class="form-control rounded-3" type="text" id="coupon" required="" aria-label="Купон на скидку">
+	</div>
+
+	<div class="bg-light p-3 rounded-3 d-flex justify-content-center">
+		<div>
+
+			<span class="small">Товаров на сумму: 38 400 руб</span>
+			<div class="d-flex align-items-start">
+				<span
+						class="small me-3 pt-1">Итого:
+				</span>
+				<span class="fw-bolder mb-0 h1">38 400 P.</span>
+			</div>
+		</div>
+	</div>
+
+
+		<button class="btn btn-danger w-100 text-uppercase my-3"
+											   title="Оформить заказ" aria-label="Оформить заказ">
+			Оформить заказ
+		</button>
+
+
+
+	<div class="small">
+		<p class="small text-center">Нажимая «Оформить заказ», Вы соглашаетесь на обработку персональных данных и подтверждаете
+			ознакомление с
+			<a href="#">пользовательским соглашением</a>,
+			<a href="#">условиями продажи товаров</a> и
+			<a href="#">политикой о конфиденциальности</a>.</p>
+	</div>
+
+</div>
+

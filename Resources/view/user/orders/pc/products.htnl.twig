@@ -1,0 +1,120 @@
+<table class="table">
+	<thead>
+	<tr class="small text-muted border-white">
+		<th scope="col">Наименование</th>
+		<th scope="col">Стоимость, шт</th>
+		<th scope="col" class="text-center">Количество</th>
+		<th scope="col">Сумма</th>
+		<th scope="col"></th>
+	</tr>
+	</thead>
+
+	<tfoot>
+	<tr class="border-white ">
+		<td colspan="5" class="">
+
+			<div class="w-25 float-end text-end">
+
+				<div class="d-flex align-items-stretch justify-content-end">
+					<span class="small me-3 pt-1">Итого: </span>
+					<span class="fw-bolder h3">38 400 P.</span>
+				</div>
+
+				<a href="#ordering" class="btn btn-danger"
+				   title="К оформлению заказа" aria-label="К оформлению заказа">
+					Оформить заказ
+				</a>
+			</div>
+
+
+
+		</td>
+	</tr>
+	</tfoot>
+
+
+	<tbody>
+
+	{% for i in 0..5 %}
+		<tr>
+			<td>
+				<div class="row">
+					<div class="col-2">
+
+						<span class="icon rounded-4 mb-2 lazy bg-cover"
+							  data-bg="/temp/img/card-img/shina-1.webp"
+							  style="width: 75px; height: 75px;"
+						></span>
+
+						{#<span class="icon rounded-4 mb-2" style="width: 75px; height: 75px;">
+							<img data-src="img/card-img/shina-1.webp"
+								 class="lazy img-fluid rounded-4"
+								 alt="..."
+							>
+						</span>#}
+					</div>
+					<div class="col align-self-center">
+						<a href="{#{ path('products-product:user.detail') }#}" class="text-dark me-3 text-uppercase">
+							Arivo Winmaster ARW2 155/70 R13 75T
+						</a>
+						<span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span><span
+								class="badge bg-hit rounded-2 mt-1 mx-1">Хит</span>
+						<div class="small text-muted">Артикул: 212132121</div>
+					</div>
+				</div>
+			</td>
+
+			<td class="vertical-middle">
+				4 800 Р.
+				<span class="badge bg-danger rounded-2 ms-1"><span class="text-uppercase">-20%</span>
+				</span>
+			</td>
+
+			<td class="vertical-middle">
+
+				<div class="d-flex justify-content-center align-items-center text-center">
+					<button type="button" class="btn btn-sm" aria-label="Уменьшить количество">
+						<span class="h4 text-muted opacity-50">-</span>
+					</button>
+
+					<input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
+						   aria-label="Количество"
+						   style="width: 50px;">
+
+					<button type="button" class="btn btn-sm" aria-label="Увеличить количество">
+						<span class="h5 text-muted opacity-50">+</span>
+					</button>
+				</div>
+
+			</td>
+
+			<td class="vertical-middle">
+				<strong>38 400 Р.</strong>
+			</td>
+
+			<td class="vertical-middle text-end">
+
+				<button class="btn btn-link"
+						aria-label="Добавить в избранное"
+				>
+					<img data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiNCMUI2QkIiIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNOCAxLjMxNEMxMi40MzgtMy4yNDggMjMuNTM0IDQuNzM1IDggMTUtNy41MzQgNC43MzYgMy41NjItMy4yNDggOCAxLjMxNHoiPjwvcGF0aD48L3N2Zz4K"
+						 width="16" height="16"
+						 src="/assets/img/empty.png"
+						 class="lazy"
+					>
+				</button>
+
+				<br>
+				<button class="btn btn-sm btn-link text-decoration-underline small text-muted">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+						 class="bi bi-x me-1" viewBox="0 0 16 16">
+						<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+					</svg>
+					<span class="small">Удалить</span></button>
+			</td>
+
+		</tr>
+	{% endfor %}
+
+	</tbody>
+</table>

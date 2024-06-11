@@ -1,0 +1,81 @@
+<div class="d-flex border-bottom mb-3 pb-3">
+
+
+	{#  #}
+	<div class="me-3">
+			<span class="icon bg-cover rounded-4 lazy"
+				  data-bg="/temp/img/card-img/shina-1.webp"
+				  style="width: 75px; height: 75px;"
+			></span>
+	</div>
+
+
+	<div class="d-flex flex-column">
+
+		<div class="d-flex justify-content-between">
+			<div class="w-75 lh-normal small">
+
+				<a href="{#{ path('products-product:user.detail') }#}" class="text-dark me-3 text-uppercase ">
+					Arivo Winmaster ARW2 155/70 R13 75T
+				</a>
+
+				<div class="small text-muted py-2">Артикул: 212132121</div>
+			</div>
+
+			<button class="btn btn-link py-0 align-items-baseline"
+					aria-label="Добавить в избранное"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+					 class="bi bi-heart-fill" viewBox="0 0 16 16">
+					<path fill-rule="evenodd"
+						  d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"></path>
+				</svg>
+			</button>
+
+		</div>
+
+		<div class="d-flex flex-column">
+
+			<div class="d-flex justify-content-between">
+				<div>4 800 Р.
+					<span class="badge bg-danger rounded-2 ms-1"><span class="text-uppercase">-20%</span>
+					</span>
+				</div>
+
+				<button class="btn btn-sm btn-link text-decoration-underline small text-muted">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+						 class="bi bi-x me-1" viewBox="0 0 16 16">
+						<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+					</svg>
+					<span class="small">Удалить</span>
+				</button>
+			</div>
+
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="d-flex justify-content-center align-items-center text-center small">
+					<button type="button" class="btn btn-sm" aria-label="Уменьшить количество">
+						<span class="h4 text-muted opacity-50">-</span>
+					</button>
+
+					<input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
+						   aria-label="Количество"
+						   style="width: 50px;">
+
+					<small class="text-muted">шт.</small>
+
+					<button type="button" class="btn btn-sm" aria-label="Увеличить количество">
+						<span class="h5 text-muted opacity-50">+</span>
+					</button>
+				</div>
+
+				<strong class="h5 mb-0">38 400 Р.</strong>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+

@@ -44,7 +44,8 @@ class BaksDevOrdersOrderBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $services = $container->services()
+        $services = $container
+            ->services()
             ->defaults()
             ->autowire()
             ->autoconfigure();

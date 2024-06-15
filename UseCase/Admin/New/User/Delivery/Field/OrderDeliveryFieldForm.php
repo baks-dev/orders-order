@@ -28,7 +28,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field;
 use BaksDev\Contacts\Region\Form\ContactRegionChoice\ContactRegionFieldForm;
 use BaksDev\Core\Services\Fields\FieldsChoice;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
-use BaksDev\Orders\Order\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;

@@ -27,6 +27,6 @@ use BaksDev\Delivery\Type\Id\DeliveryUid;
 
 interface FieldByDeliveryChoiceInterface
 {
-	public function fetchDeliveryFields(DeliveryUid $delivery) : ?array;
-	
+    public function fetchDeliveryFields(DeliveryUid $delivery): ?array;
+
 }

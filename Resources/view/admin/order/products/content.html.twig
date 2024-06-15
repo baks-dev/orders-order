@@ -3,6 +3,6 @@
 {{ include(_self|replace({ "content.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
 <script nonce='{{ csp_nonce() }}' async  data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/order_orders/orders_admin.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/orders_admin.min.js?v={{ version }}" class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/users-address/script.min.js?v={{ version }}" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/order_orders/order_status.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/order_status.min.js?v={{ version }}" class="lazy"></script>

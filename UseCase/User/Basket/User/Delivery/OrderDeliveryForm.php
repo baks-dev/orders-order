@@ -28,7 +28,7 @@ namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Delivery;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Orders\Order\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
@@ -44,37 +44,36 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryForm extends AbstractType
 {
-	private DeliveryByTypeProfileChoiceInterface $deliveryChoice;
-	
-	private FieldByDeliveryChoiceInterface $deliveryFields;
-	
-	
-	public function __construct(
-		DeliveryByTypeProfileChoiceInterface $deliveryChoice,
-		FieldByDeliveryChoiceInterface $deliveryFields
-	)
-	{
-		$this->deliveryChoice = $deliveryChoice;
-		$this->deliveryFields = $deliveryFields;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
+    private DeliveryByProfileChoiceInterface $deliveryChoice;
+
+    private FieldByDeliveryChoiceInterface $deliveryFields;
+
+
+    public function __construct(
+        DeliveryByProfileChoiceInterface $deliveryChoice,
+        FieldByDeliveryChoiceInterface $deliveryFields
+    ) {
+        $this->deliveryChoice = $deliveryChoice;
+        $this->deliveryFields = $deliveryFields;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         /** Способ доставки */
 
-		$builder->add('delivery', HiddenType::class);
+        $builder->add('delivery', HiddenType::class);
 
-		$builder->get('delivery')->addModelTransformer(
-			new CallbackTransformer(
-				function($delivery) {
-					return $delivery instanceof DeliveryUid ? $delivery->getValue() : $delivery;
-				},
-				function($delivery) {
-					return new DeliveryUid($delivery);
-				}
-			)
-		);
+        $builder->get('delivery')->addModelTransformer(
+            new CallbackTransformer(
+                function ($delivery) {
+                    return $delivery instanceof DeliveryUid ? $delivery->getValue() : $delivery;
+                },
+                function ($delivery) {
+                    return new DeliveryUid($delivery);
+                }
+            )
+        );
 
         $builder->add('latitude', HiddenType::class, ['required' => false, 'attr' => ['data-latitude' => 'true']]);
 
@@ -115,49 +114,34 @@ final class OrderDeliveryForm extends AbstractType
             'input' => 'datetime_immutable',
         ]);
 
-        /** Координаты на карте */
-        
-        /*$builder->add('geocode', HiddenType::class, ['attr' => ['data-geocode' => 'true']]);
 
-        $builder->get('geocode')->addModelTransformer(
-            new CallbackTransformer(
-                function($geocode) {
-                    return $geocode instanceof GeocodeAddressUid ? $geocode->getValue() : $geocode;
-                },
-                function($geocode) {
-                    return $geocode ? new GeocodeAddressUid($geocode) : null;
-                }
-            )
-        );*/
+        /* Коллекция пользовательских свойств */
+        $builder->add('field', CollectionType::class, [
+            'entry_type' => Field\OrderDeliveryFieldForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__delivery_field__',
+        ]);
 
 
-		/* Коллекция пользовательских свойств */
-		$builder->add('field', CollectionType::class, [
-			'entry_type' => Field\OrderDeliveryFieldForm::class,
-			'entry_options' => ['label' => false],
-			'label' => false,
-			'by_reference' => false,
-			'allow_delete' => true,
-			'allow_add' => true,
-			'prototype_name' => '__delivery_field__',
-		]);
-		
-		
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) use ($options) {
-				
-				if($options['user_profile_type'])
-				{
 
-					$data = $event->getData();
-					$form = $event->getForm();
-					
-					$deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event) use ($options) {
 
-					/** @var DeliveryUid $currentDelivery */
-					$currentDelivery = current($deliveryChoice);
+                if($options['user_profile_type'])
+                {
+
+                    $data = $event->getData();
+                    $form = $event->getForm();
+
+                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+
+                    /** @var DeliveryUid $currentDelivery */
+                    $currentDelivery = current($deliveryChoice);
 
                     $deliveryHelp = null;
                     $deliveryChecked = null;
@@ -167,105 +151,105 @@ final class OrderDeliveryForm extends AbstractType
                         $deliveryHelp = $currentDelivery->getOption();
                         $deliveryChecked = $currentDelivery;
                     }
-					
 
-					
-					/** @var DeliveryUid $Delivery */
-					$Delivery = $data->getDelivery();
-					
-					if($Delivery)
-					{
-						$deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
-							return $v->equals($Delivery);
-						}, ARRAY_FILTER_USE_BOTH);
-						
-						
-						if($deliveryCheckedFilter)
-						{
-							/** @var DeliveryUid $deliveryChecked */
-							$deliveryChecked = current($deliveryCheckedFilter);
-							
-							/* Присваиваем способу доставки - событие  (для расчета стоимости)  */
-							$data->setEvent($deliveryChecked->getEvent());
-							
-							$deliveryHelp = $deliveryChecked?->getOption();
-						}
-					}
-					
-					$form
-						->add('delivery', ChoiceType::class, [
-							'choices' => $deliveryChoice,
-							'choice_value' => function(?DeliveryUid $delivery) {
-								return $delivery?->getValue();
-							},
-							
-							'choice_label' => function(DeliveryUid $delivery) {
-								return $delivery->getAttr();
-							},
-							
-							'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
-								return [
-									'checked' => ($choice->equals($deliveryChecked)),
-									'data-price' => $choice->getPrice()?->getValue(),
-									'data-excess' => $choice->getExcess()?->getValue(),
-									'data-currency' => $choice->getCurrency(),
-								];
-							},
-							
-							'attr' => ['class' => 'd-flex gap-3'],
-							'help' => $deliveryHelp,
-							'label' => false,
-							'expanded' => true,
-							'multiple' => false,
-							'required' => true,
-						])
-					;
-					
-					
-					
-					/** Получаем пользовательские поля */
-					if($deliveryChecked)
-					{
-						
-						$fields =  $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-						
-						$data->setField(new ArrayCollection());
-						
-						foreach($fields as $field)
-						{
-							$OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-							$OrderDeliveryFieldDTO->setField($field);
-							$data->addField($OrderDeliveryFieldDTO);
-							
-						}
-						
-						/* Коллекция продукции */
-						$form->add('field', CollectionType::class, [
-							'entry_type' => Field\OrderDeliveryFieldForm::class,
-							'entry_options' => ['label' => false],
-							'label' => false,
-							'by_reference' => false,
-							'allow_delete' => true,
-							'allow_add' => true,
-							'prototype_name' => '__delivery_field__',
-						]);
-						
-						//dump($fields);
-					}
-					
-				}
-			}
-		);
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderDeliveryDTO::class,
-			'user_profile_type' => null,
-		]);
-	}
-	
+
+
+                    /** @var DeliveryUid $Delivery */
+                    $Delivery = $data->getDelivery();
+
+                    if($Delivery)
+                    {
+                        $deliveryCheckedFilter = array_filter($deliveryChoice, function ($v, $k) use ($Delivery) {
+                            return $v->equals($Delivery);
+                        }, ARRAY_FILTER_USE_BOTH);
+
+
+                        if($deliveryCheckedFilter)
+                        {
+                            /** @var DeliveryUid $deliveryChecked */
+                            $deliveryChecked = current($deliveryCheckedFilter);
+
+                            /* Присваиваем способу доставки - событие  (для расчета стоимости)  */
+                            $data->setEvent($deliveryChecked->getEvent());
+
+                            $deliveryHelp = $deliveryChecked?->getOption();
+                        }
+                    }
+
+                    $form
+                        ->add('delivery', ChoiceType::class, [
+                            'choices' => $deliveryChoice,
+                            'choice_value' => function (?DeliveryUid $delivery) {
+                                return $delivery?->getValue();
+                            },
+
+                            'choice_label' => function (DeliveryUid $delivery) {
+                                return $delivery->getAttr();
+                            },
+
+                            'choice_attr' => function (DeliveryUid $choice) use ($deliveryChecked) {
+                                return [
+                                    'checked' => ($choice->equals($deliveryChecked)),
+                                    'data-price' => $choice->getPrice()?->getValue(),
+                                    'data-excess' => $choice->getExcess()?->getValue(),
+                                    'data-currency' => $choice->getCurrency(),
+                                ];
+                            },
+
+                            'attr' => ['class' => 'd-flex gap-3'],
+                            'help' => $deliveryHelp,
+                            'label' => false,
+                            'expanded' => true,
+                            'multiple' => false,
+                            'required' => true,
+                        ])
+                    ;
+
+
+
+                    /** Получаем пользовательские поля */
+                    if($deliveryChecked)
+                    {
+
+                        $fields =  $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+
+                        $data->setField(new ArrayCollection());
+
+                        foreach($fields as $field)
+                        {
+                            $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+                            $OrderDeliveryFieldDTO->setField($field);
+                            $data->addField($OrderDeliveryFieldDTO);
+
+                        }
+
+                        /* Коллекция продукции */
+                        $form->add('field', CollectionType::class, [
+                            'entry_type' => Field\OrderDeliveryFieldForm::class,
+                            'entry_options' => ['label' => false],
+                            'label' => false,
+                            'by_reference' => false,
+                            'allow_delete' => true,
+                            'allow_add' => true,
+                            'prototype_name' => '__delivery_field__',
+                        ]);
+
+                        dd($fields);
+                    }
+
+                }
+            }
+        );
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderDeliveryDTO::class,
+            'user_profile_type' => null,
+        ]);
+    }
+
 }

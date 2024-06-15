@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\Products;
 
+use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -62,6 +63,7 @@ final class OrderReserveProduct
     private LoggerInterface $logger;
     private CurrentOrderEventInterface $currentOrderEvent;
     private ExistOrderEventByStatusInterface $existOrderEventByStatus;
+    private AppLockInterface $appLock;
 
 
     public function __construct(
@@ -72,7 +74,8 @@ final class OrderReserveProduct
         CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger,
         CurrentOrderEventInterface $currentOrderEvent,
-        ExistOrderEventByStatusInterface $existOrderEventByStatus
+        ExistOrderEventByStatusInterface $existOrderEventByStatus,
+        AppLockInterface $appLock
     )
     {
         $this->entityManager = $entityManager;
@@ -85,6 +88,7 @@ final class OrderReserveProduct
         $this->logger = $ordersOrderLogger;
         $this->currentOrderEvent = $currentOrderEvent;
         $this->existOrderEventByStatus = $existOrderEventByStatus;
+        $this->appLock = $appLock;
     }
 
 
@@ -141,8 +145,19 @@ final class OrderReserveProduct
                 ]
             );
 
+
+            /** Блокируем процесс в очереди */
+            $key = $product->getProduct().$product->getOffer().$product->getVariation().$product->getModification();
+
+            $lock = $this->appLock
+                ->createLock($key)
+                ->lifetime(30)
+                ->wait();
+
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
+
+            $lock->release();
 
         }
     }

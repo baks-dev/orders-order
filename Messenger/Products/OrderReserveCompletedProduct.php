@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\Products;
 
+use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -55,6 +56,7 @@ final class OrderReserveCompletedProduct
 
     private LoggerInterface $logger;
     private ExistOrderEventByStatusInterface $existOrderEventByStatus;
+    private AppLockInterface $appLock;
 
 
     public function __construct(
@@ -64,7 +66,8 @@ final class OrderReserveCompletedProduct
         CurrentQuantityByOfferInterface $quantityByOffer,
         CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger,
-        ExistOrderEventByStatusInterface $existOrderEventByStatus
+        ExistOrderEventByStatusInterface $existOrderEventByStatus,
+        AppLockInterface $appLock
     )
     {
         $this->entityManager = $entityManager;
@@ -76,10 +79,13 @@ final class OrderReserveCompletedProduct
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
         $this->existOrderEventByStatus = $existOrderEventByStatus;
+        $this->appLock = $appLock;
     }
 
 
-    /** Снимаем резерв и наличие с продукта если заказ выполнен  */
+    /**
+     * Снимаем резерв и наличие с продукта если заказ выполнен
+     */
     public function __invoke(OrderMessage $message): void
     {
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
@@ -122,8 +128,19 @@ final class OrderReserveCompletedProduct
                 ]
             );
 
+            /** Блокируем процесс в очереди */
+
+            $key = $product->getProduct().$product->getOffer().$product->getVariation().$product->getModification();
+
+            $lock = $this->appLock
+                ->createLock($key)
+                ->lifetime(30)
+                ->wait();
+
             /** Снимаем резерв выполненного заказа */
             $this->changeReserve($product);
+
+            $lock->release(); // снимаем блокировку
         }
     }
 

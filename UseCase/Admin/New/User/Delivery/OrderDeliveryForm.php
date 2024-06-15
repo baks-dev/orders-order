@@ -28,7 +28,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Orders\Order\Repository\DeliveryByTypeProfileChoice\DeliveryByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use Symfony\Component\Form\AbstractType;
@@ -44,7 +44,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryForm extends AbstractType
 {
-    private DeliveryByTypeProfileChoiceInterface $deliveryChoice;
+    private DeliveryByProfileChoiceInterface $deliveryChoice;
 
     private FieldByDeliveryChoiceInterface $deliveryFields;
 
@@ -52,7 +52,7 @@ final class OrderDeliveryForm extends AbstractType
 
 
     public function __construct(
-        DeliveryByTypeProfileChoiceInterface $deliveryChoice,
+        DeliveryByProfileChoiceInterface $deliveryChoice,
         FieldByDeliveryChoiceInterface $deliveryFields,
         TypeProfileChoiceRepository $profileChoice
     )

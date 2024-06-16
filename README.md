@@ -54,7 +54,7 @@ php bin/console doctrine:migrations:migrate
 ## Тестирование
 
 ``` bash
-$ php bin/phpunit --group=orders-order
+php bin/phpunit --group=orders-order
 ```
 
 ## Лицензия ![License](https://img.shields.io/badge/MIT-green)

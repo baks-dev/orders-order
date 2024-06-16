@@ -8,8 +8,17 @@
 ## Установка
 
 ``` bash
-composer require baks-dev/orders-order
+composer require \
+baks-dev/users-address \
+baks-dev/contacts-region \
+baks-dev/centrifugo \
+baks-dev/orders-order
 ```
+
+## Cервер Centrifugo
+
+Установка и настройка [baks-dev/centrifugo](https://github.com/baks-dev/centrifugo)
+
 
 ## Дополнительно
 

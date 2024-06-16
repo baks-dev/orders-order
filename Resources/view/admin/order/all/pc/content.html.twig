@@ -18,6 +18,7 @@
                 {% if filter.date.vars.data|date('d.m.Y') != date('now')|date('d.m.Y') %}
 
                     <span class="badge text-bg-danger pointer"
+                          role="tooltip"
                           data-bs-toggle="tooltip"
                           data-bs-placement="bottom"
                           data-bs-delay='{"show":600,"hide":100}'
@@ -34,7 +35,8 @@
 
 
             <a href="{{ path('orders-order:admin.index') }}"
-               class="btn btn-light "
+               class="btn btn-light"
+               role="tooltip"
                data-bs-toggle="tooltip"
                data-bs-placement="bottom"
                data-bs-delay='{"show":600,"hide":100}'
@@ -49,6 +51,7 @@
 
             <button
                     class="btn btn-light opacity-25"
+                    role="tooltip"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
                     data-bs-delay='{"show":600,"hide":100}'

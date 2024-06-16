@@ -50,7 +50,8 @@ final class IndexController extends AbstractController
         OrderStatusCollection $collection,
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
-    ): Response {
+    ): Response
+    {
 
         // Поиск
         $search = new SearchDTO();
@@ -62,9 +63,10 @@ final class IndexController extends AbstractController
         $orders = null;
 
         /** @var OrderStatus $status */
-        foreach (OrderStatus::cases() as $status)
+        foreach(OrderStatus::cases() as $status)
         {
-            if ($status->equals('canceled')) {
+            if($status->equals('canceled'))
+            {
                 continue;
             }
 

@@ -63,13 +63,10 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
 
         $dbal
             ->from(OrderEvent::class, 'event')
-
             ->where('event.orders = :ord')
             ->setParameter('ord', $order, OrderUid::TYPE)
-
             ->andWhere('event.status = :status')
-            ->setParameter('status', $status, OrderStatus::TYPE)
-        ;
+            ->setParameter('status', $status, OrderStatus::TYPE);
 
         return $dbal->fetchExist();
     }
@@ -105,8 +102,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
         $dbal
             ->from(Order::class, 'main')
             ->where('main.id = :ord')
-            ->setParameter('ord', $order, OrderUid::TYPE)
-        ;
+            ->setParameter('ord', $order, OrderUid::TYPE);
 
         $dbal
             ->join(
@@ -116,8 +112,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
                 'event.orders = main.id AND event.id != :event AND event.status = :status'
             )
             ->setParameter('event', $event, OrderEventUid::TYPE)
-            ->setParameter('status', $status, OrderStatus::TYPE)
-        ;
+            ->setParameter('status', $status, OrderStatus::TYPE);
 
         $dbal->andWhere('main.event = event.id');
 

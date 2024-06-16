@@ -35,11 +35,11 @@ class OrderController extends AbstractController
 {
     /* История заказов пользователя */
     #[Route('/orders', name: 'user.orders')]
-    public function index(Request $request) : Response
+    public function index(Request $request): Response
     {
 
         return $this->render([]);
-        
+
         //        return $this->render('home/index.html.twig', [
         //            'controller_name' => 'HomeController',
         //        ]);

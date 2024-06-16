@@ -53,24 +53,26 @@ class DeleteController extends AbstractController
         ProductEventBasketInterface $productEvent,
         TranslatorInterface $translator,
         AppCacheInterface $cache,
-        #[ParamConverter(ProductEventUid::class)]        $product,
-        #[ParamConverter(ProductOfferUid::class)]        $offer = null,
-        #[ParamConverter(ProductVariationUid::class)]    $variation = null,
+        #[ParamConverter(ProductEventUid::class)] $product,
+        #[ParamConverter(ProductOfferUid::class)] $offer = null,
+        #[ParamConverter(ProductVariationUid::class)] $variation = null,
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
-    ): Response {
+    ): Response
+    {
         // return $this->ErrorResponse();
 
-        if (
+        if(
             (!empty($modification) && (empty($offer) || empty($variation)))
             || (!empty($variation) && empty($offer))
-        ) {
+        )
+        {
             return $this->ErrorResponse($translator);
         }
 
         /** Получаем событие продукта по переданным параметрам */
         $Event = $productEvent->getOneOrNullProductEvent($product, $offer, $variation, $modification);
 
-        if (!$Event)
+        if(!$Event)
         {
             return $this->ErrorResponse($translator);
         }
@@ -79,24 +81,24 @@ class DeleteController extends AbstractController
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
-        if ($this->getUsr())
+        if($this->getUsr())
         {
             $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
         }
 
         // Получаем кеш
-        if ($AppCache->hasItem($key))
+        if($AppCache->hasItem($key))
         {
             $this->products = ($AppCache->getItem($key))->get();
         }
 
-        if ($this->products === null)
+        if($this->products === null)
         {
             $this->products = new ArrayCollection();
         }
 
         /** @var OrderProductDTO $element */
-        $predicat = function ($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
+        $predicat = function($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
             return
                 $element->getProduct()->equals($product)
                 && (!$offer || $element->getOffer()?->equals($offer))
@@ -106,20 +108,20 @@ class DeleteController extends AbstractController
 
         $removeElement = $this->products->findFirst($predicat);
 
-        if ($removeElement)
+        if($removeElement)
         {
             // Удаляем из кеша
             $AppCache->delete($key);
 
             /** получаем кеш */
-            $result = $AppCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
+            $result = $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->removeElement($removeElement);
 
                 return $this->products;
             });
 
-            if ($result->isEmpty())
+            if($result->isEmpty())
             {
                 $this->addFlash($Event->getOption(),
                     'user.basket.success.delete',

@@ -72,12 +72,12 @@ final class OrderFilterDTO
             $this->date = new DateTimeImmutable();
         }
 
-        return $this->date ?: $sessionDate ;
+        return $this->date ?: $sessionDate;
     }
 
     public function setDate(?DateTimeImmutable $date): void
     {
-        if ($date === null)
+        if($date === null)
         {
             $this->request->getSession()->remove(self::date);
         }
@@ -110,8 +110,6 @@ final class OrderFilterDTO
         $this->status = $status;
         return $this;
     }
-
-
 
 
 }

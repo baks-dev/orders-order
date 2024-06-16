@@ -32,74 +32,72 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderUserDTO implements OrderUserInterface
 {
-	
-	/* Пользователь  */
 
-//	/** ID пользователя  */
-//	#[Assert\Uuid]
-//	private ?UserUid $user = null;
-//
-//	/* Профиль пользователя */
-//
-//	/** Идентификатор События!! профиля пользователя */
-//	#[Assert\Uuid]
-//	private ?UserProfileEventUid $profile = null;
+    /* Пользователь  */
 
-	
-	/** Способ доставки */
-	#[Assert\Valid]
-	private Delivery\OrderDeliveryDTO $delivery;
-	
+    //	/** ID пользователя  */
+    //	#[Assert\Uuid]
+    //	private ?UserUid $user = null;
+    //
+    //	/* Профиль пользователя */
+    //
+    //	/** Идентификатор События!! профиля пользователя */
+    //	#[Assert\Uuid]
+    //	private ?UserProfileEventUid $profile = null;
 
-	public function __construct()
-	{
-		$this->delivery = new Delivery\OrderDeliveryDTO;
-	}
-	
-	
-	/** ID пользователя */
-	public function getUsr() : ?UserUid
-	{
-		return $this->usr;
-	}
-	
-	
-	public function setUsr(?UserUid $usr) : void
-	{
-		
-		$this->usr = $usr;
-	}
-	
-	
-	/** Идентификатор События!! профиля пользователя */
-	
-	public function getProfile() : ?UserProfileEventUid
-	{
-		
-		return $this->profile;
-	}
-	
-	
-	public function setProfile(?UserProfileEventUid $profile) : void
-	{
-		$this->profile = $profile;
-	}
-	
-    
-	
-	/** Способ доставки */
-	
-	public function getDelivery() : Delivery\OrderDeliveryDTO
-	{
-		return $this->delivery;
-	}
-	
-	
-	public function setDelivery(Delivery\OrderDeliveryDTO $delivery) : void
-	{
-		$this->delivery = $delivery;
-	}
-	
-	
+
+    /** Способ доставки */
+    #[Assert\Valid]
+    private Delivery\OrderDeliveryDTO $delivery;
+
+
+    public function __construct()
+    {
+        $this->delivery = new Delivery\OrderDeliveryDTO;
+    }
+
+
+    /** ID пользователя */
+    public function getUsr(): ?UserUid
+    {
+        return $this->usr;
+    }
+
+
+    public function setUsr(?UserUid $usr): void
+    {
+
+        $this->usr = $usr;
+    }
+
+
+    /** Идентификатор События!! профиля пользователя */
+
+    public function getProfile(): ?UserProfileEventUid
+    {
+
+        return $this->profile;
+    }
+
+
+    public function setProfile(?UserProfileEventUid $profile): void
+    {
+        $this->profile = $profile;
+    }
+
+
+    /** Способ доставки */
+
+    public function getDelivery(): Delivery\OrderDeliveryDTO
+    {
+        return $this->delivery;
+    }
+
+
+    public function setDelivery(Delivery\OrderDeliveryDTO $delivery): void
+    {
+        $this->delivery = $delivery;
+    }
+
 
 }

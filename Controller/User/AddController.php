@@ -108,7 +108,7 @@ class AddController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $AppCache =  $cache->init('orders-order');
+            $AppCache = $cache->init('orders-order');
             $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 

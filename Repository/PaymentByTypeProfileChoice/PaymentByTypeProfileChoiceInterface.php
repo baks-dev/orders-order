@@ -27,7 +27,7 @@ use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 
 interface PaymentByTypeProfileChoiceInterface
 {
-	public function fetchPaymentByProfile(TypeProfileUid $type) : ?array;
+    public function fetchPaymentByProfile(TypeProfileUid $type): ?array;
 
     public function fetchAllPayment(): ?array;
 

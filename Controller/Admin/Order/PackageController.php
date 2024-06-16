@@ -188,7 +188,7 @@ final class PackageController extends AbstractController
                 {
 
                     // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
-                   $isAccess = $productStocksTotalAccess
+                    $isAccess = $productStocksTotalAccess
                         ->product($ProductStockDTO->getProduct())
                         ->offer($ProductStockDTO->getOffer())
                         ->variation($ProductStockDTO->getVariation())

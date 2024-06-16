@@ -1,4 +1,4 @@
-{#{% trans_default_domain 'user.userprofile' %}#}
+{# {% trans_default_domain 'user.userprofile' %} #}
 
 <nav class="small" style="--bs-breadcrumb-divider: '-';" aria-label="breadcrumb">
     <ol class="breadcrumb text-secondary small opacity-75">
@@ -24,11 +24,11 @@
                 {{ 'breadcrumb.homepage.user'|trans({}, 'core') }}
             </a>
         </li>
-    
+
         <li class="breadcrumb-item">
             <a href="{{ path('core:admin.homepage') }}"
-                    class="text-decoration-none"
-                    title="{{ 'breadcrumb.homepage.index'|trans({}, 'core') }}">
+               class="text-decoration-none"
+               title="{{ 'breadcrumb.homepage.index'|trans({}, 'core') }}">
                 {{ 'breadcrumb.homepage.index'|trans({}, 'core') }}
             </a>
         </li>

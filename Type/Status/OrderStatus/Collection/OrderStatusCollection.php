@@ -35,7 +35,8 @@ final class OrderStatusCollection
     private iterable $status;
 
     public function __construct(
-        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')] iterable $status)
+        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')] iterable $status
+    )
     {
         $this->status = $status;
     }
@@ -45,7 +46,8 @@ final class OrderStatusCollection
     {
         $case = null;
 
-        foreach ($this->status as $key => $status) {
+        foreach($this->status as $key => $status)
+        {
             $case[$status::priority().$key] = new $status();
         }
 
@@ -58,8 +60,10 @@ final class OrderStatusCollection
     public function from(string $name): OrderStatus
     {
         /** @var OrderStatusInterface $status */
-        foreach ($this->status as $status) {
-            if ($status::STATUS === $name) {
+        foreach($this->status as $status)
+        {
+            if($status::STATUS === $name)
+            {
                 return new OrderStatus(new $status());
             }
         }

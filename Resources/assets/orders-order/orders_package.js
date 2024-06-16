@@ -20,9 +20,11 @@
  *  THE SOFTWARE.
  */
 
-function initOrderPackage() {
+function initOrderPackage()
+{
     let orderpackageWarehouse = document.getElementById('package_order_form_profile');
-    if (orderpackageWarehouse) {
+    if(orderpackageWarehouse)
+    {
 
         orderpackageWarehouse.addEventListener('change', changeObjectPackageWarehouse, false);
 
@@ -35,7 +37,8 @@ function initOrderPackage() {
 }
 
 
-function changeObjectPackageWarehouse() {
+function changeObjectPackageWarehouse()
+{
 
     //console.log('changeObjectPackageWarehouse');
 
@@ -61,9 +64,11 @@ function changeObjectPackageWarehouse() {
     requestModalName.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
     /* Получаем ответ от сервера на запрос*/
-    requestModalName.addEventListener("readystatechange", function () {
+    requestModalName.addEventListener("readystatechange", function()
+    {
         /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if (requestModalName.readyState === 4 && requestModalName.status === 200) {
+        if(requestModalName.readyState === 4 && requestModalName.status === 200)
+        {
 
             let result = requestModalName.response.getElementById('modal-body');
             document.getElementById('modal-body').replaceWith(result);
@@ -86,9 +91,11 @@ function changeObjectPackageWarehouse() {
 
 limit = 100;
 
-setTimeout(function OxMvRIBczY() {
+setTimeout(function OxMvRIBczY()
+{
 
-    if (typeof initOrderPackage == 'function') {
+    if(typeof initOrderPackage == 'function')
+    {
         initOrderPackage();
         console.log('initOrderPackage');
         return;
@@ -96,7 +103,8 @@ setTimeout(function OxMvRIBczY() {
 
     console.log(limit);
 
-    if (limit > 1000) { return; }
+    if(limit > 1000)
+    { return; }
 
     setTimeout(OxMvRIBczY, limit);
 

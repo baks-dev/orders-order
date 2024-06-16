@@ -33,16 +33,19 @@ basketLang = {
 }
 
 
-function addOrder(event) {
+function addOrder(event)
+{
     let forms = this.closest('form');
     event.preventDefault();
     submitModalForm(forms);
     return false;
 }
 
-document.querySelectorAll('.order-basket').forEach(function (forms) {
+document.querySelectorAll('.order-basket').forEach(function(forms)
+{
     const btn = forms.querySelector('button[type="submit"]');
-    if (btn) {
+    if(btn)
+    {
         btn.addEventListener('click', addOrder);
     }
 });
@@ -58,11 +61,14 @@ function initDatepicker()
     {
         let JrKZvcNyRepeat = 100;
 
-        setTimeout(function JrKZvcNy() {
+        setTimeout(function JrKZvcNy()
+        {
 
-            if (JrKZvcNyRepeat >= 1000) { return; }
+            if(JrKZvcNyRepeat >= 1000)
+            { return; }
 
-            if (typeof MCDatepicker === 'object') {
+            if(typeof MCDatepicker === 'object')
+            {
 
 
                 const [day, month, year] = $elementDeliveryDate.value.split('.');
@@ -75,7 +81,7 @@ function initDatepicker()
                 const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                 MCDatepicker.create({
-                    el: '#'+$elementDeliveryDate.id,
+                    el: '#' + $elementDeliveryDate.id,
                     bodyType: 'modal',
                     autoClose: false,
                     closeOndblclick: true,
@@ -103,14 +109,17 @@ function initDatepicker()
 }
 
 
-function resolve(forms) {
+function resolve(forms)
+{
 
-    if (forms !== false && forms.name === 'order_product_form') {
+    if(forms !== false && forms.name === 'order_product_form')
+    {
 
         /** Увеличиваем бейдж корзины */
         $userbasket = document.getElementById('user_basket');
 
-        if ($userbasket) {
+        if($userbasket)
+        {
             $userbasket.classList.remove('d-none');
 
             $counter = $userbasket.innerText * 1;
@@ -128,7 +137,8 @@ function resolve(forms) {
 
         btn.addEventListener('click',
 
-            function (event) {
+            function(event)
+            {
                 event.preventDefault();
                 window.location.href = "/basket";
                 return false;
@@ -142,12 +152,15 @@ function resolve(forms) {
 
 
 /** Уменьшаем число продукции */
-document.querySelectorAll('.minus').forEach(function (btn) {
+document.querySelectorAll('.minus').forEach(function(btn)
+{
 
-    btn.addEventListener('click', function (event) {
+    btn.addEventListener('click', function(event)
+    {
 
         let result = document.getElementById(this.dataset.id).value * 1 - 1;
-        if (result <= 0) { return; }
+        if(result <= 0)
+        { return; }
 
         document.getElementById(this.dataset.id).value = result;
 
@@ -161,10 +174,12 @@ document.querySelectorAll('.minus').forEach(function (btn) {
 });
 
 
-document.querySelectorAll('.total').forEach(function (input) {
+document.querySelectorAll('.total').forEach(function(input)
+{
     setTimeout(function initCounter()
     {
-        if (typeof orderCounter.debounce == 'function') {
+        if(typeof orderCounter.debounce == 'function')
+        {
 
             /** Событие на изменение количество в ручную */
             input.addEventListener('input', orderCounter.debounce(300));
@@ -178,15 +193,17 @@ document.querySelectorAll('.total').forEach(function (input) {
 });
 
 /** Увеличиваем число продукции */
-document.querySelectorAll('.plus').forEach(function (btn)
+document.querySelectorAll('.plus').forEach(function(btn)
 {
 
-    btn.addEventListener('click', function (event) {
+    btn.addEventListener('click', function(event)
+    {
 
         let inpt = document.getElementById(this.dataset.id);
         let result = inpt.value * 1 + 1;
 
-        if (result > inpt.dataset.max) { return; }
+        if(result > inpt.dataset.max)
+        { return; }
 
         document.getElementById(this.dataset.id).value = result;
 
@@ -199,20 +216,21 @@ document.querySelectorAll('.plus').forEach(function (btn)
     });
 });
 
-function orderCounter() {
+function orderCounter()
+{
 
     let result = this.value * 1;
     let max = this.dataset.max * 1;
 
 
-    if (result < 1)
+    if(result < 1)
     {
         document.getElementById(this.id).value = 1;
         result = 1;
     }
 
 
-    if (result > max)
+    if(result > max)
     {
         document.getElementById(this.id).value = max;
         result = max;
@@ -223,17 +241,19 @@ function orderCounter() {
     total();
 }
 
-function orderSum(result, id) {
+function orderSum(result, id)
+{
 
     let product_summ = document.getElementById('summ_' + id);
 
-    if (product_summ)
+    if(product_summ)
     {
 
 
         let result_product_sum = result * product_summ.dataset.price;
 
-        if (product_summ.dataset.discount) {
+        if(product_summ.dataset.discount)
+        {
             result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
         }
 
@@ -247,23 +267,26 @@ function orderSum(result, id) {
     }
 }
 
-function total() {
+function total()
+{
 
     let result_total = 0;
     let currency = null;
 
-    document.querySelectorAll('.total').forEach(function (total)
+    document.querySelectorAll('.total').forEach(function(total)
     {
         let total_value = total.value * 1;
         let price = total.dataset.price * 1;
         currency = total.dataset.currency;
         let discount = total.dataset.discount * 1;
 
-        if (total_value) {
+        if(total_value)
+        {
 
             let result_total_value = total_value * price;
 
-            if (discount) {
+            if(discount)
+            {
                 result_total_value = result_total_value - (result_total_value / 100 * discount);
             }
 
@@ -281,17 +304,23 @@ function total() {
 
 
     let total_result = document.getElementById('total_result');
-    if (total_result) total_result.innerText = result_product_sum;
+    if(total_result)
+    {
+        total_result.innerText = result_product_sum;
+    }
 
 
     let total_product_sum = document.getElementById('total_product_sum');
-      if (total_product_sum) total_product_sum.innerText = result_product_sum;
+    if(total_product_sum)
+    {
+        total_product_sum.innerText = result_product_sum;
+    }
 
 
     /** пересчитываем доставку */
     let delivery = document.querySelector('input[name*="[users][delivery][delivery]"][checked="checked"]');
 
-    if (delivery && delivery.dataset.price)
+    if(delivery && delivery.dataset.price)
     {
         result_total = delivery.dataset.price * 1 + result_total;
     }
@@ -302,27 +331,33 @@ function total() {
         maximumFractionDigits: 0
     }).format(result_total);
 
-    let total_all_sum =  document.getElementById('total_all_sum');
-    if(total_all_sum) { total_all_sum.innerText = result_all_sum; }
+    let total_all_sum = document.getElementById('total_all_sum');
+    if(total_all_sum)
+    { total_all_sum.innerText = result_all_sum; }
 
 }
 
 
-document.querySelectorAll('.delete-product').forEach(function (btn) {
-    btn.addEventListener('click', function (event) {
+document.querySelectorAll('.delete-product').forEach(function(btn)
+{
+    btn.addEventListener('click', function(event)
+    {
         event.preventDefault();
         submitLink(btn.href, btn.dataset.id);
     });
 });
 
 
-function success(id) {
+function success(id)
+{
     (document.getElementById(id))?.remove();
 }
 
 
-document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(function (userProfileType) {
-    userProfileType.addEventListener('change', function (event) {
+document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(function(userProfileType)
+{
+    userProfileType.addEventListener('change', function(event)
+    {
 
         let forms = this.closest('form');
         submitOrderForm(forms);
@@ -331,35 +366,42 @@ document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(fun
 });
 
 
-document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function (userPayment) {
-    userPayment.addEventListener('change', function (event) {
+document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(userPayment)
+{
+    userPayment.addEventListener('change', function(event)
+    {
         let forms = this.closest('form');
         submitPaymentForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function (userPayment) {
-    userPayment.addEventListener('change', function (event) {
+document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(userPayment)
+{
+    userPayment.addEventListener('change', function(event)
+    {
         let forms = this.closest('form');
         submitDeliveryForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('select.change_region_field').forEach(function (userRegion) {
-    userRegion.addEventListener('change', function (event) {
+document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+{
+    userRegion.addEventListener('change', function(event)
+    {
         let forms = this.closest('form');
         submitRegionForm(forms, userRegion.id);
         return false;
     });
 });
 
-async function submitDeliveryForm(forms) {
+async function submitDeliveryForm(forms)
+{
 
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -367,7 +409,7 @@ async function submitDeliveryForm(forms) {
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-           // 'X-Requested-With': 'XMLHttpChange'
+            // 'X-Requested-With': 'XMLHttpChange'
             'X-Requested-With': 'XMLHttpRequest'
         },
         redirect: 'follow', // manual, *follow, error
@@ -376,18 +418,22 @@ async function submitDeliveryForm(forms) {
     })
 
         //.then((response) => response)
-        .then((response) => {
+        .then((response) =>
+        {
 
-            if (response.status !== 200) {
+            if(response.status !== 200)
+            {
                 return false;
             }
 
             return response.text();
         })
 
-        .then((data) => {
+        .then((data) =>
+        {
 
-            if (data) {
+            if(data)
+            {
 
 
                 var parser = new DOMParser();
@@ -397,8 +443,10 @@ async function submitDeliveryForm(forms) {
                 document.getElementById('user_delivery').replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function (user_delivery) {
-                    user_delivery.addEventListener('change', function (event) {
+                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
+                {
+                    user_delivery.addEventListener('change', function(event)
+                    {
 
                         let forms = this.closest('form');
                         submitDeliveryForm(forms);
@@ -407,8 +455,10 @@ async function submitDeliveryForm(forms) {
                 });
 
 
-                document.querySelectorAll('select.change_region_field').forEach(function (userRegion) {
-                    userRegion.addEventListener('change', function (event) {
+                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+                {
+                    userRegion.addEventListener('change', function(event)
+                    {
                         let forms = this.closest('form');
                         submitRegionForm(forms, userRegion.id);
                         return false;
@@ -420,7 +470,8 @@ async function submitDeliveryForm(forms) {
 
                 /** Пересобирваем tooltip */
                 var tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                tooltipTriggerList.map(function(tooltipTriggerEl)
+                {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 
@@ -434,17 +485,19 @@ async function submitDeliveryForm(forms) {
                 document.querySelector('[data-longitude]').value = '';
 
 
-
                 limitOxMvRIBczY = 100;
 
-                setTimeout(function OxMvRIBczY() {
+                setTimeout(function OxMvRIBczY()
+                {
 
-                    if (typeof initAdddress == 'function') {
+                    if(typeof initAdddress == 'function')
+                    {
                         initAdddress();
                         return;
                     }
 
-                    if (limitOxMvRIBczY > 1000) { return; }
+                    if(limitOxMvRIBczY > 1000)
+                    { return; }
 
                     limitOxMvRIBczY = limitOxMvRIBczY * 2;
 
@@ -469,11 +522,12 @@ async function submitDeliveryForm(forms) {
     // }); // parses JSON response into native JavaScript objects
 }
 
-async function submitRegionForm(forms, id) {
+async function submitRegionForm(forms, id)
+{
 
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
 
     await fetch(forms.action, {
@@ -492,18 +546,22 @@ async function submitRegionForm(forms, id) {
     })
 
         //.then((response) => response)
-        .then((response) => {
+        .then((response) =>
+        {
 
-            if (response.status !== 200) {
+            if(response.status !== 200)
+            {
                 return false;
             }
 
             return response.text();
         })
 
-        .then((data) => {
+        .then((data) =>
+        {
 
-            if (data) {
+            if(data)
+            {
 
 
                 var parser = new DOMParser();
@@ -525,14 +583,17 @@ async function submitRegionForm(forms, id) {
 
                 limitZJzxDhmvtC = 100;
 
-                setTimeout(function ZJzxDhmvtC() {
+                setTimeout(function ZJzxDhmvtC()
+                {
 
-                    if (typeof initAdddress == 'function') {
+                    if(typeof initAdddress == 'function')
+                    {
                         initAdddress();
                         return;
                     }
 
-                    if (limitZJzxDhmvtC > 1000) { return; }
+                    if(limitZJzxDhmvtC > 1000)
+                    { return; }
 
                     limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
 
@@ -552,11 +613,12 @@ async function submitRegionForm(forms, id) {
     // }); // parses JSON response into native JavaScript objects
 }
 
-async function submitPaymentForm(forms) {
+async function submitPaymentForm(forms)
+{
 
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -573,18 +635,22 @@ async function submitPaymentForm(forms) {
     })
 
         //.then((response) => response)
-        .then((response) => {
+        .then((response) =>
+        {
 
-            if (response.status !== 200) {
+            if(response.status !== 200)
+            {
                 return false;
             }
 
             return response.text();
         })
 
-        .then((data) => {
+        .then((data) =>
+        {
 
-            if (data) {
+            if(data)
+            {
 
 
                 var parser = new DOMParser();
@@ -594,8 +660,10 @@ async function submitPaymentForm(forms) {
                 document.getElementById('user_payment').replaceWith(user_payment);
 
 
-                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function (user_payment) {
-                    user_payment.addEventListener('change', function (event) {
+                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(user_payment)
+                {
+                    user_payment.addEventListener('change', function(event)
+                    {
 
                         let forms = this.closest('form');
                         submitPaymentForm(forms);
@@ -608,7 +676,8 @@ async function submitPaymentForm(forms) {
 
                 /** Пересобирваем tooltip */
                 var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                tooltipTriggerList.map(function(tooltipTriggerEl)
+                {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 
@@ -624,10 +693,11 @@ async function submitPaymentForm(forms) {
     // }); // parses JSON response into native JavaScript objects
 }
 
-async function submitOrderForm(forms) {
+async function submitOrderForm(forms)
+{
 
     const data = new FormData(forms);
-    data.delete(forms.name+'[_token]');
+    data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
@@ -644,9 +714,11 @@ async function submitOrderForm(forms) {
     })
 
         //.then((response) => response)
-        .then((response) => {
+        .then((response) =>
+        {
 
-            if (response.status !== 200) {
+            if(response.status !== 200)
+            {
                 return false;
             }
 
@@ -654,10 +726,12 @@ async function submitOrderForm(forms) {
 
         })
 
-        .then((data) => {
+        .then((data) =>
+        {
 
 
-            if (data) {
+            if(data)
+            {
 
 
                 var parser = new DOMParser();
@@ -674,8 +748,10 @@ async function submitOrderForm(forms) {
 
 
                 /** Пересобираем события способа оплаты */
-                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function (userPayment) {
-                    userPayment.addEventListener('change', function (event) {
+                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(userPayment)
+                {
+                    userPayment.addEventListener('change', function(event)
+                    {
                         let replaceId = 'user_profile';
                         let forms = this.closest('form');
                         submitPaymentForm(forms);
@@ -688,8 +764,10 @@ async function submitOrderForm(forms) {
                 document.getElementById('user_delivery').replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function (user_delivery) {
-                    user_delivery.addEventListener('change', function (event) {
+                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
+                {
+                    user_delivery.addEventListener('change', function(event)
+                    {
 
                         let forms = this.closest('form');
                         submitDeliveryForm(forms);
@@ -700,8 +778,10 @@ async function submitOrderForm(forms) {
                 /** Персчет всего количество */
                 total();
 
-                document.querySelectorAll('select.change_region_field').forEach(function (userRegion) {
-                    userRegion.addEventListener('change', function (event) {
+                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+                {
+                    userRegion.addEventListener('change', function(event)
+                    {
                         let forms = this.closest('form');
                         submitRegionForm(forms, userRegion.id);
                         return false;
@@ -711,7 +791,8 @@ async function submitOrderForm(forms) {
 
                 /** Пересобирваем tooltip */
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                tooltipTriggerList.map(function(tooltipTriggerEl)
+                {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 

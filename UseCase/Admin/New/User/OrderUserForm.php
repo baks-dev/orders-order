@@ -86,10 +86,8 @@ final class OrderUserForm extends AbstractType
                 $form = $event->getForm();
 
 
-//                dump('PRE_SET_DATA '.$this::class);
-//                dump($data->getUserProfile()?->getType());
-
-
+                //                dump('PRE_SET_DATA '.$this::class);
+                //                dump($data->getUserProfile()?->getType());
 
 
                 if($data->getUserProfile()?->getType())
@@ -112,7 +110,6 @@ final class OrderUserForm extends AbstractType
                 }
             }
         );
-
 
 
         $builder->addEventListener(

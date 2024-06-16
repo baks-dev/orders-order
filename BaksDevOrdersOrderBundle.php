@@ -25,7 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order;
 
+use BaksDev\Delivery\BaksDevDeliveryBundle;
+use BaksDev\Delivery\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceRepository;
+use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceRepository;
 use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
+use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
@@ -76,8 +80,17 @@ class BaksDevOrdersOrderBundle extends AbstractBundle
 
         $services->alias(OrderStatusInterface::class, OrderStatusNew::class);
 
+        if(class_exists(BaksDevDeliveryBundle::class))
+        {
+            $services->set(
+                DeliveryByProfileChoiceInterface::class,
+                DeliveryByProfileChoiceRepository::class
+            );
 
-        $services->set(DeliveryByProfileChoiceInterface::class);
-
+            $services->set(
+                FieldByDeliveryChoiceInterface::class,
+                FieldByDeliveryChoiceRepository::class
+            );
+        }
     }
 }

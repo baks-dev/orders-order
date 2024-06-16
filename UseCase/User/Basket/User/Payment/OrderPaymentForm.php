@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Payment;
 
 use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
-
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;

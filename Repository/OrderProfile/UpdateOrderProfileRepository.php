@@ -155,7 +155,6 @@ final class UpdateOrderProfileRepository implements UpdateOrderProfileInterface
             ->setParameter('status', $status, OrderStatus::TYPE);
 
 
-
         return $dbal->executeStatement();
     }
 

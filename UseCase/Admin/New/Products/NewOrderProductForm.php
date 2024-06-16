@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\Products;
 
-use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -58,10 +56,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
-                function ($product) {
+                function($product) {
                     return $product instanceof ProductEventUid ? $product->getValue() : $product;
                 },
-                function ($product) {
+                function($product) {
                     return new ProductEventUid($product);
                 }
             )
@@ -73,10 +71,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('offer')->addModelTransformer(
             new CallbackTransformer(
-                function ($offer) {
+                function($offer) {
                     return $offer instanceof ProductOfferUid ? $offer->getValue() : $offer;
                 },
-                function ($offer) {
+                function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
                 }
             )
@@ -88,10 +86,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('variation')->addModelTransformer(
             new CallbackTransformer(
-                function ($variation) {
+                function($variation) {
                     return $variation instanceof ProductVariationUid ? $variation->getValue() : $variation;
                 },
-                function ($variation) {
+                function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
                 }
             )
@@ -103,10 +101,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('modification')->addModelTransformer(
             new CallbackTransformer(
-                function ($modification) {
+                function($modification) {
                     return $modification instanceof ProductModificationUid ? $modification->getValue() : $modification;
                 },
-                function ($modification) {
+                function($modification) {
 
                     return $modification ? new ProductModificationUid($modification) : null;
                 }
@@ -120,9 +118,9 @@ final class NewOrderProductForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => NewOrderProductDTO::class,
-//            'attr' => ['class' => 'order-basket'],
-//            'warehouse' => null,
-//            'usr' => null,
+            //            'attr' => ['class' => 'order-basket'],
+            //            'warehouse' => null,
+            //            'usr' => null,
 
         ]);
     }

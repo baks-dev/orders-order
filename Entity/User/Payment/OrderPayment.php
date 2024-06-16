@@ -40,65 +40,65 @@ use InvalidArgumentException;
 #[ORM\Table(name: 'orders_payment')]
 class OrderPayment extends EntityEvent
 {
-	public const TABLE = 'orders_payment';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderPaymentUid::TYPE)]
-	private OrderPaymentUid $id;
-	
-	/** ID пользователя заказа */
-	#[ORM\OneToOne(inversedBy: 'payment', targetEntity: OrderUser::class)]
-	#[ORM\JoinColumn(name: 'usr', referencedColumnName: 'id')]
-	private OrderUser $usr;
-	
-	/** Способ оплаты */
-	#[ORM\Column(type: PaymentUid::TYPE)]
-	private PaymentUid $payment;
-	
-	/** Пользовательские поля */
-	#[ORM\OneToMany(targetEntity: Field\OrderPaymentField::class, mappedBy: 'payment', cascade: ['all'])]
-	private Collection $field;
-	
-	
-	public function __construct(OrderUser $usr)
-	{
-		$this->id = new OrderPaymentUid();
-		$this->usr = $usr;
-	}
-	
-	public function __clone() : void
-	{
+    public const TABLE = 'orders_payment';
+
+    /** ID */
+    #[ORM\Id]
+    #[ORM\Column(type: OrderPaymentUid::TYPE)]
+    private OrderPaymentUid $id;
+
+    /** ID пользователя заказа */
+    #[ORM\OneToOne(inversedBy: 'payment', targetEntity: OrderUser::class)]
+    #[ORM\JoinColumn(name: 'usr', referencedColumnName: 'id')]
+    private OrderUser $usr;
+
+    /** Способ оплаты */
+    #[ORM\Column(type: PaymentUid::TYPE)]
+    private PaymentUid $payment;
+
+    /** Пользовательские поля */
+    #[ORM\OneToMany(targetEntity: Field\OrderPaymentField::class, mappedBy: 'payment', cascade: ['all'])]
+    private Collection $field;
+
+
+    public function __construct(OrderUser $usr)
+    {
+        $this->id = new OrderPaymentUid();
+        $this->usr = $usr;
+    }
+
+    public function __clone(): void
+    {
         $this->id = clone $this->id;
-	}
+    }
 
     public function __toString(): string
     {
         return (string) $this->id;
     }
-	
-	public function getDto($dto): mixed
-	{
+
+    public function getDto($dto): mixed
+    {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-		if($dto instanceof OrderPaymentInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto): mixed
-	{
-		if($dto instanceof OrderPaymentInterface || $dto instanceof self)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
+        if($dto instanceof OrderPaymentInterface)
+        {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+
+    public function setEntity($dto): mixed
+    {
+        if($dto instanceof OrderPaymentInterface || $dto instanceof self)
+        {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+
 }

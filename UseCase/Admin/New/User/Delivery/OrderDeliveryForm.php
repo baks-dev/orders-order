@@ -158,8 +158,10 @@ final class OrderDeliveryForm extends AbstractType
         ]);
 
 
-        $builder->add('price',
-            Price\OrderDeliveryPriceForm::class, ['label' => false]
+        $builder->add(
+            'price',
+            Price\OrderDeliveryPriceForm::class,
+            ['label' => false]
         );
 
 

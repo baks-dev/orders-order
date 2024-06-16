@@ -58,8 +58,12 @@ final class OrderDeliveryPriceForm extends AbstractType
 
         $builder->add('currency', ChoiceType::class, [
             'choices' => Currency::cases(),
-            'choice_value' => function(?Currency $currency) { return $currency?->getCurrencyValue(); },
-            'choice_label' => function(?Currency $currency) { return $currency?->getCurrencyValue(); },
+            'choice_value' => function(?Currency $currency) {
+                return $currency?->getCurrencyValue();
+            },
+            'choice_label' => function(?Currency $currency) {
+                return $currency?->getCurrencyValue();
+            },
             'translation_domain' => 'reference.currency',
             'label' => false,
         ]);

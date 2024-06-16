@@ -84,7 +84,8 @@ final class OrderPaymentFieldForm extends AbstractType
                     $PaymentField = $data->getField();
 
                     if( //$PaymentField->getType() &&
-                        $PaymentField->getType() instanceof InputField)
+                        $PaymentField->getType() instanceof InputField
+                    )
                     {
                         $fieldType = $this->fieldsChoice->getChoice($PaymentField->getType());
 

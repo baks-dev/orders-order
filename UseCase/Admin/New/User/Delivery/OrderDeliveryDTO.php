@@ -92,7 +92,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->delivery;
     }
 
-    public function setDelivery( $delivery): void
+    public function setDelivery($delivery): void
     {
         //dump('setDelivery $delivery');
         //dump($delivery);
@@ -129,7 +129,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
             return;
         }
 
-        if (!$this->field->contains($field))
+        if(!$this->field->contains($field))
         {
             $this->field->add($field);
         }

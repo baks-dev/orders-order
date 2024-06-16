@@ -53,79 +53,82 @@
 #}
 
 {% block javascript %}
-<script nonce='{{ csp_nonce() }}' async  data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js"
+            class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}'
+            class='lazy'></script>
 
-<script nonce="{{ csp_nonce() }}">
-document.addEventListener("DOMContentLoaded", (event) => {
-
-	const form = document.forms.product_filter_form;
-    form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
-
-});
-
-
-let TTmzCXyCq = 100;
-
-/** Сокеты */
-setTimeout(function SpgGHaQzun() {
-
-    if (TTmzCXyCq > 1000)
+    <script nonce="{{ csp_nonce() }}">
+        document.addEventListener("DOMContentLoaded", (event) =>
         {
-            return;
-        }
+
+            const form = document.forms.product_filter_form;
+            form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+
+        });
 
 
-    if (typeof Centrifuge === 'function')
-    {
-        centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
+        let TTmzCXyCq = 100;
+
+        /** Сокеты */
+        setTimeout(function SpgGHaQzun()
+        {
+
+            if(TTmzCXyCq > 1000)
             {
-                token: "{{ token }}", //"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTg2NWMxMC1jZDQ1LTdmMjEtYTUxNi0wMDM5NDFiMWM0Y2IiLCJpZCI6IjAxODY2ZjllLTcwZDAtNzNlMC1iNzYzLTg3OTRiNmU2YjFjYiIsImV2ZW50IjoiMDE4NzJjZjEtMDhjNy03NTUzLWJmMjctOTQxNTVhOTMxYjZhIiwiZXhwIjoxNjgyOTYyMzY3fQ.IeIMimmMTn2W4leLQAR3O8T70LOVaWau3B-HXHwOdzM",
-                getToken: function (ctx) {
-                    return getToken('/centrifugo/credentials/user', ctx);
-                },
-                debug: false,
-            });
+                return;
+            }
 
-		{% if opens %}
 
-			  centrifuge.newSubscription('{{ opens.order_event }}').on('publication', function (ctx) {
+            if(typeof Centrifuge === 'function')
+            {
+                centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
+                    {
+                        token: "{{ token }}", //"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTg2NWMxMC1jZDQ1LTdmMjEtYTUxNi0wMDM5NDFiMWM0Y2IiLCJpZCI6IjAxODY2ZjllLTcwZDAtNzNlMC1iNzYzLTg3OTRiNmU2YjFjYiIsImV2ZW50IjoiMDE4NzJjZjEtMDhjNy03NTUzLWJmMjctOTQxNTVhOTMxYjZhIiwiZXhwIjoxNjgyOTYyMzY3fQ.IeIMimmMTn2W4leLQAR3O8T70LOVaWau3B-HXHwOdzM",
+                        getToken: function(ctx)
+                        {
+                            return getToken('/centrifugo/credentials/user', ctx);
+                        },
+                        debug: false,
+                    });
+
+                {% if opens %}
+
+                centrifuge.newSubscription('{{ opens.order_event }}').on('publication', function(ctx)
+                {
                     document.getElementById('product-{{ opens.order_event }}').innerHTML = ctx.data.product;
 
                     //$total = parseInt(document.getElementById('total-{{ opens.order_event }}').textContent);
                     //document.getElementById('total-{{ opens.order_event }}').textContent = $total + ctx.data.total
 
-            }).subscribe();
+                }).subscribe();
 
-            centrifuge.connect();
+                centrifuge.connect();
 
-		{% endif %}
+                {% endif %}
 
-        // /** Удаляем из списка у всех продукт */
-		centrifuge.newSubscription('remove').on('publication', function (ctx) {
-                     $identifier = document.getElementById('card-'+ctx.data.identifier);
-                     if($identifier) { $identifier.remove(); }
-            }).subscribe();
+                // /** Удаляем из списка у всех продукт */
+                centrifuge.newSubscription('remove').on('publication', function(ctx)
+                {
+                    $identifier = document.getElementById('card-' + ctx.data.identifier);
+                    if($identifier)
+                    { $identifier.remove(); }
+                }).subscribe();
 
-		centrifuge.connect();
+                centrifuge.connect();
 
-        return;
-    }
-
-
-    TTmzCXyCq = TTmzCXyCq * 2;
-
-    setTimeout(SpgGHaQzun, TTmzCXyCq);
-
-}, 100);
+                return;
+            }
 
 
+            TTmzCXyCq = TTmzCXyCq * 2;
+
+            setTimeout(SpgGHaQzun, TTmzCXyCq);
+
+        }, 100);
 
 
-
-
-
-</script>
+    </script>
 
 
 

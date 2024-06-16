@@ -33,53 +33,63 @@
 
 {% block javascript %}
 
-<script nonce='{{ csp_nonce() }}' async  data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"  class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}" class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async
+            data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"
+            class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}"
+            class="lazy"></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}"
+            class="lazy"></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}"
+            class='lazy'></script>
 
-{% if baks_profile.id is defined %}
+    {% if baks_profile.id is defined %}
 
-<script nonce='{{ csp_nonce() }}' async  data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js" class='lazy'></script>
+        <script nonce='{{ csp_nonce() }}' async data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js"
+                class='lazy'></script>
 
-<script nonce="{{ csp_nonce() }}">
+        <script nonce="{{ csp_nonce() }}">
 
-/** Сокеты */
-setTimeout(function xA1wFjaW7B() {
-
-    if (typeof Centrifuge === 'function') {
-        centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
+            /** Сокеты */
+            setTimeout(function xA1wFjaW7B()
             {
-                token: "{{ token }}",
-                getToken: function (ctx) {
-                    return getToken('/centrifugo/credentials/user', ctx);
-                },
-                debug: true,
-            });
 
-        const publish = centrifuge.newSubscription('orders');
-
-        publish.on('publication', function (ctx) {
-
-            if (ctx.data.profile !== '{{ baks_profile.id }}')
+                if(typeof Centrifuge === 'function')
+                {
+                    centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
                         {
-                /* Удаляем у остальных менеджеров заказ */
-                document.getElementById(ctx.data.order).remove();
-                //console.log(ctx.data);
-            }
+                            token: "{{ token }}",
+                            getToken: function(ctx)
+                            {
+                                return getToken('/centrifugo/credentials/user', ctx);
+                            },
+                            debug: true,
+                        });
 
-        }).subscribe();
+                    const publish = centrifuge.newSubscription('orders');
 
-        centrifuge.connect();
-        return;
-    }
+                    publish.on('publication', function(ctx)
+                    {
 
-    setTimeout(xA1wFjaW7B, 100);
+                        if(ctx.data.profile !== '{{ baks_profile.id }}')
+                        {
+                            /* Удаляем у остальных менеджеров заказ */
+                            document.getElementById(ctx.data.order).remove();
+                            //console.log(ctx.data);
+                        }
 
-}, 100);
-</script>
+                    }).subscribe();
 
-{% endif %}
+                    centrifuge.connect();
+                    return;
+                }
 
- {% endblock %}
+                setTimeout(xA1wFjaW7B, 100);
+
+            }, 100);
+        </script>
+
+    {% endif %}
+
+{% endblock %}
 

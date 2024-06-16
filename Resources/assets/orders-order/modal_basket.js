@@ -22,26 +22,30 @@
 
 const basket = document.querySelector('#modal');  //getElementById('modal');
 
-basket.addEventListener('shown.bs.modal', function (event)
+basket.addEventListener('shown.bs.modal', function(event)
 {
 
-    setTimeout(function initModalBasket() {
+    setTimeout(function initModalBasket()
+    {
 
         let input = basket.querySelector('#order_product_form_price_total'); //basket.getElementById('order_product_form_price_total');
 
-        if (input) {
+        if(input)
+        {
 
             /** Событие на изменение количество в ручную */
             input.addEventListener('input', orderModalCounter.debounce(300));
 
             /** Счетчик  */
-            basket.querySelector('#plus').addEventListener('click', () => {
+            basket.querySelector('#plus').addEventListener('click', () =>
+            {
 
                 let price_total = basket.querySelector('#order_product_form_price_total');
                 let result = price_total.value * 1;
                 let max = price_total.dataset.max * 1;
 
-                if (result < max) {
+                if(result < max)
+                {
                     result = result + 1;
                     basket.querySelector('#order_product_form_price_total').value = result;
                     orderModalSum(result);
@@ -50,11 +54,13 @@ basket.addEventListener('shown.bs.modal', function (event)
             });
 
 
-            basket.querySelector('#minus').addEventListener('click', () => {
+            basket.querySelector('#minus').addEventListener('click', () =>
+            {
                 let price_total = basket.querySelector('#order_product_form_price_total');
                 let result = price_total.value * 1;
 
-                if (result > 1) {
+                if(result > 1)
+                {
                     result = result - 1
                     basket.querySelector('#order_product_form_price_total').value = result;
                     orderModalSum(result);
@@ -70,14 +76,15 @@ basket.addEventListener('shown.bs.modal', function (event)
 
 });
 
-function orderModalCounter() {
+function orderModalCounter()
+{
 
     let result = this.value * 1;
     let max = this.dataset.max * 1;
 
 
-
-    if (result > max) {
+    if(result > max)
+    {
         basket.querySelector('#order_product_form_price_total').value = max;
         result = max;
     }
@@ -86,13 +93,15 @@ function orderModalCounter() {
 
 }
 
-function orderModalSum(result) {
+function orderModalSum(result)
+{
 
     let product_summ = basket.querySelector('#summ_order_product_form_price_total');
 
     let result_product_sum = result * product_summ.dataset.price;
 
-    if (product_summ.dataset.discount) {
+    if(product_summ.dataset.discount)
+    {
         result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
     }
 

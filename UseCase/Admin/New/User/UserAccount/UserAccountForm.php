@@ -37,41 +37,40 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class UserAccountForm extends AbstractType
 {
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		
-		/** Email */
-		$builder->add('email', EmailType::class);
-		
-		$builder->get('email')->addModelTransformer(
-			new CallbackTransformer(
-				function($email) {
-					return $email instanceof AccountEmail ? $email->getValue() : $email;
-				},
-				function($email) {
-					
-					return new AccountEmail($email);
-				}
-			)
-		);
-		
-		
-		
-		/** Пароль */
-		$builder->add('passwordPlain', PasswordType::class, [
-			'required' => true,
-			'attr' => ['autocomplete' => "new-password"],
-		]);
-	
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => UserAccountDTO::class,
-		]);
-	}
-	
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+
+        /** Email */
+        $builder->add('email', EmailType::class);
+
+        $builder->get('email')->addModelTransformer(
+            new CallbackTransformer(
+                function($email) {
+                    return $email instanceof AccountEmail ? $email->getValue() : $email;
+                },
+                function($email) {
+
+                    return new AccountEmail($email);
+                }
+            )
+        );
+
+
+        /** Пароль */
+        $builder->add('passwordPlain', PasswordType::class, [
+            'required' => true,
+            'attr' => ['autocomplete' => "new-password"],
+        ]);
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => UserAccountDTO::class,
+        ]);
+    }
+
 }

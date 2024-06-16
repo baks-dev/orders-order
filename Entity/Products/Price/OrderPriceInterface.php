@@ -25,5 +25,5 @@ namespace BaksDev\Orders\Order\Entity\Products\Price;
 
 interface OrderPriceInterface
 {
-    
+
 }

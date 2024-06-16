@@ -45,18 +45,18 @@
                 </svg>
             </a>
 
-            {#{% if opens %}
+            {# {% if opens %}
                 <a href="{{ path('manufacture-part:admin.newedit.new') }}"
                    class="btn modal-btn modal-link disabled btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
                     Добавить партию
                 </a>
-            {% endif %}#}
+            {% endif %} #}
 
         </div>
 
-        {% if opens  %}
+        {% if opens %}
 
             {# Партия производства #}
             {{ include(_self|replace({ "content.html.twig": "open.html.twig" }), { card : opens }) }}
@@ -89,8 +89,8 @@
                 </h2>
             </div>
 
-            {#<div class="w-100 d-flex align-items-center gap-3 justify-content-end">
-                #}{#{{ form_start(profile) }}
+            {# <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
+            #}{# {{ form_start(profile) }}
                 <div class="d-flex justify-content-end position-relative my-1 gap-3">
 
                     <div class="w-50">
@@ -98,8 +98,8 @@
                             placeholder: 'Выберите профиль из списка ...', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}
                     </div>
                 </div>
-                {{ form_end(profile) }}#}{#
-            </div>#}
+                {{ form_end(profile) }} #}{#
+            </div> #}
 
         </div>
 

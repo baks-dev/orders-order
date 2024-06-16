@@ -33,65 +33,62 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class NewOrderPriceDTO implements OrderPriceInterface
 {
-	
-	/** Количество в заказе */
-	#[Assert\NotBlank]
-	private int $total = 1;
-	
-	/** Стоимость */
-	private ?Money $price;
-	
-	/** Валюта */
-	#[Assert\NotBlank]
-	private Currency $currency;
-	
-	
-	public function __construct()
-	{
-		$this->currency = new Currency();
-	}
-	
-	/** Количество в заказе */
-	public function getTotal() : int
-	{
-		return $this->total;
-	}
-	
-	
-	public function setTotal(int $total) : void
-	{
-		$this->total = $total;
-	}
+
+    /** Количество в заказе */
+    #[Assert\NotBlank]
+    private int $total = 1;
+
+    /** Стоимость */
+    private ?Money $price;
+
+    /** Валюта */
+    #[Assert\NotBlank]
+    private Currency $currency;
 
 
+    public function __construct()
+    {
+        $this->currency = new Currency();
+    }
 
-	
-	
-	/** Стоимость */
-	
-	public function getPrice() : Money
-	{
-		return $this->price;
-	}
-	
-	
-	public function setPrice(Money $price) : void
-	{
-		$this->price = $price;
-	}
-	
-	
-	/** Валюта */
-	
-	public function getCurrency() : Currency
-	{
-		return $this->currency;
-	}
-	
-	
-	public function setCurrency(Currency $currency) : void
-	{
-		$this->currency = $currency;
-	}
-	
+    /** Количество в заказе */
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
+
+
+    /** Стоимость */
+
+    public function getPrice(): Money
+    {
+        return $this->price;
+    }
+
+
+    public function setPrice(Money $price): void
+    {
+        $this->price = $price;
+    }
+
+
+    /** Валюта */
+
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
+    }
+
+
+    public function setCurrency(Currency $currency): void
+    {
+        $this->currency = $currency;
+    }
+
 }

@@ -110,11 +110,10 @@
                         <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
                              style="overflow-y: visible;"
                              data-status="{{ stats.getValue() }}"
-                             data-level="{{
-                                 stats.getValue() == 'new' or
-                                 stats.getValue() == 'delivery'  or
-                                 stats.getValue() == 'extradition'  or
-                                 stats.getValue() == 'completed'
+                             data-level="{{ stats.getValue() == 'new' or
+                             stats.getValue() == 'delivery'  or
+                             stats.getValue() == 'extradition'  or
+                             stats.getValue() == 'completed'
                              ? 'restricted' }}"
                         >
                             {% set href = null %}
@@ -127,7 +126,7 @@
 
                             {% if href %}
                                 <a href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-index-5"
-                                     style="top: 5rem; background-color: {{ color }};">
+                                   style="top: 5rem; background-color: {{ color }};">
                                     {{ stats.getValue()|trans({}, 'status.order') }}
                                 </a>
                             {% else %}

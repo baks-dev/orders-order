@@ -84,8 +84,7 @@ async function changeObjectProduct(forms)
                         let focus = document.getElementById('new_order_form_preProduct_preOffer_select2');
                         focus ? focus.click() : null;
 
-                    }
-                    else
+                    } else
                     {
                         selectTotal(document.getElementById('new_order_form_preProduct_preProduct'))
                     }
@@ -269,8 +268,7 @@ async function changeObjectOffer(forms)
                                 changeObjectVariation(forms);
                                 return false;
                             });
-                        }
-                        else
+                        } else
                         {
                             selectTotal(document.getElementById('new_order_form_preProduct_preOffer'))
                         }
@@ -440,8 +438,7 @@ async function changeObjectVariation(forms)
                                 return false;
                             });
 
-                        }
-                        else
+                        } else
                         {
                             selectTotal(document.getElementById('new_order_form_preProduct_preVariation'))
                         }
@@ -676,12 +673,12 @@ function addProductOrder()
     //        '"message" : "Внутренее перемещение! Выберите другой склад назначения либо отгрузки" }';
     //}
 
-    let mapKey =  $preProduct ?  $preProduct.value : '';
-    mapKey += $preOffer ?  $preOffer.value  : '';
-    mapKey += $preVariation  ?  $preVariation.value  : '';
-    mapKey += $preModification  ?  $preModification.value  : '';
+    let mapKey = $preProduct ? $preProduct.value : '';
+    mapKey += $preOffer ? $preOffer.value : '';
+    mapKey += $preVariation ? $preVariation.value : '';
+    mapKey += $preModification ? $preModification.value : '';
 
-    if(collectionProductOrder.has( mapKey))
+    if(collectionProductOrder.has(mapKey))
     {
         $errorFormHandler = '{ "type":"danger" , ' +
             '"header":"' + header + '"  , ' +
@@ -726,7 +723,7 @@ function addProductOrder()
 
 
     let productIndex = $preProduct.selectedIndex;
-    let $productName = '<b>'+$preProduct.options[$preProduct.selectedIndex].dataset.name+'</b>';
+    let $productName = '<b>' + $preProduct.options[$preProduct.selectedIndex].dataset.name + '</b>';
 
 
     //let targetWarehouseIndex = $targetWarehouse.selectedIndex;
@@ -736,13 +733,13 @@ function addProductOrder()
     //let $destinationWarehouseName = $destinationWarehouse.options[destinationWarehouseIndex].textContent;
 
     //let variationIndex = $preVariation.selectedIndex;
-    let $variationName = $preVariation?.tagName === 'SELECT' ? '<small class="text-muted">'+document.querySelector('label[for="' + $preVariation.id + '"]').textContent + '</small> <b>' + $preVariation.options[$preVariation.selectedIndex].dataset.name + '</b>' : '';
+    let $variationName = $preVariation?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preVariation.id + '"]').textContent + '</small> <b>' + $preVariation.options[$preVariation.selectedIndex].dataset.name + '</b>' : '';
 
     //let modificationIndex = $preModification.selectedIndex;
-    let $modificationName = $preModification?.tagName === 'SELECT' ? '<small class="text-muted">'+document.querySelector('label[for="' + $preModification.id + '"]').textContent + '</small> <b>' + $preModification.options[$preModification.selectedIndex].dataset.name + '</b>' : '';
+    let $modificationName = $preModification?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preModification.id + '"]').textContent + '</small> <b>' + $preModification.options[$preModification.selectedIndex].dataset.name + '</b>' : '';
 
     //let offerIndex = $preOffer.selectedIndex;
-    let $offerName = $preOffer?.tagName === 'SELECT' ? '<small class="text-muted">'+document.querySelector('label[for="' + $preOffer.id + '"]').textContent + '</small> <b>' + $preOffer.options[$preOffer.selectedIndex].dataset.name + '</b>' : '';
+    let $offerName = $preOffer?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preOffer.id + '"]').textContent + '</small> <b>' + $preOffer.options[$preOffer.selectedIndex].dataset.name + '</b>' : '';
 
 
     let $productTextBlock = stockDiv.querySelector('#product-text-' + index);
@@ -754,7 +751,7 @@ function addProductOrder()
 
     let $offer = stockDiv.querySelector('#new_order_form_product_' + index + '_offer');
 
-    let $variation = stockDiv.querySelector('#new_order_form_product_' +  index + '_variation');
+    let $variation = stockDiv.querySelector('#new_order_form_product_' + index + '_variation');
 
     let $modification = stockDiv.querySelector('#new_order_form_product_' + index + '_modification');
 
@@ -764,10 +761,10 @@ function addProductOrder()
     //$warehouse.value = $targetWarehouse.value;
     //$destination.value = $destinationWarehouse.value;
 
-    $product.value =  $preProduct ?  $preProduct.value : '';
-    $offer.value = $preOffer ?  $preOffer.value  : '';
-    $variation.value = $preVariation  ?  $preVariation.value  : '';
-    $modification.value = $preModification  ?  $preModification.value  : '';
+    $product.value = $preProduct ? $preProduct.value : '';
+    $offer.value = $preOffer ? $preOffer.value : '';
+    $variation.value = $preVariation ? $preVariation.value : '';
+    $modification.value = $preModification ? $preModification.value : '';
     $total.value = $preTotal.value;
 
     /* Удаляем при клике колекцию СЕКЦИЙ */
@@ -1367,7 +1364,7 @@ async function submitProfileForm(forms)
                     $selectedDate = new Date(+year, month - 1, +day);
 
 
-                   // let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
+                    // let nextDay = new Date(currentDate.setDate(currentDate.getDate()));
                     let nextDay = new Date();
 
                     let currentDate = new Date();

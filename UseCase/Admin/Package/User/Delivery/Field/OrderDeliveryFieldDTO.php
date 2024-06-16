@@ -30,40 +30,40 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 {
-	
-//	/** Идентификатор пользовательского поля в способе доставки */
-//	#[Assert\NotBlank]
-//	private DeliveryFieldUid $field;
 
-	/** Заполненное значение */
-	#[Assert\Valid]
-	private ?string $value;
-	
-	
-//	/** Идентификатор пользовательского поля в способе оплаты */
-//
-//	public function getField() : DeliveryFieldUid
-//	{
-//		return $this->field;
-//	}
-//
-//	public function setField(DeliveryFieldUid $field) : void
-//	{
-//		$this->field = $field;
-//	}
-	
-	
-	/** Заполненное значение */
+    //	/** Идентификатор пользовательского поля в способе доставки */
+    //	#[Assert\NotBlank]
+    //	private DeliveryFieldUid $field;
 
-	public function getValue() : ?string
-	{
-		return $this->value;
-	}
-	
-	public function setValue(?string $value) : void
-	{
-		$this->value = $value;
-	}
-	
-	
+    /** Заполненное значение */
+    #[Assert\Valid]
+    private ?string $value;
+
+
+    //	/** Идентификатор пользовательского поля в способе оплаты */
+    //
+    //	public function getField() : DeliveryFieldUid
+    //	{
+    //		return $this->field;
+    //	}
+    //
+    //	public function setField(DeliveryFieldUid $field) : void
+    //	{
+    //		$this->field = $field;
+    //	}
+
+
+    /** Заполненное значение */
+
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setValue(?string $value): void
+    {
+        $this->value = $value;
+    }
+
+
 }

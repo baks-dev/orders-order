@@ -47,7 +47,11 @@ final class OrderStatusDTO implements OrderEventInterface
     private OrderStatus $status;
 
 
-    public function __construct(OrderStatus|OrderStatusInterface|string $status, OrderEventUid $id, UserProfileUid $profile)
+    public function __construct(
+        OrderStatus|OrderStatusInterface|string $status,
+        OrderEventUid $id,
+        UserProfileUid $profile
+    )
     {
         if(is_string($status))
         {

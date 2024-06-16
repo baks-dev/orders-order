@@ -44,23 +44,27 @@
 
 {% block javascript %}
 
-<script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" class="lazy"></script>
+    <script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}'
+            class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}"
+            class="lazy"></script>
 
-<script nonce="{{ csp_nonce() }}">
+    <script nonce="{{ csp_nonce() }}">
 
-document.addEventListener("DOMContentLoaded", (event) => {
-	const form = document.forms.order_filter_form;
-	form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
-});
+        document.addEventListener("DOMContentLoaded", (event) =>
+        {
+            const form = document.forms.order_filter_form;
+            form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+        });
 
-//filterDate = document.getElementById('manufacture_filter_form_date');
+        //filterDate = document.getElementById('manufacture_filter_form_date');
 
-    function changeDatapicker(input) {
-        let forms = input.closest('form');
-        forms.submit();
-    }
+        function changeDatapicker(input)
+        {
+            let forms = input.closest('form');
+            forms.submit();
+        }
 
-</script>
+    </script>
 
 {% endblock %}

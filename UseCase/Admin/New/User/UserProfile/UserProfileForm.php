@@ -28,7 +28,6 @@ use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileCh
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -129,18 +128,18 @@ final class UserProfileForm extends AbstractType
                     }
 
 
-//                    $data->setValue(new ArrayCollection());
-//
-//                    foreach($fields as $key => $field)
-//                    {
-//                        $set = $values->get($key);
-//
-//                        $value = new Value\ValueDTO();
-//                        $value->setField($field->getField());
-//                        $value->updSection($field);
-//                        $value->setValue($set?->getValue());
-//                        $data->addValue($value);
-//                    }
+                    //                    $data->setValue(new ArrayCollection());
+                    //
+                    //                    foreach($fields as $key => $field)
+                    //                    {
+                    //                        $set = $values->get($key);
+                    //
+                    //                        $value = new Value\ValueDTO();
+                    //                        $value->setField($field->getField());
+                    //                        $value->updSection($field);
+                    //                        $value->setValue($set?->getValue());
+                    //                        $data->addValue($value);
+                    //                    }
 
                     $form->add('value', CollectionType::class, [
                         'entry_type' => Value\ValueForm::class,
@@ -153,39 +152,37 @@ final class UserProfileForm extends AbstractType
 
 
                 }
-//                else
-//                {
-//                    //$fields = $this->fieldValue->getAllField();
-//                }
+                //                else
+                //                {
+                //                    //$fields = $this->fieldValue->getAllField();
+                //                }
 
 
-
-
-//                $fields = $this->fieldValue->getAllField();
-//
-//                foreach($fields as $field)
-//                {
-//                    $value = new Value\ValueDTO();
-//                    $value->setField($field->getField());
-//                    $value->updSection($field);
-//                    $data->addValue($value);
-//                }
-//
-//
-//                if($data->getType())
-//                {
-//                    $data->setValue(new ArrayCollection());
-//
-//                    $fields = $this->fieldValue->get($data->getType());
-//
-//                    foreach($fields as $field)
-//                    {
-//                        $value = new Value\ValueDTO();
-//                        $value->setField($field->getField());
-//                        $value->updSection($field);
-//                        $data->addValue($value);
-//                    }
-//                }
+                //                $fields = $this->fieldValue->getAllField();
+                //
+                //                foreach($fields as $field)
+                //                {
+                //                    $value = new Value\ValueDTO();
+                //                    $value->setField($field->getField());
+                //                    $value->updSection($field);
+                //                    $data->addValue($value);
+                //                }
+                //
+                //
+                //                if($data->getType())
+                //                {
+                //                    $data->setValue(new ArrayCollection());
+                //
+                //                    $fields = $this->fieldValue->get($data->getType());
+                //
+                //                    foreach($fields as $field)
+                //                    {
+                //                        $value = new Value\ValueDTO();
+                //                        $value->setField($field->getField());
+                //                        $value->updSection($field);
+                //                        $data->addValue($value);
+                //                    }
+                //                }
 
             }
         );

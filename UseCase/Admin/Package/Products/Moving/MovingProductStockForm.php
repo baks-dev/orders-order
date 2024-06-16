@@ -40,7 +40,8 @@ final class MovingProductStockForm extends AbstractType
 
     public function __construct(
         ProductWarehouseChoiceInterface $productWarehouseChoice,
-    ) {
+    )
+    {
         $this->productWarehouseChoice = $productWarehouseChoice;
     }
 
@@ -49,7 +50,7 @@ final class MovingProductStockForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void {
+            function(FormEvent $event): void {
                 /** @var MovingProductStockDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
@@ -80,7 +81,7 @@ final class MovingProductStockForm extends AbstractType
                     {
                         $warehouses = iterator_to_array($warehouses);
 
-                        $warehouses = array_filter($warehouses, function ($v, $k) use ($Destination) {
+                        $warehouses = array_filter($warehouses, function($v, $k) use ($Destination) {
                             return !$v->equals($Destination);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -93,11 +94,11 @@ final class MovingProductStockForm extends AbstractType
                             ChoiceType::class,
                             [
                                 'choices' => $warehouses,
-                                'choice_value' => function (?UserProfileUid $profile) {
+                                'choice_value' => function(?UserProfileUid $profile) {
                                     return $profile?->getValue();
                                 },
 
-                                'choice_label' => function (UserProfileUid $profile) {
+                                'choice_label' => function(UserProfileUid $profile) {
                                     return $profile->getAttr().' ( '.$profile->getProperty().' )';
                                 },
 

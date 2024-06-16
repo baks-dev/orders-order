@@ -134,14 +134,14 @@ final class NewOrderHandler extends AbstractHandler
         $this->main = new Order();
         $this->event = new OrderEvent();
 
-//        try
-//        {
-//            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
-//        }
-//        catch(DomainException $errorUniqid)
-//        {
-//            return $errorUniqid->getMessage();
-//        }
+        //        try
+        //        {
+        //            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
+        //        }
+        //        catch(DomainException $errorUniqid)
+        //        {
+        //            return $errorUniqid->getMessage();
+        //        }
 
         $this->prePersist($command);
 
@@ -165,124 +165,124 @@ final class NewOrderHandler extends AbstractHandler
     }
 
 
-//    public function OLDhandle(OrderDTO $command,): string|Order
-//    {
-//        // Валидация
-//        $errors = $this->validator->validate($command);
-//
-//        if(count($errors) > 0)
-//        {
-//
-//            /** Ошибка валидации */
-//            $uniqid = uniqid('', false);
-//            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-//
-//            return $uniqid;
-//        }
-//
-//        if($command->getEvent())
-//        {
-//            $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
-//                $command->getEvent()
-//            );
-//
-//            if(null === $EventRepo)
-//            {
-//                $uniqid = uniqid('', false);
-//                $errorsString = sprintf(
-//                    'Not found %s by id: %s',
-//                    OrderEvent::class,
-//                    $command->getEvent()
-//                );
-//                $this->logger->error($uniqid.': '.$errorsString);
-//
-//                return $uniqid;
-//            }
-//
-//            $EventRepo->setEntity($command);
-//            $EventRepo->setEntityManager($this->entityManager);
-//            $Event = $EventRepo->cloneEntity();
-//        }
-//        else
-//        {
-//            $Event = new OrderEvent();
-//            $Event->setEntity($command);
-//            $this->entityManager->persist($Event);
-//        }
-//
-//        //        $this->entityManager->clear();
-//        //        $this->entityManager->persist($Event);
-//
-//
-//        if($Event->getOrders())
-//        {
-//            $Main = $this->entityManager->getRepository(Order::class)
-//                ->findOneBy(['event' => $command->getEvent()]);
-//
-//            if(empty($Main))
-//            {
-//                $uniqid = uniqid('', false);
-//                $errorsString = sprintf(
-//                    'Not found %s by event: %s',
-//                    Order::class,
-//                    $command->getEvent()
-//                );
-//                $this->logger->error($uniqid.': '.$errorsString);
-//
-//                return $uniqid;
-//            }
-//        }
-//        else
-//        {
-//            $Main = new Order();
-//            $this->entityManager->persist($Main);
-//            $Event->setMain($Main);
-//        }
-//
-//        // присваиваем событие корню
-//        $Main->setEvent($Event);
-//
-//
-//        /**
-//         * Валидация Event
-//         */
-//
-//        $errors = $this->validator->validate($Event);
-//
-//        if(count($errors) > 0)
-//        {
-//            /** Ошибка валидации */
-//            $uniqid = uniqid('', false);
-//            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-//
-//            return $uniqid;
-//        }
-//
-//
-//        /**
-//         * Валидация Main
-//         */
-//
-//        $errors = $this->validator->validate($Event);
-//
-//        if(count($errors) > 0)
-//        {
-//            /** Ошибка валидации */
-//            $uniqid = uniqid('', false);
-//            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
-//
-//            return $uniqid;
-//        }
-//
-//
-//        $this->entityManager->flush();
-//
-//        /* Отправляем сообщение в шину */
-//        $this->messageDispatch->dispatch(
-//            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
-//            transport: 'orders-order'
-//        );
-//
-//        return $Main;
-//    }
+    //    public function OLDhandle(OrderDTO $command,): string|Order
+    //    {
+    //        // Валидация
+    //        $errors = $this->validator->validate($command);
+    //
+    //        if(count($errors) > 0)
+    //        {
+    //
+    //            /** Ошибка валидации */
+    //            $uniqid = uniqid('', false);
+    //            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+    //
+    //            return $uniqid;
+    //        }
+    //
+    //        if($command->getEvent())
+    //        {
+    //            $EventRepo = $this->entityManager->getRepository(OrderEvent::class)->find(
+    //                $command->getEvent()
+    //            );
+    //
+    //            if(null === $EventRepo)
+    //            {
+    //                $uniqid = uniqid('', false);
+    //                $errorsString = sprintf(
+    //                    'Not found %s by id: %s',
+    //                    OrderEvent::class,
+    //                    $command->getEvent()
+    //                );
+    //                $this->logger->error($uniqid.': '.$errorsString);
+    //
+    //                return $uniqid;
+    //            }
+    //
+    //            $EventRepo->setEntity($command);
+    //            $EventRepo->setEntityManager($this->entityManager);
+    //            $Event = $EventRepo->cloneEntity();
+    //        }
+    //        else
+    //        {
+    //            $Event = new OrderEvent();
+    //            $Event->setEntity($command);
+    //            $this->entityManager->persist($Event);
+    //        }
+    //
+    //        //        $this->entityManager->clear();
+    //        //        $this->entityManager->persist($Event);
+    //
+    //
+    //        if($Event->getOrders())
+    //        {
+    //            $Main = $this->entityManager->getRepository(Order::class)
+    //                ->findOneBy(['event' => $command->getEvent()]);
+    //
+    //            if(empty($Main))
+    //            {
+    //                $uniqid = uniqid('', false);
+    //                $errorsString = sprintf(
+    //                    'Not found %s by event: %s',
+    //                    Order::class,
+    //                    $command->getEvent()
+    //                );
+    //                $this->logger->error($uniqid.': '.$errorsString);
+    //
+    //                return $uniqid;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            $Main = new Order();
+    //            $this->entityManager->persist($Main);
+    //            $Event->setMain($Main);
+    //        }
+    //
+    //        // присваиваем событие корню
+    //        $Main->setEvent($Event);
+    //
+    //
+    //        /**
+    //         * Валидация Event
+    //         */
+    //
+    //        $errors = $this->validator->validate($Event);
+    //
+    //        if(count($errors) > 0)
+    //        {
+    //            /** Ошибка валидации */
+    //            $uniqid = uniqid('', false);
+    //            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+    //
+    //            return $uniqid;
+    //        }
+    //
+    //
+    //        /**
+    //         * Валидация Main
+    //         */
+    //
+    //        $errors = $this->validator->validate($Event);
+    //
+    //        if(count($errors) > 0)
+    //        {
+    //            /** Ошибка валидации */
+    //            $uniqid = uniqid('', false);
+    //            $this->logger->error(sprintf('%s: %s', $uniqid, $errors), [__FILE__.':'.__LINE__]);
+    //
+    //            return $uniqid;
+    //        }
+    //
+    //
+    //        $this->entityManager->flush();
+    //
+    //        /* Отправляем сообщение в шину */
+    //        $this->messageDispatch->dispatch(
+    //            message: new OrderMessage($Main->getId(), $Main->getEvent(), $command->getEvent()),
+    //            transport: 'orders-order'
+    //        );
+    //
+    //        return $Main;
+    //    }
 }

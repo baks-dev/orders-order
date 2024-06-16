@@ -55,7 +55,8 @@ final class BasketListener
         $counter = 0;
 
         // Получаем кеш
-        if ($AppCache->hasItem($key)) {
+        if($AppCache->hasItem($key))
+        {
             $products = ($AppCache->getItem($key))->get();
             $counter = $products?->count();
         }

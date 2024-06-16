@@ -1,191 +1,196 @@
 <form>
 
-	{# ТОВАРЫ #}
-	<div class="modal fade" id="exampleModalToggle" style="--bs-modal-width: 700px;" aria-hidden="true" tabindex="-1">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content p-4 border-bottom border-5 border-primary">
+    {# ТОВАРЫ #}
+    <div class="modal fade" id="exampleModalToggle" style="--bs-modal-width: 700px;" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 border-bottom border-5 border-primary">
 
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalToggleLabel">Продукция</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
-				</div>
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Продукция</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+                </div>
 
-				<div class="modal-body d-flex flex-column gap-1">
-						<select class="form-select rounded-4 py-2 " title="Продукция" required="" data-select="select2">
-							<option value="">Выберите продукцию из списка...</option>
-							<option value="0" selected>Arivo Winmaster ARW2 155/70 R13 75T </option>
-							<option value="1">Triangle Sports TH201 195/45 R16 84W</option>
-						</select>
+                <div class="modal-body d-flex flex-column gap-1">
+                    <select class="form-select rounded-4 py-2 " title="Продукция" required="" data-select="select2">
+                        <option value="">Выберите продукцию из списка...</option>
+                        <option value="0" selected>Arivo Winmaster ARW2 155/70 R13 75T</option>
+                        <option value="1">Triangle Sports TH201 195/45 R16 84W</option>
+                    </select>
 
-						<select class="form-select rounded-4 py-2" title="Продукция" required="" data-select="select2">
-							<option value="">Выберите продукцию из списка...</option>
-							<option value="0">Arivo Winmaster ARW2 155/70 R13 75T </option>
-							<option value="1" selected>Triangle Sports TH201 195/45 R16 84W</option>
-						</select>
-				</div>
+                    <select class="form-select rounded-4 py-2" title="Продукция" required="" data-select="select2">
+                        <option value="">Выберите продукцию из списка...</option>
+                        <option value="0">Arivo Winmaster ARW2 155/70 R13 75T</option>
+                        <option value="1" selected>Triangle Sports TH201 195/45 R16 84W</option>
+                    </select>
+                </div>
 
-				<div class="modal-footer justify-content-between">
-					<div class="flex-grow-1">
-						<button type="button" class="btn btn-outline-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">
-							+ Добавить продукцию
-						</button>
-					</div>
+                <div class="modal-footer justify-content-between">
+                    <div class="flex-grow-1">
+                        <button type="button" class="btn btn-outline-primary" data-bs-target="#exampleModalToggle"
+                                data-bs-toggle="modal">
+                            + Добавить продукцию
+                        </button>
+                    </div>
 
-					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
-					<button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle1" data-bs-toggle="modal">Продолжить</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	
-	<div class="modal fade" id="exampleModalToggle1" style="--bs-modal-width: 700px;" aria-hidden="true"
-		 tabindex="-1">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content p-3 border-bottom border-5 border-primary">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalToggleLabel1">Клиент</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
-				</div>
-				<div class="modal-body">
-
-					<div class="d-flex flex-column gap-3">
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="region">Регион получателя: *</label></div>
-							<div class="w-50"><select class="form-select rounded-4 py-2" title="region"
-													  required="">
-									<option value="0">Москва и Московская обл.</option>
-									<option value="1">Санкт-Петербург и Ленинградская область</option>
-								</select></div>
-						</div>
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="township">Населенный пункт: *</label></div>
-							<div class="w-50"><select class="form-select rounded-4 py-2" title="township"
-													  required="">
-									<option value="0">Москва</option>
-									<option value="1">Санкт-Петербург</option>
-								</select></div>
-						</div>
-						<div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
-							Если вашего города нет в списке — выберите областной центр и напишите город в
-							комментарии к
-							заказу
-						</div>
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="fio">ФИО получателя: *</label></div>
-							<div class="w-50"><input class="form-control rounded-4" type="text" id="fio"
-													 required=""></div>
-						</div>
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="phone">Контактный телефон: *</label></div>
-							<div class="w-50"><input class="form-control rounded-4" type="text" id="phone"
-													 required=""></div>
-						</div>
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="email">Email:</label></div>
-							<div class="w-50"><input class="form-control rounded-4" type="email" id="email"
-													 title="Email"></div>
-						</div>
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label for="address">Адрес доставки: *</label></div>
-							<div class="w-50"><input class="form-control rounded-4" type="text" id="address"></div>
-						</div>
-						<label><textarea class="form-control rounded-4" rows="5"
-										 placeholder="Комментарий к заказу"></textarea></label>
-					</div>
-				</div>
-
-				<div class="modal-footer justify-content-between">
-					<div class="flex-grow-1">
-						<button type="button" class="btn btn-secondary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">
-							<< Продукция
-						</button>
-					</div>
-
-					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
-
-					<button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">
-						Продолжить
-					</button>
-				</div>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle1"
+                            data-bs-toggle="modal">Продолжить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-			</div>
-		</div>
-	</div>
+    <div class="modal fade" id="exampleModalToggle1" style="--bs-modal-width: 700px;" aria-hidden="true"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3 border-bottom border-5 border-primary">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel1">Клиент</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+                </div>
+                <div class="modal-body">
 
-	<div class="modal fade" id="exampleModalToggle2" style="--bs-modal-width: 700px;" aria-hidden="true"
-		 tabindex="-1">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content p-3 border-bottom border-5 border-primary">
-				<div class="modal-header">
-					<h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Доставка и оплата</h1>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
-				</div>
-				<div class="modal-body">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="region">Регион получателя: *</label></div>
+                            <div class="w-50"><select class="form-select rounded-4 py-2" title="region"
+                                                      required="">
+                                    <option value="0">Москва и Московская обл.</option>
+                                    <option value="1">Санкт-Петербург и Ленинградская область</option>
+                                </select></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="township">Населенный пункт: *</label></div>
+                            <div class="w-50"><select class="form-select rounded-4 py-2" title="township"
+                                                      required="">
+                                    <option value="0">Москва</option>
+                                    <option value="1">Санкт-Петербург</option>
+                                </select></div>
+                        </div>
+                        <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
+                            Если вашего города нет в списке — выберите областной центр и напишите город в
+                            комментарии к
+                            заказу
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="fio">ФИО получателя: *</label></div>
+                            <div class="w-50"><input class="form-control rounded-4" type="text" id="fio"
+                                                     required=""></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="phone">Контактный телефон: *</label></div>
+                            <div class="w-50"><input class="form-control rounded-4" type="text" id="phone"
+                                                     required=""></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="email">Email:</label></div>
+                            <div class="w-50"><input class="form-control rounded-4" type="email" id="email"
+                                                     title="Email"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label for="address">Адрес доставки: *</label></div>
+                            <div class="w-50"><input class="form-control rounded-4" type="text" id="address"></div>
+                        </div>
+                        <label><textarea class="form-control rounded-4" rows="5"
+                                         placeholder="Комментарий к заказу"></textarea></label>
+                    </div>
+                </div>
 
-					<div class="d-flex flex-column gap-3">
+                <div class="modal-footer justify-content-between">
+                    <div class="flex-grow-1">
+                        <button type="button" class="btn btn-secondary" data-bs-target="#exampleModalToggle"
+                                data-bs-toggle="modal">
+                            << Продукция
+                        </button>
+                    </div>
 
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label>Способ оплаты: *</label></div>
-							<div class="w-100">
-								<div class="form-check"><input class="form-check-input" type="radio" name="payment"
-															   id="payment1" checked=""><label
-											class="form-check-label" for="payment1">
-										Наличными курьеру
-									</label></div>
-								<div class="form-check"><input class="form-check-input" type="radio" name="payment"
-															   id="payment2"><label class="form-check-label"
-																					for="payment2">
-										Перевод с карты на карту Сбербанк
-									</label></div>
-							</div>
-						</div>
-						<div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
-							Оплата производится наличными деньгами, в момент получения заказа. Подтверждением вашей
-							оплаты
-							является фискальный кассовый чек, вручаемый во время получения и оплаты заказа.
-						</div>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
 
-						<div class="d-flex justify-content-between">
-							<div class="w-50"><label>Способ доставки: *</label></div>
-							<div class="w-100">
-								<div class="form-check"><input class="form-check-input" type="radio" name="delivery"
-															   id="delivery1" checked=""><label
-											class="form-check-label" for="delivery1">
-										Доставка по москве (Стоимость 400 руб.)
-									</label></div>
-								<div class="form-check"><input class="form-check-input" type="radio" name="delivery"
-															   id="delivery2"><label class="form-check-label"
-																					 for="delivery2">
-										Доставка по России до терминала ТК в москве: </label></div>
-								<div class="form-check"><input class="form-check-input" type="radio" name="delivery"
-															   id="delivery3"><label class="form-check-label"
-																					 for="delivery3">
-										Самовывоз (Москва) бесплатно от 1 до 3 дней
-									</label></div>
-							</div>
-						</div>
-						<div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
-							Доставка осуществляется в течение дня в удобное для вас время.
-						</div>
+                    <button type="button" class="btn btn-primary" data-bs-target="#exampleModalToggle2"
+                            data-bs-toggle="modal">
+                        Продолжить
+                    </button>
+                </div>
 
-					</div>
 
-				</div>
-				<div class="modal-footer justify-content-between">
-					<div class="flex-grow-1">
-						<button type="button" class="btn btn-secondary" data-bs-target="#exampleModalToggle1" data-bs-toggle="modal">
-							<< Клиент
-						</button>
-					</div>
-					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
 
-					<button type="button" class="btn btn-danger">Оформить заказ</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal fade" id="exampleModalToggle2" style="--bs-modal-width: 700px;" aria-hidden="true"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3 border-bottom border-5 border-primary">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Доставка и оплата</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="d-flex flex-column gap-3">
+
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label>Способ оплаты: *</label></div>
+                            <div class="w-100">
+                                <div class="form-check"><input class="form-check-input" type="radio" name="payment"
+                                                               id="payment1" checked=""><label
+                                            class="form-check-label" for="payment1">
+                                        Наличными курьеру
+                                    </label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" name="payment"
+                                                               id="payment2"><label class="form-check-label"
+                                                                                    for="payment2">
+                                        Перевод с карты на карту Сбербанк
+                                    </label></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
+                            Оплата производится наличными деньгами, в момент получения заказа. Подтверждением вашей
+                            оплаты
+                            является фискальный кассовый чек, вручаемый во время получения и оплаты заказа.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <div class="w-50"><label>Способ доставки: *</label></div>
+                            <div class="w-100">
+                                <div class="form-check"><input class="form-check-input" type="radio" name="delivery"
+                                                               id="delivery1" checked=""><label
+                                            class="form-check-label" for="delivery1">
+                                        Доставка по москве (Стоимость 400 руб.)
+                                    </label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" name="delivery"
+                                                               id="delivery2"><label class="form-check-label"
+                                                                                     for="delivery2">
+                                        Доставка по России до терминала ТК в москве: </label></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" name="delivery"
+                                                               id="delivery3"><label class="form-check-label"
+                                                                                     for="delivery3">
+                                        Самовывоз (Москва) бесплатно от 1 до 3 дней
+                                    </label></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2" role="alert">
+                            Доставка осуществляется в течение дня в удобное для вас время.
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="flex-grow-1">
+                        <button type="button" class="btn btn-secondary" data-bs-target="#exampleModalToggle1"
+                                data-bs-toggle="modal">
+                            << Клиент
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+
+                    <button type="button" class="btn btn-danger">Оформить заказ</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </form>

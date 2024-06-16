@@ -3,10 +3,11 @@
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
-	{{ include(_self|replace({ "template.html.twig": "content.html.twig" })) }}
+    {{ include(_self|replace({ "template.html.twig": "content.html.twig" })) }}
 {% endblock %}
 
 
 {% block javascript %}
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/orders_package.min.js?v={{ version }}" class='lazy'></script>
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_package.min.js?v={{ version }}"
+            class='lazy'></script>
 {% endblock %}

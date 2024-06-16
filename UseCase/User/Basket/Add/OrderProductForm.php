@@ -36,17 +36,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderProductForm extends AbstractType
 {
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('price', Price\OrderPriceForm::class);
-	}
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderProductDTO::class,
-			'attr' => ['class' => 'order-basket']
-		]);
-	}
-	
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('price', Price\OrderPriceForm::class);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderProductDTO::class,
+            'attr' => ['class' => 'order-basket']
+        ]);
+    }
+
 }

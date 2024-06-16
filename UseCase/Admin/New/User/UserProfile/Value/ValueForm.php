@@ -24,13 +24,10 @@
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\UserProfile\Value;
 
 use BaksDev\Core\Services\Fields\FieldsChoice;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-use PHPUnit\Util\Log\TeamCity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -38,26 +35,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class ValueForm extends AbstractType
 {
-	
-	private FieldValueFormInterface $fieldValue;
-	
-	private FieldsChoice $fieldsChoice;
-	
-	public function __construct(
-		FieldValueFormInterface $fieldValue,
-		FieldsChoice $fieldsChoice,
-	)
-	{
-		$this->fieldValue = $fieldValue;
-		$this->fieldsChoice = $fieldsChoice;
-	}
+    private FieldValueFormInterface $fieldValue;
+
+    private FieldsChoice $fieldsChoice;
+
+    public function __construct(
+        FieldValueFormInterface $fieldValue,
+        FieldsChoice $fieldsChoice,
+    )
+    {
+        $this->fieldValue = $fieldValue;
+        $this->fieldsChoice = $fieldsChoice;
+    }
 
 
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		/* TextType */
-		$builder->add('value', HiddenType::class, ['label' => false]);
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        /* TextType */
+        $builder->add('value', HiddenType::class, ['label' => false]);
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
@@ -78,8 +73,7 @@ final class ValueForm extends AbstractType
 
                     if($fieldType)
                     {
-                        $form->add
-                        (
+                        $form->add(
                             'value',
                             $fieldType->form(),
                             [
@@ -90,7 +84,6 @@ final class ValueForm extends AbstractType
                         );
                     }
                 }
-
             }
         );
 
@@ -102,7 +95,7 @@ final class ValueForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm()->getParent();
 
-                $form->add('value', CollectionType::class, [
+                $form?->add('value', CollectionType::class, [
                     'entry_type' => self::class,
                     'entry_options' => ['label' => false],
                     'label' => false,
@@ -114,18 +107,17 @@ final class ValueForm extends AbstractType
 
             }
         );
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults
-		(
-			[
-				'data_class' => ValueDTO::class,
-				'fields' => null,
-			]
-		);
-	}
-	
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults(
+            [
+                'data_class' => ValueDTO::class,
+                'fields' => null,
+            ]
+        );
+    }
+
 }

@@ -27,6 +27,6 @@ use BaksDev\Payment\Type\Id\PaymentUid;
 
 interface FieldByPaymentChoiceInterface
 {
-	public function fetchPaymentFields(PaymentUid $payment) : ?array;
-	
+    public function fetchPaymentFields(PaymentUid $payment): ?array;
+
 }

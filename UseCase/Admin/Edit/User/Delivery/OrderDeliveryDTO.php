@@ -115,7 +115,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
     public function addField(Field\OrderDeliveryFieldDTO $field): void
     {
-        if (!$this->field->contains($field))
+        if(!$this->field->contains($field))
         {
             $this->field->add($field);
         }

@@ -142,8 +142,8 @@ final class DetailController extends AbstractController
 
         // Отпарвляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
-            ->addData(['order' => (string)$Event->getMain()])
-            ->addData(['profile' => (string)$this->getProfileUid()])
+            ->addData(['order' => (string) $Event->getMain()])
+            ->addData(['profile' => (string) $this->getProfileUid()])
             ->send('orders');
 
         if($socket->isError())

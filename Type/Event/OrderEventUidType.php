@@ -28,15 +28,15 @@ use Doctrine\DBAL\Types\Types;
 
 final class OrderEventUidType extends UidType
 {
-    
+
     public function getClassType(): string
     {
         return OrderEventUid::class;
     }
-    
+
     public function getName(): string
     {
         return OrderEventUid::TYPE;
     }
-    
+
 }

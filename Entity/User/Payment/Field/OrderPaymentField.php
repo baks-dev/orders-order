@@ -39,67 +39,66 @@ use InvalidArgumentException;
 #[ORM\Table(name: 'orders_payment_field')]
 class OrderPaymentField extends EntityEvent
 {
-	public const TABLE = 'orders_payment_field';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderPaymentFieldUid::TYPE)]
-	private OrderPaymentFieldUid $id;
-	
-	/** Связь на событие */
-	#[ORM\ManyToOne(targetEntity: OrderPayment::class, inversedBy: "field")]
-	#[ORM\JoinColumn(name: 'payment', referencedColumnName: "id")]
-	private OrderPayment $payment;
-	
-	/** Идентификатор пользовательского поля в способе оплаты */
-	#[ORM\Column(type: PaymentFieldUid::TYPE)]
-	private PaymentFieldUid $field;
-	
-	/** Заполненное значение */
-	#[ORM\Column(type: Types::STRING)]
-	private string $value;
+    public const TABLE = 'orders_payment_field';
+
+    /** ID */
+    #[ORM\Id]
+    #[ORM\Column(type: OrderPaymentFieldUid::TYPE)]
+    private OrderPaymentFieldUid $id;
+
+    /** Связь на событие */
+    #[ORM\ManyToOne(targetEntity: OrderPayment::class, inversedBy: "field")]
+    #[ORM\JoinColumn(name: 'payment', referencedColumnName: "id")]
+    private OrderPayment $payment;
+
+    /** Идентификатор пользовательского поля в способе оплаты */
+    #[ORM\Column(type: PaymentFieldUid::TYPE)]
+    private PaymentFieldUid $field;
+
+    /** Заполненное значение */
+    #[ORM\Column(type: Types::STRING)]
+    private string $value;
 
 
+    public function __construct(OrderPayment $payment)
+    {
+        $this->id = new OrderPaymentFieldUid();
+        $this->payment = $payment;
+    }
 
-	public function __construct(OrderPayment $payment)
-	{
-		$this->id = new OrderPaymentFieldUid();
-		$this->payment = $payment;
-	}
-	
-	public function __clone() : void
-	{
+    public function __clone(): void
+    {
         $this->id = clone $this->id;
-	}
+    }
 
     public function __toString(): string
     {
         return (string) $this->id;
     }
-	
-	
-	public function getDto($dto): mixed
-	{
+
+
+    public function getDto($dto): mixed
+    {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-		if($dto instanceof OrderPaymentFieldInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto): mixed
-	{
-		
-		if($dto instanceof OrderPaymentFieldInterface || $dto instanceof self)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
+        if($dto instanceof OrderPaymentFieldInterface)
+        {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+
+    public function setEntity($dto): mixed
+    {
+
+        if($dto instanceof OrderPaymentFieldInterface || $dto instanceof self)
+        {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
 }

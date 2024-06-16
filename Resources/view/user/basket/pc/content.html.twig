@@ -172,8 +172,8 @@
 
                         {% else %}
 
-                            {#{{ dump(baks_profile) }}#}
-                            {#{{ dump(form.usr.vars.data.userProfile) }}#}
+                            {# {{ dump(baks_profile) }} #}
+                            {# {{ dump(form.usr.vars.data.userProfile) }} #}
                             {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
 
                             {% if baks_profile.id is null %}

@@ -55,47 +55,47 @@ final class OrderDTO implements OrderEventInterface
         $this->usr = new User\OrderUserDTO();
     }
 
-    public function getEvent() : ?OrderEventUid
+    public function getEvent(): ?OrderEventUid
     {
         return $this->id;
     }
 
-    public function resetId() : void
+    public function resetId(): void
     {
         $this->id = null;
     }
 
     /** Коллекция продукции в заказе */
-    public function getProduct() : ArrayCollection
+    public function getProduct(): ArrayCollection
     {
         return $this->product;
     }
 
-    public function setProduct(ArrayCollection $product) : void
+    public function setProduct(ArrayCollection $product): void
     {
         $this->product = $product;
     }
 
-    public function addProduct(Add\OrderProductDTO $product) : void
+    public function addProduct(Add\OrderProductDTO $product): void
     {
-        if (!$this->product->contains($product))
+        if(!$this->product->contains($product))
         {
             $this->product->add($product);
         }
     }
 
-    public function removeProduct(Add\OrderProductDTO $product) : void
+    public function removeProduct(Add\OrderProductDTO $product): void
     {
         $this->product->removeElement($product);
     }
 
     /** Пользователь */
-    public function getUsr() : User\OrderUserDTO
+    public function getUsr(): User\OrderUserDTO
     {
         return $this->usr;
     }
 
-    public function setUsr(User\OrderUserDTO $users) : void
+    public function setUsr(User\OrderUserDTO $users): void
     {
         $this->usr = $users;
     }

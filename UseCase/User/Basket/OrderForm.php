@@ -36,52 +36,52 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderForm extends AbstractType
 {
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		/* Коллекция продукции */
-		$builder->add('product', CollectionType::class, [
-			'entry_type' => Add\OrderProductForm::class,
-			'entry_options' => ['label' => false],
-			'label' => false,
-			'by_reference' => false,
-			'allow_delete' => true,
-			'allow_add' => true,
-			'prototype_name' => '__product__',
-		]);
-		
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
 
-				/* @var OrderDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				if(!$data->getProduct()->isEmpty())
-				{
-					$form->add('usr', User\OrderUserForm::class, ['label' => false]);
-					
-					/* Сохранить ******************************************************/
-					$form->add(
-						'order',
-						SubmitType::class,
-						['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-					);
-				}
-			}
-		);
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        /* Коллекция продукции */
+        $builder->add('product', CollectionType::class, [
+            'entry_type' => Add\OrderProductForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__product__',
+        ]);
 
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderDTO::class,
-			
-		]);
-	}
-	
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /* @var OrderDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if(!$data->getProduct()->isEmpty())
+                {
+                    $form->add('usr', User\OrderUserForm::class, ['label' => false]);
+
+                    /* Сохранить ******************************************************/
+                    $form->add(
+                        'order',
+                        SubmitType::class,
+                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+                    );
+                }
+            }
+        );
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderDTO::class,
+
+        ]);
+    }
+
 }

@@ -36,18 +36,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class NewOrderPriceForm extends AbstractType
 {
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('total', HiddenType::class);
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => NewOrderPriceDTO::class,
-		]);
-	}
-	
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('total', HiddenType::class);
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => NewOrderPriceDTO::class,
+        ]);
+    }
+
 }

@@ -215,7 +215,6 @@ final class OrderDeliveryForm extends AbstractType
                         $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
 
 
-
                         /** @var ArrayCollection $dataFields */
                         $dataFields = $data->getField();
 

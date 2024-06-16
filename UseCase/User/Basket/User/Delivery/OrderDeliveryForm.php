@@ -52,7 +52,8 @@ final class OrderDeliveryForm extends AbstractType
     public function __construct(
         DeliveryByProfileChoiceInterface $deliveryChoice,
         FieldByDeliveryChoiceInterface $deliveryFields
-    ) {
+    )
+    {
         $this->deliveryChoice = $deliveryChoice;
         $this->deliveryFields = $deliveryFields;
     }
@@ -66,10 +67,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('delivery')->addModelTransformer(
             new CallbackTransformer(
-                function ($delivery) {
+                function($delivery) {
                     return $delivery instanceof DeliveryUid ? $delivery->getValue() : $delivery;
                 },
-                function ($delivery) {
+                function($delivery) {
                     return new DeliveryUid($delivery);
                 }
             )
@@ -79,10 +80,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('latitude')->addModelTransformer(
             new CallbackTransformer(
-                function ($gps) {
+                function($gps) {
                     return $gps instanceof GpsLatitude ? $gps->getValue() : $gps;
                 },
-                function ($gps) {
+                function($gps) {
                     return new GpsLatitude($gps);
                 }
             )
@@ -94,10 +95,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('longitude')->addModelTransformer(
             new CallbackTransformer(
-                function ($gps) {
+                function($gps) {
                     return $gps instanceof GpsLongitude ? $gps->getValue() : $gps;
                 },
-                function ($gps) {
+                function($gps) {
                     return new GpsLongitude($gps);
                 }
             )
@@ -127,10 +128,9 @@ final class OrderDeliveryForm extends AbstractType
         ]);
 
 
-
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($options) {
+            function(FormEvent $event) use ($options) {
 
                 if($options['user_profile_type'])
                 {
@@ -153,13 +153,12 @@ final class OrderDeliveryForm extends AbstractType
                     }
 
 
-
                     /** @var DeliveryUid $Delivery */
                     $Delivery = $data->getDelivery();
 
                     if($Delivery)
                     {
-                        $deliveryCheckedFilter = array_filter($deliveryChoice, function ($v, $k) use ($Delivery) {
+                        $deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
                             return $v->equals($Delivery);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -179,15 +178,15 @@ final class OrderDeliveryForm extends AbstractType
                     $form
                         ->add('delivery', ChoiceType::class, [
                             'choices' => $deliveryChoice,
-                            'choice_value' => function (?DeliveryUid $delivery) {
+                            'choice_value' => function(?DeliveryUid $delivery) {
                                 return $delivery?->getValue();
                             },
 
-                            'choice_label' => function (DeliveryUid $delivery) {
+                            'choice_label' => function(DeliveryUid $delivery) {
                                 return $delivery->getAttr();
                             },
 
-                            'choice_attr' => function (DeliveryUid $choice) use ($deliveryChecked) {
+                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
                                 return [
                                     'checked' => ($choice->equals($deliveryChecked)),
                                     'data-price' => $choice->getPrice()?->getValue(),
@@ -202,16 +201,14 @@ final class OrderDeliveryForm extends AbstractType
                             'expanded' => true,
                             'multiple' => false,
                             'required' => true,
-                        ])
-                    ;
-
+                        ]);
 
 
                     /** Получаем пользовательские поля */
                     if($deliveryChecked)
                     {
 
-                        $fields =  $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+                        $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
 
                         $data->setField(new ArrayCollection());
 

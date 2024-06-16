@@ -41,64 +41,64 @@ use InvalidArgumentException;
 #[ORM\Table(name: 'orders_delivery_field')]
 class OrderDeliveryField extends EntityEvent
 {
-	public const TABLE = 'orders_delivery_field';
-	
-	/** ID */
-	#[ORM\Id]
-	#[ORM\Column(type: OrderDeliveryFieldUid::TYPE)]
-	private OrderDeliveryFieldUid $id;
-	
-	/** Связь на доставку */
-	#[ORM\ManyToOne(targetEntity: OrderDelivery::class, inversedBy: "field")]
-	#[ORM\JoinColumn(name: 'delivery', referencedColumnName: "id")]
-	private OrderDelivery $delivery;
-	
-	/** Идентификатор пользовательского поля в способе доставки */
-	#[ORM\Column(type: DeliveryFieldUid::TYPE)]
-	private DeliveryFieldUid $field;
-	
-	/** Заполненное значение */
-	#[ORM\Column(type: Types::STRING, length: 255)]
-	private string $value;
-	
-	
-	public function __construct(OrderDelivery $delivery)
-	{
-		$this->id = new OrderDeliveryFieldUid();
-		$this->delivery = $delivery;
-	}
-	
-	public function __clone() : void
-	{
+    public const TABLE = 'orders_delivery_field';
+
+    /** ID */
+    #[ORM\Id]
+    #[ORM\Column(type: OrderDeliveryFieldUid::TYPE)]
+    private OrderDeliveryFieldUid $id;
+
+    /** Связь на доставку */
+    #[ORM\ManyToOne(targetEntity: OrderDelivery::class, inversedBy: "field")]
+    #[ORM\JoinColumn(name: 'delivery', referencedColumnName: "id")]
+    private OrderDelivery $delivery;
+
+    /** Идентификатор пользовательского поля в способе доставки */
+    #[ORM\Column(type: DeliveryFieldUid::TYPE)]
+    private DeliveryFieldUid $field;
+
+    /** Заполненное значение */
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private string $value;
+
+
+    public function __construct(OrderDelivery $delivery)
+    {
+        $this->id = new OrderDeliveryFieldUid();
+        $this->delivery = $delivery;
+    }
+
+    public function __clone(): void
+    {
         $this->id = clone $this->id;
-	}
+    }
 
     public function __toString(): string
     {
         return (string) $this->id;
     }
-	
-	public function getDto($dto): mixed
-	{
+
+    public function getDto($dto): mixed
+    {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-		if($dto instanceof OrderDeliveryFieldInterface)
-		{
-			return parent::getDto($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
-	
-	public function setEntity($dto): mixed
-	{
-		if($dto instanceof OrderDeliveryFieldInterface || $dto instanceof self)
-		{
-			return parent::setEntity($dto);
-		}
-		
-		throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
-	}
-	
+        if($dto instanceof OrderDeliveryFieldInterface)
+        {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+
+    public function setEntity($dto): mixed
+    {
+        if($dto instanceof OrderDeliveryFieldInterface || $dto instanceof self)
+        {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
 }

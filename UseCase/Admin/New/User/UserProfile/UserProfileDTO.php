@@ -33,28 +33,28 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserProfileDTO implements UserProfileEventInterface
 {
-	#[Assert\Uuid]
-	private ?UserProfileEventUid $id = null;
-	
-	/** Тип профиля */
-	#[Assert\NotBlank]
-	#[Assert\Uuid]
-	private ?TypeProfileUid $type = null;
+    #[Assert\Uuid]
+    private ?UserProfileEventUid $id = null;
 
-	/** Значения профиля */
-	#[Assert\Valid]
-	private ArrayCollection $value;
-	
-	/** Информация профиля */
-	private Info\InfoDTO $info;
-	
-	
-	public function __construct()
-	{
-		$this->value = new ArrayCollection();
-		$this->info = new Info\InfoDTO();
-		
-	}
+    /** Тип профиля */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private ?TypeProfileUid $type = null;
+
+    /** Значения профиля */
+    #[Assert\Valid]
+    private ArrayCollection $value;
+
+    /** Информация профиля */
+    private Info\InfoDTO $info;
+
+
+    public function __construct()
+    {
+        $this->value = new ArrayCollection();
+        $this->info = new Info\InfoDTO();
+
+    }
 
     public function __toString(): string
     {
@@ -63,71 +63,69 @@ final class UserProfileDTO implements UserProfileEventInterface
 
 
     /* EVENT */
-	
-	public function getEvent() : ?UserProfileEventUid
-	{
-		return $this->id;
-	}
-	
-	/** Тип профиля */
-	
-	public function setType(TypeProfileUid $type) : void
-	{
-		$this->type = $type;
-	}
 
-	public function getType() : ?TypeProfileUid
-	{
-		return $this->type;
-	}
-	
-	
-	/** Информация профиля */
-	
-	public function getInfo() : Info\InfoDTO
-	{
-		return $this->info;
-	}
-	
+    public function getEvent(): ?UserProfileEventUid
+    {
+        return $this->id;
+    }
 
-	/** Значения профиля */
-	
-	public function getValue() : ArrayCollection
-	{
-		return $this->value;
-	}
+    /** Тип профиля */
+
+    public function setType(TypeProfileUid $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getType(): ?TypeProfileUid
+    {
+        return $this->type;
+    }
+
+
+    /** Информация профиля */
+
+    public function getInfo(): Info\InfoDTO
+    {
+        return $this->info;
+    }
+
+
+    /** Значения профиля */
+
+    public function getValue(): ArrayCollection
+    {
+        return $this->value;
+    }
 
     public function setValue(ArrayCollection $value): self
     {
         $this->value = $value;
         return $this;
     }
-	
-//	public function resetValue() : void
-//	{
-//		$this->value = new ArrayCollection();
-//	}
+
+    //	public function resetValue() : void
+    //	{
+    //		$this->value = new ArrayCollection();
+    //	}
 
 
-	
-	
-	public function addValue($value) : void
-	{
+    public function addValue($value): void
+    {
         if($value instanceof Value\ValueDTO)
         {
             $this->value->add($value);
         }
-//        else
-//        {
-//            dump($value);
-//        }
+        //        else
+        //        {
+        //            dump($value);
+        //        }
 
-	}
-	
-	
-	public function removeValue(Value\ValueDTO $value) : void
-	{
-		$this->value->removeElement($value);
-	}
-	
+    }
+
+
+    public function removeValue(Value\ValueDTO $value): void
+    {
+        $this->value->removeElement($value);
+    }
+
 }

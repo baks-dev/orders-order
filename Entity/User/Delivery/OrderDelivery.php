@@ -99,7 +99,7 @@ class OrderDelivery extends EntityEvent
 
     public function __clone(): void
     {
-        $this->id =  clone $this->id;
+        $this->id = clone $this->id;
     }
 
     public function __toString(): string
@@ -111,7 +111,7 @@ class OrderDelivery extends EntityEvent
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if ($dto instanceof OrderDeliveryInterface)
+        if($dto instanceof OrderDeliveryInterface)
         {
             return parent::getDto($dto);
         }
@@ -121,7 +121,7 @@ class OrderDelivery extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderDeliveryInterface || $dto instanceof self)
+        if($dto instanceof OrderDeliveryInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

@@ -31,9 +31,9 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 interface ProductEventBasketInterface
 {
     public function getOneOrNullProductEvent(
-        ProductEventUid         $event,
-        ?ProductOfferUid        $offer,
-        ?ProductVariationUid    $variation,
+        ProductEventUid $event,
+        ?ProductOfferUid $offer,
+        ?ProductVariationUid $variation,
         ?ProductModificationUid $modification,
     ): ?ProductEventUid;
 }

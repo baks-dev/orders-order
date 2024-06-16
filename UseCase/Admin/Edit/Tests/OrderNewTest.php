@@ -124,8 +124,6 @@ final class OrderNewTest extends KernelTestCase
         self::assertSame($modification, $OrderProductDTO->getModification());
 
 
-
-
         /** OrderPriceDTO */
 
         $OrderPriceDTO = new OrderPriceDTO;

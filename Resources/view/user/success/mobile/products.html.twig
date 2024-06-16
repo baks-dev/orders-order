@@ -73,11 +73,9 @@
                 <div class="d-flex flex-column">
 
 
+                    {% set summ = (card.product_total * card.product_price) %}
 
-                        {% set summ = (card.product_total * card.product_price) %}
-
-                        {% set discount = user_profile_discount(summ) %}
-
+                    {% set discount = user_profile_discount(summ) %}
 
 
                     <div class="d-flex justify-content-between align-items-center">

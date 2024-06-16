@@ -37,7 +37,6 @@ use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\UseCase\User\Basket\User\UserAccount\UserAccountDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfileUser;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
@@ -86,8 +85,6 @@ final class OrderHandler extends AbstractHandler
         $this->validatorCollection->add($command);
 
         $OrderUserDTO = $command->getUsr();
-
-
 
 
         /**

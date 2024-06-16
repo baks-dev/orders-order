@@ -33,81 +33,79 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserProfileDTO implements UserProfileEventInterface
 {
-	#[Assert\Uuid]
-	private ?UserProfileEventUid $id = null;
-	
-	/** Тип профиля */
-	#[Assert\NotBlank]
-	#[Assert\Uuid]
-	private ?TypeProfileUid $type = null;
+    #[Assert\Uuid]
+    private ?UserProfileEventUid $id = null;
 
-	/** Значения профиля */
-	#[Assert\Valid]
-	private ArrayCollection $value;
-	
-	/** Информация профиля */
-	private Info\InfoDTO $info;
-	
-	
-	public function __construct()
-	{
-		$this->value = new ArrayCollection();
-		$this->info = new Info\InfoDTO();
-		
-	}
-	
-	/* EVENT */
-	
-	public function getEvent() : ?UserProfileEventUid
-	{
-		return $this->id;
-	}
-	
-	/** Тип профиля */
-	
-	public function setType(?TypeProfileUid $type) : void
-	{
-		$this->type = $type;
-	}
+    /** Тип профиля */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private ?TypeProfileUid $type = null;
 
-	public function getType() : ?TypeProfileUid
-	{
-		return $this->type;
-	}
-	
-	
-	/** Информация профиля */
-	
-	public function getInfo() : Info\InfoDTO
-	{
-		return $this->info;
-	}
-	
-	
-	
-	
-	/** Значения профиля */
-	
-	public function getValue() : ArrayCollection
-	{
-		return $this->value;
-	}
-	
-	public function resetValue() : void
-	{
-		$this->value = new ArrayCollection();
-	}
-	
-	
-	public function addValue(Value\ValueDTO $value) : void
-	{
-		$this->value->add($value);
-	}
-	
-	
-	public function removeValue(Value\ValueDTO $value) : void
-	{
-		$this->value->removeElement($value);
-	}
-	
+    /** Значения профиля */
+    #[Assert\Valid]
+    private ArrayCollection $value;
+
+    /** Информация профиля */
+    private Info\InfoDTO $info;
+
+
+    public function __construct()
+    {
+        $this->value = new ArrayCollection();
+        $this->info = new Info\InfoDTO();
+
+    }
+
+    /* EVENT */
+
+    public function getEvent(): ?UserProfileEventUid
+    {
+        return $this->id;
+    }
+
+    /** Тип профиля */
+
+    public function setType(?TypeProfileUid $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getType(): ?TypeProfileUid
+    {
+        return $this->type;
+    }
+
+
+    /** Информация профиля */
+
+    public function getInfo(): Info\InfoDTO
+    {
+        return $this->info;
+    }
+
+
+    /** Значения профиля */
+
+    public function getValue(): ArrayCollection
+    {
+        return $this->value;
+    }
+
+    public function resetValue(): void
+    {
+        $this->value = new ArrayCollection();
+    }
+
+
+    public function addValue(Value\ValueDTO $value): void
+    {
+        $this->value->add($value);
+    }
+
+
+    public function removeValue(Value\ValueDTO $value): void
+    {
+        $this->value->removeElement($value);
+    }
+
 }

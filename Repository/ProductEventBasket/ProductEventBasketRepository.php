@@ -53,9 +53,9 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
 
     /** Mетод возвращает событие продукта  */
     public function getOneOrNullProductEvent(
-        ProductEventUid         $event,
-        ?ProductOfferUid        $offer,
-        ?ProductVariationUid    $variation,
+        ProductEventUid $event,
+        ?ProductOfferUid $offer,
+        ?ProductVariationUid $variation,
         ?ProductModificationUid $modification,
 
     ): ?ProductEventUid
@@ -90,7 +90,8 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
          */
 
 
-        if ($offer) {
+        if($offer)
+        {
 
             $qb->join(
                 ProductOffer::class,
@@ -102,7 +103,8 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
             $qb->setParameter('offer', $offer, ProductOfferUid::TYPE);
 
 
-            if ($variation) {
+            if($variation)
+            {
 
                 /**
                  * Множественный вариант торгового предложения
@@ -118,7 +120,8 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
                 $qb->setParameter('variation', $variation, ProductVariationUid::TYPE);
 
 
-                if ($modification) {
+                if($modification)
+                {
                     /**
                      * Модификация множественного варианта торгового предложения
                      */

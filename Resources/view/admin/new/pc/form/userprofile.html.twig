@@ -6,7 +6,7 @@
 {% if form.usr.userProfile.type is defined %}
 
 
-{#    <div class="d-flex justify-content-between">
+    {#    <div class="d-flex justify-content-between">
         <div class="w-25"><label>Пип профиля: *</label></div>
         <div class="w-75 d-flex gap-3">
 
@@ -14,7 +14,7 @@
 
 
         </div>
-    </div>#}
+    </div> #}
 
 
     <div class="d-flex flex-column gap-3" id='user_profile'>
@@ -28,64 +28,63 @@
         </div>
 
 
-
         {% if form.usr.userProfile.value is defined %}
 
 
 
-        {% set section = null %}
+            {% set section = null %}
 
 
-        {% for value in form.usr.userProfile.value %}
+            {% for value in form.usr.userProfile.value %}
 
-            {% if section != value.vars.data.section %}
-                {% set section = value.vars.data.section %}
+                {% if section != value.vars.data.section %}
+                    {% set section = value.vars.data.section %}
 
-                {# Закрываем секцию, eсли она не первая в цикле #}
-                {# {% if loop.first != true %}
+                    {# Закрываем секцию, eсли она не первая в цикле #}
+                    {# {% if loop.first != true %}
 			</div></div>
 		{% endif %} #}
 
 
-                {# Открываем новую секцию #}
+                    {# Открываем новую секцию #}
 
-                <div class="card-header border-light bg-body">
-                    <div class="card-title">
-                        <h5>
-                            {# Название секции #}
-                            {{ value.vars.data.sectionName }}
-                        </h5>
-                    </div>
-                </div>
-
-
-            {% endif %}
-
-
-
-            {# РЕНДЕР ПОЛЕЙ #}
-            {# {{ render_field(value.vars.data.type, value.value) }} #}
-            {# {{ render_field(value.vars.data.type, value.value) }} #}
-
-
-            {% if value.value is  defined %}
-
-                <div class="d-flex justify-content-between">
-                    <div class="w-50 d-flex gap-3">
-                        {{ form_label(value.value) }}
+                    <div class="card-header border-light bg-body">
+                        <div class="card-title">
+                            <h5>
+                                {# Название секции #}
+                                {{ value.vars.data.sectionName }}
+                            </h5>
+                        </div>
                     </div>
 
-                    <div class="w-50">
-                        {{ form_widget(value.value) }}
+
+                {% endif %}
+
+
+
+                {# РЕНДЕР ПОЛЕЙ #}
+                {# {{ render_field(value.vars.data.type, value.value) }} #}
+                {# {{ render_field(value.vars.data.type, value.value) }} #}
+
+
+                {% if value.value is  defined %}
+
+                    <div class="d-flex justify-content-between">
+                        <div class="w-50 d-flex gap-3">
+                            {{ form_label(value.value) }}
+                        </div>
+
+                        <div class="w-50">
+                            {{ form_widget(value.value) }}
+                        </div>
                     </div>
-                </div>
 
-            {% endif %}
-
+                {% endif %}
 
 
 
-            {# {% if value %}
+
+                {# {% if value %}
 		<div class="d-flex justify-content-between">
 			<div class="w-50">
 				{{ form_label(value.value) }}
@@ -100,7 +99,7 @@
 
 
 
-            {# <div class="d-flex justify-content-between">
+                {# <div class="d-flex justify-content-between">
 		<div class="w-50">
 			{{ form_label(value.value) }}
 		</div>
@@ -112,7 +111,7 @@
 	</div> #}
 
 
-        {% endfor %}
+            {% endfor %}
         {% endif %}
 
     </div>

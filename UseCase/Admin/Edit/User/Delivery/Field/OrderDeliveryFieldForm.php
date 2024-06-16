@@ -40,81 +40,82 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderDeliveryFieldForm extends AbstractType
 {
-	
-	private FieldsChoice $fieldsChoice;
-	
-	public function __construct(
-		FieldsChoice $fieldsChoice,
-	)
-	{
-		$this->fieldsChoice = $fieldsChoice;
-	}
-	
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('field', HiddenType::class);
-		
-		$builder->get('field')->addModelTransformer
-		(
-			new CallbackTransformer(
-				function($field) {
-					return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
-				},
-				function($field) {
-					return new DeliveryFieldUid($field);
-				}
-			)
-		);
-		
-		
-		$builder->add('value', TextType::class, ['required' => false]);
-		
-		$builder->addEventListener(
-			FormEvents::PRE_SET_DATA,
-			function(FormEvent $event) {
-				
-				/* @var OrderDeliveryFieldDTO $data */
-				$data = $event->getData();
-				$form = $event->getForm();
-				
-				if($data)
-				{
-					/** @var DeliveryFieldUid $DeliveryField */
-					$DeliveryField = $data->getField();
-					
-					if( //$DeliveryField->getType() &&
-                        $DeliveryField->getType() instanceof InputField )
-					{
-						$fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
 
-						$form->add
-						(
-							'value',
-							$fieldType->form(),
-							[
-								'label' => $DeliveryField->getAttr(),
-								'help' => $DeliveryField->getOption(),
-								'required' => $DeliveryField->getRequired(),
-								'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-							]
-						);
-					}
-					
-					
-				}
-				
-			}
-		);
-		
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderDeliveryFieldDTO::class,
-		]);
-	}
-	
+    private FieldsChoice $fieldsChoice;
+
+    public function __construct(
+        FieldsChoice $fieldsChoice,
+    )
+    {
+        $this->fieldsChoice = $fieldsChoice;
+    }
+
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('field', HiddenType::class);
+
+        $builder->get('field')->addModelTransformer
+        (
+            new CallbackTransformer(
+                function($field) {
+                    return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
+                },
+                function($field) {
+                    return new DeliveryFieldUid($field);
+                }
+            )
+        );
+
+
+        $builder->add('value', TextType::class, ['required' => false]);
+
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                /* @var OrderDeliveryFieldDTO $data */
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                if($data)
+                {
+                    /** @var DeliveryFieldUid $DeliveryField */
+                    $DeliveryField = $data->getField();
+
+                    if( //$DeliveryField->getType() &&
+                        $DeliveryField->getType() instanceof InputField
+                    )
+                    {
+                        $fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
+
+                        $form->add
+                        (
+                            'value',
+                            $fieldType->form(),
+                            [
+                                'label' => $DeliveryField->getAttr(),
+                                'help' => $DeliveryField->getOption(),
+                                'required' => $DeliveryField->getRequired(),
+                                'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
+                            ]
+                        );
+                    }
+
+
+                }
+
+            }
+        );
+
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderDeliveryFieldDTO::class,
+        ]);
+    }
+
 }

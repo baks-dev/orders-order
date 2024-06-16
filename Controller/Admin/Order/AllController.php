@@ -31,7 +31,6 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use DateInterval;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,8 +89,7 @@ final class AllController extends AbstractController
             ->search($search)
             ->filter($filter)
             //->findAllPaginator($this->getUsr()?->getId())
-            ->findAllPaginator($this->getProfileUid())
-        ;
+            ->findAllPaginator($this->getProfileUid());
 
 
         return $this->render(

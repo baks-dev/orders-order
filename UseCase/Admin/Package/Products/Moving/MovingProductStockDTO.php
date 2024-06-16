@@ -46,19 +46,19 @@ final class MovingProductStockDTO implements ProductStockEventInterface
     #[Assert\Length(max: 36)]
     private string $number;
 
-//    /** Константа Целевого склада */
-//    //#[Assert\NotBlank]
-//    #[Assert\Uuid]
-//    private ?ContactsRegionCallConst $warehouse = null;
+    //    /** Константа Целевого склада */
+    //    //#[Assert\NotBlank]
+    //    #[Assert\Uuid]
+    //    private ?ContactsRegionCallConst $warehouse = null;
 
     /** Склад назначения при перемещении */
     #[Assert\Valid]
     private Move\ProductStockMoveDTO $move;
 
-//    /** Константа склада назначения при перемещении */
-//    //#[Assert\NotBlank]
-//    #[Assert\Uuid]
-//    private ?ContactsRegionCallConst $destination = null;
+    //    /** Константа склада назначения при перемещении */
+    //    //#[Assert\NotBlank]
+    //    #[Assert\Uuid]
+    //    private ?ContactsRegionCallConst $destination = null;
 
     /** Коллекция продукции  */
     #[Assert\Valid]
@@ -145,16 +145,16 @@ final class MovingProductStockDTO implements ProductStockEventInterface
         $this->number = $number;
     }
 
-//    /** Константа Целевого склада */
-//    public function getWarehouse(): ?ContactsRegionCallConst
-//    {
-//        return $this->warehouse;
-//    }
-//
-//    public function setWarehouse(?ContactsRegionCallConst $warehouse): void
-//    {
-//        $this->warehouse = $warehouse;
-//    }
+    //    /** Константа Целевого склада */
+    //    public function getWarehouse(): ?ContactsRegionCallConst
+    //    {
+    //        return $this->warehouse;
+    //    }
+    //
+    //    public function setWarehouse(?ContactsRegionCallConst $warehouse): void
+    //    {
+    //        $this->warehouse = $warehouse;
+    //    }
 
     /** Склад назначения при перемещении */
     public function getMove(): Move\ProductStockMoveDTO
@@ -168,14 +168,14 @@ final class MovingProductStockDTO implements ProductStockEventInterface
     }
 
 
-//    /** Константа склада назначения при перемещении */
-//    public function getDestination(): ?ContactsRegionCallConst
-//    {
-//        return $this->destination;
-//    }
-//
-//    public function setDestination(?ContactsRegionCallConst $destination): void
-//    {
-//        $this->destination = $destination;
-//    }
+    //    /** Константа склада назначения при перемещении */
+    //    public function getDestination(): ?ContactsRegionCallConst
+    //    {
+    //        return $this->destination;
+    //    }
+    //
+    //    public function setDestination(?ContactsRegionCallConst $destination): void
+    //    {
+    //        $this->destination = $destination;
+    //    }
 }

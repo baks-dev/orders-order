@@ -28,11 +28,9 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field;
 use BaksDev\Contacts\Region\Form\ContactRegionChoice\ContactRegionFieldForm;
 use BaksDev\Core\Services\Fields\FieldsChoice;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
-use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -41,7 +39,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderDeliveryFieldForm extends AbstractType
 {
-
     private FieldsChoice $fieldsChoice;
 
     public function __construct(
@@ -56,8 +53,7 @@ final class OrderDeliveryFieldForm extends AbstractType
     {
         $builder->add('field', HiddenType::class);
 
-        $builder->get('field')->addModelTransformer
-        (
+        $builder->get('field')->addModelTransformer(
             new CallbackTransformer(
                 function($field) {
                     return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
@@ -74,8 +70,7 @@ final class OrderDeliveryFieldForm extends AbstractType
         $builder->add('value', HiddenType::class, ['required' => false]);
 
 
-        $builder->add
-        (
+        $builder->add(
             'call',
             ContactRegionFieldForm::class
         );
@@ -105,8 +100,7 @@ final class OrderDeliveryFieldForm extends AbstractType
                             //$form->add('value', HiddenType::class, ['required' => false]);
                             $form->remove('value');
 
-                            $form->add
-                            (
+                            $form->add(
                                 'call',
                                 $fieldType->form(),
                                 [
@@ -123,8 +117,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 
                             $form->remove('call');
 
-                            $form->add
-                            (
+                            $form->add(
                                 'value',
                                 $fieldType->form(),
                                 [

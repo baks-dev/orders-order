@@ -32,7 +32,7 @@ final class OrderUidType extends UidType
     {
         return OrderUid::class;
     }
-    
+
     public function getName(): string
     {
         return OrderUid::TYPE;

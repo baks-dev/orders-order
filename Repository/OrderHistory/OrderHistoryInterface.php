@@ -27,6 +27,6 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface OrderHistoryInterface
 {
-	public function fetchHistoryAllAssociative(OrderUid $order) : array;
-	
+    public function fetchHistoryAllAssociative(OrderUid $order): array;
+
 }

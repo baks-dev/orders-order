@@ -71,8 +71,6 @@ final class NewOrderDTO implements OrderEventInterface
     private ?string $comment = null;
 
 
-
-
     public function __construct(UserProfileUid $profile)
     {
         $this->profile = $profile;
@@ -82,12 +80,12 @@ final class NewOrderDTO implements OrderEventInterface
         $this->status = new OrderStatus(OrderStatusNew::class);
     }
 
-    public function getEvent() : ?OrderEventUid
+    public function getEvent(): ?OrderEventUid
     {
         return $this->id;
     }
 
-    public function resetId() : void
+    public function resetId(): void
     {
         $this->id = null;
     }
@@ -124,12 +122,12 @@ final class NewOrderDTO implements OrderEventInterface
     }
 
     /** Пользователь */
-    public function getUsr() : User\OrderUserDTO
+    public function getUsr(): User\OrderUserDTO
     {
         return $this->usr;
     }
 
-    public function setUsr(User\OrderUserDTO $users) : void
+    public function setUsr(User\OrderUserDTO $users): void
     {
         $this->usr = $users;
     }

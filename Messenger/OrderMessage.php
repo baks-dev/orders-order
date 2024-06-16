@@ -31,43 +31,43 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 final class OrderMessage
 {
-	/** Идентификатор заказа */
-	private OrderUid $id;
-	
-	/** Идентификатор события заказа */
-	private OrderEventUid $event;
-	
-	/** Идентификатор предыдущего события заказа */
-	private ?OrderEventUid $last;
-	
-	public function __construct(OrderUid $id, OrderEventUid $event, ?OrderEventUid $last = null)
-	{
-		$this->last = $last;
-		$this->id = $id;
-		$this->event = $event;
-	}
-	
-	
-	/** Идентификатор заказа */
-	
-	public function getId() : OrderUid
-	{
-		return $this->id;
-	}
-	
-	
-	/** Идентификатор события заказа */
-	
-	public function getEvent() : OrderEventUid
-	{
-		return $this->event;
-	}
+    /** Идентификатор заказа */
+    private OrderUid $id;
 
-	/** Идентификатор предыдущего события */
-	
-	public function getLast() : ?OrderEventUid
-	{
-		return $this->last;
-	}
-	
+    /** Идентификатор события заказа */
+    private OrderEventUid $event;
+
+    /** Идентификатор предыдущего события заказа */
+    private ?OrderEventUid $last;
+
+    public function __construct(OrderUid $id, OrderEventUid $event, ?OrderEventUid $last = null)
+    {
+        $this->last = $last;
+        $this->id = $id;
+        $this->event = $event;
+    }
+
+
+    /** Идентификатор заказа */
+
+    public function getId(): OrderUid
+    {
+        return $this->id;
+    }
+
+
+    /** Идентификатор события заказа */
+
+    public function getEvent(): OrderEventUid
+    {
+        return $this->event;
+    }
+
+    /** Идентификатор предыдущего события */
+
+    public function getLast(): ?OrderEventUid
+    {
+        return $this->last;
+    }
+
 }

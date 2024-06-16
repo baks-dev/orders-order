@@ -19,17 +19,17 @@
 namespace BaksDev\Orders\Order\Controller\Admin\Tests;
 
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 
 /**
  * @group orders-order
  *
  * @depends BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest::class
  *
- * @see OrderNewTest
+ * @see     OrderNewTest
  */
 #[When(env: 'test')]
 final class DetailControllerTest extends WebTestCase

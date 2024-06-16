@@ -12,7 +12,6 @@
 {% set order_user = order.order_user|json_decode %}
 
 
-
 <div class="d-flex w-100 align-items-center gap-2 mb-2">
     <img src='{{ qrcode }}' alt='QR Code' style="width: 100px;"/>
     <img src="/logo.webp" style="max-height: 60px;" alt="...">
@@ -118,12 +117,12 @@
 <div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
 
     <p>
-    <strong>Адрес доставки (самовывоз):</strong> {{ order.delivery_geocode_address }}
+        <strong>Адрес доставки (самовывоз):</strong> {{ order.delivery_geocode_address }}
 
 
-    {% set delivery_price = order.order_delivery_price / 100 %}
+        {% set delivery_price = order.order_delivery_price / 100 %}
 
-    <br><strong>Стоимость доставки:</strong>
+        <br><strong>Стоимость доставки:</strong>
 
         {% if order.order_delivery_price %}
             {% if order.order_delivery_price %}

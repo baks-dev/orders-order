@@ -25,5 +25,5 @@ namespace BaksDev\Orders\Order\Entity\Modify;
 
 interface OrderModifyInterface
 {
-    
+
 }

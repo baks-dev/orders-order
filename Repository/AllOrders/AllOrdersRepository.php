@@ -92,7 +92,7 @@ final class AllOrdersRepository implements AllOrdersInterface
     }
 
 
-    public function setLimit(int $limit) :self
+    public function setLimit(int $limit): self
     {
         $this->limit = $limit;
         return $this;
@@ -138,12 +138,12 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('order_event.status AS order_status')
             ->addSelect('order_event.comment AS order_comment');
 
-//        if($this->status)
-//        {
-//            $dbal
-//                ->andWhere('order_event.status = :status')
-//                ->setParameter('status', $this->status, OrderStatus::TYPE);
-//        }
+        //        if($this->status)
+        //        {
+        //            $dbal
+        //                ->andWhere('order_event.status = :status')
+        //                ->setParameter('status', $this->status, OrderStatus::TYPE);
+        //        }
 
 
         if($this->filter?->getStatus())

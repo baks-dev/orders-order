@@ -289,7 +289,7 @@
         {% set card = product.vars.data.card %}
 
         {% if card %}
-            {#{% set summ = (product.price.vars.data.total * card.product_price) %}#}
+            {# {% set summ = (product.price.vars.data.total * card.product_price) %} #}
             {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
             {% set total_summ_product = total_summ_product + summ %}
             {% set total_summ_currency = card.product_currency %}

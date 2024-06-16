@@ -101,7 +101,7 @@ final class ValueDTO implements UserProfileValueInterface
         $this->sectionDescription = $fieldValueFormDTO->getSectionDescription();
         $this->type = $fieldValueFormDTO->getType();
         $this->require = $fieldValueFormDTO->isRequired();
-	}
+    }
 
 
     public function getSection(): ?TypeProfileSectionUid

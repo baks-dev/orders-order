@@ -36,63 +36,63 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class EditOrderForm extends AbstractType
 {
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-		
-		/* Коллекция продукции */
-		$builder->add('product', CollectionType::class, [
-			'entry_type' => Products\OrderProductForm::class,
-			'entry_options' => ['label' => false],
-			'label' => false,
-			'by_reference' => false,
-			'allow_delete' => true,
-			'allow_add' => true,
-			'prototype_name' => '__product__',
-		]);
-	
-		$builder->add('usr', User\OrderUserForm::class, ['label' => false]);
+
+        /* Коллекция продукции */
+        $builder->add('product', CollectionType::class, [
+            'entry_type' => Products\OrderProductForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__product__',
+        ]);
+
+        $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
 
-//		$builder
-//			->add('status', ChoiceType::class, [
-//				'choices' => OrderStatus::cases(),
-//				'choice_value' => function(?OrderStatus $status) {
-//					return $status?->getOrderStatusValue();
-//				},
-//
-//				'choice_label' => function(OrderStatus $status) {
-//					return $status->getOrderStatusValue();
-//				},
-//
-//				'expanded' => false,
-//				'multiple' => false,
-//				'required' => true,
-//				'translation_domain' => 'status.order',
-//                'attr' => ['data-order' => $builder->getData()->getOrder()]
-//			])
-//		;
+        //		$builder
+        //			->add('status', ChoiceType::class, [
+        //				'choices' => OrderStatus::cases(),
+        //				'choice_value' => function(?OrderStatus $status) {
+        //					return $status?->getOrderStatusValue();
+        //				},
+        //
+        //				'choice_label' => function(OrderStatus $status) {
+        //					return $status->getOrderStatusValue();
+        //				},
+        //
+        //				'expanded' => false,
+        //				'multiple' => false,
+        //				'required' => true,
+        //				'translation_domain' => 'status.order',
+        //                'attr' => ['data-order' => $builder->getData()->getOrder()]
+        //			])
+        //		;
 
 
         $builder->add('comment', TextareaType::class, ['required' => false]);
-	
-		/* Сохранить ******************************************************/
-		$builder->add(
-			'order',
-			SubmitType::class,
-			['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-		);
+
+        /* Сохранить ******************************************************/
+        $builder->add(
+            'order',
+            SubmitType::class,
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+        );
 
     }
-    
-    public function configureOptions(OptionsResolver $resolver) : void
+
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults
         (
-          [
-            'data_class' => EditOrderDTO::class,
-            'method' => 'POST',
-            'attr' => ['class' => 'w-100'],
-          ]);
+            [
+                'data_class' => EditOrderDTO::class,
+                'method' => 'POST',
+                'attr' => ['class' => 'w-100'],
+            ]);
     }
-    
+
 }

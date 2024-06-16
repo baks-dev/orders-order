@@ -41,7 +41,8 @@ final class OrderFilterForm extends AbstractType
 
     public function __construct(
         RequestStack $request,
-    ) {
+    )
+    {
 
         $this->request = $request;
     }
@@ -88,7 +89,7 @@ final class OrderFilterForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event): void {
+            function(FormEvent $event): void {
                 /** @var OrderFilterDTO $data */
                 $data = $event->getData();
 

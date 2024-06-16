@@ -36,5 +36,5 @@ interface GeocodeAddressInterface
     /**
      * Метод возвращает адрес и геолокацию по адресу
      */
-    public function fetchGeocodeByAddressAssociative(string $address) : bool|array;
+    public function fetchGeocodeByAddressAssociative(string $address): bool|array;
 }

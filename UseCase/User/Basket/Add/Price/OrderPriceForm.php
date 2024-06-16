@@ -35,18 +35,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderPriceForm extends AbstractType
 {
-	
-	public function buildForm(FormBuilderInterface $builder, array $options) : void
-	{
-		$builder->add('total', TextType::class);
-	}
-	
-	
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
-			'data_class' => OrderPriceDTO::class,
-		]);
-	}
-	
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('total', TextType::class);
+    }
+
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderPriceDTO::class,
+        ]);
+    }
+
 }

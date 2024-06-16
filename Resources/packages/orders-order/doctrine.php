@@ -49,36 +49,34 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
     $services = $container->services()
         ->defaults()
         ->autowire()
-        ->autoconfigure()
-    ;
+        ->autoconfigure();
 
-	$doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
+    $doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
     $services->set(OrderUid::class)->class(OrderUid::class); // #[ParamConverter(['order'])] OrderUid $order,
 
 
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
-	$doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
-	
-	$doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);
-	
-	$doctrine->dbal()->type(OrderPaymentUid::TYPE)->class(OrderPaymentType::class);
-	$doctrine->dbal()->type(OrderPaymentFieldUid::TYPE)->class(OrderPaymentFieldType::class);
-	
-	
-	$doctrine->dbal()->type(OrderDeliveryUid::TYPE)->class(OrderDeliveryType::class);
-	$doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
-	
-	$doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
+    $doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
+
+    $doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);
+
+    $doctrine->dbal()->type(OrderPaymentUid::TYPE)->class(OrderPaymentType::class);
+    $doctrine->dbal()->type(OrderPaymentFieldUid::TYPE)->class(OrderPaymentFieldType::class);
+
+
+    $doctrine->dbal()->type(OrderDeliveryUid::TYPE)->class(OrderDeliveryType::class);
+    $doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
+
+    $doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
 
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
 
     $emDefault->mapping('orders-order')
-		->type('attribute')
-		->dir(BaksDevOrdersOrderBundle::PATH.'Entity')
-		->isBundle(false)
-		->prefix('BaksDev\Orders\Order\Entity')
-		->alias('orders-order')
-	;
-	
+        ->type('attribute')
+        ->dir(BaksDevOrdersOrderBundle::PATH.'Entity')
+        ->isBundle(false)
+        ->prefix('BaksDev\Orders\Order\Entity')
+        ->alias('orders-order');
+
 };

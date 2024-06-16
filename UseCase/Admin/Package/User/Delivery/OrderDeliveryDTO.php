@@ -35,7 +35,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     //	/** Способ оплаты */
     //	#[Assert\NotBlank]
     //	private ?DeliveryUid $delivery = null;
-//
+    //
     //	/** Событие способа оплаты (для расчета стоимости) */
     //	#[Assert\NotBlank]
     //	private DeliveryEventUid $event;
@@ -44,9 +44,9 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     #[Assert\Valid]
     private ArrayCollection $field;
 
-//    /** Координаты на карте */
-//    private ?GeocodeAddressUid $geocode = null;
-//
+    //    /** Координаты на карте */
+    //    private ?GeocodeAddressUid $geocode = null;
+    //
 
     /** GPS широта:*/
     private ?GpsLatitude $latitude = null;
@@ -84,37 +84,37 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         $this->longitude = $longitude;
     }
 
-//    public function getGeocode()
-//    {
-//        return null;
-//    }
+    //    public function getGeocode()
+    //    {
+    //        return null;
+    //    }
 
     public function __construct()
     {
         $this->field = new ArrayCollection();
     }
 
-//    /** Способ доставки */
-//    public function getDelivery(): ?DeliveryUid
-//    {
-//        return $this->delivery;
-//    }
-//
-//    public function setDelivery(DeliveryUid $delivery): void
-//    {
-//        $this->delivery = $delivery;
-//    }
+    //    /** Способ доставки */
+    //    public function getDelivery(): ?DeliveryUid
+    //    {
+    //        return $this->delivery;
+    //    }
+    //
+    //    public function setDelivery(DeliveryUid $delivery): void
+    //    {
+    //        $this->delivery = $delivery;
+    //    }
 
-//    /** Событие способа оплаты (для расчета стоимости) */
-//    public function getEvent(): DeliveryEventUid
-//    {
-//        return $this->event;
-//    }
-//
-//    public function setEvent(DeliveryEventUid $event): void
-//    {
-//        $this->event = $event;
-//    }
+    //    /** Событие способа оплаты (для расчета стоимости) */
+    //    public function getEvent(): DeliveryEventUid
+    //    {
+    //        return $this->event;
+    //    }
+    //
+    //    public function setEvent(DeliveryEventUid $event): void
+    //    {
+    //        $this->event = $event;
+    //    }
 
     /** Пользовательские поля */
     public function getField(): ArrayCollection
@@ -129,7 +129,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
     public function addField(Field\OrderDeliveryFieldDTO $field): void
     {
-        if (!$this->field->contains($field))
+        if(!$this->field->contains($field))
         {
             $this->field->add($field);
         }
@@ -162,9 +162,9 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     }
 
 
-//
-//    public function removeField(Field\OrderDeliveryFieldDTO $field): void
-//    {
-//        $this->field->removeElement($field);
-//    }
+    //
+    //    public function removeField(Field\OrderDeliveryFieldDTO $field): void
+    //    {
+    //        $this->field->removeElement($field);
+    //    }
 }

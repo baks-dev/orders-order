@@ -32,8 +32,8 @@ use Symfony\Component\Uid\AbstractUid;
 final class OrderUserUid extends Uid
 {
     public const TEST = '0188a99a-e8cd-7603-b268-c32e645a0518';
-    
-	public const TYPE = 'order_user';
+
+    public const TYPE = 'order_user';
 
 
 }

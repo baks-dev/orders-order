@@ -197,7 +197,7 @@ class BasketController extends AbstractController
                             return $this->products;
                         });
                     }
-                    
+
                     $this->addFlash(
                         'danger',
                         sprintf(

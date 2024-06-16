@@ -48,14 +48,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class PreProductForm extends AbstractType
 {
 
-//    private ProductChoiceWarehouseInterface $productChoiceWarehouse;
-//    private ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse;
-//    private ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse;
-//    private ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse;
-//    private ProductWarehouseChoiceInterface $productWarehouseChoice;
-//    private UserProfileChoiceInterface $userProfileChoice;
-//    private TokenStorageInterface $tokenStorage;
-//    private UserUid $user;
+    //    private ProductChoiceWarehouseInterface $productChoiceWarehouse;
+    //    private ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse;
+    //    private ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse;
+    //    private ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse;
+    //    private ProductWarehouseChoiceInterface $productWarehouseChoice;
+    //    private UserProfileChoiceInterface $userProfileChoice;
+    //    private TokenStorageInterface $tokenStorage;
+    //    private UserUid $user;
 
     private ProductChoiceInterface $productChoice;
     private ProductOfferChoiceInterface $productOfferChoice;
@@ -63,13 +63,13 @@ final class PreProductForm extends AbstractType
     private ProductModificationChoiceInterface $productModificationChoice;
 
     public function __construct(
-//        UserProfileChoiceInterface $userProfileChoice,
-//        ProductChoiceWarehouseInterface $productChoiceWarehouse,
-//        ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse,
-//        ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse,
-//        ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse,
-//        ProductWarehouseChoiceInterface $productWarehouseChoice,
-//        TokenStorageInterface $tokenStorage,
+        //        UserProfileChoiceInterface $userProfileChoice,
+        //        ProductChoiceWarehouseInterface $productChoiceWarehouse,
+        //        ProductOfferChoiceWarehouseInterface $productOfferChoiceWarehouse,
+        //        ProductVariationChoiceWarehouseInterface $productVariationChoiceWarehouse,
+        //        ProductModificationChoiceWarehouseInterface $productModificationChoiceWarehouse,
+        //        ProductWarehouseChoiceInterface $productWarehouseChoice,
+        //        TokenStorageInterface $tokenStorage,
 
         ProductChoiceInterface $productChoice,
         ProductOfferChoiceInterface $productOfferChoice,
@@ -80,13 +80,13 @@ final class PreProductForm extends AbstractType
     )
     {
 
-//        $this->productChoiceWarehouse = $productChoiceWarehouse;
-//        $this->productOfferChoiceWarehouse = $productOfferChoiceWarehouse;
-//        $this->productVariationChoiceWarehouse = $productVariationChoiceWarehouse;
-//        $this->productModificationChoiceWarehouse = $productModificationChoiceWarehouse;
-//        $this->productWarehouseChoice = $productWarehouseChoice;
-//        $this->userProfileChoice = $userProfileChoice;
-//        $this->tokenStorage = $tokenStorage;
+        //        $this->productChoiceWarehouse = $productChoiceWarehouse;
+        //        $this->productOfferChoiceWarehouse = $productOfferChoiceWarehouse;
+        //        $this->productVariationChoiceWarehouse = $productVariationChoiceWarehouse;
+        //        $this->productModificationChoiceWarehouse = $productModificationChoiceWarehouse;
+        //        $this->productWarehouseChoice = $productWarehouseChoice;
+        //        $this->userProfileChoice = $userProfileChoice;
+        //        $this->tokenStorage = $tokenStorage;
 
 
         $this->productChoice = $productChoice;
@@ -106,30 +106,30 @@ final class PreProductForm extends AbstractType
 
 
         /** Получаем список доступной продукции */
-        $productChoice =  $this->productChoice->fetchAllProductEventByExists();
+        $productChoice = $this->productChoice->fetchAllProductEventByExists();
         $productChoice = iterator_to_array($productChoice);
 
-            $builder->add(
-                'preProduct',
-                ChoiceType::class,
-                [
-                    'choices' => $productChoice,
-                    'choice_value' => function(?ProductEventUid $product) {
-                        return $product?->getValue();
-                    },
+        $builder->add(
+            'preProduct',
+            ChoiceType::class,
+            [
+                'choices' => $productChoice,
+                'choice_value' => function(?ProductEventUid $product) {
+                    return $product?->getValue();
+                },
 
-                    'choice_label' => function(ProductEventUid $product) {
-                        return $product->getAttr().' ('.$product->getOption().')';
-                    },
-                    'choice_attr' => function(?ProductEventUid $product) {
-                        return $product ? [
-                            'data-max' => $product->getOption(),
-                            'data-name' => $product->getAttr(),
-                        ] : [];
-                    },
-                    'label' => false,
-                ]
-            );
+                'choice_label' => function(ProductEventUid $product) {
+                    return $product->getAttr().' ('.$product->getOption().')';
+                },
+                'choice_attr' => function(?ProductEventUid $product) {
+                    return $product ? [
+                        'data-max' => $product->getOption(),
+                        'data-name' => $product->getAttr(),
+                    ] : [];
+                },
+                'label' => false,
+            ]
+        );
         //}
 
 
@@ -202,8 +202,7 @@ final class PreProductForm extends AbstractType
 
         $builder->get('preModification')->addEventListener(
             FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void
-            {
+            function(FormEvent $event): void {
                 $parent = $event->getForm()->getParent();
 
                 if(!$parent)

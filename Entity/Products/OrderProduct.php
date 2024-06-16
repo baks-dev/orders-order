@@ -83,7 +83,7 @@ class OrderProduct extends EntityEvent
 
     public function __clone(): void
     {
-        $this->id =  clone $this->id;
+        $this->id = clone $this->id;
     }
 
     public function __toString(): string
@@ -112,7 +112,7 @@ class OrderProduct extends EntityEvent
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if ($dto instanceof OrderProductInterface)
+        if($dto instanceof OrderProductInterface)
         {
             return parent::getDto($dto);
         }
@@ -122,7 +122,7 @@ class OrderProduct extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderProductInterface || $dto instanceof self)
+        if($dto instanceof OrderProductInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

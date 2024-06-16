@@ -69,98 +69,98 @@ final class NewOrderProductDTO implements OrderProductInterface
     //#[Assert\Valid]
     //private ?Moving\MovingProductStockDTO $move = null;
 
-//    public function __construct()
-//    {
-//        $this->move = new Moving\MovingProductStockDTO();
-//    }
+    //    public function __construct()
+    //    {
+    //        $this->move = new Moving\MovingProductStockDTO();
+    //    }
 
     //	/** Идентификтаор продукта */
-//
+    //
     //	public function getUid() : ProductUid
     //	{
     //		return $this->uid;
     //	}
-//
-//
+    //
+    //
     //	public function setUid(ProductUid $uid) : void
     //	{
     //		$this->uid = $uid;
     //	}
 
-        /** Событие продукта */
-        public function getProduct() : ProductEventUid
-        {
-            return $this->product;
-        }
+    /** Событие продукта */
+    public function getProduct(): ProductEventUid
+    {
+        return $this->product;
+    }
 
-        public function setProduct(ProductEventUid $product) : void
-        {
-            $this->product = $product;
-        }
+    public function setProduct(ProductEventUid $product): void
+    {
+        $this->product = $product;
+    }
 
-        /** Торговое предложение */
-        public function getOffer() : ?ProductOfferUid
-        {
-            return $this->offer;
-        }
+    /** Торговое предложение */
+    public function getOffer(): ?ProductOfferUid
+    {
+        return $this->offer;
+    }
 
-        public function setOffer(?ProductOfferUid $offer) : void
-        {
-            $this->offer = $offer;
-        }
+    public function setOffer(?ProductOfferUid $offer): void
+    {
+        $this->offer = $offer;
+    }
 
-        /** Множественный вариант торгового предложения */
-        public function getVariation() : ?ProductVariationUid
-        {
-            return $this->variation;
-        }
+    /** Множественный вариант торгового предложения */
+    public function getVariation(): ?ProductVariationUid
+    {
+        return $this->variation;
+    }
 
-        public function setVariation(?ProductVariationUid $variation) : void
-        {
-            $this->variation = $variation;
-        }
+    public function setVariation(?ProductVariationUid $variation): void
+    {
+        $this->variation = $variation;
+    }
 
-        /** Модификация множественного вараинта торгового предложения  */
-        public function getModification() : ?ProductModificationUid
-        {
-            return $this->modification;
-        }
+    /** Модификация множественного вараинта торгового предложения  */
+    public function getModification(): ?ProductModificationUid
+    {
+        return $this->modification;
+    }
 
-        public function setModification(?ProductModificationUid $modification) : void
-        {
-            $this->modification = $modification;
-        }
+    public function setModification(?ProductModificationUid $modification): void
+    {
+        $this->modification = $modification;
+    }
 
-        /** Стоимость и количество */
-        public function getPrice() : Price\NewOrderPriceDTO
-        {
-            return $this->price;
-        }
+    /** Стоимость и количество */
+    public function getPrice(): Price\NewOrderPriceDTO
+    {
+        return $this->price;
+    }
 
-        public function setPrice(Price\NewOrderPriceDTO $price) : void
-        {
-            $this->price = $price;
-        }
+    public function setPrice(Price\NewOrderPriceDTO $price): void
+    {
+        $this->price = $price;
+    }
 
-//        /** Карточка товара */
-//        public function getCard() : array
-//        {
-//            return $this->card;
-//        }
-//
-//        public function setCard(array $card) : void
-//        {
-//            $this->card = $card;
-//        }
+    //        /** Карточка товара */
+    //        public function getCard() : array
+    //        {
+    //            return $this->card;
+    //        }
+    //
+    //        public function setCard(array $card) : void
+    //        {
+    //            $this->card = $card;
+    //        }
 
-//        /** Коллекция перемещения  */
-//        public function getMove(): ?Moving\MovingProductStockDTO
-//        {
-//            return $this->move;
-//        }
-//
-//        public function setMove(Moving\MovingProductStockDTO $move): void
-//        {
-//            $this->move = $move;
-//        }
+    //        /** Коллекция перемещения  */
+    //        public function getMove(): ?Moving\MovingProductStockDTO
+    //        {
+    //            return $this->move;
+    //        }
+    //
+    //        public function setMove(Moving\MovingProductStockDTO $move): void
+    //        {
+    //            $this->move = $move;
+    //        }
 }

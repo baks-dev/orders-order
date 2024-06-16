@@ -35,12 +35,12 @@
                             {% endif %}
 
                             <a
-                                    href="{#{{ path('products-product:user.detail', {
+                                    href="{# {{ path('products-product:user.detail', {
                                         url : card.product_url ,
                                         offer: card.product_offer_value,
                                         variation: card.product_variation_value,
                                         modification: card.product_modification_value
-                                    }) }}#}"
+                                    }) }} #}"
                                     class="icon rounded-4 mb-2 bg-contain p-1"
                                     style="width: 75px; height: 75px; background-image: url('{{ image_path }}')"
                             ></a>
@@ -55,7 +55,7 @@
                                 {{ card.product_name }}
 
                                 {{ card.product_variation_value|call_twig_func(card.product_variation_reference) ~
-                                 card.product_modification_value|call_twig_func(card.product_modification_reference) }}
+                                card.product_modification_value|call_twig_func(card.product_modification_reference) }}
 
                                 {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
                             </a>

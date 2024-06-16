@@ -29,8 +29,13 @@ use BaksDev\Delivery\Type\Id\DeliveryUid;
 
 final class FieldByDeliveryChoiceRepository implements FieldByDeliveryChoiceInterface
 {
+    /**
+     * Без модуля Delivery метод возвращает пустой массив элементов формы
+     */
     public function fetchDeliveryFields(DeliveryUid $delivery): ?array
     {
+        dd('FieldByDeliveryChoiceRepository');
+
         return [];
     }
 }

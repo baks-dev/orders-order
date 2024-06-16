@@ -401,11 +401,11 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->addSelect('order_delivery_price.price AS order_delivery_price')
             ->addSelect('order_delivery_price.currency AS order_delivery_currency')
             ->leftJoin(
-            'order_delivery',
-            OrderDeliveryPrice::class,
-            'order_delivery_price',
-            'order_delivery_price.delivery = order_delivery.id'
-        );
+                'order_delivery',
+                OrderDeliveryPrice::class,
+                'order_delivery_price',
+                'order_delivery_price.delivery = order_delivery.id'
+            );
 
         $dbal->leftJoin(
             'order_delivery',
@@ -544,7 +544,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 			)
 			AS order_user"
         );
-
 
 
         $dbal->allGroupByExclude();

@@ -1,6 +1,6 @@
 # BaksDev Order
 
-[![Version](https://img.shields.io/badge/version-7.1.12-blue)](https://github.com/baks-dev/orders-order/releases)
+[![Version](https://img.shields.io/badge/version-7.1.13-blue)](https://github.com/baks-dev/orders-order/releases)
 ![php 8.3+](https://img.shields.io/badge/php-min%208.3-red.svg)
 
 Модуль системных заказов
@@ -9,6 +9,7 @@
 
 ``` bash
 composer require \
+baks-dev/payment \
 baks-dev/users-address \
 baks-dev/contacts-region \
 baks-dev/centrifugo \
@@ -19,7 +20,6 @@ baks-dev/orders-order
 
 Установка и настройка [baks-dev/centrifugo](https://github.com/baks-dev/centrifugo)
 
-
 ## Дополнительно
 
 Установка конфигурации и файловых ресурсов:
@@ -28,13 +28,14 @@ baks-dev/orders-order
 php bin/console baks:assets:install
 ```
 
-Для обработки сообщений асинхронно должен быть запущен воркер 'orders-order' 
+Для обработки сообщений асинхронно должен быть запущен воркер 'orders-order'
 
 ``` bash
 php bin/console messenger:consume orders-order
 ```
 
-Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом 'baks.order.status'
+Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом '
+baks.order.status'
 
 ``` php
 <?php
@@ -50,8 +51,6 @@ class OrderStatusCustom implements OrderStatusInterface
 ... implements method
 }
 ```
-
-
 
 Изменения в схеме базы данных с помощью миграции
 

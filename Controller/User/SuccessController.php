@@ -44,7 +44,7 @@ class SuccessController extends AbstractController
     public function index(
         #[MapEntity] Order $Order,
         OrderDetailInterface $orderDetail,
-    ) : Response
+    ): Response
     {
 
         /** Информация о заказе */

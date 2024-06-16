@@ -33,63 +33,63 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderPaymentDTO implements OrderPaymentInterface
 {
-	/** Способ оплаты */
-	#[Assert\NotBlank]
-	private ?PaymentUid $payment = null;
-	
-	/** Пользовательские поля */
-	#[Assert\Valid]
-	private ArrayCollection $field;
-	
-	
-	public function __construct()
-	{
-		
-		$this->field = new ArrayCollection();
-		
-	}
-	
-	
-	/** Способ оплаты */
-	
-	public function getPayment() : ?PaymentUid
-	{
-		return $this->payment;
-	}
-	
-	
-	public function setPayment(PaymentUid $payment) : void
-	{
-		$this->payment = $payment;
-	}
-	
-	
-	/** Пользовательские поля */
-	
-	public function getField() : ArrayCollection
-	{
-		return $this->field;
-	}
-	
-	
-	public function setField(ArrayCollection $field) : void
-	{
-		$this->field = $field;
-	}
-	
-	
-	public function addField(Field\OrderPaymentFieldDTO $field) : void
-	{
-		if(!$this->field->contains($field))
-		{
-			$this->field->add($field);
-		}
-	}
-	
-	
-	public function removeField(Field\OrderPaymentFieldDTO $field) : void
-	{
-		$this->field->removeElement($field);
-	}
-	
+    /** Способ оплаты */
+    #[Assert\NotBlank]
+    private ?PaymentUid $payment = null;
+
+    /** Пользовательские поля */
+    #[Assert\Valid]
+    private ArrayCollection $field;
+
+
+    public function __construct()
+    {
+
+        $this->field = new ArrayCollection();
+
+    }
+
+
+    /** Способ оплаты */
+
+    public function getPayment(): ?PaymentUid
+    {
+        return $this->payment;
+    }
+
+
+    public function setPayment(PaymentUid $payment): void
+    {
+        $this->payment = $payment;
+    }
+
+
+    /** Пользовательские поля */
+
+    public function getField(): ArrayCollection
+    {
+        return $this->field;
+    }
+
+
+    public function setField(ArrayCollection $field): void
+    {
+        $this->field = $field;
+    }
+
+
+    public function addField(Field\OrderPaymentFieldDTO $field): void
+    {
+        if(!$this->field->contains($field))
+        {
+            $this->field->add($field);
+        }
+    }
+
+
+    public function removeField(Field\OrderPaymentFieldDTO $field): void
+    {
+        $this->field->removeElement($field);
+    }
+
 }

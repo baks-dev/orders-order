@@ -21,36 +21,40 @@
  */
 
 
-
 var containers = document.querySelectorAll(".draggable-zone");
 
 
-function getToken(url, ctx) {
-    return new Promise((resolve, reject) => {
+function getToken(url, ctx)
+{
+    return new Promise((resolve, reject) =>
+    {
         fetch(url, {
             method: 'POST',
-            headers: new Headers({ 'Content-Type': 'application/json' }),
+            headers: new Headers({'Content-Type': 'application/json'}),
             body: JSON.stringify(ctx)
         })
-            .then(res => {
-                if (!res.ok) {
+            .then(res =>
+            {
+                if(!res.ok)
+                {
                     throw new Error(`Unexpected status code ${res.status}`);
                 }
                 return res.json();
             })
-            .then(data => {
+            .then(data =>
+            {
                 resolve(data.token);
             })
-            .catch(err => {
+            .catch(err =>
+            {
                 reject(err);
             });
     });
 }
 
 
-
-
-setTimeout(function P8X1I2diQ4() {
+setTimeout(function P8X1I2diQ4()
+{
 
     if(typeof Droppable === 'object')
     {
@@ -66,25 +70,25 @@ setTimeout(function P8X1I2diQ4() {
             }
         });
 
-// Define draggable element variable for permissions level
+        // Define draggable element variable for permissions level
         let droppableOrigin;
         let droppableLevel;
         let droppableRestrict;
 
         let toDroppable;
 
-// Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
-        droppable.on("drag:start", (e) => {
+        // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
+        droppable.on("drag:start", (e) =>
+        {
             //droppableOrigin = e.originalSource.getAttribute("data-kt-draggable-level");
             //console.log('drag:start');
             document.body.style.overflow = 'hidden';
         });
 
 
-
-
-// Handle drag over event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragOverEvent.html
-        droppable.on("drag:over", (e) => {
+        // Handle drag over event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragOverEvent.html
+        droppable.on("drag:over", (e) =>
+        {
 
             //console.log('drag:over');
 
@@ -101,20 +105,21 @@ setTimeout(function P8X1I2diQ4() {
             // }
 
             //console.log('drag:over');
-//droppableLevel = e.overContainer.getAttribute("data-status")
+            //droppableLevel = e.overContainer.getAttribute("data-status")
 
             // console.log(droppableLevel);
 
         });
 
-// Handle drag stop event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragStopEvent.html
+        // Handle drag stop event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragStopEvent.html
 
 
-
-        droppable.on("drag:stop", async (e) => {
+        droppable.on("drag:stop", async (e) =>
+        {
 
             // удалить весь перетаскиваемый занятый предел
-            containers.forEach(c => {
+            containers.forEach(c =>
+            {
                 c.classList.remove("draggable-dropzone--occupied");
             });
 
@@ -127,24 +132,27 @@ setTimeout(function P8X1I2diQ4() {
             let level = e.sourceContainer.getAttribute("data-status");
             let id = e.originalSource.id; // getAttribute("data-order");
 
-            if (e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== 'restricted')
+            if(e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== 'restricted')
             {
 
-                fetch('/admin/order/'+droppableLevel+'/'+id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function (response) {
+                fetch('/admin/order/' + droppableLevel + '/' + id, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                    .then(function(response)
+                    {
                         return response.status === 200 ? response.text() : false;
                     })
-                    .then(function (html) {
+                    .then(function(html)
+                    {
 
                         /** Если писутствует прелоад-форма статуса - показываем в модальном окне  */
-                        if (html)
+                        if(html)
                         {
                             const modal = document.getElementById('modal');
                             document.getElementById('modal').innerHTML = html;
                             new bootstrap.Modal(modal).show();
 
                             /** Инициируем LAZYLOAD  */
-                            modal.addEventListener('shown.bs.modal', function (event){
+                            modal.addEventListener('shown.bs.modal', function(event)
+                            {
 
                                 let lazy = document.createElement('script');
                                 lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
@@ -152,10 +160,12 @@ setTimeout(function P8X1I2diQ4() {
 
                             });
 
-                            modal.querySelectorAll('form').forEach(function (forms) {
+                            modal.querySelectorAll('form').forEach(function(forms)
+                            {
 
                                 /* событие отправки формы */
-                                forms.addEventListener('submit', function (event) {
+                                forms.addEventListener('submit', function(event)
+                                {
                                     event.preventDefault();
                                     submitModalForm(forms);
                                     return false;
@@ -165,16 +175,13 @@ setTimeout(function P8X1I2diQ4() {
                             return;
                         }
 
-                        submitLink( '/admin/order/status/'+droppableLevel+'/'+id)
+                        submitLink('/admin/order/status/' + droppableLevel + '/' + id)
 
-                    }).catch(function (err) {
+                    }).catch(function(err)
+                {
                     // There was an error
                     console.warn('Something went wrong.', err);
                 });
-
-
-
-
 
 
                 // https://bundles.baks.dev/login
@@ -182,29 +189,26 @@ setTimeout(function P8X1I2diQ4() {
                 ///let response = await fetch('https://bundles.baks.dev/admin/payment/delete/01871a93-9e6f-72f0-a853-7279d5c90ea9');
 
 
-
-
-
-// if (response.ok) {
-//
-//
-//     const modal = document.getElementById('modal');
-//     document.getElementById('modal').innerHTML = '4564'
-//     //var myModal = new bootstrap.Modal(modal);
-//     //myModal.toggle();
-//
-//
-//
-//
-//
-//     //console.log(response.text());
-//
-//     // если HTTP-статус в диапазоне 200-299
-//   // получаем тело ответа (см. про этот метод ниже)
-//   //let json = await response.json();
-// } else {
-//   alert("Ошибка HTTP: " + response.status);
-// }
+                // if (response.ok) {
+                //
+                //
+                //     const modal = document.getElementById('modal');
+                //     document.getElementById('modal').innerHTML = '4564'
+                //     //var myModal = new bootstrap.Modal(modal);
+                //     //myModal.toggle();
+                //
+                //
+                //
+                //
+                //
+                //     //console.log(response.text());
+                //
+                //     // если HTTP-статус в диапазоне 200-299
+                //   // получаем тело ответа (см. про этот метод ниже)
+                //   //let json = await response.json();
+                // } else {
+                //   alert("Ошибка HTTP: " + response.status);
+                // }
 
 
                 // const modal = new bootstrap.Modal('#modal', {
@@ -214,8 +218,7 @@ setTimeout(function P8X1I2diQ4() {
                 // modal.show();
 
 
-
-                console.log(level+' => '+droppableLevel);
+                console.log(level + ' => ' + droppableLevel);
                 //console.log(id);
 
                 /** Отправляем запрос на изменение статуса */
@@ -226,13 +229,10 @@ setTimeout(function P8X1I2diQ4() {
         });
 
 
+        // Handle drop event -- https://shopify.github.io/draggable/docs/class/src/Droppable/DroppableEvent/DroppableEvent.js~DroppableDroppedEvent.html
 
-
-
-
-// Handle drop event -- https://shopify.github.io/draggable/docs/class/src/Droppable/DroppableEvent/DroppableEvent.js~DroppableDroppedEvent.html
-
-        droppable.on("droppable:dropped", (e) => {
+        droppable.on("droppable:dropped", (e) =>
+        {
 
             toDroppable = e.dropzone;
 
@@ -253,10 +253,10 @@ setTimeout(function P8X1I2diQ4() {
 
             //console.log(e);
 
-            droppableLevel =  e.dropzone.getAttribute("data-status");
-            droppableRestrict =  e.dropzone.getAttribute("data-level");
+            droppableLevel = e.dropzone.getAttribute("data-status");
+            droppableRestrict = e.dropzone.getAttribute("data-level");
 
-            if (droppableRestrict === 'restricted')
+            if(droppableRestrict === 'restricted')
             {
                 e.cancel();
             }

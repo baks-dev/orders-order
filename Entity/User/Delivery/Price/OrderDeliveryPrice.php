@@ -24,7 +24,6 @@
 namespace BaksDev\Orders\Order\Entity\User\Delivery\Price;
 
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
@@ -71,7 +70,7 @@ class OrderDeliveryPrice extends EntityEvent
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if ($dto instanceof OrderDeliveryPriceInterface)
+        if($dto instanceof OrderDeliveryPriceInterface)
         {
             return parent::getDto($dto);
         }
@@ -81,7 +80,7 @@ class OrderDeliveryPrice extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof OrderDeliveryPriceInterface || $dto instanceof self)
+        if($dto instanceof OrderDeliveryPriceInterface || $dto instanceof self)
         {
             if($dto->getPrice() === null || empty($dto->getPrice()->getValue()))
             {

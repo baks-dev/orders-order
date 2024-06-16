@@ -2,10 +2,14 @@
 
 {{ include(_self|replace({ "content.html.twig" : baks_settings.device~"/_form.html.twig" })) }}
 
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/orders_draft.js?v={{ version }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/users-address/script.min.js?v={{ version }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" defer class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_draft.js?v={{ version }}"
+        class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
+        class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" defer
+        class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}'
+        class='lazy'></script>
 {#
-<script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script>#}
+<script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script> #}
 

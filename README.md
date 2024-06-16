@@ -8,7 +8,7 @@
 ## Установка
 
 ``` bash
-$ composer require baks-dev/orders-order
+composer require baks-dev/orders-order
 ```
 
 ## Дополнительно
@@ -16,13 +16,13 @@ $ composer require baks-dev/orders-order
 Установка конфигурации и файловых ресурсов:
 
 ``` bash
-$ php bin/console baks:assets:install
+php bin/console baks:assets:install
 ```
 
 Должен быть запущен воркер 'orders-order' для обработки асинхронных сообщений 
 
 ``` bash
-$ php bin/console messenger:consume orders-order
+php bin/console messenger:consume orders-order
 ```
 
 Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом 'baks.order.status'
@@ -47,9 +47,8 @@ class OrderStatusDelivery implements OrderStatusInterface
 Изменения в схеме базы данных с помощью миграции
 
 ``` bash
-$ php bin/console doctrine:migrations:diff
-
-$ php bin/console doctrine:migrations:migrate
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate
 ```
 
 ## Тестирование

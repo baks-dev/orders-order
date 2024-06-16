@@ -231,7 +231,6 @@ final class OrderDeliveryForm extends AbstractType
                             'prototype_name' => '__delivery_field__',
                         ]);
 
-                        dd($fields);
                     }
 
                 }

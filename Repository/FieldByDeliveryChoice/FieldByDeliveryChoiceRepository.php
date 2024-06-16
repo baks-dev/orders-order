@@ -34,8 +34,6 @@ final class FieldByDeliveryChoiceRepository implements FieldByDeliveryChoiceInte
      */
     public function fetchDeliveryFields(DeliveryUid $delivery): ?array
     {
-        dd('FieldByDeliveryChoiceRepository');
-
         return [];
     }
 }

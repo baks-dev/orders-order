@@ -30,12 +30,17 @@ use BaksDev\Delivery\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceR
 use BaksDev\Delivery\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceRepository;
 use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
+use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusExtradition;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
+use BaksDev\Payment\BaksDevPaymentBundle;
+use BaksDev\Payment\Repository\FieldByPaymentChoice\FieldByPaymentChoiceRepository;
+use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceRepository;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -90,6 +95,19 @@ class BaksDevOrdersOrderBundle extends AbstractBundle
             $services->set(
                 FieldByDeliveryChoiceInterface::class,
                 FieldByDeliveryChoiceRepository::class
+            );
+        }
+
+        if(class_exists(BaksDevPaymentBundle::class))
+        {
+            $services->set(
+                PaymentByTypeProfileChoiceInterface::class,
+                PaymentByTypeProfileChoiceRepository::class
+            );
+
+            $services->set(
+                FieldByPaymentChoiceInterface::class,
+                FieldByPaymentChoiceRepository::class
             );
         }
     }

@@ -19,7 +19,7 @@ composer require baks-dev/orders-order
 php bin/console baks:assets:install
 ```
 
-Должен быть запущен воркер 'orders-order' для обработки асинхронных сообщений 
+Для обработки сообщений асинхронно должен быть запущен воркер 'orders-order' 
 
 ``` bash
 php bin/console messenger:consume orders-order

@@ -36,7 +36,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.order.status')]
-class OrderStatusDelivery implements OrderStatusInterface
+class OrderStatusCustom implements OrderStatusInterface
 {
 ... implements method
 }

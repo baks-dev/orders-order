@@ -72,7 +72,6 @@ final class OrderReserveCancelProduct
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
         $this->existOrderEventByStatus = $existOrderEventByStatus;
-
         $this->deduplicator = $deduplicator;
     }
 
@@ -94,7 +93,6 @@ final class OrderReserveCancelProduct
 
 
         $this->entityManager->clear();
-
         $OrderEvent = $this->entityManager
             ->getRepository(OrderEvent::class)
             ->find($message->getEvent());
@@ -139,6 +137,8 @@ final class OrderReserveCancelProduct
             }
         }
 
+        $Deduplicator->save();
+
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
@@ -159,7 +159,6 @@ final class OrderReserveCancelProduct
             $this->changeReserve($product);
         }
 
-        $Deduplicator->save();
     }
 
 

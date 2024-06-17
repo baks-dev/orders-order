@@ -64,14 +64,11 @@ final class OrderReserveCompletedProduct
         DeduplicatorInterface $deduplicator
     ) {
         $this->entityManager = $entityManager;
-        $this->entityManager->clear();
-
         $this->quantityByModification = $quantityByModification;
         $this->quantityByVariation = $quantityByVariation;
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
-
         $this->deduplicator = $deduplicator;
     }
 
@@ -92,7 +89,10 @@ final class OrderReserveCompletedProduct
             return;
         }
 
-        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
+        $this->entityManager->clear();
+        $OrderEvent = $this->entityManager
+            ->getRepository(OrderEvent::class)
+            ->find($message->getEvent());
 
         if(!$OrderEvent)
         {
@@ -104,6 +104,8 @@ final class OrderReserveCompletedProduct
         {
             return;
         }
+
+        $Deduplicator->save();
 
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
@@ -125,7 +127,7 @@ final class OrderReserveCompletedProduct
 
         }
 
-        $Deduplicator->save();
+
     }
 
 

@@ -99,9 +99,7 @@ final class OrderReserveProduct
             return;
         }
 
-
         $this->entityManager->clear();
-
         $OrderEvent = $this->currentOrderEvent->getCurrentOrderEvent($message->getId());
 
         if(!$OrderEvent)
@@ -115,6 +113,7 @@ final class OrderReserveProduct
             return;
         }
 
+        $Deduplicator->save();
 
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
@@ -135,8 +134,6 @@ final class OrderReserveProduct
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
         }
-
-        $Deduplicator->save();
     }
 
     public function handle(OrderProduct $product): void

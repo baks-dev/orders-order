@@ -26,6 +26,9 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\Notifier;
 
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
+use BaksDev\Core\Cache\AppCacheInterface;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -52,6 +55,8 @@ final class SendClientEmailOrderNews
     private MailerInterface $mailer;
     private ParameterBagInterface $parameters;
     private string $HOST;
+    private DeduplicatorInterface $deduplicator;
+
 
     public function __construct(
         #[Autowire(env: 'HOST')] string $HOST,
@@ -61,9 +66,10 @@ final class SendClientEmailOrderNews
         UserProfileValuesInterface $userProfileValues,
         MailerInterface $mailer,
         ParameterBagInterface $parameters,
+        DeduplicatorInterface $deduplicator
+    ) {
 
-    )
-    {
+
         $this->entityManager = $entityManager;
         $this->entityManager->clear();
         $this->logger = $ordersOrderLogger;
@@ -73,6 +79,8 @@ final class SendClientEmailOrderNews
         $this->mailer = $mailer;
         $this->parameters = $parameters;
         $this->HOST = $HOST;
+
+        $this->deduplicator = $deduplicator;
     }
 
     /**
@@ -80,6 +88,14 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
+        $Deduplicator = $this->deduplicator
+            ->deduplication([$message->getId(), OrderStatusNew::STATUS]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
         /** Новый заказ не имеет предыдущего события */
         if($message->getLast())
         {
@@ -150,6 +166,8 @@ final class SendClientEmailOrderNews
         $this->mailer->send($email);
 
         $this->logger->notice('Оправили уведомление клиенту на Email '.$AccountEmail);
+
+        $Deduplicator->save();
 
     }
 

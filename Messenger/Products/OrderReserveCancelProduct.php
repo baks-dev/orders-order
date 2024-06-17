@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\Products;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -46,18 +47,13 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class OrderReserveCancelProduct
 {
     private EntityManagerInterface $entityManager;
-
     private CurrentQuantityByModificationInterface $quantityByModification;
-
     private CurrentQuantityByVariationInterface $quantityByVariation;
-
     private CurrentQuantityByOfferInterface $quantityByOffer;
-
     private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
     private ExistOrderEventByStatusInterface $existOrderEventByStatus;
-    private AppLockInterface $appLock;
-
+    private DeduplicatorInterface $deduplicator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -67,19 +63,17 @@ final class OrderReserveCancelProduct
         CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger,
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
-        AppLockInterface $appLock
-    )
-    {
+        DeduplicatorInterface $deduplicator
+    ) {
         $this->entityManager = $entityManager;
-        $this->entityManager->clear();
-
         $this->quantityByModification = $quantityByModification;
         $this->quantityByVariation = $quantityByVariation;
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
         $this->existOrderEventByStatus = $existOrderEventByStatus;
-        $this->appLock = $appLock;
+
+        $this->deduplicator = $deduplicator;
     }
 
 
@@ -87,7 +81,23 @@ final class OrderReserveCancelProduct
     public function __invoke(OrderMessage $message): void
     {
 
-        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
+        $Deduplicator = $this->deduplicator
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusCanceled::STATUS
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+
+        $this->entityManager->clear();
+
+        $OrderEvent = $this->entityManager
+            ->getRepository(OrderEvent::class)
+            ->find($message->getEvent());
 
         if(!$OrderEvent)
         {
@@ -132,7 +142,8 @@ final class OrderReserveCancelProduct
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-            $this->logger->info('Снимаем общий резерв продукции в карточке при отмене заказа',
+            $this->logger->info(
+                'Снимаем общий резерв продукции в карточке при отмене заказа',
                 [
                     __FILE__.':'.__LINE__,
                     'total' => $product->getTotal(),
@@ -144,27 +155,16 @@ final class OrderReserveCancelProduct
                 ]
             );
 
-            /** Блокируем процесс в очереди */
-
-            $key = $product->getProduct().$product->getOffer().$product->getVariation().$product->getModification();
-
-            $lock = $this->appLock
-                ->createLock($key)
-                ->lifetime(30)
-                ->wait();
-
             /** Снимаем резерв отмененного заказа */
             $this->changeReserve($product);
-
-            $lock->release(); // снимаем блокировку
-
         }
+
+        $Deduplicator->save();
     }
 
 
     public function changeReserve(OrderProduct $product): void
     {
-
 
         $Quantity = null;
 
@@ -214,7 +214,8 @@ final class OrderReserveCancelProduct
             return;
         }
 
-        $this->logger->critical('Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+        $this->logger->critical(
+            'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
             [
                 __FILE__.':'.__LINE__,
                 'total' => (string) $product->getTotal(),

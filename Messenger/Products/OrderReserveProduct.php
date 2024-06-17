@@ -25,14 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\Products;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Lock\AppLockInterface;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
@@ -52,18 +50,13 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class OrderReserveProduct
 {
     private EntityManagerInterface $entityManager;
-
     private CurrentQuantityByModificationInterface $quantityByModification;
-
     private CurrentQuantityByVariationInterface $quantityByVariation;
-
     private CurrentQuantityByOfferInterface $quantityByOffer;
-
     private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
     private CurrentOrderEventInterface $currentOrderEvent;
-    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
-    private AppLockInterface $appLock;
+    private DeduplicatorInterface $deduplicator;
 
 
     public function __construct(
@@ -74,21 +67,16 @@ final class OrderReserveProduct
         CurrentQuantityByEventInterface $quantityByEvent,
         LoggerInterface $ordersOrderLogger,
         CurrentOrderEventInterface $currentOrderEvent,
-        ExistOrderEventByStatusInterface $existOrderEventByStatus,
-        AppLockInterface $appLock
-    )
-    {
+        DeduplicatorInterface $deduplicator
+    ) {
         $this->entityManager = $entityManager;
-        $this->entityManager->clear();
-
         $this->quantityByModification = $quantityByModification;
         $this->quantityByVariation = $quantityByVariation;
         $this->quantityByOffer = $quantityByOffer;
         $this->quantityByEvent = $quantityByEvent;
         $this->logger = $ordersOrderLogger;
         $this->currentOrderEvent = $currentOrderEvent;
-        $this->existOrderEventByStatus = $existOrderEventByStatus;
-        $this->appLock = $appLock;
+        $this->deduplicator = $deduplicator;
     }
 
 
@@ -97,11 +85,22 @@ final class OrderReserveProduct
      */
     public function __invoke(OrderMessage $message): void
     {
+
+        $Deduplicator = $this->deduplicator->deduplication([$message->getId(), OrderStatusNew::STATUS]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
         /** Новый заказ не имеет предыдущего события */
         if($message->getLast())
         {
             return;
         }
+
+
+        $this->entityManager->clear();
 
         $OrderEvent = $this->currentOrderEvent->getCurrentOrderEvent($message->getId());
 
@@ -116,25 +115,13 @@ final class OrderReserveProduct
             return;
         }
 
-        /** Не ставим продукцию в резерв в карточке товара если дублируется событие */
-        $isOtherExists = $this->existOrderEventByStatus
-            ->isOtherExists(
-                $message->getId(),
-                $message->getEvent(),
-                OrderStatusNew::class
-            );
-
-        if($isOtherExists)
-        {
-            return;
-        }
-
 
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
 
-            $this->logger->info('Добавляем общий резерв продукции в карточке',
+            $this->logger->info(
+                'Добавляем общий резерв продукции в карточке',
                 [
                     __FILE__.':'.__LINE__,
                     'total' => $product->getTotal(),
@@ -145,21 +132,11 @@ final class OrderReserveProduct
                 ]
             );
 
-
-            /** Блокируем процесс в очереди */
-            $key = $product->getProduct().$product->getOffer().$product->getVariation().$product->getModification();
-
-            $lock = $this->appLock
-                ->createLock($key)
-                ->lifetime(30)
-                ->wait();
-
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
-
-            $lock->release();
-
         }
+
+        $Deduplicator->save();
     }
 
     public function handle(OrderProduct $product): void
@@ -212,7 +189,8 @@ final class OrderReserveProduct
             return;
         }
 
-        $this->logger->critical('Невозможно добавить резерв на новый заказ: карточка не найдена либо недостаточное количество для резерва)',
+        $this->logger->critical(
+            'Невозможно добавить резерв на новый заказ: карточка не найдена либо недостаточное количество для резерва)',
             [
                 __FILE__.':'.__LINE__,
                 'total' => (string) $product->getTotal(),

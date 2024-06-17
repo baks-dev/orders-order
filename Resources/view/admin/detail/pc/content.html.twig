@@ -306,12 +306,12 @@
     {% endif %}
 
 
-    <div class="w-100 d-flex justify-content-between sticky-bottom bottom-0 bg-light p-5">
+    <div class="w-100 d-flex justify-content-between align-items-center bg-light p-3 gap-3">
 
-        <div class="w-50">
-		<span class="small">Товаров на сумму: &nbsp;
-			<span id='total_product_sum'>{{ discount ?  money(discount) : money(total_summ_product) }}</span>
-		</span>
+        <div class="w-100">
+            <span class="small">Товаров на сумму: &nbsp;
+                <span id='total_product_sum'>{{ discount ?  money(discount) : money(total_summ_product) }}</span>
+            </span>
 
             <div class="d-flex align-items-stretch">
                 <span class="small me-3 pt-1">Итого:</span>
@@ -320,18 +320,33 @@
             </div>
         </div>
 
+    </div>
+
+
+    <div class="w-100 d-flex justify-content-between align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
+
+        <div>
+            {{ form_widget(form.order, { label: '
+                <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
+                <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+		    ',
+                attr: { class: 'btn-danger', title : "Оформить заказ" }
+            }) }}
+        </div>
+
+
         <div class="w-50 d-flex gap-3 align-items-end justify-content-end">
 
             {# <div class='w-25'>
             {{ form_widget(form.status) }}
         </div> #}
 
-            {{ form_widget(form.order, { label: '
-                <span>'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
-                <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-		    ',
-                attr: { class: 'btn-danger', title : "Оформить заказ" }
-            }) }}
+            <button type="button"
+                    class="btn btn-light border text-secondary"
+                    data-bs-dismiss="offcanvas"
+                    title="Close">
+                <span class="text-nowrap">Закрыть без изменений</span>
+            </button>
 
         </div>
     </div>

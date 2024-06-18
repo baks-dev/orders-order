@@ -79,6 +79,7 @@ final class OrderReserveCompletedProduct
     public function __invoke(OrderMessage $message): void
     {
         $Deduplicator = $this->deduplicator
+            ->namespace(md5(self::class))
             ->deduplication([
                 $message->getId(),
                 OrderStatusCompleted::STATUS

@@ -89,7 +89,11 @@ final class SendClientEmailOrderNews
     public function __invoke(OrderMessage $message): void
     {
         $Deduplicator = $this->deduplicator
-            ->deduplication([$message->getId(), OrderStatusNew::STATUS]);
+            ->namespace(md5(self::class))
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusNew::STATUS
+            ]);
 
         if($Deduplicator->isExecuted())
         {

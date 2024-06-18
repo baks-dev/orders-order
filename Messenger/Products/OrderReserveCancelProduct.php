@@ -81,6 +81,7 @@ final class OrderReserveCancelProduct
     {
 
         $Deduplicator = $this->deduplicator
+            ->namespace(md5(self::class))
             ->deduplication([
                 (string) $message->getId(),
                 OrderStatusCanceled::STATUS

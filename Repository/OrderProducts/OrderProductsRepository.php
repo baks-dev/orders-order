@@ -40,8 +40,7 @@ final class OrderProductsRepository implements OrderProductsInterface
 
     public function __construct(
         DBALQueryBuilder $DBALQueryBuilder,
-    )
-    {
+    ) {
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 

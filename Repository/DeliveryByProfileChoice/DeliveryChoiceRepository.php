@@ -34,8 +34,8 @@ final class DeliveryChoiceRepository implements DeliveryByProfileChoiceInterface
         return [];
     }
 
-    public function fetchAllDelivery(): ?array
+    public function fetchAllDelivery(): null
     {
-        return [];
+        return null;
     }
 }

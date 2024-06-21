@@ -24,11 +24,12 @@
 namespace BaksDev\Orders\Order\Repository\DeliveryByProfileChoice;
 
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
+use Generator;
 
 interface DeliveryByProfileChoiceInterface
 {
     public function fetchDeliveryByProfile(TypeProfileUid $type): ?array;
 
-    public function fetchAllDelivery(): ?array;
+    public function fetchAllDelivery(): ?Generator;
 
 }

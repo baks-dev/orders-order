@@ -44,30 +44,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryForm extends AbstractType
 {
-    private DeliveryByProfileChoiceInterface $deliveryChoice;
-
-    private FieldByDeliveryChoiceInterface $deliveryFields;
-
-    private TypeProfileChoiceRepository $profileChoice;
-
-
     public function __construct(
-        DeliveryByProfileChoiceInterface $deliveryChoice,
-        FieldByDeliveryChoiceInterface $deliveryFields,
-        TypeProfileChoiceRepository $profileChoice
-    ) {
-        $this->deliveryChoice = $deliveryChoice;
-        $this->deliveryFields = $deliveryFields;
-        $this->profileChoice = $profileChoice;
-    }
+        private readonly DeliveryByProfileChoiceInterface $deliveryChoice,
+        private readonly FieldByDeliveryChoiceInterface $deliveryFields,
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
         /** Способ доставки */
-
-
         $deliveryChoice = $this->deliveryChoice->fetchAllDelivery();
 
         $builder
@@ -177,6 +163,7 @@ final class OrderDeliveryForm extends AbstractType
                 {
 
                     $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+                    $deliveryChoice = iterator_to_array($deliveryChoice);
 
                     /** @var DeliveryUid $currentDelivery */
                     $currentDelivery = current($deliveryChoice);
@@ -189,7 +176,7 @@ final class OrderDeliveryForm extends AbstractType
 
                     if($Delivery)
                     {
-                        $deliveryCheckedFilter = array_filter($deliveryChoice, function ($v) use ($Delivery) {
+                        $deliveryCheckedFilter = array_filter($deliveryChoice, static function ($v) use ($Delivery) {
                             return $v->equals($Delivery);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -238,24 +225,23 @@ final class OrderDeliveryForm extends AbstractType
                     if($deliveryChecked)
                     {
                         $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-
                         $values = $data->getField();
 
-                        //dump($fields);
-                        //dd($values);
-
-                        /** @var Field\OrderDeliveryFieldDTO $value */
-                        foreach($values as $key => $value)
+                        if($values)
                         {
-                            if(!isset($fields[$key]))
+                            /** @var Field\OrderDeliveryFieldDTO $value */
+                            foreach($values as $key => $value)
                             {
-                                $values->removeElement($value);
-                            }
+                                if(!isset($fields[$key]))
+                                {
+                                    $values->removeElement($value);
+                                }
 
-                            if(isset($fields[$key]))
-                            {
-                                $value->setField($fields[$key]);
-                                unset($fields[$key]);
+                                if(isset($fields[$key]))
+                                {
+                                    $value->setField($fields[$key]);
+                                    unset($fields[$key]);
+                                }
                             }
                         }
 

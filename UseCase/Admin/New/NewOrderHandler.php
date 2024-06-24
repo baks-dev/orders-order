@@ -79,7 +79,6 @@ final class NewOrderHandler extends AbstractHandler
 
     public function handle(NewOrderDTO $command,): string|Order
     {
-        /** Валидация DTO  */
         /* Валидация DTO  */
         $this->validatorCollection->add($command);
 

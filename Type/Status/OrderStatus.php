@@ -70,7 +70,7 @@ final class OrderStatus
 
             if($instance->getOrderStatusValue() === $status)
             {
-                $this->status = new $declare;
+                $this->status = new $declare();
                 return;
             }
         }
@@ -107,7 +107,7 @@ final class OrderStatus
         foreach(self::getDeclared() as $key => $declared)
         {
             /** @var OrderStatusInterface $declared */
-            $class = new $declared;
+            $class = new $declared();
 
             $case[$class::priority().$key] = new self($class);
         }
@@ -121,7 +121,7 @@ final class OrderStatus
     {
         return array_filter(
             get_declared_classes(),
-            static function($className) {
+            static function ($className) {
                 return in_array(OrderStatusInterface::class, class_implements($className), true);
             }
         );

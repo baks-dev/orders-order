@@ -45,11 +45,6 @@ final class OrderStatusListener
 
     public function onKernelController(ControllerEvent $event): void
     {
-        //        foreach($this->collection->cases() as $case)
-        //        {
-        //            dump((string) $case->getValue());
-        //       }
-
         // Инициируем статусы заказов
         if(in_array(OrderStatusType::class, get_declared_classes(), true))
         {

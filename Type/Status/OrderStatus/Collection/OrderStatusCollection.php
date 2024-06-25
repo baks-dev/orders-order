@@ -29,15 +29,13 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
-
 final class OrderStatusCollection
 {
     private iterable $status;
 
     public function __construct(
         #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')] iterable $status
-    )
-    {
+    ) {
         $this->status = $status;
     }
 

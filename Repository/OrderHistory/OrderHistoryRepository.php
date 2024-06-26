@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Repository\OrderHistory;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
@@ -37,30 +38,44 @@ use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 
 final class OrderHistoryRepository implements OrderHistoryInterface
 {
+    private ?OrderUid $order = null;
+
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
 
-    private DBALQueryBuilder $DBALQueryBuilder;
-
-    public function __construct(DBALQueryBuilder $DBALQueryBuilder)
+    public function order(Order|OrderUid|string $order): self
     {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+        if($order instanceof Order)
+        {
+            $order = $order->getId();
+        }
 
-
-    public function fetchHistoryAllAssociative(OrderUid|string $order): array
-    {
         if(is_string($order))
         {
             $order = new OrderUid($order);
         }
 
+        $this->order = $order;
+
+        return $this;
+    }
+
+    public function findAllHistory(): array
+    {
+
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $qb
             ->addSelect('event.status')
-            ->from(OrderEvent::class, 'event')
-            ->where('event.orders = :order')
-            ->setParameter('order', $order, OrderUid::TYPE);
+            ->from(OrderEvent::class, 'event');
+
+        if($this->order)
+        {
+            $qb
+                ->where('event.orders = :order')
+                ->setParameter('order', $this->order, OrderUid::TYPE);
+        }
+
 
         $qb
             ->addSelect('modify.mod_date')

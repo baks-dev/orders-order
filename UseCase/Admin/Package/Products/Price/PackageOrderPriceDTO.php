@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Price;
 
-
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPriceInterface;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
@@ -33,7 +32,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class PackageOrderPriceDTO implements OrderPriceInterface
 {
-
     /** Количество в заказе */
     #[Assert\NotBlank]
     private int $total = 1;

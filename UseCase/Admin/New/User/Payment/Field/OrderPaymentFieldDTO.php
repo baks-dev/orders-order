@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\Field;
 
-
 use BaksDev\Orders\Order\Entity\User\Payment\Field\OrderPaymentFieldInterface;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use Symfony\Component\Validator\Constraints as Assert;

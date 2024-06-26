@@ -31,13 +31,10 @@ use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 final class OrderStatusCollection
 {
-    private iterable $status;
-
     public function __construct(
-        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')] iterable $status
-    ) {
-        $this->status = $status;
-    }
+        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')]
+        private readonly iterable $status
+    ) {}
 
     /** Возвращает массив из значений OrderStatus */
     public function cases(): array

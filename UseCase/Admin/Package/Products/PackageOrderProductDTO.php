@@ -36,10 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderProduct */
 final class PackageOrderProductDTO implements OrderProductInterface
 {
-    /** Идентификтаор продукта */
-    //	#[Assert\NotBlank]
-    //	#[Assert\Uuid]
-    //	private ProductUid $uid;
 
     /** Событие продукта */
     #[Assert\NotBlank]
@@ -69,23 +65,7 @@ final class PackageOrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private ?Moving\MovingProductStockDTO $move = null;
 
-    //    public function __construct()
-    //    {
-    //        $this->move = new Moving\MovingProductStockDTO();
-    //    }
 
-    //	/** Идентификтаор продукта */
-    //
-    //	public function getUid() : ProductUid
-    //	{
-    //		return $this->uid;
-    //	}
-    //
-    //
-    //	public function setUid(ProductUid $uid) : void
-    //	{
-    //		$this->uid = $uid;
-    //	}
 
     /** Событие продукта */
     public function getProduct(): ProductEventUid

@@ -40,14 +40,7 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 final class ExistsOrderProductRepository implements ExistsOrderProductInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
-
-    public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-    )
-    {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     /**
      * Метод проверяет, имеется ли такая продукция в заказе
@@ -58,8 +51,7 @@ final class ExistsOrderProductRepository implements ExistsOrderProductInterface
         ?ProductOfferUid $offer = null,
         ?ProductVariationUid $variation = null,
         ?ProductModificationUid $modification = null
-    ): bool
-    {
+    ): bool {
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $dbal->select('event');

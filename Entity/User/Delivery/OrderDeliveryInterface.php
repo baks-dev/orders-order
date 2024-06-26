@@ -23,7 +23,4 @@
 
 namespace BaksDev\Orders\Order\Entity\User\Delivery;
 
-interface OrderDeliveryInterface
-{
-
-}
+interface OrderDeliveryInterface {}

@@ -54,8 +54,8 @@ class BasketController extends AbstractController
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
         AppCacheInterface $cache,
-    ): Response
-    {
+    ): Response {
+
         $AppCache = $cache->init('orders-order');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 
@@ -108,7 +108,7 @@ class BasketController extends AbstractController
                      * @var OrderProductDTO $element
                      */
 
-                    $predicat = function($key, OrderProductDTO $element) use ($product) {
+                    $predicat = function ($key, OrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 
@@ -120,7 +120,7 @@ class BasketController extends AbstractController
                         $AppCache->delete($key);
 
                         // Запоминаем новый кеш
-                        $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+                        $AppCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
                             $item->expiresAfter($expires);
                             $this->products->removeElement($removeElement);
 
@@ -171,14 +171,13 @@ class BasketController extends AbstractController
                 if(
                     $ProductDetail['event'] !== $ProductDetail['current_event'] ||
                     $product->getPrice()->getTotal() > $ProductDetail['product_quantity']
-                )
-                {
+                ) {
 
                     /**
                      * Удаляем из корзины продукцию
                      * @var OrderProductDTO $element
                      */
-                    $predicat = function($key, OrderProductDTO $element) use ($product) {
+                    $predicat = function ($key, OrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 
@@ -190,7 +189,7 @@ class BasketController extends AbstractController
                         $AppCache->delete($key);
 
                         // Запоминаем новый кеш
-                        $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+                        $AppCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
                             $item->expiresAfter($expires);
                             $this->products->removeElement($removeElement);
 

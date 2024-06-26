@@ -32,12 +32,7 @@ use Doctrine\DBAL\Types\Types;
 
 final class CurrentOrderNumberRepository implements CurrentOrderNumberInterface
 {
-    private ORMQueryBuilder $ORMQueryBuilder;
-
-    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
-    {
-        $this->ORMQueryBuilder = $ORMQueryBuilder;
-    }
+    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
      * Метод возвращает текущее активное событие заказа

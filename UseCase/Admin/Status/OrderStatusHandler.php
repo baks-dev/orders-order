@@ -37,12 +37,9 @@ use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use DomainException;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderStatusHandler extends AbstractHandler
 {
-
     private ExistOrderEventByStatusInterface $existOrderEventByStatus;
 
     public function __construct(
@@ -52,8 +49,7 @@ final class OrderStatusHandler extends AbstractHandler
         ImageUploadInterface $imageUpload,
         FileUploadInterface $fileUpload,
         ExistOrderEventByStatusInterface $existOrderEventByStatus
-    )
-    {
+    ) {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
         $this->existOrderEventByStatus = $existOrderEventByStatus;
     }

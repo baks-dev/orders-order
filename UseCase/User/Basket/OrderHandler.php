@@ -25,10 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket;
 
-use BaksDev\Auth\Email\Entity\Account;
-use BaksDev\Auth\Email\Entity\Event\AccountEvent;
-use BaksDev\Auth\Email\Repository\AccountEventActiveByEmail\AccountEventActiveByEmailInterface;
-use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationHandler;
 use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;
@@ -39,24 +35,15 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfileUser;
-use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
-use BaksDev\Users\User\Entity\User;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
 use DomainException;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class OrderHandler extends AbstractHandler
 {
-
     private UserProfileHandler $profileHandler;
     private CurrentUserProfileEventInterface $currentUserProfileEvent;
 
@@ -68,8 +55,7 @@ final class OrderHandler extends AbstractHandler
         FileUploadInterface $fileUpload,
         UserProfileHandler $profileHandler,
         CurrentUserProfileEventInterface $currentUserProfileEvent,
-    )
-    {
+    ) {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
 
         $this->profileHandler = $profileHandler;

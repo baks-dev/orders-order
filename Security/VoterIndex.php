@@ -44,5 +44,4 @@ class VoterIndex implements VoterInterface
         return Role::ROLE === $role->getRole();
     }
 
-
 }

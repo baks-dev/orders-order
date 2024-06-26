@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\Products;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
-use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -46,33 +45,21 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class OrderReserveCancelProduct
 {
-    private EntityManagerInterface $entityManager;
-    private CurrentQuantityByModificationInterface $quantityByModification;
-    private CurrentQuantityByVariationInterface $quantityByVariation;
-    private CurrentQuantityByOfferInterface $quantityByOffer;
-    private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
-    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
-    private DeduplicatorInterface $deduplicator;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
-        CurrentQuantityByModificationInterface $quantityByModification,
-        CurrentQuantityByVariationInterface $quantityByVariation,
-        CurrentQuantityByOfferInterface $quantityByOffer,
-        CurrentQuantityByEventInterface $quantityByEvent,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly CurrentQuantityByModificationInterface $quantityByModification,
+        private readonly CurrentQuantityByVariationInterface $quantityByVariation,
+        private readonly CurrentQuantityByOfferInterface $quantityByOffer,
+        private readonly CurrentQuantityByEventInterface $quantityByEvent,
+        private readonly ExistOrderEventByStatusInterface $existOrderEventByStatus,
+        private readonly DeduplicatorInterface $deduplicator,
         LoggerInterface $ordersOrderLogger,
-        ExistOrderEventByStatusInterface $existOrderEventByStatus,
-        DeduplicatorInterface $deduplicator
     ) {
-        $this->entityManager = $entityManager;
-        $this->quantityByModification = $quantityByModification;
-        $this->quantityByVariation = $quantityByVariation;
-        $this->quantityByOffer = $quantityByOffer;
-        $this->quantityByEvent = $quantityByEvent;
+
         $this->logger = $ordersOrderLogger;
-        $this->existOrderEventByStatus = $existOrderEventByStatus;
-        $this->deduplicator = $deduplicator;
+
     }
 
 

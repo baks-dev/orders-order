@@ -27,11 +27,8 @@ use BaksDev\Products\Stocks\Type\Event\ProductStockEventUid;
 
 interface OrderDeliveryInterface
 {
-    ///** Метод возвращает геоданные заказа */
-    //public function fetchOrderDeliveryGps(OrderUid $orderUid): array|bool;
-
     /**
      * Метод возвращает геоданные складской заявки
      */
-    public function fetchProductStocksGps(ProductStockEventUid $stock): array|bool;
+    public function fetchProductStocksGps(ProductStockEventUid $event): array|bool;
 }

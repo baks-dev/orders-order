@@ -48,10 +48,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 #[RoleSecurity('ROLE_ORDERS')]
 final class DetailController extends AbstractController
 {
-    #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: [
-        'GET',
-        'POST',
-    ])]
+    #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
         #[MapEntity] Order $Order,
@@ -63,11 +60,12 @@ final class DetailController extends AbstractController
         EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
         string $id,
-    ): Response
-    {
+    ): Response {
 
         /** Получаем активное событие заказа */
-        $Event = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
+        $Event = $currentOrderEvent
+            ->order($Order->getId())
+            ->getCurrentOrderEvent();
 
         if(!$Event)
         {
@@ -104,7 +102,6 @@ final class DetailController extends AbstractController
         $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);
 
-        //dump($OrderDTO);
 
         // форма заказа
         $form = $this->createForm(
@@ -138,7 +135,9 @@ final class DetailController extends AbstractController
 
 
         /** История изменения статусов */
-        $History = $orderHistory->fetchHistoryAllAssociative($Event->getMain());
+        $History = $orderHistory
+            ->order($Event->getMain())
+            ->findAllHistory();
 
         // Отпарвляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
@@ -159,10 +158,6 @@ final class DetailController extends AbstractController
                 'history' => $History,
                 'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
                 'statuses' => $collection,
-
-                // 'query' =>  $orders,
-                // 'status' => $collection->cases(),
-                // 'search' => $searchForm->createView(),
             ]
         );
     }

@@ -23,7 +23,4 @@
 
 namespace BaksDev\Orders\Order\Entity\User\Payment\Field;
 
-interface OrderPaymentFieldInterface
-{
-
-}
+interface OrderPaymentFieldInterface {}

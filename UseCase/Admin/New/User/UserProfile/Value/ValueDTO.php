@@ -53,12 +53,6 @@ final class ValueDTO implements UserProfileValueInterface
     private bool $require;
 
 
-    //	public function __construct()
-    //	{
-    //
-    //		$this->type = new InputField('input_field');
-    //	}
-
 
     /* FIELD */
 

@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 {
-
     /** Самовывоз */
     private ?string $call = null;
 
@@ -42,15 +41,6 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
     /** Заполненное значение */
     #[Assert\Valid]
     private ?string $value = null;
-
-    //
-    //    private ?Region\ContactRegionFieldDTO $region = null;
-    //
-    //
-    //    public function __construct()
-    //    {
-    //        $this->region = new Region\ContactRegionFieldDTO();
-    //    }
 
     /** Идентификатор пользовательского поля в способе оплаты */
 

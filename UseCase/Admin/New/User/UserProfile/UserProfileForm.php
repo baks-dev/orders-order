@@ -26,38 +26,22 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\UserProfile;
 use App\Module\Materials\Material\Type\Id\MaterialUid;
 use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class UserProfileForm extends AbstractType
 {
-    private FieldValueFormInterface $fieldValue;
-
-    private TypeProfileChoiceRepository $profileChoice;
-
-
     public function __construct(
-        TypeProfileChoiceRepository $profileChoice,
-        FieldValueFormInterface $fieldValue,
-    )
-    {
-        $this->fieldValue = $fieldValue;
-        $this->profileChoice = $profileChoice;
-    }
+        private readonly TypeProfileChoiceRepository $profileChoice,
+        private readonly FieldValueFormInterface $fieldValue,
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -69,11 +53,11 @@ final class UserProfileForm extends AbstractType
         $builder
             ->add('type', ChoiceType::class, [
                 'choices' => $profileChoice,
-                'choice_value' => function(?TypeProfileUid $type) {
+                'choice_value' => function (?TypeProfileUid $type) {
                     return $type?->getValue();
                 },
 
-                'choice_label' => function(TypeProfileUid $type) {
+                'choice_label' => function (TypeProfileUid $type) {
                     return $type->getAttr();
                 },
 
@@ -96,7 +80,7 @@ final class UserProfileForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) use ($options) {
+            function (FormEvent $event) use ($options) {
 
                 /** @var UserProfileDTO $data */
                 $data = $event->getData();
@@ -121,25 +105,10 @@ final class UserProfileForm extends AbstractType
 
                         if(isset($fields[$key]))
                         {
-                            //dd($fields[$key]);
-
                             $value->setField($fields[$key]->getField());
                         }
                     }
 
-
-                    //                    $data->setValue(new ArrayCollection());
-                    //
-                    //                    foreach($fields as $key => $field)
-                    //                    {
-                    //                        $set = $values->get($key);
-                    //
-                    //                        $value = new Value\ValueDTO();
-                    //                        $value->setField($field->getField());
-                    //                        $value->updSection($field);
-                    //                        $value->setValue($set?->getValue());
-                    //                        $data->addValue($value);
-                    //                    }
 
                     $form->add('value', CollectionType::class, [
                         'entry_type' => Value\ValueForm::class,
@@ -152,45 +121,13 @@ final class UserProfileForm extends AbstractType
 
 
                 }
-                //                else
-                //                {
-                //                    //$fields = $this->fieldValue->getAllField();
-                //                }
-
-
-                //                $fields = $this->fieldValue->getAllField();
-                //
-                //                foreach($fields as $field)
-                //                {
-                //                    $value = new Value\ValueDTO();
-                //                    $value->setField($field->getField());
-                //                    $value->updSection($field);
-                //                    $data->addValue($value);
-                //                }
-                //
-                //
-                //                if($data->getType())
-                //                {
-                //                    $data->setValue(new ArrayCollection());
-                //
-                //                    $fields = $this->fieldValue->get($data->getType());
-                //
-                //                    foreach($fields as $field)
-                //                    {
-                //                        $value = new Value\ValueDTO();
-                //                        $value->setField($field->getField());
-                //                        $value->updSection($field);
-                //                        $data->addValue($value);
-                //                    }
-                //                }
-
             }
         );
 
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
+            function (FormEvent $event): void {
 
                 /** @var UserProfileDTO $data */
                 $data = $event->getData();
@@ -217,23 +154,22 @@ final class UserProfileForm extends AbstractType
 
                     $form = $event->getForm()->getParent();
 
-                    $form->add('userProfile',
-                        self::class, [
+                    $form->add(
+                        'userProfile',
+                        self::class,
+                        [
                             'label' => false
                         ]
                     );
                 }
             }
         );
-
-
     }
 
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults
-        (
+        $resolver->setDefaults(
             [
                 'data_class' => UserProfileDTO::class,
                 'method' => 'POST',

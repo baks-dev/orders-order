@@ -25,11 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User;
 
-use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileChoiceRepository;
-use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -38,15 +34,6 @@ use Symfony\Component\Validator\Constraints\Valid;
 
 final class OrderUserForm extends AbstractType
 {
-//    private TypeProfileChoiceRepository $profileChoice;
-//
-//    public function __construct(
-//        TypeProfileChoiceRepository $profileChoice
-//    ) {
-//        $this->profileChoice = $profileChoice;
-//
-//    }
-
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

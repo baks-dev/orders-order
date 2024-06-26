@@ -26,17 +26,13 @@ namespace BaksDev\Orders\Order\Controller\Admin\Order;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\OrderCanceledDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\OrderCanceledForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
-use BaksDev\Products\Stocks\UseCase\Admin\Moving\MovingProductStockHandler;
-use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -54,8 +50,7 @@ final class CanceledController extends AbstractController
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
         OrderStatusHandler $OrderStatusHandler
-    ): Response
-    {
+    ): Response {
 
         /**
          * Отправляем сокет для скрытия заказа у других менеджеров
@@ -88,8 +83,7 @@ final class CanceledController extends AbstractController
 
             $handle = $OrderStatusHandler->handle($OrderCanceledDTO);
 
-            $this->addFlash
-            (
+            $this->addFlash(
                 'page.cancel',
                 $handle instanceof Order ? 'success.cancel' : 'danger.cancel',
                 'orders-order.admin',

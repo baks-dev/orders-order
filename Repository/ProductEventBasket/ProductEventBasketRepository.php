@@ -57,9 +57,7 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
         ?ProductOfferUid $offer,
         ?ProductVariationUid $variation,
         ?ProductModificationUid $modification,
-
-    ): ?ProductEventUid
-    {
+    ): ?ProductEventUid {
         $qb = $this->entityManager->createQueryBuilder();
 
         $Locale = new Locale($this->translator->getLocale());

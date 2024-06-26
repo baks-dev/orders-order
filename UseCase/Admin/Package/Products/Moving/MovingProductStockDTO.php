@@ -18,7 +18,6 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving;
 
-use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEventInterface;
 use BaksDev\Products\Stocks\Type\Event\ProductStockEventUid;
 use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
@@ -46,19 +45,10 @@ final class MovingProductStockDTO implements ProductStockEventInterface
     #[Assert\Length(max: 36)]
     private string $number;
 
-    //    /** Константа Целевого склада */
-    //    //#[Assert\NotBlank]
-    //    #[Assert\Uuid]
-    //    private ?ContactsRegionCallConst $warehouse = null;
-
     /** Склад назначения при перемещении */
     #[Assert\Valid]
     private Move\ProductStockMoveDTO $move;
 
-    //    /** Константа склада назначения при перемещении */
-    //    //#[Assert\NotBlank]
-    //    #[Assert\Uuid]
-    //    private ?ContactsRegionCallConst $destination = null;
 
     /** Коллекция продукции  */
     #[Assert\Valid]
@@ -145,16 +135,6 @@ final class MovingProductStockDTO implements ProductStockEventInterface
         $this->number = $number;
     }
 
-    //    /** Константа Целевого склада */
-    //    public function getWarehouse(): ?ContactsRegionCallConst
-    //    {
-    //        return $this->warehouse;
-    //    }
-    //
-    //    public function setWarehouse(?ContactsRegionCallConst $warehouse): void
-    //    {
-    //        $this->warehouse = $warehouse;
-    //    }
 
     /** Склад назначения при перемещении */
     public function getMove(): Move\ProductStockMoveDTO
@@ -167,15 +147,4 @@ final class MovingProductStockDTO implements ProductStockEventInterface
         $this->move = $move;
     }
 
-
-    //    /** Константа склада назначения при перемещении */
-    //    public function getDestination(): ?ContactsRegionCallConst
-    //    {
-    //        return $this->destination;
-    //    }
-    //
-    //    public function setDestination(?ContactsRegionCallConst $destination): void
-    //    {
-    //        $this->destination = $destination;
-    //    }
 }

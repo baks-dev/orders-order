@@ -23,7 +23,4 @@
 
 namespace BaksDev\Orders\Order\Entity\User\Payment;
 
-interface OrderPaymentInterface
-{
-
-}
+interface OrderPaymentInterface {}

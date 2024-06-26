@@ -29,24 +29,13 @@ use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDeliveryInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDeliveryDTO implements OrderDeliveryInterface
 {
-    //	/** Способ оплаты */
-    //	#[Assert\NotBlank]
-    //	private ?DeliveryUid $delivery = null;
-    //
-    //	/** Событие способа оплаты (для расчета стоимости) */
-    //	#[Assert\NotBlank]
-    //	private DeliveryEventUid $event;
-
     /** Пользовательские поля */
     #[Assert\Valid]
     private ArrayCollection $field;
-
-    //    /** Координаты на карте */
-    //    private ?GeocodeAddressUid $geocode = null;
-    //
 
     /** GPS широта:*/
     private ?GpsLatitude $latitude = null;

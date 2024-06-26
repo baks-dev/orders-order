@@ -27,7 +27,6 @@ use BaksDev\Users\Profile\TypeProfile\Repository\TypeProfileChoice\TypeProfileCh
 use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -39,23 +38,11 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 final class UserProfileForm extends AbstractType
 {
-    private FieldValueFormInterface $fieldValue;
-
-    private TypeProfileChoiceRepository $profileChoice;
-
-    private TokenStorageInterface $tokenStorage;
-
-
     public function __construct(
-        TypeProfileChoiceRepository $profileChoice,
-        FieldValueFormInterface $fieldValue,
-        TokenStorageInterface $tokenStorage
-    )
-    {
-        $this->fieldValue = $fieldValue;
-        $this->profileChoice = $profileChoice;
-        $this->tokenStorage = $tokenStorage;
-    }
+        private readonly TypeProfileChoiceRepository $profileChoice,
+        private readonly FieldValueFormInterface $fieldValue,
+        private readonly TokenStorageInterface $tokenStorage
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -63,7 +50,7 @@ final class UserProfileForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) {
+            function (FormEvent $event) {
 
                 $form = $event->getForm();
                 /** @var UserProfileDTO $data */
@@ -90,15 +77,15 @@ final class UserProfileForm extends AbstractType
                     $form
                         ->add('type', ChoiceType::class, [
                             'choices' => $profileChoice,
-                            'choice_value' => function(?TypeProfileUid $type) {
+                            'choice_value' => function (?TypeProfileUid $type) {
                                 return $type?->getValue();
                             },
 
-                            'choice_label' => function(TypeProfileUid $type) {
+                            'choice_label' => function (TypeProfileUid $type) {
                                 return $type->getOption();
                             },
 
-                            'choice_attr' => function(TypeProfileUid $choice) use ($profileType) {
+                            'choice_attr' => function (TypeProfileUid $choice) use ($profileType) {
                                 return ['checked' => ($choice->equals($profileType))];
                             },
                             'attr' => ['class' => 'd-flex gap-3'],
@@ -143,8 +130,7 @@ final class UserProfileForm extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults
-        (
+        $resolver->setDefaults(
             [
                 'data_class' => UserProfileDTO::class,
                 'method' => 'POST',

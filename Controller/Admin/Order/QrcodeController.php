@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
-
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
@@ -45,8 +44,7 @@ final class QrcodeController extends AbstractController
     #[Route('/admin/order/qrcode/{id}', name: 'admin.order.qrcode', methods: ['GET', 'POST'])]
     public function qrcode(
         #[MapEntity] Order $Order
-    ): Response
-    {
+    ): Response {
         $data = sprintf('%s', $Order->getId());
 
         return $this->render(

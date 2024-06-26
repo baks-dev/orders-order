@@ -32,7 +32,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderUserDTO implements OrderUserInterface
 {
-
     /* Пользователь  */
 
     /** ID пользователя  */
@@ -57,8 +56,8 @@ final class OrderUserDTO implements OrderUserInterface
 
     public function __construct()
     {
-        $this->payment = new Payment\OrderPaymentDTO;
-        $this->delivery = new Delivery\OrderDeliveryDTO;
+        $this->payment = new Payment\OrderPaymentDTO();
+        $this->delivery = new Delivery\OrderDeliveryDTO();
     }
 
 

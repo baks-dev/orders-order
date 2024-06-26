@@ -49,7 +49,7 @@ class OrderUser extends EntityEvent
     private OrderUserUid $id;
 
     /** ID события */
-    #[ORM\OneToOne(inversedBy: 'usr', targetEntity: OrderEvent::class)]
+    #[ORM\OneToOne(targetEntity: OrderEvent::class, inversedBy: 'usr')]
     #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
     private OrderEvent $event;
 

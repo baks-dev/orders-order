@@ -28,12 +28,9 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field;
 use BaksDev\Core\Services\Fields\FieldsChoice;
 use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
-use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -42,16 +39,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderPaymentFieldForm extends AbstractType
 {
-
-    private FieldsChoice $fieldsChoice;
-
-
     public function __construct(
-        FieldsChoice $fieldsChoice,
-    )
-    {
-        $this->fieldsChoice = $fieldsChoice;
-    }
+        private readonly FieldsChoice $fieldsChoice,
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -60,10 +50,10 @@ final class OrderPaymentFieldForm extends AbstractType
 
         $builder->get('field')->addModelTransformer(
             new CallbackTransformer(
-                function($field) {
+                function ($field) {
                     return $field instanceof PaymentFieldUid ? $field->getValue() : $field;
                 },
-                function($field) {
+                function ($field) {
                     return new PaymentFieldUid($field);
                 }
             )
@@ -73,7 +63,7 @@ final class OrderPaymentFieldForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) {
+            function (FormEvent $event) {
 
                 /* @var OrderPaymentFieldDTO $data */
                 $data = $event->getData();
@@ -85,12 +75,10 @@ final class OrderPaymentFieldForm extends AbstractType
 
                     if( //$PaymentField->getType() &&
                         $PaymentField->getType() instanceof InputField
-                    )
-                    {
+                    ) {
                         $fieldType = $this->fieldsChoice->getChoice($PaymentField->getType());
 
-                        $form->add
-                        (
+                        $form->add(
                             'value',
                             $fieldType->form(),
                             [

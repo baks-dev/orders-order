@@ -48,7 +48,7 @@ class OrderPayment extends EntityEvent
     private OrderPaymentUid $id;
 
     /** ID пользователя заказа */
-    #[ORM\OneToOne(inversedBy: 'payment', targetEntity: OrderUser::class)]
+    #[ORM\OneToOne(targetEntity: OrderUser::class, inversedBy: 'payment')]
     #[ORM\JoinColumn(name: 'usr', referencedColumnName: 'id')]
     private OrderUser $usr;
 

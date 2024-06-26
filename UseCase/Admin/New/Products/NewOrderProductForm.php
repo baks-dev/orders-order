@@ -26,27 +26,17 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\New\Products;
 
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\UserByUserProfile\UserByUserProfileInterface;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class NewOrderProductForm extends AbstractType
 {
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
@@ -56,10 +46,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
-                function($product) {
+                function ($product) {
                     return $product instanceof ProductEventUid ? $product->getValue() : $product;
                 },
-                function($product) {
+                function ($product) {
                     return new ProductEventUid($product);
                 }
             )
@@ -71,10 +61,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('offer')->addModelTransformer(
             new CallbackTransformer(
-                function($offer) {
+                function ($offer) {
                     return $offer instanceof ProductOfferUid ? $offer->getValue() : $offer;
                 },
-                function($offer) {
+                function ($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
                 }
             )
@@ -86,10 +76,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('variation')->addModelTransformer(
             new CallbackTransformer(
-                function($variation) {
+                function ($variation) {
                     return $variation instanceof ProductVariationUid ? $variation->getValue() : $variation;
                 },
-                function($variation) {
+                function ($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
                 }
             )
@@ -101,10 +91,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('modification')->addModelTransformer(
             new CallbackTransformer(
-                function($modification) {
+                function ($modification) {
                     return $modification instanceof ProductModificationUid ? $modification->getValue() : $modification;
                 },
-                function($modification) {
+                function ($modification) {
 
                     return $modification ? new ProductModificationUid($modification) : null;
                 }
@@ -117,11 +107,7 @@ final class NewOrderProductForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => NewOrderProductDTO::class,
-            //            'attr' => ['class' => 'order-basket'],
-            //            'warehouse' => null,
-            //            'usr' => null,
-
+            'data_class' => NewOrderProductDTO::class
         ]);
     }
 }

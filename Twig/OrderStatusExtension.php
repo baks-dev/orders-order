@@ -31,14 +31,10 @@ use Twig\TwigFunction;
 
 final class OrderStatusExtension extends AbstractExtension
 {
-    private string $project_dir;
-
     public function __construct(
-        #[Autowire('%kernel.project_dir%')] string $project_dir,
-    )
-    {
-        $this->project_dir = $project_dir;
-    }
+        #[Autowire('%kernel.project_dir%')]
+        private readonly string $project_dir,
+    ) {}
 
     public function getFunctions(): array
     {

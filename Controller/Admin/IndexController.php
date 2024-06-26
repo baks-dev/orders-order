@@ -50,12 +50,13 @@ final class IndexController extends AbstractController
         OrderStatusCollection $collection,
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
-    ): Response
-    {
+    ): Response {
 
         // Поиск
         $search = new SearchDTO();
-        $searchForm = $this->createForm(SearchForm::class, $search,
+        $searchForm = $this->createForm(
+            SearchForm::class,
+            $search,
             ['action' => $this->generateUrl('orders-order:admin.index')]
         );
         $searchForm->handleRequest($request);

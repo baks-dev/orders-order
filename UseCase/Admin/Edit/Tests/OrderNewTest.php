@@ -32,7 +32,6 @@ use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
@@ -63,7 +62,6 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class OrderNewTest extends KernelTestCase
 {
-
     public static function setUpBeforeClass(): void
     {
         $container = self::getContainer();
@@ -126,7 +124,7 @@ final class OrderNewTest extends KernelTestCase
 
         /** OrderPriceDTO */
 
-        $OrderPriceDTO = new OrderPriceDTO;
+        $OrderPriceDTO = new OrderPriceDTO();
         $OrderProductDTO->setPrice($OrderPriceDTO);
         self::assertSame($OrderPriceDTO, $OrderProductDTO->getPrice());
 

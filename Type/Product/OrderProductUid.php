@@ -25,9 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Product;
 
-use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
-use Symfony\Component\Uid\AbstractUid;
 
 final class OrderProductUid extends Uid
 {

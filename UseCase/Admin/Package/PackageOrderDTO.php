@@ -29,12 +29,12 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-
-//use BaksDev\Users\User\Entity\User;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
+
+//use BaksDev\Users\User\Entity\User;
 
 /** @see OrderEvent */
 final class PackageOrderDTO implements OrderEventInterface
@@ -56,11 +56,6 @@ final class PackageOrderDTO implements OrderEventInterface
     private User\OrderUserDTO $usr;
 
 
-    //    /** Константа склада, для сборки заказа */
-    //    #[Assert\NotBlank]
-    //    #[Assert\Uuid]
-    //    private $warehouse = null;
-
     /** Склад (Профиль пользователя) */
     #[Assert\Uuid]
     private ?UserProfileUid $profile = null;
@@ -73,25 +68,13 @@ final class PackageOrderDTO implements OrderEventInterface
     {
         $this->current = $current;
         $this->product = new ArrayCollection();
-        // $this->move = new ArrayCollection();
+
     }
 
     public function getEvent(): ?OrderEventUid
     {
         return $this->id;
     }
-
-    //    /** Константа склада, для сборки заказа */
-    //
-    //    public function getWarehouse()
-    //    {
-    //        return $this->warehouse;
-    //    }
-    //
-    //    public function setWarehouse($warehouse): void
-    //    {
-    //        $this->warehouse = $warehouse;
-    //    }
 
 
     /** Коллекция продукции в заказе */

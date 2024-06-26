@@ -35,18 +35,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class ValueForm extends AbstractType
 {
-    private FieldValueFormInterface $fieldValue;
-
-    private FieldsChoice $fieldsChoice;
-
     public function __construct(
-        FieldValueFormInterface $fieldValue,
-        FieldsChoice $fieldsChoice,
-    )
-    {
-        $this->fieldValue = $fieldValue;
-        $this->fieldsChoice = $fieldsChoice;
-    }
+        private readonly FieldValueFormInterface $fieldValue,
+        private readonly FieldsChoice $fieldsChoice,
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -56,7 +48,7 @@ final class ValueForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) use ($options) {
+            function (FormEvent $event) use ($options) {
 
                 /** @var ValueDTO $data */
                 $data = $event->getData();
@@ -90,7 +82,7 @@ final class ValueForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
+            function (FormEvent $event): void {
 
                 $data = $event->getData();
                 $form = $event->getForm()->getParent();

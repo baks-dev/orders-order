@@ -28,8 +28,6 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Price;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPriceInterface;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
-use Doctrine\DBAL\Types\Types;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderDeliveryPrice */
 final class OrderDeliveryPriceDTO implements OrderDeliveryPriceInterface

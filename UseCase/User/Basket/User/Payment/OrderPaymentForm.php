@@ -41,18 +41,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderPaymentForm extends AbstractType
 {
-    private PaymentByTypeProfileChoiceInterface $paymentChoice;
-
-    private FieldByPaymentChoiceInterface $paymentFields;
-
     public function __construct(
-        PaymentByTypeProfileChoiceInterface $paymentChoice,
-        FieldByPaymentChoiceInterface $paymentFields
-    )
-    {
-        $this->paymentChoice = $paymentChoice;
-        $this->paymentFields = $paymentFields;
-    }
+        private readonly PaymentByTypeProfileChoiceInterface $paymentChoice,
+        private readonly FieldByPaymentChoiceInterface $paymentFields
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -73,10 +65,10 @@ final class OrderPaymentForm extends AbstractType
 
         $builder->get('payment')->addModelTransformer(
             new CallbackTransformer(
-                function($payment) {
+                function ($payment) {
                     return $payment instanceof PaymentUid ? $payment->getValue() : $payment;
                 },
-                function($payment) {
+                function ($payment) {
 
                     return new PaymentUid($payment);
                 }
@@ -85,7 +77,7 @@ final class OrderPaymentForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) use ($options) {
+            function (FormEvent $event) use ($options) {
 
                 if($options['user_profile_type'])
                 {
@@ -110,7 +102,7 @@ final class OrderPaymentForm extends AbstractType
 
                     if($Payment)
                     {
-                        $paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
+                        $paymentCheckedFilter = array_filter($paymentChoice, function ($v, $k) use ($Payment) {
                             return $v->equals($Payment);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -125,15 +117,15 @@ final class OrderPaymentForm extends AbstractType
                     $form
                         ->add('payment', ChoiceType::class, [
                             'choices' => $paymentChoice,
-                            'choice_value' => function(?PaymentUid $payment) {
+                            'choice_value' => function (?PaymentUid $payment) {
                                 return $payment?->getValue();
                             },
 
-                            'choice_label' => function(PaymentUid $payment) {
+                            'choice_label' => function (PaymentUid $payment) {
                                 return $payment->getOption();
                             },
 
-                            'choice_attr' => function(PaymentUid $choice) use ($paymentChecked) {
+                            'choice_attr' => function (PaymentUid $choice) use ($paymentChecked) {
                                 return ['checked' => ($choice->equals($paymentChecked))];
                             },
 

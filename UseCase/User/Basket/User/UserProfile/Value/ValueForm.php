@@ -34,26 +34,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class ValueForm extends AbstractType
 {
-
-    private FieldValueFormInterface $fieldValue;
-
-    private FieldsChoice $fieldsChoice;
-
     public function __construct(
-        FieldValueFormInterface $fieldValue,
-        FieldsChoice $fieldsChoice,
-    )
-    {
-        $this->fieldValue = $fieldValue;
-        $this->fieldsChoice = $fieldsChoice;
-    }
+        private readonly FieldValueFormInterface $fieldValue,
+        private readonly FieldsChoice $fieldsChoice,
+    ) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) {
+            function (FormEvent $event) {
 
                 /* @var ValueDTO $data */
                 $data = $event->getData();
@@ -94,8 +85,7 @@ final class ValueForm extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults
-        (
+        $resolver->setDefaults(
             [
                 'data_class' => ValueDTO::class,
                 'fields' => null,

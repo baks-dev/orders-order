@@ -61,14 +61,12 @@ class AddController extends AbstractController
         #[ParamConverter(ProductOfferUid::class)] $offer = null,
         #[ParamConverter(ProductVariationUid::class)] $variation = null,
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
-    ): Response
-    {
+    ): Response {
         if(
             (!empty($modification) && (empty($offer) ||
                     empty($variation)))
             || (!empty($variation) && empty($offer))
-        )
-        {
+        ) {
             return $this->ErrorResponse();
         }
 
@@ -129,7 +127,7 @@ class AddController extends AbstractController
             }
 
             /** @var OrderProductDTO $element */
-            $predicat = function($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
+            $predicat = function ($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
                 return
                     $element->getProduct()->equals($AddProductBasketDTO->getProduct())
                     && (!$AddProductBasketDTO->getOffer() || $element->getOffer()?->equals($AddProductBasketDTO->getOffer()))
@@ -156,7 +154,7 @@ class AddController extends AbstractController
             $AppCache->delete($key);
 
             // получаем кеш
-            $AppCache->get($key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
+            $AppCache->get($key, function (ItemInterface $item) use ($AddProductBasketDTO, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->add($AddProductBasketDTO);
 

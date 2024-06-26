@@ -36,32 +36,48 @@ use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardVariation;
 
 final class OrderProductsRepository implements OrderProductsInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
+    private ?OrderUid $order = null;
 
-    public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-    ) {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+
+
+    public function order(Order|OrderUid|string $order): self
+    {
+        if($order instanceof Order)
+        {
+            $order = $order->getId();
+        }
+
+        if(is_string($order))
+        {
+            $order = new OrderUid($order);
+        }
+
+        $this->order = $order;
+
+        return $this;
     }
 
     /**
      * Метод возвращает продукцию в заказе (идентификаторы)
      */
-    public function fetchAllOrderProducts(OrderUid|string $order): ?array
+    public function findAllProducts(): ?array
     {
-        if(is_string($order))
-        {
-            $order = new OrderUid($order);
-        }
 
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $qb
             ->addSelect('ord.id AS oder_id')
             ->addSelect('ord.event AS oder_event')
-            ->from(Order::class, 'ord')
-            ->where('ord.id = :order')
-            ->setParameter('order', $order, OrderUid::TYPE);
+            ->from(Order::class, 'ord');
+
+        if($this->order)
+        {
+            $qb
+                ->where('ord.id = :order')
+                ->setParameter('order', $this->order, OrderUid::TYPE);
+
+        }
 
         $qb
             ->addSelect('products.product AS product_event')

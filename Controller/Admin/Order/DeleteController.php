@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
-
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -36,9 +35,8 @@ use BaksDev\Orders\Order\UseCase\Admin\Delete\OrderDeleteHandler;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -49,8 +47,7 @@ final class DeleteController extends AbstractController
         Request $request,
         #[MapEntity] OrderEvent $OrderEvent,
         OrderDeleteHandler $OrderDeleteHandler,
-    ): Response
-    {
+    ): Response {
 
         $OrderCancelDTO = new OrderDeleteDTO($this->getProfileUid());
         $OrderEvent->getDto($OrderCancelDTO);
@@ -65,8 +62,7 @@ final class DeleteController extends AbstractController
 
             $handle = $OrderDeleteHandler->handle($OrderCancelDTO);
 
-            $this->addFlash
-            (
+            $this->addFlash(
                 'page.delete',
                 $handle instanceof Order ? 'success.delete' : 'danger.delete',
                 'orders-order.admin',

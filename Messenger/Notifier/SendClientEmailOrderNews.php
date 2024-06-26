@@ -48,39 +48,20 @@ use Symfony\Component\Mime\Address;
 #[AsMessageHandler(priority: 0)]
 final class SendClientEmailOrderNews
 {
-    private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
-    private OrderDetailInterface $orderDetail;
-    private UserProfileValuesInterface $userProfileValues;
-    private MailerInterface $mailer;
-    private ParameterBagInterface $parameters;
-    private string $HOST;
-    private DeduplicatorInterface $deduplicator;
-
 
     public function __construct(
-        #[Autowire(env: 'HOST')] string $HOST,
-        EntityManagerInterface $entityManager,
+        #[Autowire(env: 'HOST')]
+        private readonly string $HOST,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly OrderDetailInterface $orderDetail,
+        private readonly UserProfileValuesInterface $userProfileValues,
+        private readonly MailerInterface $mailer,
+        private readonly ParameterBagInterface $parameters,
+        private readonly DeduplicatorInterface $deduplicator,
         LoggerInterface $ordersOrderLogger,
-        OrderDetailInterface $orderDetail,
-        UserProfileValuesInterface $userProfileValues,
-        MailerInterface $mailer,
-        ParameterBagInterface $parameters,
-        DeduplicatorInterface $deduplicator
     ) {
-
-
-        $this->entityManager = $entityManager;
-        $this->entityManager->clear();
         $this->logger = $ordersOrderLogger;
-        $this->orderDetail = $orderDetail;
-        $this->userProfileValues = $userProfileValues;
-
-        $this->mailer = $mailer;
-        $this->parameters = $parameters;
-        $this->HOST = $HOST;
-
-        $this->deduplicator = $deduplicator;
     }
 
     /**
@@ -105,6 +86,8 @@ final class SendClientEmailOrderNews
         {
             return;
         }
+
+        $this->entityManager->clear();
 
         $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
 
@@ -172,7 +155,5 @@ final class SendClientEmailOrderNews
         $this->logger->notice('Оправили уведомление клиенту на Email '.$AccountEmail);
 
         $Deduplicator->save();
-
     }
-
 }

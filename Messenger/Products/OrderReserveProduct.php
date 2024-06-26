@@ -49,34 +49,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(priority: 100)]
 final class OrderReserveProduct
 {
-    private EntityManagerInterface $entityManager;
-    private CurrentQuantityByModificationInterface $quantityByModification;
-    private CurrentQuantityByVariationInterface $quantityByVariation;
-    private CurrentQuantityByOfferInterface $quantityByOffer;
-    private CurrentQuantityByEventInterface $quantityByEvent;
     private LoggerInterface $logger;
-    private CurrentOrderEventInterface $currentOrderEvent;
-    private DeduplicatorInterface $deduplicator;
-
 
     public function __construct(
-        EntityManagerInterface $entityManager,
-        CurrentQuantityByModificationInterface $quantityByModification,
-        CurrentQuantityByVariationInterface $quantityByVariation,
-        CurrentQuantityByOfferInterface $quantityByOffer,
-        CurrentQuantityByEventInterface $quantityByEvent,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly CurrentQuantityByModificationInterface $quantityByModification,
+        private readonly CurrentQuantityByVariationInterface $quantityByVariation,
+        private readonly CurrentQuantityByOfferInterface $quantityByOffer,
+        private readonly CurrentQuantityByEventInterface $quantityByEvent,
+        private readonly CurrentOrderEventInterface $currentOrderEvent,
+        private readonly DeduplicatorInterface $deduplicator,
         LoggerInterface $ordersOrderLogger,
-        CurrentOrderEventInterface $currentOrderEvent,
-        DeduplicatorInterface $deduplicator
     ) {
-        $this->entityManager = $entityManager;
-        $this->quantityByModification = $quantityByModification;
-        $this->quantityByVariation = $quantityByVariation;
-        $this->quantityByOffer = $quantityByOffer;
-        $this->quantityByEvent = $quantityByEvent;
+
         $this->logger = $ordersOrderLogger;
-        $this->currentOrderEvent = $currentOrderEvent;
-        $this->deduplicator = $deduplicator;
     }
 
 
@@ -105,7 +91,9 @@ final class OrderReserveProduct
         }
 
         $this->entityManager->clear();
-        $OrderEvent = $this->currentOrderEvent->getCurrentOrderEvent($message->getId());
+        $OrderEvent = $this->currentOrderEvent
+            ->order($message->getId())
+            ->getCurrentOrderEvent();
 
         if(!$OrderEvent)
         {

@@ -31,12 +31,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 
 final class OrderEventRepository implements OrderEventInterface
 {
-    private ORMQueryBuilder $ORMQueryBuilder;
-
-    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
-    {
-        $this->ORMQueryBuilder = $ORMQueryBuilder;
-    }
+    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
      * Метод возвращает событие по идентификатору

@@ -51,11 +51,10 @@ final class OrderStatusDTO implements OrderEventInterface
         OrderStatus|OrderStatusInterface|string $status,
         OrderEventUid $id,
         UserProfileUid $profile
-    )
-    {
+    ) {
         if(is_string($status))
         {
-            $status = new $status;
+            $status = new $status();
         }
 
         $this->status = $status instanceof OrderStatusInterface ? new OrderStatus($status) : $status;

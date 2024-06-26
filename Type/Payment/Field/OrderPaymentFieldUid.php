@@ -25,9 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Type\Payment\Field;
 
-use App\Kernel;
+
 use BaksDev\Core\Type\UidType\Uid;
-use Symfony\Component\Uid\AbstractUid;
 
 final class OrderPaymentFieldUid extends Uid
 {

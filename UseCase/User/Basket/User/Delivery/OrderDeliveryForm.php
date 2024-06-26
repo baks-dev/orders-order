@@ -44,7 +44,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryForm extends AbstractType
 {
-
     public function __construct(
         private readonly DeliveryByProfileChoiceInterface $deliveryChoice,
         private readonly FieldByDeliveryChoiceInterface $deliveryFields

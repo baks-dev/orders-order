@@ -57,15 +57,13 @@ class DeleteController extends AbstractController
         #[ParamConverter(ProductOfferUid::class)] $offer = null,
         #[ParamConverter(ProductVariationUid::class)] $variation = null,
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
-    ): Response
-    {
-        // return $this->ErrorResponse();
+    ): Response {
+
 
         if(
             (!empty($modification) && (empty($offer) || empty($variation)))
             || (!empty($variation) && empty($offer))
-        )
-        {
+        ) {
             return $this->ErrorResponse($translator);
         }
 
@@ -98,7 +96,7 @@ class DeleteController extends AbstractController
         }
 
         /** @var OrderProductDTO $element */
-        $predicat = function($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
+        $predicat = function ($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
             return
                 $element->getProduct()->equals($product)
                 && (!$offer || $element->getOffer()?->equals($offer))
@@ -114,7 +112,7 @@ class DeleteController extends AbstractController
             $AppCache->delete($key);
 
             /** получаем кеш */
-            $result = $AppCache->get($key, function(ItemInterface $item) use ($removeElement, $expires) {
+            $result = $AppCache->get($key, function (ItemInterface $item) use ($removeElement, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->removeElement($removeElement);
 
@@ -123,7 +121,8 @@ class DeleteController extends AbstractController
 
             if($result->isEmpty())
             {
-                $this->addFlash($Event->getOption(),
+                $this->addFlash(
+                    $Event->getOption(),
                     'user.basket.success.delete',
                     'user.order'
                 );

@@ -36,11 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderProduct */
 final class NewOrderProductDTO implements OrderProductInterface
 {
-    /** Идентификтаор продукта */
-    //	#[Assert\NotBlank]
-    //	#[Assert\Uuid]
-    //	private ProductUid $uid;
-
     /** Событие продукта */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -62,30 +57,6 @@ final class NewOrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private Price\NewOrderPriceDTO $price;
 
-    /** Карточка товара */
-    //private array $card = [];
-
-    /** Коллекция перемещения  */
-    //#[Assert\Valid]
-    //private ?Moving\MovingProductStockDTO $move = null;
-
-    //    public function __construct()
-    //    {
-    //        $this->move = new Moving\MovingProductStockDTO();
-    //    }
-
-    //	/** Идентификтаор продукта */
-    //
-    //	public function getUid() : ProductUid
-    //	{
-    //		return $this->uid;
-    //	}
-    //
-    //
-    //	public function setUid(ProductUid $uid) : void
-    //	{
-    //		$this->uid = $uid;
-    //	}
 
     /** Событие продукта */
     public function getProduct(): ProductEventUid
@@ -142,25 +113,4 @@ final class NewOrderProductDTO implements OrderProductInterface
         $this->price = $price;
     }
 
-    //        /** Карточка товара */
-    //        public function getCard() : array
-    //        {
-    //            return $this->card;
-    //        }
-    //
-    //        public function setCard(array $card) : void
-    //        {
-    //            $this->card = $card;
-    //        }
-
-    //        /** Коллекция перемещения  */
-    //        public function getMove(): ?Moving\MovingProductStockDTO
-    //        {
-    //            return $this->move;
-    //        }
-    //
-    //        public function setMove(Moving\MovingProductStockDTO $move): void
-    //        {
-    //            $this->move = $move;
-    //        }
 }

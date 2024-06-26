@@ -23,7 +23,4 @@
 
 namespace BaksDev\Orders\Order\Entity\Products;
 
-interface OrderProductInterface
-{
-
-}
+interface OrderProductInterface {}

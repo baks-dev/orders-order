@@ -28,7 +28,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class ProductStockDTO implements ProductStockProductInterface
 {
-
     /** Продукт */
     #[Assert\NotBlank]
     #[Assert\Uuid]

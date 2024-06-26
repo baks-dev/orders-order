@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\User\Basket\User\Payment;
 
-
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPaymentInterface;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -44,9 +43,7 @@ final class OrderPaymentDTO implements OrderPaymentInterface
 
     public function __construct()
     {
-
         $this->field = new ArrayCollection();
-
     }
 
 

@@ -35,14 +35,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatusInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
-
-    public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-    )
-    {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     /**
      * Метод проверяет, имеется ли событие у заказа с указанным статусом
@@ -79,8 +72,8 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
         OrderUid|string $order,
         OrderEventUid|string $event,
         OrderStatus|OrderStatusInterface|string $status
-    ): bool
-    {
+    ): bool {
+
         if(is_string($order))
         {
             $order = new OrderUid($order);

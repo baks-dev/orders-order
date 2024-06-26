@@ -29,7 +29,6 @@ use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 
 final class PaymentChoiceRepository implements PaymentByTypeProfileChoiceInterface
 {
-
     public function fetchPaymentByProfile(TypeProfileUid $type): ?array
     {
         return [];

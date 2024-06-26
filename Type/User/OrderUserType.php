@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\User;
 
 use BaksDev\Core\Type\UidType\UidType;
-use Doctrine\DBAL\Types\Types;
 
 final class OrderUserType extends UidType
 {

@@ -30,13 +30,13 @@ use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
 use BaksDev\Products\Category\Entity\Offers\Trans\CategoryProductOffersTrans;
+use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\Trans\CategoryProductModificationTrans;
-use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Trans\CategoryProductVariationTrans;
+use BaksDev\Products\Category\Entity\Section\CategoryProductSection;
 use BaksDev\Products\Category\Entity\Section\Field\CategoryProductSectionField;
 use BaksDev\Products\Category\Entity\Section\Field\Trans\CategoryProductSectionFieldTrans;
-use BaksDev\Products\Category\Entity\Section\CategoryProductSection;
 use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
 use BaksDev\Products\Product\Entity\Active\ProductActive;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
@@ -66,22 +66,14 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 
 final class ProductUserBasketRepository implements ProductUserBasketInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
-
-    public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder
-    )
-    {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     public function fetchProductBasketAssociative(
         ProductEventUid $event,
         ?ProductOfferUid $offer = null,
         ?ProductVariationUid $variation = null,
         ?ProductModificationUid $modification = null,
-    ): bool|array
-    {
+    ): bool|array {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -96,7 +88,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         $dbal
             ->addSelect('product_active.active_from AS product_active_from')
-            ->join('product_event',
+            ->join(
+                'product_event',
                 ProductActive::class,
                 'product_active',
                 'product_active.event = product_event.id AND product_active.active = true AND product_active.active_from < NOW()
@@ -108,7 +101,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 				   ELSE TRUE
 				END
 			)
-		');
+		'
+            );
 
         $dbal
             ->addSelect('product.event AS current_event')
@@ -326,7 +320,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         /** Артикул продукта */
 
-        $dbal->addSelect("
+        $dbal->addSelect(
+            "
 			CASE
 			   WHEN product_modification.article IS NOT NULL THEN product_modification.article
 			   WHEN product_variation.article IS NOT NULL THEN product_variation.article
@@ -417,7 +412,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ->addGroupBy('product_price.reserve');
 
 
-        $dbal->addSelect("
+        $dbal->addSelect(
+            "
 			CASE
 			   WHEN product_modification_image.name IS NOT NULL 
 			   THEN CONCAT ( '/upload/".$dbal->table(ProductModificationImage::class)."' , '/', product_modification_image.name, '/')
@@ -462,7 +458,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         /** Стоимость продукта */
 
 
-        $dbal->addSelect("
+        $dbal->addSelect(
+            "
 			CASE
 			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 
 			   THEN product_modification_price.price
@@ -483,7 +480,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         /** Валюта продукта */
 
-        $dbal->addSelect("
+        $dbal->addSelect(
+            "
 			CASE
 			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 
 			   THEN product_modification_price.currency
@@ -502,7 +500,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         /** Наличие продукта */
 
-        $dbal->addSelect("
+        $dbal->addSelect(
+            "
 			CASE
 			
 			
@@ -605,7 +604,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         );
 
 
-        $dbal->addSelect("JSON_AGG
+        $dbal->addSelect(
+            "JSON_AGG
 		( DISTINCT
 			
 				JSONB_BUILD_OBJECT

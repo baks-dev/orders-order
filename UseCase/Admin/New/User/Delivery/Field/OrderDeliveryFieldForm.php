@@ -39,14 +39,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class OrderDeliveryFieldForm extends AbstractType
 {
-    private FieldsChoice $fieldsChoice;
-
-    public function __construct(
-        FieldsChoice $fieldsChoice,
-    )
-    {
-        $this->fieldsChoice = $fieldsChoice;
-    }
+    public function __construct(private readonly FieldsChoice $fieldsChoice) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -55,17 +48,15 @@ final class OrderDeliveryFieldForm extends AbstractType
 
         $builder->get('field')->addModelTransformer(
             new CallbackTransformer(
-                function($field) {
+                function ($field) {
                     return $field instanceof DeliveryFieldUid ? $field->getValue() : $field;
                 },
-                function($field) {
+                function ($field) {
                     return new DeliveryFieldUid($field);
                 }
             )
         );
 
-
-        //$builder->add('call', HiddenType::class, ['required' => false]);
 
         $builder->add('value', HiddenType::class, ['required' => false]);
 
@@ -78,7 +69,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) {
+            function (FormEvent $event) {
 
                 /* @var OrderDeliveryFieldDTO $data */
                 $data = $event->getData();

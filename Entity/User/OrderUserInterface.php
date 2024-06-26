@@ -23,9 +23,4 @@
 
 namespace BaksDev\Orders\Order\Entity\User;
 
-use BaksDev\Core\Type\Modify\ModifyAction;
-
-interface OrderUserInterface
-{
-
-}
+interface OrderUserInterface {}

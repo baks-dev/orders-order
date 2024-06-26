@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\Entity\User\Delivery\Field;
 
 use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
-use BaksDev\Orders\Order\Entity\Payment\OrderPayment;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Type\Delivery\Field\OrderDeliveryFieldUid;
 use Doctrine\DBAL\Types\Types;

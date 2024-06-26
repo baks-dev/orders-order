@@ -34,11 +34,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderProductDTO implements OrderProductInterface
 {
-    /** Идентификтаор продукта */
-    //	#[Assert\NotBlank]
-    //	#[Assert\Uuid]
-    //	private ProductUid $uid;
-
     /** Событие продукта */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -69,20 +64,6 @@ final class OrderProductDTO implements OrderProductInterface
     {
         $this->price = new Price\OrderPriceDTO();
     }
-
-
-    //	/** Идентификтаор продукта */
-    //
-    //	public function getUid() : ProductUid
-    //	{
-    //		return $this->uid;
-    //	}
-    //
-    //
-    //	public function setUid(ProductUid $uid) : void
-    //	{
-    //		$this->uid = $uid;
-    //	}
 
 
     /** Событие продукта */

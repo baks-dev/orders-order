@@ -23,7 +23,6 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving;
 
-use BaksDev\Contacts\Region\Type\Call\Const\ContactsRegionCallConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseChoice\ProductWarehouseChoiceInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Form\AbstractType;
@@ -36,21 +35,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class MovingProductStockForm extends AbstractType
 {
-    private ProductWarehouseChoiceInterface $productWarehouseChoice;
-
-    public function __construct(
-        ProductWarehouseChoiceInterface $productWarehouseChoice,
-    )
-    {
-        $this->productWarehouseChoice = $productWarehouseChoice;
-    }
+    public function __construct(private readonly ProductWarehouseChoiceInterface $productWarehouseChoice) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event): void {
+            function (FormEvent $event): void {
                 /** @var MovingProductStockDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
@@ -81,7 +73,7 @@ final class MovingProductStockForm extends AbstractType
                     {
                         $warehouses = iterator_to_array($warehouses);
 
-                        $warehouses = array_filter($warehouses, function($v, $k) use ($Destination) {
+                        $warehouses = array_filter($warehouses, function ($v, $k) use ($Destination) {
                             return !$v->equals($Destination);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -94,11 +86,11 @@ final class MovingProductStockForm extends AbstractType
                             ChoiceType::class,
                             [
                                 'choices' => $warehouses,
-                                'choice_value' => function(?UserProfileUid $profile) {
+                                'choice_value' => function (?UserProfileUid $profile) {
                                     return $profile?->getValue();
                                 },
 
-                                'choice_label' => function(UserProfileUid $profile) {
+                                'choice_label' => function (UserProfileUid $profile) {
                                     return $profile->getAttr().' ( '.$profile->getProperty().' )';
                                 },
 

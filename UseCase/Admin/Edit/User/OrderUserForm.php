@@ -34,16 +34,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderUserForm extends AbstractType
 {
-    private UserProfileByEventInterface $currentUserProfile;
-
-
-    public function __construct(
-
-        UserProfileByEventInterface $currentUserProfile,
-    )
-    {
-        $this->currentUserProfile = $currentUserProfile;
-    }
+    public function __construct(private readonly UserProfileByEventInterface $currentUserProfile) {}
 
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -55,7 +46,7 @@ final class OrderUserForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) {
+            function (FormEvent $event) {
 
                 /** @var OrderUserDTO $data */
                 $data = $event->getData();
@@ -68,7 +59,8 @@ final class OrderUserForm extends AbstractType
 
                     if($userProfileType)
                     {
-                        $form->add('payment',
+                        $form->add(
+                            'payment',
                             Payment\OrderPaymentForm::class,
                             [
                                 'label' => false,
@@ -76,7 +68,8 @@ final class OrderUserForm extends AbstractType
                             ]
                         );
 
-                        $form->add('delivery',
+                        $form->add(
+                            'delivery',
                             Delivery\OrderDeliveryForm::class,
                             [
                                 'label' => false,

@@ -21,12 +21,10 @@
  *  THE SOFTWARE.
  */
 
-
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\UserAccount\Status;
 
 use BaksDev\Auth\Email\Entity\Status\AccountStatusInterface;
 use BaksDev\Auth\Email\Type\EmailStatus\EmailStatus;
-use BaksDev\Auth\Email\Type\EmailStatus\Status\EmailStatusActive;
 use BaksDev\Auth\Email\Type\EmailStatus\Status\EmailStatusNew;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -50,4 +48,3 @@ final class UserAccountStatusDTO implements AccountStatusInterface
     }
 
 }
-

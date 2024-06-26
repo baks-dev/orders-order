@@ -48,8 +48,7 @@ final class NewController extends AbstractController
         Request $request,
         NewOrderHandler $OrderHandler,
         ProductUserBasketInterface $userBasket,
-    ): Response
-    {
+    ): Response {
 
         $OrderDTO = new NewOrderDTO($this->getProfileUid());
 
@@ -108,8 +107,7 @@ final class NewController extends AbstractController
 
             $handle = $OrderHandler->handle($OrderDTO);
 
-            $this->addFlash
-            (
+            $this->addFlash(
                 'page.new',
                 $handle instanceof Order ? 'success.new' : 'danger.new',
                 'orders-order.admin',
@@ -126,4 +124,3 @@ final class NewController extends AbstractController
         return $this->render(['form' => $form->createView()]);
     }
 }
-

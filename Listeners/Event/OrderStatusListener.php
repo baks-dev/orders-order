@@ -34,18 +34,12 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 #[AsEventListener(event: ControllerEvent::class)]
 #[AsEventListener(event: ConsoleEvents::COMMAND)]
-final class OrderStatusListener
+final readonly class OrderStatusListener
 {
-    private OrderStatusCollection $collection;
-
-    public function __construct(OrderStatusCollection $collection)
-    {
-        $this->collection = $collection;
-    }
+    public function __construct(private OrderStatusCollection $collection) {}
 
     public function onKernelController(ControllerEvent $event): void
     {
-        // Инициируем статусы заказов
         if(in_array(OrderStatusType::class, get_declared_classes(), true))
         {
             $this->collection->cases();
@@ -54,7 +48,6 @@ final class OrderStatusListener
 
     public function onConsoleCommand(ConsoleCommandEvent $event): void
     {
-        // Всегда инициируем в консольной комманде
         $this->collection->cases();
     }
 

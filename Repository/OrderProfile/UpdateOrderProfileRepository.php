@@ -38,18 +38,11 @@ use InvalidArgumentException;
 
 final class UpdateOrderProfileRepository implements UpdateOrderProfileInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
-
     private ?UserProfileUid $profile = null;
 
     private ?OrderEventUid $event = null;
 
-    public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-    )
-    {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
 
     public function profile(UserProfile|UserProfileUid|string $profile): self

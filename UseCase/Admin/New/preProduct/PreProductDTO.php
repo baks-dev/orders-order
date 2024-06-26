@@ -26,16 +26,13 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\New\preProduct;
 
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see PreFproduct */
 final class PreProductDTO
 {
-
     /** Продукт */
     private ?ProductEventUid $preProduct = null;
 

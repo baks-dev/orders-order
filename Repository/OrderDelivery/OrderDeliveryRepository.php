@@ -29,20 +29,17 @@ use BaksDev\Contacts\Region\Entity\Call\ContactsRegionCall;
 use BaksDev\Contacts\Region\Entity\Call\Info\ContactsRegionCallInfo;
 use BaksDev\Contacts\Region\Entity\ContactsRegion;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
-use BaksDev\Orders\Order\Entity as EntityOrder;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
+use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Type\Event\ProductStockEventUid;
-use Doctrine\DBAL\Connection;
 
 final class OrderDeliveryRepository implements OrderDeliveryInterface
 {
-    private DBALQueryBuilder $DBALQueryBuilder;
-
-    public function __construct(DBALQueryBuilder $DBALQueryBuilder)
-    {
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     /**
      * Метод возвращает геоданные складской заявки.
@@ -52,20 +49,25 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
 
         $qbOrder = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $qbOrder->from(ProductStockOrder::TABLE, 'stock_order');
+        $qbOrder->from(ProductStockOrder::class, 'stock_order');
 
-        $qbOrder->join('stock_order', EntityOrder\Order::TABLE, 'ord', 'ord.id = stock_order.ord');
+        $qbOrder->join(
+            'stock_order',
+            Order::class,
+            'ord',
+            'ord.id = stock_order.ord'
+        );
 
         $qbOrder->join(
             'ord',
-            EntityOrder\Event\OrderEvent::TABLE,
+            OrderEvent::class,
             'event',
             'event.id = ord.event'
         );
 
         $qbOrder->join(
             'event',
-            EntityOrder\User\OrderUser::TABLE,
+            OrderUser::class,
             'users',
             'users.event = event.id'
         );
@@ -76,7 +78,7 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
 
         $qbOrder->join(
             'users',
-            EntityOrder\User\Delivery\OrderDelivery::TABLE,
+            OrderDelivery::class,
             'delivery',
             'delivery.usr = users.id'
         );
@@ -90,11 +92,11 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
 
         $qbMove = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $qbMove->from(ProductStockMove::TABLE, 'stock_move');
+        $qbMove->from(ProductStockMove::class, 'stock_move');
 
         $qbMove->join(
             'stock_move',
-            ContactsRegionCall::TABLE,
+            ContactsRegionCall::class,
             'call',
             'call.const = stock_move.destination '
         );
@@ -105,14 +107,14 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
 
         $qbMove->join(
             'call',
-            ContactsRegion::TABLE,
+            ContactsRegion::class,
             'region',
             'region.event = call.event'
         );
 
         $qbMove->join(
             'call',
-            ContactsRegionCallInfo::TABLE,
+            ContactsRegionCallInfo::class,
             'call_info',
             'call_info.call = call.id'
         );

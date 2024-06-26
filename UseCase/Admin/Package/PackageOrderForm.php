@@ -67,8 +67,7 @@ final class PackageOrderForm extends AbstractType
         GeocodeAddressInterface $geocodeAddress,
         GeocodeDistance $geocodeDistance,
         ContactCallByGeocodeInterface $contactCallByGeocode,
-    )
-    {
+    ) {
         $this->geocodeAddress = $geocodeAddress;
         $this->geocodeDistance = $geocodeDistance;
         $this->contactCallByGeocode = $contactCallByGeocode;
@@ -87,7 +86,7 @@ final class PackageOrderForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) use ($profiles): void {
+            function (FormEvent $event) use ($profiles): void {
                 /** @var PackageOrderDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
@@ -188,10 +187,10 @@ final class PackageOrderForm extends AbstractType
         $builder
             ->add('profile', ChoiceType::class, [
                 'choices' => $profiles,
-                'choice_value' => function(?UserProfileUid $profile) {
+                'choice_value' => function (?UserProfileUid $profile) {
                     return $profile?->getValue();
                 },
-                'choice_label' => function(UserProfileUid $profile) {
+                'choice_label' => function (UserProfileUid $profile) {
                     return $profile->getAttr();
                 },
 
@@ -206,10 +205,10 @@ final class PackageOrderForm extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $profiles,
-                'choice_value' => function(?UserProfileUid $profile) {
+                'choice_value' => function (?UserProfileUid $profile) {
                     return $profile?->getValue();
                 },
-                'choice_label' => function(UserProfileUid $warehouse) {
+                'choice_label' => function (UserProfileUid $warehouse) {
 
                     if($this->pickupWarehouse && $warehouse->equals($this->pickupWarehouse))
                     {
@@ -226,7 +225,7 @@ final class PackageOrderForm extends AbstractType
 
                 'label' => false,
                 'required' => false,
-                'choice_attr' => function($warehouse) {
+                'choice_attr' => function ($warehouse) {
 
 
                     if($this->pickupWarehouse && !$warehouse->equals($this->pickupWarehouse))
@@ -242,7 +241,7 @@ final class PackageOrderForm extends AbstractType
 
         $builder->get('profile')->addEventListener(
             FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
+            function (FormEvent $event): void {
                 $data = (string) $event->getData();
                 $this->productModifier($event->getForm()->getParent(), new UserProfileUid($data));
             }

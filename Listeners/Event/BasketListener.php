@@ -30,21 +30,13 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Twig\Environment;
 
-
 #[AsEventListener(event: RequestEvent::class, priority: 1)]
 final class BasketListener
 {
-    private $twig;
-    private AppCacheInterface $cache;
-
     public function __construct(
-        Environment $twig,
-        AppCacheInterface $cache
-    )
-    {
-        $this->twig = $twig;
-        $this->cache = $cache;
-    }
+        private readonly Environment $twig,
+        private readonly AppCacheInterface $cache
+    ) {}
 
     public function onKernelRequest(RequestEvent $event): void
     {

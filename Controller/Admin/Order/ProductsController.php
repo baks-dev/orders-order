@@ -52,16 +52,14 @@ final class ProductsController extends AbstractController
         #[MapEntity] Order $Order,
         OrderDetailInterface $orderDetail,
         int $page = 0,
-    ): Response
-    {
+    ): Response {
 
-        /**
-         * Поиск
-         */
-
+        /** Поиск */
         $search = new SearchDTO($request);
         $searchForm = $this->createForm(
-            SearchForm::class, $search, [
+            SearchForm::class,
+            $search,
+            [
                 'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
             ]
         );

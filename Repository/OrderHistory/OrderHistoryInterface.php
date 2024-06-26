@@ -23,10 +23,13 @@
 
 namespace BaksDev\Orders\Order\Repository\OrderHistory;
 
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface OrderHistoryInterface
 {
-    public function fetchHistoryAllAssociative(OrderUid $order): array;
+    public function order(Order|OrderUid|string $order): self;
+
+    public function findAllHistory(): array;
 
 }

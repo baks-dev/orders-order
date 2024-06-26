@@ -41,7 +41,7 @@ class OrderPrice extends EntityEvent
 
     /** ID события */
     #[ORM\Id]
-    #[ORM\OneToOne(inversedBy: 'price', targetEntity: OrderProduct::class)]
+    #[ORM\OneToOne(targetEntity: OrderProduct::class, inversedBy: 'price')]
     #[ORM\JoinColumn(name: 'product', referencedColumnName: 'id')]
     private OrderProduct $product;
 

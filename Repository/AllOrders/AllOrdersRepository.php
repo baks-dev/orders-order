@@ -75,10 +75,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllOrdersRepository implements AllOrdersInterface
 {
-    private PaginatorInterface $paginator;
-
-    private DBALQueryBuilder $DBALQueryBuilder;
-
     private ?SearchDTO $search = null;
 
     private ?OrderStatus $status = null;
@@ -88,12 +84,9 @@ final class AllOrdersRepository implements AllOrdersInterface
     private ?int $limit = null;
 
     public function __construct(
-        DBALQueryBuilder $DBALQueryBuilder,
-        PaginatorInterface $paginator,
-    ) {
-        $this->paginator = $paginator;
-        $this->DBALQueryBuilder = $DBALQueryBuilder;
-    }
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly PaginatorInterface $paginator,
+    ) {}
 
 
     public function setLimit(int $limit): self

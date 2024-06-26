@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 {
-
     /** Идентификатор пользовательского поля в способе доставки */
     #[Assert\NotBlank]
     private DeliveryFieldUid $field;

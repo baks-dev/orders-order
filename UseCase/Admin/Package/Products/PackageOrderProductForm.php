@@ -33,7 +33,6 @@ use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserByUserProfile\UserByUserProfileInterface;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -44,55 +43,31 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class PackageOrderProductForm extends AbstractType
 {
-    private ProductUserBasketInterface $info;
-
-    private ProductWarehouseTotalInterface $warehouseTotal;
-    private UserByUserProfileInterface $userByUserProfile;
-
     public function __construct(
-        UserByUserProfileInterface $userByUserProfile,
-        ProductUserBasketInterface $info,
-        ProductWarehouseTotalInterface $warehouseTotal
-    )
-    {
-        $this->info = $info;
-        $this->warehouseTotal = $warehouseTotal;
-        $this->userByUserProfile = $userByUserProfile;
-    }
+        private readonly UserByUserProfileInterface $userByUserProfile,
+        private readonly ProductUserBasketInterface $info,
+        private readonly ProductWarehouseTotalInterface $warehouseTotal
+    ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-        /* // Section Collection
-         $builder->add(
-             'move',
-             CollectionType::class,
-             [
-                 'entry_type' => Moving\ProductStockForm::class,
-                 'entry_options' => ['label' => false],
-                 'label' => false,
-                 'by_reference' => false,
-                 'allow_delete' => true,
-                 'allow_add' => true,
-                 'prototype_name' => '__move__',
-             ]
-         );*/
 
         /*  Перемещение */
         $builder->add('move', HiddenType::class);
 
         $builder->get('move')->addModelTransformer(
             new CallbackTransformer(
-                function($move) {
+                function ($move) {
                     return $move instanceof Moving\MovingProductStockForm ? $move : null;
                 },
-                function($move): void {}
+                function ($move): void {}
             )
         );
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function(FormEvent $event) use ($options): void {
+            function (FormEvent $event) use ($options): void {
                 /** @var PackageOrderProductDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
@@ -168,7 +143,9 @@ final class PackageOrderProductForm extends AbstractType
                         $data->setMove($Move);
 
 
-                        $form->add('move', Moving\MovingProductStockForm::class,
+                        $form->add(
+                            'move',
+                            Moving\MovingProductStockForm::class,
                             ['label' => false]
                         );
 

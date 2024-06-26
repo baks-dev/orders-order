@@ -23,12 +23,15 @@
 
 namespace BaksDev\Orders\Order\Repository\OrderProducts;
 
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface OrderProductsInterface
 {
+    public function order(Order|OrderUid|string $order): self;
+
     /**
      * Метод возвращает продукцию в заказе
      */
-    public function fetchAllOrderProducts(OrderUid|string $order): ?array;
+    public function findAllProducts(): ?array;
 }

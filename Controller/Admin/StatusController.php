@@ -66,11 +66,12 @@ final class StatusController extends AbstractController
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
         TranslatorInterface $translator,
         string $status,
-    ): Response
-    {
+    ): Response {
 
 
-        $OrderEvent = $currentOrderEvent->getCurrentOrderEvent($Order->getId());
+        $OrderEvent = $currentOrderEvent
+            ->order($Order->getId())
+            ->getCurrentOrderEvent();
 
         if(!$OrderEvent)
         {

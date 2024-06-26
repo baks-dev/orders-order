@@ -36,17 +36,10 @@ use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 #[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: OrderModify::class)]
 final class OrderModifyListener
 {
-    private RequestStack $request;
-    private TokenStorageInterface $token;
-
     public function __construct(
-        RequestStack $request,
-        TokenStorageInterface $token,
-    )
-    {
-        $this->request = $request;
-        $this->token = $token;
-    }
+        private readonly RequestStack $request,
+        private readonly TokenStorageInterface $token,
+    ) {}
 
     public function prePersist(OrderModify $data, LifecycleEventArgs $event): void
     {

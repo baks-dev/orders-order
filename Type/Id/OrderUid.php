@@ -23,7 +23,6 @@
 
 namespace BaksDev\Orders\Order\Type\Id;
 
-use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
 use Symfony\Component\Uid\AbstractUid;
 

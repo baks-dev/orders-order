@@ -38,7 +38,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('baks.security.voter')]
 class OrderStatusExtradition implements OrderStatusInterface, VoterInterface
 {
-
     public const STATUS = 'extradition';
 
     private static int $sort = 700;

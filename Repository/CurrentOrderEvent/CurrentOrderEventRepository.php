@@ -35,28 +35,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class CurrentOrderEventRepository implements CurrentOrderEventInterface
 {
-    private ORMQueryBuilder $ORMQueryBuilder;
+    private ?OrderUid $order = null;
 
-    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
+    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
+
+
+    public function order(Order|OrderUid|string $order): self
     {
-        $this->ORMQueryBuilder = $ORMQueryBuilder;
-    }
-
-    /**
-     * Метод возвращает текущее активное событие заказа
-     */
-    public function getCurrentOrderEvent(Order|OrderUid|string|null $order): ?OrderEvent
-    {
-        if(Kernel::isTestEnvironment())
-        {
-            return EntityTestGenerator::get(OrderEvent::class);
-        }
-
-        if(!$order)
-        {
-            return null;
-        }
-
         if($order instanceof Order)
         {
             $order = $order->getId();
@@ -67,12 +52,38 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
             $order = new OrderUid($order);
         }
 
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Метод возвращает текущее активное событие заказа
+     */
+    public function getCurrentOrderEvent(): ?OrderEvent
+    {
+        if(Kernel::isTestEnvironment())
+        {
+            return EntityTestGenerator::get(OrderEvent::class);
+        }
+
+        if(!$this->order)
+        {
+            return null;
+        }
+
+
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $orm
             ->from(Order::class, 'orders')
             ->where('orders.id = :order')
-            ->setParameter('order', $order, OrderUid::TYPE);
+            ->setParameter(
+                'order',
+                $this->order,
+                OrderUid::TYPE
+            );
+
 
         $orm
             ->select('event')

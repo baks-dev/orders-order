@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Price;
 
-
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use Symfony\Component\Form\AbstractType;
@@ -37,7 +36,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryPriceForm extends AbstractType
 {
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('price', MoneyType::class, [
@@ -47,10 +45,10 @@ final class OrderDeliveryPriceForm extends AbstractType
 
         $builder->get('price')->addModelTransformer(
             new CallbackTransformer(
-                function($price) {
+                function ($price) {
                     return $price instanceof Money ? $price->getValue() : $price;
                 },
-                function($price) {
+                function ($price) {
                     return new Money($price);
                 }
             )
@@ -58,10 +56,10 @@ final class OrderDeliveryPriceForm extends AbstractType
 
         $builder->add('currency', ChoiceType::class, [
             'choices' => Currency::cases(),
-            'choice_value' => function(?Currency $currency) {
+            'choice_value' => function (?Currency $currency) {
                 return $currency?->getCurrencyValue();
             },
-            'choice_label' => function(?Currency $currency) {
+            'choice_label' => function (?Currency $currency) {
                 return $currency?->getCurrencyValue();
             },
             'translation_domain' => 'reference.currency',

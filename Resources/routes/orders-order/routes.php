@@ -21,17 +21,18 @@
  *  THE SOFTWARE.
  */
 
+use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-return function(RoutingConfigurator $routes) {
+return function (RoutingConfigurator $routes) {
 
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
+    $PATH = BaksDevOrdersOrderBundle::PATH;
 
     $routes->import(
-        $MODULE.'Controller',
+        $PATH.'Controller',
         'attribute',
         false,
-        $MODULE.'Controller/**/*Test.php'
+        $PATH.'Controller/**/*Test.php'
     )
         ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
         ->namePrefix('orders-order:');

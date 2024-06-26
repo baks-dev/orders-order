@@ -26,26 +26,10 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\User;
 
 use BaksDev\Orders\Order\Entity\User\OrderUserInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderUserDTO implements OrderUserInterface
 {
-
-    /* Пользователь  */
-
-    //	/** ID пользователя  */
-    //	#[Assert\Uuid]
-    //	private ?UserUid $user = null;
-    //
-    //	/* Профиль пользователя */
-    //
-    //	/** Идентификатор События!! профиля пользователя */
-    //	#[Assert\Uuid]
-    //	private ?UserProfileEventUid $profile = null;
-
-
     /** Способ доставки */
     #[Assert\Valid]
     private Delivery\OrderDeliveryDTO $delivery;
@@ -53,36 +37,7 @@ final class OrderUserDTO implements OrderUserInterface
 
     public function __construct()
     {
-        $this->delivery = new Delivery\OrderDeliveryDTO;
-    }
-
-
-    /** ID пользователя */
-    public function getUsr(): ?UserUid
-    {
-        return $this->usr;
-    }
-
-
-    public function setUsr(?UserUid $usr): void
-    {
-
-        $this->usr = $usr;
-    }
-
-
-    /** Идентификатор События!! профиля пользователя */
-
-    public function getProfile(): ?UserProfileEventUid
-    {
-
-        return $this->profile;
-    }
-
-
-    public function setProfile(?UserProfileEventUid $profile): void
-    {
-        $this->profile = $profile;
+        $this->delivery = new Delivery\OrderDeliveryDTO();
     }
 
 
@@ -98,6 +53,5 @@ final class OrderUserDTO implements OrderUserInterface
     {
         $this->delivery = $delivery;
     }
-
 
 }

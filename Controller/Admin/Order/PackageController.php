@@ -79,8 +79,7 @@ final class PackageController extends AbstractController
         CentrifugoPublishInterface $publish,
         ?PackageOrderProductsInterface $packageOrderProducts = null,
         ?ProductStocksTotalAccessInterface $productStocksTotalAccess = null,
-    ): Response
-    {
+    ): Response {
 
         // Отправляем сокет для скрытия заказа у других менеджеров
 

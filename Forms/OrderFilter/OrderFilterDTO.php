@@ -62,7 +62,7 @@ final class OrderFilterDTO
     {
         $session = $this->request->getSession();
 
-        $sessionDate = $session->get(self::date) ?: new DateTimeImmutable();
+        $sessionDate = $session->get(self::date) ?? new DateTimeImmutable();
 
         //dump(time() - $session->getMetadataBag()->getLastUsed());
 

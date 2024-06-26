@@ -48,6 +48,11 @@ use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Products\Product\Entity\Event\ProductEvent;
+use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
@@ -85,8 +90,7 @@ final class AllOrdersRepository implements AllOrdersInterface
     public function __construct(
         DBALQueryBuilder $DBALQueryBuilder,
         PaginatorInterface $paginator,
-    )
-    {
+    ) {
         $this->paginator = $paginator;
         $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
@@ -199,7 +203,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         // Продукция
 
-        if(!$this->search?->getQuery() && $this->filter?->getDate())
+        if($this->search?->getQuery() === null && $this->filter?->getDate())
         {
             $date = $this->filter->getDate() ?: new DateTimeImmutable();
 
@@ -582,6 +586,51 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         if($this->search?->getQuery())
         {
+
+            // Product Event
+            $dbal->leftJoin(
+                'order_products',
+                ProductEvent::class,
+                'product_event',
+                'product_event.id = order_products.product'
+            );
+
+
+            // Product Info
+            $dbal->leftJoin(
+                'product_event',
+                ProductInfo::class,
+                'product_info',
+                'product_info.product = product_event.main'
+            );
+
+
+            $dbal
+                ->leftJoin(
+                    'order_products',
+                    ProductOffer::class,
+                    'product_offer',
+                    'product_offer.id = order_products.offer'
+                );
+
+
+            $dbal
+                ->leftJoin(
+                    'order_products',
+                    ProductVariation::class,
+                    'product_variation',
+                    'product_variation.id = order_products.variation'
+                );
+
+            $dbal
+                ->leftJoin(
+                    'order_products',
+                    ProductModification::class,
+                    'product_modification',
+                    'product_modification.id = order_products.modification'
+                );
+
+
             $dbal
                 ->createSearchQueryBuilder($this->search)
                 ->addSearchEqualUid('orders.id')
@@ -589,6 +638,11 @@ final class AllOrdersRepository implements AllOrdersInterface
                 ->addSearchLike('orders.number')
                 ->addSearchLike('user_profile_value.value')
                 ->addSearchLike('delivery_trans.name')
+                ->addSearchLike('product_info.article')
+                ->addSearchLike('product_variation.article')
+                ->addSearchLike('product_modification.article')
+
+
                 //                ->addSearchLike('product_offer.article')
                 //                ->addSearchLike('product_offer_modification.article')
                 //                ->addSearchLike('product_offer_variation.article')
@@ -600,8 +654,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         {
             $dbal->addOrderBy('orders_modify.mod_date', 'ASC');
         }
-
-        else if((string) $this->status === 'completed')
+        elseif((string) $this->status === 'completed')
         {
             $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
         }

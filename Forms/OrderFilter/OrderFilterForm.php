@@ -37,15 +37,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderFilterForm extends AbstractType
 {
-    private RequestStack $request;
-
-    public function __construct(
-        RequestStack $request,
-    )
-    {
-
-        $this->request = $request;
-    }
+    public function __construct(private readonly RequestStack $request) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -66,15 +58,11 @@ final class OrderFilterForm extends AbstractType
 
         $builder
             ->add('status', ChoiceType::class, [
-                'choices' => OrderStatus::cases() /*[
-                    new OrderStatus(OrderStatus\ManufacturePartStatusOpen::class),
-                    new ManufacturePartStatus(ManufacturePartStatus\ManufacturePartStatusPackage::class),
-                    new ManufacturePartStatus(ManufacturePartStatus\ManufacturePartStatusCompleted::class),
-                ]*/,
-                'choice_value' => function(?OrderStatus $status) {
+                'choices' => OrderStatus::cases(),
+                'choice_value' => function (?OrderStatus $status) {
                     return $status?->getOrderStatusValue();
                 },
-                'choice_label' => function(OrderStatus $status) {
+                'choice_label' => function (OrderStatus $status) {
 
                     return $status->getOrderStatusValue();
                 },
@@ -89,7 +77,7 @@ final class OrderFilterForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
+            function (FormEvent $event): void {
                 /** @var OrderFilterDTO $data */
                 $data = $event->getData();
 

@@ -42,22 +42,20 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_ORDERS')]
 final class AllController extends AbstractController
 {
-    #[Route('/admin/order/all/{page<\d+>}', name: 'admin.order.all', methods: [
-        'GET',
-        'POST',
-    ])]
+    #[Route('/admin/order/all/{page<\d+>}', name: 'admin.order.all', methods: ['GET', 'POST',])]
     public function index(
         Request $request,
         AllOrdersInterface $allOrders,
         OrderStatusCollection $collection,
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
-    ): Response
-    {
+    ): Response {
 
         // Поиск
         $search = new SearchDTO();
-        $searchForm = $this->createForm(SearchForm::class, $search,
+        $searchForm = $this->createForm(
+            SearchForm::class,
+            $search,
             ['action' => $this->generateUrl('orders-order:admin.order.all')]
         );
         $searchForm->handleRequest($request);
@@ -88,7 +86,6 @@ final class AllController extends AbstractController
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            //->findAllPaginator($this->getUsr()?->getId())
             ->findAllPaginator($this->getProfileUid());
 
 

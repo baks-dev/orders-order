@@ -32,5 +32,4 @@ return static function (TwigConfig $twig) {
         BaksDevOrdersOrderBundle::PATH.'Resources/view',
         'orders-order'
     );
-
 };

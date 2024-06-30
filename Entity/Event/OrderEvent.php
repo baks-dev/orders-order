@@ -94,7 +94,7 @@ class OrderEvent extends EntityEvent
 
     /** Комментарий к заказу */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private string $comment;
+    private ?string $comment = null;
 
     public function __construct()
     {

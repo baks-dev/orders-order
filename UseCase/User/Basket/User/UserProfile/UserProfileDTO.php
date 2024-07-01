@@ -42,7 +42,6 @@ final class UserProfileDTO implements UserProfileEventInterface
     private ?TypeProfileUid $type = null;
 
     /** Значения профиля */
-    #[Assert\Valid]
     private ArrayCollection $value;
 
     /** Информация профиля */

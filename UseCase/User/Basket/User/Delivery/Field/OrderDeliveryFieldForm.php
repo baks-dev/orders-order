@@ -94,10 +94,7 @@ final class OrderDeliveryFieldForm extends AbstractType
                             ]
                         );
                     }
-
-
                 }
-
             }
         );
 

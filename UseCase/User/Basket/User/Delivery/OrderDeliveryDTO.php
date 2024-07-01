@@ -48,7 +48,6 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     private DeliveryEventUid $event;
 
     /** Пользовательские поля */
-    #[Assert\Valid]
     private ArrayCollection $field;
 
     /**

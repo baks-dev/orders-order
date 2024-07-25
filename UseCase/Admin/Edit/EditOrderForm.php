@@ -34,7 +34,6 @@ final class EditOrderForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
         /* Коллекция продукции */
         $builder->add('product', CollectionType::class, [
             'entry_type' => Products\OrderProductForm::class,

@@ -87,9 +87,7 @@ final class ProductsController extends AbstractController
                 //'opens' => $opens,
                 'query' => $OrderProducts,
                 'search' => $searchForm->createView(),
-                //'profile' => $profileForm->createView(),
                 'filter' => $filterForm->createView(),
-                //'token' => $tokenUserGenerator->generate($this->getUsr()),
             ]
         );
     }

@@ -33,15 +33,27 @@
 
 {% block javascript %}
 
-    <script nonce='{{ csp_nonce() }}' async
-            data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"
-            class='lazy'></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}"
-            class="lazy"></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}"
-            class="lazy"></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}"
-            class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}" class='lazy'></script>
+
+    <script nonce="{{ csp_nonce() }}">
+
+        document.addEventListener("DOMContentLoaded", (event) =>
+        {
+            const form = document.forms.order_delivery_filter_form;
+            form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+        });
+
+        function changeDatapicker(input)
+        {
+            let forms = input.closest('form');
+            forms.submit();
+        }
+
+    </script>
+
 
     {% if baks_profile.id is defined %}
 

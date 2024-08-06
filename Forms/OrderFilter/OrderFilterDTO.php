@@ -23,13 +23,13 @@
 
 namespace BaksDev\Orders\Order\Forms\OrderFilter;
 
-use BaksDev\Manufacture\Part\Forms\ManufactureFilter\ManufactureFilterInterface;
-use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 
-final class OrderFilterDTO
+final class OrderFilterDTO implements OrderFilterInterface
 {
     public const date = 'KRNQMIHrZn';
 
@@ -112,4 +112,8 @@ final class OrderFilterDTO
     }
 
 
+    public function getDelivery(): ?DeliveryUid
+    {
+        return null;
+    }
 }

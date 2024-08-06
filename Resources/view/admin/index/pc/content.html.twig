@@ -98,10 +98,27 @@
             <div class="d-flex justify-content-between">
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
+
+                <div class="col-6">
+                    {{ form_start(filter) }}
+                    <div class="w-100 d-flex gap-3 justify-content-end" style="height: 55px;">
+                        <div class="w-50">
+                            {{ form_row(filter.delivery, { placeholder : 'Любой способ доставки ...', attr : { 'data-select' : 'select2' } }) }}
+                        </div>
+                    </div>
+                    {{ form_end(filter) }}
+                </div>
             </div>
 
+            {% if filter.delivery is defined and filter.delivery.vars.data %}
+                <div class="d-flex gap-3 m-2">
+                    <div><small class="text-muted">Способ доставки:</small>&nbsp;
+                        <strong>{{ filter.delivery.vars.data.attr }}</strong>
+                    </div>
+                </div>
+            {% endif %}
 
-            <div class="d-flex justify-content-between gap-2 cards-box p-2 mt-3">
+            <div class="d-flex justify-content-between gap-2 cards-box p-2 ">
 
                 {% for stats in status |filter(v => v.getValue() != 'canceled') %}
 

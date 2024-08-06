@@ -37,7 +37,7 @@ final class ValueDTO implements UserProfileValueInterface
     private ?TypeProfileSectionFieldUid $field = null;
 
     /** Заполненное значение */
-    #[Assert\NotBlank]
+    /*#[Assert\NotBlank]*/
     private ?string $value = null;
 
     /** Вспомогательные свойства */

@@ -45,6 +45,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
+use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
@@ -79,7 +80,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
     private ?OrderStatus $status = null;
 
-    private ?OrderFilterDTO $filter = null;
+    private ?OrderFilterInterface $filter = null;
 
     private ?int $limit = null;
 
@@ -108,7 +109,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         return $this;
     }
 
-    public function filter(OrderFilterDTO $filter): self
+    public function filter(OrderFilterInterface $filter): self
     {
         $this->filter = $filter;
         return $this;
@@ -117,7 +118,7 @@ final class AllOrdersRepository implements AllOrdersInterface
     /**
      * Метод возвращает список заказов
      */
-    public function findAllPaginator(UserProfileUid|UserUid $usr): PaginatorInterface
+    public function findPaginator(UserProfileUid|UserUid $usr): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -147,7 +148,6 @@ final class AllOrdersRepository implements AllOrdersInterface
         {
             $this->status = $this->filter->getStatus();
         }
-
 
         $condition = 'order_event.id = orders.event';
 
@@ -242,15 +242,18 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         // Доставка
 
+        $dbal->addSelect('order_delivery.delivery_date AS delivery_date');
 
-        $dbal
-            ->addSelect('order_delivery.delivery_date AS delivery_date')
-            ->leftJoin(
-                'order_user',
-                OrderDelivery::class,
-                'order_delivery',
-                'order_delivery.usr = order_user.id'
-            );
+        if($this->filter->getDelivery())
+        {
+            $dbal
+                ->leftJoin(
+                    'order_user',
+                    OrderDelivery::class,
+                    'order_delivery',
+                    'order_delivery.usr = order_user.id'
+                );
+        }
 
 
         $dbal

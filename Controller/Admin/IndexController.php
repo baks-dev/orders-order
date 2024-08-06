@@ -28,6 +28,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterDTO;
+use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
@@ -41,7 +43,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class IndexController extends AbstractController
 {
     /**
-     * Управление заказами
+     * Управление заказами (Канбан)
      */
     #[Route('/admin/orders/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
     public function index(
@@ -60,6 +62,16 @@ final class IndexController extends AbstractController
             ['action' => $this->generateUrl('orders-order:admin.index')]
         );
         $searchForm->handleRequest($request);
+
+
+        $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO();
+
+        $OrderDeliveryFilterForm = $this->createForm(
+            OrderDeliveryFilterForm::class,
+            $OrderDeliveryFilterDTO,
+            ['action' => $this->generateUrl('orders-order:admin.index')]
+        );
+        $OrderDeliveryFilterForm->handleRequest($request);
 
         $orders = null;
 
@@ -80,7 +92,8 @@ final class IndexController extends AbstractController
             $orders[$status->getOrderStatusValue()] = $allOrders
                 ->search($search)
                 ->status($status)
-                ->findAllPaginator($this->getProfileUid())
+                ->filter($OrderDeliveryFilterDTO)
+                ->findPaginator($this->getProfileUid())
                 ->getData();
         }
 
@@ -89,7 +102,9 @@ final class IndexController extends AbstractController
                 'query' => $orders,
                 'status' => $collection->cases(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
+
                 'search' => $searchForm->createView(),
+                'filter' => $OrderDeliveryFilterForm->createView(),
             ]
         );
     }

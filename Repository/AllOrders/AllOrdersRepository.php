@@ -34,6 +34,7 @@ use BaksDev\Core\Type\Locale\Locale;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -46,6 +47,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
+use BaksDev\Orders\Order\Type\Delivery\OrderDeliveryUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
@@ -244,25 +246,44 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         $dbal->addSelect('order_delivery.delivery_date AS delivery_date');
 
+        //if($this->filter->getDelivery())
+        //{
+        $dbal
+            ->leftJoin(
+                'order_user',
+                OrderDelivery::class,
+                'order_delivery',
+                'order_delivery.usr = order_user.id'
+            );
+        //}
+
         if($this->filter->getDelivery())
         {
             $dbal
-                ->leftJoin(
-                    'order_user',
-                    OrderDelivery::class,
+                ->join(
                     'order_delivery',
-                    'order_delivery.usr = order_user.id'
+                    DeliveryEvent::class,
+                    'delivery_event',
+                    'delivery_event.id = order_delivery.event AND delivery_event.main = :delivery'
+                )->setParameter(
+                    'delivery',
+                    $this->filter->getDelivery(),
+                    DeliveryUid::TYPE
+                );
+
+
+        }
+        else
+        {
+            $dbal
+                ->leftJoin(
+                    'order_delivery',
+                    DeliveryEvent::class,
+                    'delivery_event',
+                    'delivery_event.id = order_delivery.event'
                 );
         }
 
-
-        $dbal
-            ->leftJoin(
-                'order_delivery',
-                DeliveryEvent::class,
-                'delivery_event',
-                'delivery_event.id = order_delivery.event'
-            );
 
         $dbal
             ->addSelect('delivery_price.price AS delivery_price')

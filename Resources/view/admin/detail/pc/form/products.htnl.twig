@@ -1,11 +1,11 @@
 <table class="table">
     <thead>
     <tr class="small text-muted border-white">
-        <th>Наименование</th>
-        <th>Стоимость, шт</th>
-        <th class="text-center">Количество</th>
-        <th>Сумма</th>
-        <th></th>
+        <th class="w-75">Наименование</th>
+        <th class="w-50 text-center">Стоимость, шт</th>
+        <th class="w-25 text-center">Количество</th>
+        <th class="w-25">Сумма</th>
+        <th class="w-25"></th>
     </tr>
     </thead>
 
@@ -15,11 +15,10 @@
 
         {% set card = product.vars.data.card %}
 
-
         {% if card %}
 
             <tr id='item_{{ product.vars.id }}'>
-                <td>
+                <td rowspan="2">
 
                     <div class="row">
                         <div class="col-3">
@@ -50,7 +49,7 @@
 
                         </div>
 
-                        <div class="col align-self-center">
+                        <div class="col-8 align-self-center">
 
                             <a href="{{ path('products-product:user.detail', {
                                 category : card.category_url ,
@@ -59,7 +58,6 @@
                                 variation: card.product_variation_value,
                                 modification: card.product_modification_value,
                                 postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
-
 
                             }) }}"
                                class="text-dark me-3 text-uppercase text-decoration-none"
@@ -79,9 +77,12 @@
 
                             </a>
 
+
                             {% if date() < card.product_active_from|date_modify("+1 month") %}
                                 <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
                             {% endif %}
+
+
 
                             {# <span class="badge bg-hit rounded-2 mt-1 mx-1">Хит</span> #}
 
@@ -92,35 +93,76 @@
                                      height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
                                     <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
                                 </svg>
-
-                                Артикул: {{ card.product_article }}
+                                {{ card.product_article }}
                             </div>
+                        </div>
 
+                        <div class="col position-relative mt-2">
+                            {% if card.product_price != (product.vars.data.price.price.value * 100) %}
+                                <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0 mt-2">
+                                    <strike class="small text-muted">
+                                        {{ money(card.product_price, card.product_currency) }}
+                                    </strike>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
                 </td>
 
-                <td class="vertical-middle">
+                {# Запрет на редактирвоание количества либо стоимости #}
+                {% set isNotEdit = order.order_status == 'package' or order.order_status == 'extradition' or order.order_status == 'delivery' %}
 
+
+                <td class="vertical-middle text-center">
                     {% if product.vars.data.price.price == '0' %}
                         <span class="text-danger">Не указана</span>
                     {% else %}
-                        {{ money(product.vars.data.price.price, card.product_currency) }}
+                        {# class : 'form-control-sm mx-1 rounded-3 total', #}
+                        {% if product.price.price is defined %}
 
-                        {% if card.product_price != (product.vars.data.price.price.value * 100) %}
-                            &nbsp; <strike class="small text-muted">
-                            {{ money(card.product_price, card.product_currency) }}</strike>
+                            {% set isDiscount = card.product_price > (product.vars.data.price.price.value * 100) %}
+
+                            <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+
+                                <button type="button" class="btn btn-sm minus"
+                                        title="Уменьшить количество"
+                                        data-id='{{ product.price.price.vars.id }}'
+                                        data-step='100'
+                                >
+                                    <span class="h4 text-muted opacity-50">-</span>
+                                </button>
+
+
+                                {{ form_widget(product.price.price, { attr: {
+                                    class: 'w-75 form-control-sm rounded-3 price',
+                                    disabled: false
+                                } }) }}
+
+
+                                <button type="button" class="btn btn-sm plus"
+                                        title="Увеличить количество"
+                                        data-id='{{ product.price.price.vars.id }}'
+                                        data-step='100'
+                                >
+                                    <span class="h5 text-muted opacity-50">+</span>
+                                </button>
+                            </div>
+
+                            {% if isNotEdit %}
+                                {{ money(product.vars.data.price.price, card.product_currency) }}
+                            {% endif %}
+
+
+                        {% else %}
+                            {{ money(product.vars.data.price.price, card.product_currency) }}
                         {% endif %}
-                    {% endif %}
 
+                    {% endif %}
                 </td>
 
 
                 <td class="vertical-middle text-center">
-
-                    {# Запрет на редактирвоание количества #}
-                    {% set isNotEdit = order.order_status == 'package' or order.order_status == 'extradition' or order.order_status == 'delivery' %}
 
                     <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
 
@@ -158,7 +200,6 @@
                     {% if isNotEdit %}
                         {{ product.price.total.vars.data }}
                     {% endif %}
-
 
                 </td>
 
@@ -209,6 +250,26 @@
                 </td>
 
             </tr>
+
+            <tr>
+                <td colspan="4">
+                    {% if product.price.price is defined %}
+                        {% if is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+                            <span class="badge text-bg-danger">Скидка до 5%</span>
+                        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
+                            <span class="badge text-bg-danger">Скидка до 10%</span>
+                        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+                            <span class="badge text-bg-danger">Скидка до 15%</span>
+                        {% else %}
+                            <span class="badge text-bg-danger">Скидка до 20%</span>
+                        {% endif %}
+                        &nbsp;<small> мин. стомиость: </small>&nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
+            </tr>
+
         {% endif %}
     {% endfor %}
 

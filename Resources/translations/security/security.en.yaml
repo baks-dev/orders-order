@@ -18,7 +18,17 @@ ROLE_ORDERS_DELETE:
   name: 'Delete'
   desc: ''
 
+ROLE_ORDERS_DISCOUNT_5:
+  name: 'Discount 5%'
+  desc: ''
 
+ROLE_ORDERS_DISCOUNT_10:
+  name: 'Discount 10%'
+  desc: ''
+
+ROLE_ORDERS_DISCOUNT_15:
+  name: 'Discount 15%'
+  desc: ''
 
 ROLE_ORDERS_STATUS:
   name: 'Order statuses'

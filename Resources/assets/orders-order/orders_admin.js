@@ -150,17 +150,21 @@ function resolve(forms)
     }
 }
 
-
 /** Уменьшаем число продукции */
 document.querySelectorAll('.minus').forEach(function(btn)
 {
 
     btn.addEventListener('click', function(event)
     {
+        let inpt = document.getElementById(this.dataset.id).value;
 
-        let result = document.getElementById(this.dataset.id).value * 1 - 1;
+        let result = parseFloat(inpt.replace(",", "."));
+        result = result - (this.dataset.step ? this.dataset.step * 1 : 1);
+
         if(result <= 0)
-        { return; }
+        {
+            return;
+        }
 
         document.getElementById(this.dataset.id).value = result;
 
@@ -180,9 +184,8 @@ document.querySelectorAll('.total').forEach(function(input)
     {
         if(typeof orderCounter.debounce == 'function')
         {
-
             /** Событие на изменение количество в ручную */
-            input.addEventListener('input', orderCounter.debounce(300));
+            input.addEventListener('input', orderCounter.debounce(1000));
             return;
         }
 
@@ -192,18 +195,46 @@ document.querySelectorAll('.total').forEach(function(input)
 
 });
 
+
+/** Событие на изменение стоимости */
+document.querySelectorAll('.price').forEach(function(input)
+{
+    setTimeout(function initPrice()
+    {
+        if(typeof orderCounter.debounce == 'function')
+        {
+            /** Событие на изменение стимости в ручную */
+            input.addEventListener('input', orderCounter.debounce(1000));
+            return;
+        }
+
+        setTimeout(initPrice, 100);
+
+    }, 100);
+
+});
+
+
 /** Увеличиваем число продукции */
 document.querySelectorAll('.plus').forEach(function(btn)
 {
 
     btn.addEventListener('click', function(event)
     {
-
         let inpt = document.getElementById(this.dataset.id);
-        let result = inpt.value * 1 + 1;
 
-        if(result > inpt.dataset.max)
-        { return; }
+        let result = parseFloat(inpt.value.replace(",", "."));
+        result = result + (this.dataset.step ? this.dataset.step * 1 : 1);
+
+        //let inpt = document.getElementById(this.dataset.id);
+        //let result = inpt.value * 1 + 1;
+
+        console.log(inpt.dataset.max);
+
+        if(inpt.dataset.max && result > inpt.dataset.max)
+        {
+            return;
+        }
 
         document.getElementById(this.dataset.id).value = result;
 
@@ -218,7 +249,6 @@ document.querySelectorAll('.plus').forEach(function(btn)
 
 function orderCounter()
 {
-
     let result = this.value * 1;
     let max = this.dataset.max * 1;
 
@@ -244,55 +274,78 @@ function orderCounter()
 function orderSum(result, id)
 {
 
+    let product_total = document.getElementById(id);
     let product_summ = document.getElementById('summ_' + id);
 
     if(product_summ)
     {
+        let result_product_sum = result * product_total.dataset.price / 100;
 
-
-        let result_product_sum = result * product_summ.dataset.price;
-
-        if(product_summ.dataset.discount)
-        {
-            result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
-        }
-
-        result_product_sum = result_product_sum / 100;
         result_product_sum = new Intl.NumberFormat($locale, {
             style: 'currency',
             currency: product_summ.dataset.currency,
             maximumFractionDigits: 0
         }).format(result_product_sum);
+
         product_summ.innerText = result_product_sum;
     }
 }
 
 function total()
 {
-
     let result_total = 0;
     let currency = null;
 
     document.querySelectorAll('.total').forEach(function(total)
     {
-        let total_value = total.value * 1;
-        let price = total.dataset.price * 1;
+        // зменение в поле количество
+
+        const price_id = total.id.replace(/price_total/g, "price_price");
+        const input_price = document.getElementById(price_id);
+
+        let price = parseFloat(total.dataset.price.replace(",", "."));
+
+        if(input_price)
+        {
+            price = parseFloat(input_price.value.replace(",", ".")) * 100;
+            total.dataset.price = price;
+
+            let minimal = parseFloat(input_price.getAttribute('min')) * 100;
+
+            /** Делаем проверку, что сумма не менше допустимой */
+            if(minimal > price)
+            {
+                price = minimal;
+                total.dataset.price = minimal;
+                input_price.value = minimal / 100;
+
+                let $successSupplyToast = '{ "type":"danger" , ' +
+                    '"header":"Ошибка при изменении стоимости"  , ' +
+                    '"message" : "Нельзя указать стоимость товара в заказе ниже минимально допустимой!" }';
+
+                createToast(JSON.parse($successSupplyToast));
+
+            }
+
+            /** Делаем перерасчет суммы продукции */
+            orderSum(total.value, total.id);
+
+        }
+
+
+        const total_value = total.value * 1;
+        //let price = total.dataset.price * 1;
         currency = total.dataset.currency;
-        let discount = total.dataset.discount * 1;
+        const discount = total.dataset.discount * 1;
 
         if(total_value)
         {
-
             let result_total_value = total_value * price;
-
-            if(discount)
-            {
-                result_total_value = result_total_value - (result_total_value / 100 * discount);
-            }
-
             result_total = result_total + result_total_value;
         }
+
     });
+
 
     result_total = result_total / 100;
 
@@ -304,6 +357,7 @@ function total()
 
 
     let total_result = document.getElementById('total_result');
+
     if(total_result)
     {
         total_result.innerText = result_product_sum;
@@ -311,6 +365,7 @@ function total()
 
 
     let total_product_sum = document.getElementById('total_product_sum');
+
     if(total_product_sum)
     {
         total_product_sum.innerText = result_product_sum;

@@ -20,7 +20,17 @@ ROLE_ORDERS_DELETE:
   name: 'Удалить'
   desc: ''
 
+ROLE_ORDERS_DISCOUNT_5:
+  name: 'Скидка 5%'
+  desc: ''
 
+ROLE_ORDERS_DISCOUNT_10:
+  name: 'Скидка 10%'
+  desc: ''
+
+ROLE_ORDERS_DISCOUNT_15:
+  name: 'Скидка 15%'
+  desc: ''
 
 # Роль статусо заказов
 ROLE_ORDERS_STATUS:

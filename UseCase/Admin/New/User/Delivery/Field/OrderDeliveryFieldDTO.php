@@ -39,7 +39,7 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
     private DeliveryFieldUid $field;
 
     /** Заполненное значение */
-    #[Assert\Valid]
+    #[Assert\NotBlank]
     private ?string $value = null;
 
     /** Идентификатор пользовательского поля в способе оплаты */

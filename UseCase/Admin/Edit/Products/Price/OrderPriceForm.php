@@ -25,16 +25,84 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price;
 
+use BaksDev\Reference\Money\Type\Money;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Range;
 
 final class OrderPriceForm extends AbstractType
 {
+    public function __construct(private readonly Security $security) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $discount = match (true)
+        {
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
+            $this->security->isGranted('ROLE_ADMIN') => 20,
+            default => false,
+        };
+
         $builder->add('total', TextType::class);
+
+        if($discount)
+        {
+            $builder->addEventListener(
+                FormEvents::PRE_SET_DATA,
+                function (FormEvent $event) use ($discount, $builder): void {
+
+                    /** @var OrderPriceDTO $OrderPriceDTO */
+                    $OrderPriceDTO = $event->getData();
+
+                    if($OrderPriceDTO)
+                    {
+                        $form = $event->getForm();
+
+                        /** Расчет суммы, на которую можно снизить цену */
+                        $percent = $OrderPriceDTO->getPrice()->percent($discount);
+                        $money = clone $OrderPriceDTO->getPrice();
+                        $min = $money->sub($percent);
+
+                        $form->add(
+                            $builder
+                                ->create(
+                                    'price',
+                                    MoneyType::class,
+                                    [
+                                        'attr' => ['min' => $min],
+                                        'required' => true,
+                                        'currency' => false,
+                                        'auto_initialize' => false,
+                                        //'constraints' => [new Range(min: $min->getValue())]
+                                    ]
+                                )
+                                ->addModelTransformer(
+                                    new CallbackTransformer(
+                                        function ($price) {
+                                            return $price instanceof Money ? $price->getValue() : $price;
+                                        },
+                                        function ($price) {
+                                            return new Money($price);
+                                        }
+                                    )
+                                )
+                                ->getForm()
+                        );
+                    }
+                }
+            );
+        }
+
+
     }
 
 

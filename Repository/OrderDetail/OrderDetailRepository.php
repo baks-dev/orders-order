@@ -37,7 +37,10 @@ use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
+use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Payment\Entity\Payment;
+use BaksDev\Payment\Entity\Trans\PaymentTrans;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
@@ -93,6 +96,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal
             ->addSelect('event.status AS order_status')
             ->addSelect('event.created AS order_data')
+            ->addSelect('event.comment AS order_comment')
             ->join(
                 'orders',
                 OrderEvent::class,
@@ -107,6 +111,37 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_user',
             'order_user.event = orders.event'
         );
+
+
+        /** Оплата */
+
+        $dbal
+            ->leftJoin(
+                'order_product',
+                OrderPayment::class,
+                'order_product_payment',
+                'order_product_payment.usr = order_user.id'
+            );
+
+
+        $dbal
+            ->addSelect('payment.id AS payment_id')
+            ->leftJoin(
+                'order_product_payment',
+                Payment::class,
+                'payment',
+                'payment.id = order_product_payment.payment'
+            );
+
+
+        $dbal
+            ->addSelect('payment_trans.name AS payment_name')
+            ->leftJoin(
+                'order_product_payment',
+                PaymentTrans::class,
+                'payment_trans',
+                'payment_trans.event = payment.event AND payment_trans.local = :local'
+            );
 
         /* Продукция в заказе  */
 

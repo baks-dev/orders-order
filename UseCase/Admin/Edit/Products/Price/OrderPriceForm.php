@@ -42,12 +42,7 @@ final class OrderPriceForm extends AbstractType
 {
     private false|int $discount = false;
 
-    private bool $admin = false;
-
-    public function __construct(private readonly Security $security)
-    {
-        $this->admin = $this->security->isGranted('ROLE_ADMIN');
-    }
+    public function __construct(private readonly Security $security) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -56,7 +51,7 @@ final class OrderPriceForm extends AbstractType
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
-            $this->admin => 20,
+            $this->security->isGranted('ROLE_ADMIN') => 20,
             default => false,
         };
 

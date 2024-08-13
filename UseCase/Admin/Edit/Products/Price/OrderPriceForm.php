@@ -74,6 +74,11 @@ final class OrderPriceForm extends AbstractType
                         $OrderProductDTO = $form->getParent()?->getData();
                         $card = $OrderProductDTO->getCard();
 
+                        if(!isset($card['product_price']))
+                        {
+                            return;
+                        }
+
                         $productPrice = new Money($card['product_price'], true);
                         $percent = $productPrice->percent($this->discount);
                         $min = $productPrice->sub($percent);

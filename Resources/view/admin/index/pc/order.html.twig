@@ -25,6 +25,7 @@
                         {% endif %}
 
                     </div>
+
                     {% set dedline = date(order.modify) %}
                     {% set difference = dedline.diff(date("now")) %}
                     {% set day = difference.days ?: null %}
@@ -41,7 +42,19 @@
                                 data-bs-delay='{"show":600,"hide":100}'
                                 title="Последнее движение по заказу"
                                 class="small {{ day ? 'text-danger' : 'text-success' }}">
-                            {{ day ? day~' д. ' }}{{ hour ? hour~' ч. ' }}{{ day and hour is not null ? null : difference.i~' м.' }}
+
+                            {% if day %}
+                                {{ day }}<span class="small">д.</span>
+                            {% endif %}
+
+                            {% if hour %}
+                                {{ hour }}<span class="small">ч.</span>
+                            {% endif %}
+
+                            {% if day is null %}
+                                {{ difference.i }}<span class="small">м.</span>
+                            {% endif %}
+
                         </strong>
                     </div>
 
@@ -174,28 +187,29 @@
                 {% if users is not empty %}
 
                     {% for user in users %}
-                        <div class='mb-1 text-truncate {{ loop.first ? "fw-bolder" }}'
-                             style="max-width: 150px;"
+                        <div class='mb-1 text-truncate pointer {{ loop.first ? "fw-bolder" }}'
+                             style="max-width: calc(100%);"
                              role="tooltip"
                              data-bs-toggle="tooltip"
                              data-bs-placement="bottom"
-                             data-bs-delay='{"show":600,"hide":100}'
+                             data-bs-delay='{"show":200,"hide":100}'
                              title='{{ user.profile_value }}'
                         >
                             {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
                         </div>
                     {% endfor %}
 
+                    Фаянс Евгений Александрович
                 {% else %}
 
                     {% if order.account_email %}
-                        <div class="text-truncate" style="max-width: 150px;">
+                        <div class="text-truncate pointer" style="max-width: 140px;">
                             <a href="mailto:{{ order.account_email }}"
                                class="text-decoration-none"
                                role="tooltip"
                                data-bs-toggle="tooltip"
                                data-bs-placement="bottom"
-                               data-bs-delay='{"show":600,"hide":100}'
+                               data-bs-delay='{"show":200,"hide":100}'
                                title='{{ order.account_email }}'
                             >
                                 @ {{ order.account_email }}

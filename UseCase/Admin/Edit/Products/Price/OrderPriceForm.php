@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price;
 
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Reference\Money\Type\Money;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
@@ -39,26 +40,33 @@ use Symfony\Component\Validator\Constraints\Range;
 
 final class OrderPriceForm extends AbstractType
 {
-    public function __construct(private readonly Security $security) {}
+    private false|int $discount = false;
+
+    private bool $admin = false;
+
+    public function __construct(private readonly Security $security)
+    {
+        $this->admin = $this->security->isGranted('ROLE_ADMIN');
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $discount = match (true)
+        $this->discount = match (true)
         {
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
-            $this->security->isGranted('ROLE_ADMIN') => 20,
+            $this->admin => 20,
             default => false,
         };
 
         $builder->add('total', TextType::class);
 
-        if($discount)
+        if($this->discount)
         {
             $builder->addEventListener(
                 FormEvents::PRE_SET_DATA,
-                function (FormEvent $event) use ($discount, $builder): void {
+                function (FormEvent $event) use ($builder): void {
 
                     /** @var OrderPriceDTO $OrderPriceDTO */
                     $OrderPriceDTO = $event->getData();
@@ -67,10 +75,14 @@ final class OrderPriceForm extends AbstractType
                     {
                         $form = $event->getForm();
 
-                        /** Расчет суммы, на которую можно снизить цену */
-                        $percent = $OrderPriceDTO->getPrice()->percent($discount);
-                        $money = clone $OrderPriceDTO->getPrice();
-                        $min = $money->sub($percent);
+                        /**  @var OrderProductDTO $OrderProductDTO */
+                        $OrderProductDTO = $form->getParent()?->getData();
+                        $card = $OrderProductDTO->getCard();
+
+                        $productPrice = new Money($card['product_price'], true);
+                        $percent = $productPrice->percent($this->discount);
+                        $min = $productPrice->sub($percent);
+
 
                         $form->add(
                             $builder

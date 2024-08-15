@@ -27,6 +27,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -138,9 +139,9 @@ final class EditOrderDTO implements OrderEventInterface
     }
 
 
-    public function setStatus(OrderStatus $status): void
+    public function setStatus(OrderStatus|OrderStatusInterface|string $status): void
     {
-        $this->status = $status;
+        $this->status = $status instanceof OrderStatus ? $status : new OrderStatus($status);
     }
 
     /**

@@ -27,13 +27,12 @@ namespace BaksDev\Orders\Order\Listeners\Event;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
 use BaksDev\Orders\Order\Type\Status\OrderStatusType;
-use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 #[AsEventListener(event: ControllerEvent::class)]
-#[AsEventListener(event: ConsoleEvents::COMMAND)]
+#[AsEventListener(event: ConsoleCommandEvent::class)]
 final readonly class OrderStatusListener
 {
     public function __construct(private OrderStatusCollection $collection) {}
@@ -50,5 +49,4 @@ final readonly class OrderStatusListener
     {
         $this->collection->cases();
     }
-
 }

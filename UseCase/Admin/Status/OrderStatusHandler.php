@@ -56,7 +56,7 @@ final class OrderStatusHandler extends AbstractHandler
 
 
     /** @see Order */
-    public function handle(OrderEventInterface $command): string|Order
+    public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
 
         /** Валидация DTO  */
@@ -67,7 +67,8 @@ final class OrderStatusHandler extends AbstractHandler
 
         try
         {
-            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
+            //$command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
+            $this->preUpdate($command, true);
         }
         catch(DomainException $errorUniqid)
         {
@@ -79,16 +80,21 @@ final class OrderStatusHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
-
-        /** Статус заказа может присваиваться только единожды */
-        $exists = $this->existOrderEventByStatus->isExists($this->main->getId(), $command->getStatus());
-
-        if($exists)
+        /**
+         * Проверяем, если статус заказа может присваиваться только единожды
+         */
+        if($deduplicator)
         {
-            return 'exists';
+            $exists = $this->existOrderEventByStatus->isExists($this->main->getId(), $command->getStatus());
+
+            if($exists)
+            {
+                return 'Невозможно применить повторно статус заказа';
+            }
         }
 
         $this->entityManager->flush();
+        $this->entityManager->clear();
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(

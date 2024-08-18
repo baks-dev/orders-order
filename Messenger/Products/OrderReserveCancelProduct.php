@@ -133,7 +133,7 @@ final class OrderReserveCancelProduct
             $this->logger->info(
                 'Снимаем общий резерв продукции в карточке при отмене заказа',
                 [
-                    __FILE__.':'.__LINE__,
+                    self::class.':'.__LINE__,
                     'total' => $product->getTotal(),
                     'product' => (string) $product->getProduct(),
                     'offer' => (string) $product->getOffer(),
@@ -204,7 +204,7 @@ final class OrderReserveCancelProduct
         $this->logger->critical(
             'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
             [
-                __FILE__.':'.__LINE__,
+                self::class.':'.__LINE__,
                 'total' => (string) $product->getTotal(),
                 'product' => (string) $product->getProduct(),
                 'offer' => (string) $product->getOffer(),

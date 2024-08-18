@@ -122,7 +122,9 @@ final class PackageOrderProductForm extends AbstractType
 
                         if($warehouse)
                         {
-                            $UserByUserProfile = $this->userByUserProfile->findUserByProfile($warehouse);
+                            $UserByUserProfile = $this->userByUserProfile
+                                ->withProfile($warehouse)
+                                ->findUser();
                             $UserUid = $UserByUserProfile?->getId();
                         }
 

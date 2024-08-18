@@ -27,12 +27,12 @@ namespace BaksDev\Orders\Order\Type\Status\OrderStatus\Collection;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use InvalidArgumentException;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final class OrderStatusCollection
 {
     public function __construct(
-        #[TaggedIterator('baks.order.status', defaultPriorityMethod: 'sort')]
+        #[AutowireIterator('baks.order.status', defaultPriorityMethod: 'sort')]
         private readonly iterable $status
     ) {}
 

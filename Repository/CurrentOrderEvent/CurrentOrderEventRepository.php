@@ -35,7 +35,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class CurrentOrderEventRepository implements CurrentOrderEventInterface
 {
-    private ?OrderUid $order = null;
+    private OrderUid|false $order = false;
 
     public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
@@ -62,16 +62,15 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
      */
     public function getCurrentOrderEvent(): ?OrderEvent
     {
-        if(Kernel::isTestEnvironment())
+        if($this->order === false)
         {
-            return EntityTestGenerator::get(OrderEvent::class);
-        }
+            if(Kernel::isTestEnvironment())
+            {
+                return EntityTestGenerator::get(OrderEvent::class);
+            }
 
-        if(!$this->order)
-        {
             return null;
         }
-
 
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 

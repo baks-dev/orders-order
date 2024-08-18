@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,6 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Controller\User;
+namespace BaksDev\Orders\Order\Entity\Invariable;
 
-use BaksDev\Core\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Attribute\Route;
-
-#[AsController]
-class OrderController extends AbstractController
-{
-    /* История заказов пользователя */
-    #[Route('/orders', name: 'user.orders')]
-    public function index(Request $request): Response
-    {
-
-        return $this->render([]);
-
-        //        return $this->render('home/index.html.twig', [
-        //            'controller_name' => 'HomeController',
-        //        ]);
-    }
-}
+interface OrderInvariableInterface {}

@@ -101,7 +101,7 @@ final class OrderReserveCompletedProduct
             $this->logger->info(
                 'Снимаем общий резерв и наличие продукции в карточке при выполненном заказе',
                 [
-                    __FILE__.':'.__LINE__,
+                    self::class.':'.__LINE__,
                     'total' => (string) $product->getTotal(),
                     'ProductEventUid' => (string) $product->getProduct(),
                     'ProductOfferUid' => (string) $product->getOffer(),
@@ -172,7 +172,7 @@ final class OrderReserveCompletedProduct
         $this->logger->critical(
             'Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена либо недостаточное количество в резерве)',
             [
-                __FILE__.':'.__LINE__,
+                self::class.':'.__LINE__,
                 'total' => $product->getTotal(),
                 'product' => (string) $product->getProduct(),
                 'offer' => (string) $product->getOffer(),

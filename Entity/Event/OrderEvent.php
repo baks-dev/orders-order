@@ -25,6 +25,8 @@ namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Core\Type\Crypt\Crypt;
+use BaksDev\Orders\Order\Entity\Const\OrderConst;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -69,6 +71,12 @@ class OrderEvent extends EntityEvent
     #[Assert\Count(min: 1)]
     #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
     private Collection $product;
+
+    /**
+     * Постоянная величина
+     */
+    #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
+    private OrderInvariable $invariable;
 
     /** Дата заказа */
     #[Assert\NotBlank]

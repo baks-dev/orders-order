@@ -36,7 +36,7 @@ use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
 #[AsController]
@@ -101,7 +101,7 @@ final class NewController extends AbstractController
 
 
                 $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
+                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'],true));
                 $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
             }
 

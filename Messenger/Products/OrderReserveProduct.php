@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Messenger\Products;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Lock\AppLockInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
@@ -57,7 +58,6 @@ final class OrderReserveProduct
         private readonly CurrentQuantityByVariationInterface $quantityByVariation,
         private readonly CurrentQuantityByOfferInterface $quantityByOffer,
         private readonly CurrentQuantityByEventInterface $quantityByEvent,
-        private readonly CurrentOrderEventInterface $currentOrderEvent,
         private readonly DeduplicatorInterface $deduplicator,
         LoggerInterface $ordersOrderLogger,
     ) {
@@ -71,7 +71,6 @@ final class OrderReserveProduct
      */
     public function __invoke(OrderMessage $message): void
     {
-
         $Deduplicator = $this->deduplicator
             ->namespace(md5(self::class))
             ->deduplication([
@@ -84,16 +83,17 @@ final class OrderReserveProduct
             return;
         }
 
-        /** Новый заказ не имеет предыдущего события */
+        /** Новый заказ не имеет предыдущего события!!! */
         if($message->getLast())
         {
             return;
         }
 
+        $OrderEvent = $this->entityManager
+            ->getRepository(OrderEvent::class)
+            ->find($message->getEvent());
+
         $this->entityManager->clear();
-        $OrderEvent = $this->currentOrderEvent
-            ->order($message->getId())
-            ->getCurrentOrderEvent();
 
         if(!$OrderEvent)
         {
@@ -115,7 +115,7 @@ final class OrderReserveProduct
             $this->logger->info(
                 'Добавляем общий резерв продукции в карточке',
                 [
-                    __FILE__.':'.__LINE__,
+                    self::class.':'.__LINE__,
                     'total' => $product->getTotal(),
                     'ProductEventUid' => (string) $product->getProduct(),
                     'ProductOfferUid' => (string) $product->getOffer(),
@@ -182,7 +182,7 @@ final class OrderReserveProduct
         $this->logger->critical(
             'Невозможно добавить резерв на новый заказ: карточка не найдена либо недостаточное количество для резерва)',
             [
-                __FILE__.':'.__LINE__,
+                self::class.':'.__LINE__,
                 'total' => (string) $product->getTotal(),
                 'ProductEventUid' => (string) $product->getProduct(),
                 'ProductOfferUid' => (string) $product->getOffer(),

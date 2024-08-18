@@ -38,7 +38,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\ItemInterface;
 
 #[AsController]
@@ -134,7 +134,7 @@ class BasketController extends AbstractController
                 $product->setCard($ProductDetail);
 
                 $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'] / 100));
+                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'], true));
                 $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
             }
 

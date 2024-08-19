@@ -132,21 +132,12 @@ final class OrderReserveCancelProduct
         {
             $this->logger->info(
                 'Снимаем общий резерв продукции в карточке при отмене заказа',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => $product->getTotal(),
-                    'product' => (string) $product->getProduct(),
-                    'offer' => (string) $product->getOffer(),
-                    'variation' => (string) $product->getVariation(),
-                    'modification' => (string) $product->getModification(),
-
-                ]
+                [self::class.':'.__LINE__]
             );
 
             /** Снимаем резерв отмененного заказа */
             $this->changeReserve($product);
         }
-
     }
 
 
@@ -198,6 +189,19 @@ final class OrderReserveCancelProduct
         if($Quantity && $Quantity->subReserve($product->getTotal()))
         {
             $this->entityManager->flush();
+
+            $this->logger->info(
+                'Сняли общий резерв продукции в карточке при отмене заказа',
+                [
+                    self::class.':'.__LINE__,
+                    'total' => $product->getTotal(),
+                    'product' => (string) $product->getProduct(),
+                    'offer' => (string) $product->getOffer(),
+                    'variation' => (string) $product->getVariation(),
+                    'modification' => (string) $product->getModification(),
+                ]
+            );
+
             return;
         }
 

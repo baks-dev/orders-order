@@ -93,8 +93,6 @@ final class OrderReserveProduct
             ->getRepository(OrderEvent::class)
             ->find($message->getEvent());
 
-        $this->entityManager->clear();
-
         if(!$OrderEvent)
         {
             return;
@@ -111,18 +109,7 @@ final class OrderReserveProduct
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-
-            $this->logger->info(
-                'Добавляем общий резерв продукции в карточке',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => $product->getTotal(),
-                    'ProductEventUid' => (string) $product->getProduct(),
-                    'ProductOfferUid' => (string) $product->getOffer(),
-                    'ProductVariationUid' => (string) $product->getVariation(),
-                    'ProductModificationUid' => (string) $product->getModification(),
-                ]
-            );
+            $this->logger->info('Добавляем общий резерв продукции в карточке', [self::class.':'.__LINE__]);
 
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
@@ -176,6 +163,19 @@ final class OrderReserveProduct
         if($Quantity && $Quantity->addReserve($product->getTotal()))
         {
             $this->entityManager->flush();
+
+            $this->logger->info(
+                'Добавили общий резерв продукции в карточке',
+                [
+                    self::class.':'.__LINE__,
+                    'total' => $product->getTotal(),
+                    'ProductEventUid' => (string) $product->getProduct(),
+                    'ProductOfferUid' => (string) $product->getOffer(),
+                    'ProductVariationUid' => (string) $product->getVariation(),
+                    'ProductModificationUid' => (string) $product->getModification(),
+                ]
+            );
+
             return;
         }
 

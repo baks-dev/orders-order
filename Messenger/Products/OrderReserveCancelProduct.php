@@ -79,8 +79,8 @@ final class OrderReserveCancelProduct
             return;
         }
 
-
         $this->entityManager->clear();
+
         $OrderEvent = $this->entityManager
             ->getRepository(OrderEvent::class)
             ->find($message->getEvent());
@@ -137,7 +137,9 @@ final class OrderReserveCancelProduct
         }
     }
 
-
+    /**
+     * Метод снимает резерв с продукции отмененного заказа
+     */
     public function changeReserve(OrderProduct $product): void
     {
 

@@ -78,6 +78,7 @@ final class OrderReserveCompletedProduct
         }
 
         $this->entityManager->clear();
+
         $OrderEvent = $this->entityManager
             ->getRepository(OrderEvent::class)
             ->find($message->getEvent());
@@ -95,28 +96,19 @@ final class OrderReserveCompletedProduct
 
         $Deduplicator->save();
 
+        $this->logger->info('Снимаем общий резерв и наличие продукции в карточке при выполненном заказе:');
+
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-            $this->logger->info(
-                'Снимаем общий резерв и наличие продукции в карточке при выполненном заказе',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => (string) $product->getTotal(),
-                    'ProductEventUid' => (string) $product->getProduct(),
-                    'ProductOfferUid' => (string) $product->getOffer(),
-                    'ProductVariationUid' => (string) $product->getVariation(),
-                    'ProductModificationUid' => (string) $product->getModification(),
-                ]
-            );
-
             /** Снимаем резерв выполненного заказа */
             $this->changeReserve($product);
-
         }
     }
 
-
+    /**
+     * Метод снимает резерв и наличие продукции с продукции выполненного заказа
+     */
     public function changeReserve(OrderProduct $product): void
     {
         $Quantity = null;
@@ -166,6 +158,20 @@ final class OrderReserveCompletedProduct
         if($Quantity && $Quantity->subReserve($product->getTotal()) && $Quantity->subQuantity($product->getTotal()))
         {
             $this->entityManager->flush();
+
+
+            $this->logger->info(
+                'Сняли общий резерв и наличие продукции в карточке при выполненном заказе',
+                [
+                    self::class.':'.__LINE__,
+                    'total' => (string) $product->getTotal(),
+                    'ProductEventUid' => (string) $product->getProduct(),
+                    'ProductOfferUid' => (string) $product->getOffer(),
+                    'ProductVariationUid' => (string) $product->getVariation(),
+                    'ProductModificationUid' => (string) $product->getModification(),
+                ]
+            );
+
             return;
         }
 

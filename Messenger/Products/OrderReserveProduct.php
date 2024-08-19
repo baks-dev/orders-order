@@ -89,6 +89,8 @@ final class OrderReserveProduct
             return;
         }
 
+        $this->entityManager->clear();
+
         $OrderEvent = $this->entityManager
             ->getRepository(OrderEvent::class)
             ->find($message->getEvent());
@@ -116,6 +118,10 @@ final class OrderReserveProduct
         }
     }
 
+
+    /**
+     * Метод добавляет новый резерв продукции в заказе
+     */
     public function handle(OrderProduct $product): void
     {
         $Quantity = null;

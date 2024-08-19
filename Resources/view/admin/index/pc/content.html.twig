@@ -120,13 +120,16 @@
 
             <div class="d-flex justify-content-between gap-2 cards-box p-2 ">
 
-                {% for stats in status |filter(v => v.getValue() != 'canceled') %}
+                {% set status_array = status|filter(v => v.getValue() != 'canceled') %}
+                {% set width_col = (1100 / (status_array|length))|round %}
+
+                {% for stats in status_array %}
 
                     {% set color = stats.color() %}
                     {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}
                     {% set counter = query[stats.getValue()]|length %}
 
-                    <div class="w-100 d-flex flex-column gap-2">
+                    <div class="w-100 d-flex flex-column gap-2" style="min-width: {{ width_col }}px;">
 
                         <div class="d-flex flex-column gap-2 draggable-zone h-100 justify-content-start min-vh-100"
                              style="overflow-y: visible;"

@@ -106,11 +106,11 @@ final class OrderReserveProduct
 
         $Deduplicator->save();
 
+        $this->logger->info('Добавляем общий резерв продукции в карточке:');
+
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-            $this->logger->info('Добавляем общий резерв продукции в карточке', [self::class.':'.__LINE__]);
-
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
         }

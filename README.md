@@ -1,6 +1,6 @@
 # BaksDev Order
 
-[![Version](https://img.shields.io/badge/version-7.1.36-blue)](https://github.com/baks-dev/orders-order/releases)
+[![Version](https://img.shields.io/badge/version-7.1.37-blue)](https://github.com/baks-dev/orders-order/releases)
 ![php 8.3+](https://img.shields.io/badge/php-min%208.3-red.svg)
 
 Модуль системных заказов

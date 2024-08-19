@@ -127,14 +127,11 @@ final class OrderReserveCancelProduct
 
         $Deduplicator->save();
 
+        $this->logger->info('Снимаем общий резерв продукции в карточке при отмене заказа:');
+
         /** @var OrderProduct $product */
         foreach($OrderEvent->getProduct() as $product)
         {
-            $this->logger->info(
-                'Снимаем общий резерв продукции в карточке при отмене заказа',
-                [self::class.':'.__LINE__]
-            );
-
             /** Снимаем резерв отмененного заказа */
             $this->changeReserve($product);
         }

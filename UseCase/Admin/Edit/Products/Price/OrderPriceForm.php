@@ -51,7 +51,7 @@ final class OrderPriceForm extends AbstractType
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
-            $this->security->isGranted('ROLE_ADMIN') => 20,
+            $this->security->isGranted('ROLE_ADMIN') => 50,
             default => false,
         };
 

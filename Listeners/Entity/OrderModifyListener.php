@@ -47,7 +47,6 @@ final class OrderModifyListener
 
         if($token)
         {
-
             $data->setUsr($token->getUser());
 
             if($token instanceof SwitchUserToken)

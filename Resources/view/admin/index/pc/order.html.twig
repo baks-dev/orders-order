@@ -52,7 +52,11 @@
                             {% endif %}
 
                             {% if day is null %}
-                                {{ difference.i }}<span class="small">м.</span>
+                                {% if hour is empty and difference.i is empty %}
+                                    Новый
+                                {% else %}
+                                    {{ difference.i }}<span class="small">м.</span>
+                                {% endif %}
                             {% endif %}
 
                         </strong>

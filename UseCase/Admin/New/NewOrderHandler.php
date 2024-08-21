@@ -133,7 +133,9 @@ final class NewOrderHandler extends AbstractHandler
         $this->entityManager->flush();
 
         /* Отправляем сообщение в шину */
-        $this->messageDispatch->dispatch(
+        $this->messageDispatch
+            ->addClearCacheOther('products-product')
+            ->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
             transport: 'orders-order'
         );

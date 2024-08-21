@@ -97,10 +97,12 @@ final class OrderStatusHandler extends AbstractHandler
         $this->entityManager->clear();
 
         /* Отправляем сообщение в шину */
-        $this->messageDispatch->dispatch(
-            message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-            transport: 'orders-order'
-        );
+        $this->messageDispatch
+            ->addClearCacheOther('products-product')
+            ->dispatch(
+                message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+                transport: 'orders-order'
+            );
 
         return $this->main;
     }

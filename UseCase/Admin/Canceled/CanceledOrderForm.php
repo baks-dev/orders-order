@@ -21,15 +21,38 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrderEvent;
+namespace BaksDev\Orders\Order\UseCase\Admin\Canceled;
 
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-interface OrderEventInterface
+final class CanceledOrderForm extends AbstractType
 {
-    /**
-     * Метод возвращает событие по идентификатору
-     */
-    public function find(OrderEventUid|string $event): OrderEvent|false;
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('comment', TextareaType::class);
+
+        $builder->add(
+            'order_cancel',
+            SubmitType::class,
+            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']]
+        );
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults(
+            [
+                'data_class' => CanceledOrderDTO::class,
+                'method' => 'POST',
+                'attr' => ['class' => 'w-100'],
+                //'allow_extra_fields' => true,
+                //'validation_groups' => false,
+            ]
+        );
+    }
+
 }

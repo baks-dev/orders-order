@@ -47,6 +47,10 @@ final class PackageOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ArrayCollection $product;
 
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private Invariable\PackageOrderInvariableDTO $invariable;
+
     /** Статус заказа */
     #[Assert\NotBlank]
     private OrderStatus $status;
@@ -56,7 +60,10 @@ final class PackageOrderDTO implements OrderEventInterface
     private User\OrderUserDTO $usr;
 
 
-    /** Склад (Профиль пользователя) */
+    /**
+     * Склад (Профиль пользователя)
+     * @deprecated
+     */
     #[Assert\Uuid]
     private ?UserProfileUid $profile = null;
 
@@ -68,6 +75,10 @@ final class PackageOrderDTO implements OrderEventInterface
     {
         $this->current = $current;
         $this->product = new ArrayCollection();
+
+        $PackageOrderInvariable = new Invariable\PackageOrderInvariableDTO();
+        $PackageOrderInvariable->setUsr($current);
+        $this->invariable = $PackageOrderInvariable;
 
     }
 
@@ -126,6 +137,10 @@ final class PackageOrderDTO implements OrderEventInterface
 
     public function setProfile(?UserProfileUid $profile): self
     {
+        /** Присваиваем постоянный  */
+        $PackageOrderInvariable = $this->getInvariable();
+        $PackageOrderInvariable->setProfile($profile);
+
         $this->profile = $profile;
         return $this;
     }
@@ -144,6 +159,14 @@ final class PackageOrderDTO implements OrderEventInterface
     public function getStatus(): OrderStatus
     {
         return $this->status;
+    }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\PackageOrderInvariableDTO
+    {
+        return $this->invariable;
     }
 
 }

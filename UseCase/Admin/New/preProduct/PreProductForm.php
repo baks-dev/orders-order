@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\preProduct;
 
+use BaksDev\Products\Category\Repository\CategoryChoice\CategoryChoiceInterface;
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Repository\ProductChoice\ProductChoiceInterface;
 use BaksDev\Products\Product\Repository\ProductModificationChoice\ProductModificationChoiceInterface;
 use BaksDev\Products\Product\Repository\ProductOfferChoice\ProductOfferChoiceInterface;
@@ -47,6 +49,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class PreProductForm extends AbstractType
 {
     public function __construct(
+        private readonly CategoryChoiceInterface $categoryChoice,
         private readonly ProductChoiceInterface $productChoice,
         private readonly ProductOfferChoiceInterface $productOfferChoice,
         private readonly ProductVariationChoiceInterface $productVariationChoice,
@@ -55,39 +58,43 @@ final class PreProductForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        $builder->add('category', ChoiceType::class, [
+            'choices' => $this->categoryChoice->findAll(),
+            'choice_value' => function (?CategoryProductUid $category) {
+                return $category?->getValue();
+            },
+            'choice_label' => function (CategoryProductUid $category) {
+                return $category->getOptions();
+            },
+            'label' => false,
+            'required' => false,
+        ]);
+
+
         /**
-         * Продукция (событие)
+         * Продукция категории
          *
-         * @var ProductEventUid $product
+         * @var ProductOfferUid $offer
          */
 
 
-        /** Получаем список доступной продукции */
-        $productChoice = $this->productChoice->fetchAllProductEventByExists();
-        $productChoice = iterator_to_array($productChoice);
-
         $builder->add(
             'preProduct',
-            ChoiceType::class,
-            [
-                'choices' => $productChoice,
-                'choice_value' => function (?ProductEventUid $product) {
-                    return $product?->getValue();
-                },
-
-                'choice_label' => function (ProductEventUid $product) {
-                    return $product->getAttr().' ('.$product->getOption().')';
-                },
-                'choice_attr' => function (?ProductEventUid $product) {
-                    return $product ? [
-                        'data-max' => $product->getOption(),
-                        'data-name' => $product->getAttr(),
-                    ] : [];
-                },
-                'label' => false,
-            ]
+            HiddenType::class,
         );
-        //}
+
+        $builder
+            ->get('preProduct')->addModelTransformer(
+                new CallbackTransformer(
+                    function ($product) {
+                        return $product instanceof ProductEventUid ? $product->getValue() : $product;
+                    },
+                    function ($product) {
+                        return $product ? new ProductEventUid($product) : null;
+                    }
+                ),
+            );
 
 
         /**
@@ -111,6 +118,7 @@ final class PreProductForm extends AbstractType
                 }
             ),
         );
+
 
         /**
          * Множественный вариант торгового предложения
@@ -157,9 +165,14 @@ final class PreProductForm extends AbstractType
         );
 
 
-        $builder->get('preModification')->addEventListener(
+        /**
+         * Событие на изменение
+         */
+
+        $builder->get('preVariation')->addEventListener(
             FormEvents::POST_SUBMIT,
             function (FormEvent $event): void {
+
                 $parent = $event->getForm()->getParent();
 
                 if(!$parent)
@@ -167,26 +180,30 @@ final class PreProductForm extends AbstractType
                     return;
                 }
 
+                $category = $parent->get('category')->getData();
                 $product = $parent->get('preProduct')->getData();
                 $offer = $parent->get('preOffer')->getData();
                 $variation = $parent->get('preVariation')->getData();
-                //$modification = $parent->get('preModification')->getData();
+
+                if($category)
+                {
+                    $this->formProductModifier($event->getForm()->getParent(), $category);
+                }
 
                 if($product)
                 {
                     $this->formOfferModifier($event->getForm()->getParent(), $product);
                 }
 
-                if($product && $offer)
+                if($offer)
                 {
-                    $this->formVariationModifier($event->getForm()->getParent(), $product, $offer);
+                    $this->formVariationModifier($event->getForm()->getParent(), $offer);
                 }
 
-                if($product && $offer && $variation)
+                if($variation)
                 {
-                    $this->formModificationModifier($event->getForm()->getParent(), $product, $offer, $variation);
+                    $this->formModificationModifier($event->getForm()->getParent(), $variation);
                 }
-
             },
         );
 
@@ -197,11 +214,40 @@ final class PreProductForm extends AbstractType
 
     }
 
+
+    private function formProductModifier(FormInterface $form, ?CategoryProductUid $category): void
+    {
+        /** Получаем список доступной продукции */
+        $productChoice = $this->productChoice->fetchAllProductEventByExists($category ?: false);
+
+        $form->add(
+            'preProduct',
+            ChoiceType::class,
+            [
+                'choices' => $productChoice,
+                'choice_value' => function (?ProductEventUid $product) {
+                    return $product?->getValue();
+                },
+
+                'choice_label' => function (ProductEventUid $product) {
+                    return $product->getAttr();
+                },
+                'choice_attr' => function (?ProductEventUid $product) {
+                    return $product ? [
+                        'data-filter' => ' ['.$product->getOption().']',
+                        'data-max' => $product->getOption(),
+                        'data-name' => $product->getAttr(),
+                    ] : [];
+                },
+                'label' => false,
+            ]
+        );
+    }
+
+
     private function formOfferModifier(FormInterface $form, ProductEventUid $product): void
     {
-
         /* Список торговых предложений продукции */
-
         $offer = $this->productOfferChoice->fetchProductOfferExistsByProductEvent($product);
 
         // Если у продукта нет ТП
@@ -214,7 +260,6 @@ final class PreProductForm extends AbstractType
 
             return;
         }
-
 
         /** @var ProductOfferUid $CurrentProductOfferUid */
         $CurrentProductOfferUid = $offer->current();
@@ -229,10 +274,11 @@ final class PreProductForm extends AbstractType
                         return $offer?->getValue();
                     },
                     'choice_label' => function (ProductOfferUid $offer) {
-                        return $offer->getAttr().' ('.$offer->getOption().')';
+                        return $offer->getAttr();
                     },
                     'choice_attr' => function (?ProductOfferUid $offer) {
                         return $offer ? [
+                            'data-filter' => ' ['.$offer->getOption().']',
                             'data-max' => $offer->getOption(),
                             'data-name' => $offer->getAttr()
                         ] : [];
@@ -243,12 +289,10 @@ final class PreProductForm extends AbstractType
             );
     }
 
-    private function formVariationModifier(
-        FormInterface $form,
-        ProductEventUid $product,
-        ProductOfferUid $offer
-    ): void {
 
+    private function formVariationModifier(FormInterface $form, ProductOfferUid $offer): void
+    {
+        /* Список множественных вариантов торговых предложений */
         $variations = $this->productVariationChoice->fetchProductVariationExistsByOffer($offer);
 
         // Если у продукта нет ТП
@@ -275,10 +319,11 @@ final class PreProductForm extends AbstractType
                         return $variation?->getValue();
                     },
                     'choice_label' => function (ProductVariationUid $variation) {
-                        return $variation->getAttr().' ('.$variation->getOption().')';
+                        return $variation->getAttr();
                     },
                     'choice_attr' => function (?ProductVariationUid $variation) {
                         return $variation ? [
+                            'data-filter' => ' ['.$variation->getOption().']',
                             'data-max' => $variation->getOption(),
                             'data-name' => $variation->getAttr()
                         ] : [];
@@ -289,12 +334,9 @@ final class PreProductForm extends AbstractType
             );
     }
 
-    private function formModificationModifier(
-        FormInterface $form,
-        ProductEventUid $product,
-        ProductOfferUid $offer,
-        ProductVariationUid $variation,
-    ): void {
+    private function formModificationModifier(FormInterface $form, ProductVariationUid $variation): void
+    {
+        /* Список модификаций множественного варианта торгового предложения */
         $modifications = $this->productModificationChoice->fetchProductModificationExistsByVariation($variation);
 
         // Если у продукта нет ТП
@@ -321,10 +363,11 @@ final class PreProductForm extends AbstractType
                         return $modification?->getValue();
                     },
                     'choice_label' => function (ProductModificationUid $modification) {
-                        return $modification->getAttr().' ('.$modification->getOption().')';
+                        return $modification->getAttr();
                     },
                     'choice_attr' => function (?ProductModificationUid $modification) {
                         return $modification ? [
+                            'data-filter' => ' ['.$modification->getOption().']',
                             'data-max' => $modification->getOption(),
                             'data-name' => $modification->getAttr()
                         ] : [];

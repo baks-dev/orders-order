@@ -51,8 +51,7 @@ final class SendClientEmailOrderNews
     private LoggerInterface $logger;
 
     public function __construct(
-        #[Autowire(env: 'HOST')]
-        private readonly string $HOST,
+        #[Autowire(env: 'HOST')] private readonly string $HOST,
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderDetailInterface $orderDetail,
         private readonly UserProfileValuesInterface $userProfileValues,
@@ -69,17 +68,6 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
-        $Deduplicator = $this->deduplicator
-            ->namespace(md5(self::class))
-            ->deduplication([
-                (string) $message->getId(),
-                OrderStatusNew::STATUS
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
 
         /** Новый заказ не имеет предыдущего события */
         if($message->getLast())
@@ -119,6 +107,20 @@ final class SendClientEmailOrderNews
             ->findFieldByEvent($UserProfileEventUid);
 
         if(empty($AccountEmail) || empty($AccountEmail['value']))
+        {
+            return;
+        }
+
+
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusNew::STATUS,
+                md5(self::class)
+            ]);
+
+        if($Deduplicator->isExecuted())
         {
             return;
         }

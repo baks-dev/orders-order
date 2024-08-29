@@ -21,23 +21,31 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Delete;
+namespace BaksDev\Orders\Order\UseCase\Admin\Canceled;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
-final class OrderDeleteDTO implements OrderEventInterface
+final class CanceledOrderDTO implements OrderEventInterface
 {
     /** Идентификатор события */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private readonly OrderEventUid $id;
 
-    /** Ответственный */
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private Invariable\CancelOrderInvariableDTO $invariable;
+
+    /**
+     * Ответственный
+     * @deprecated переносится
+     */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private readonly UserProfileUid $profile;
@@ -46,9 +54,19 @@ final class OrderDeleteDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private readonly OrderStatus $status;
 
+    /** Комментарий к заказу */
+    #[Assert\NotBlank]
+    private ?string $comment = null;
+
     public function __construct(UserProfileUid $profile)
     {
+        $this->status = new OrderStatus(OrderStatusCanceled::class);
         $this->profile = $profile;
+
+        $CancelOrderInvariable = new Invariable\CancelOrderInvariableDTO();
+        $CancelOrderInvariable->setProfile($profile);
+        $this->invariable = $CancelOrderInvariable;
+
     }
 
     /** Идентификатор события */
@@ -63,8 +81,31 @@ final class OrderDeleteDTO implements OrderEventInterface
         return $this->status;
     }
 
+
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
+    }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\CancelOrderInvariableDTO
+    {
+        return $this->invariable;
+    }
+
+    /**
+     * Comment
+     */
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+        return $this;
     }
 }

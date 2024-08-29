@@ -21,73 +21,68 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Canceled;
+declare(strict_types=1);
 
-use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+namespace BaksDev\Orders\Order\UseCase\Admin\Status\Invariable;
+
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
+use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see OrderEvent */
-final class OrderCanceledDTO implements OrderEventInterface
+/** @see OrderInvariable */
+final class StatusOrderInvariableDTO implements OrderInvariableInterface
 {
-    /** Идентификатор события */
-    #[Assert\NotBlank]
+    /**
+     * ID пользователя ответственного
+     */
+    //#[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly OrderEventUid $id;
+    private readonly ?UserUid $usr;
 
-    /** Ответственный */
+
+    /**
+     * ID профиля ответственного
+     */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private readonly UserProfileUid $profile;
 
-    /** Статус заказа */
-    #[Assert\NotBlank]
-    private readonly OrderStatus $status;
-
-    /** Комментарий к заказу */
-    #[Assert\NotBlank]
-    private ?string $comment = null;
-
-    public function __construct(UserProfileUid $profile)
-    {
-        $this->status = new OrderStatus(OrderStatusCanceled::class);
-        $this->profile = $profile;
-    }
-
-    /** Идентификатор события */
-    public function getEvent(): OrderEventUid
-    {
-        return $this->id;
-    }
-
-    /** Статус заказа */
-    public function getStatus(): OrderStatus
-    {
-        return $this->status;
-    }
-
-
+    /**
+     * Profile
+     */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
-    /**
-     * Comment
-     */
-    public function getComment(): ?string
+    public function setProfile(UserProfileUid $profile): self
     {
-        return $this->comment;
-    }
+        if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
+        {
+            $this->profile = $profile;
+        }
 
-    public function setComment(?string $comment): self
-    {
-        $this->comment = $comment;
         return $this;
     }
 
+    /**
+     * Usr
+     */
+    public function getUsr(): ?UserUid
+    {
+        return $this->usr;
+    }
 
+    public function setUsr(?UserUid $usr): self
+    {
+        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
+        {
+            $this->usr = $usr;
+        }
+
+        return $this;
+    }
 }

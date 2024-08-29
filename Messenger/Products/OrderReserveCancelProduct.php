@@ -67,18 +67,6 @@ final class OrderReserveCancelProduct
     public function __invoke(OrderMessage $message): void
     {
 
-        $Deduplicator = $this->deduplicator
-            ->namespace(md5(self::class))
-            ->deduplication([
-                (string) $message->getId(),
-                OrderStatusCanceled::STATUS
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
         $this->entityManager->clear();
 
         $OrderEvent = $this->entityManager
@@ -96,17 +84,17 @@ final class OrderReserveCancelProduct
             return;
         }
 
-        /** Не снимаем резерв с продукта если дублируется событие */
-        $isOtherExists = $this->existOrderEventByStatus->isOtherExists(
-            $message->getId(),
-            $message->getEvent(),
-            OrderStatusCanceled::class
-        );
-
-        if($isOtherExists)
-        {
-            return;
-        }
+//        /** Не снимаем резерв с продукта если дублируется событие */
+//        $isOtherExists = $this->existOrderEventByStatus->isOtherExists(
+//            $message->getId(),
+//            $message->getEvent(),
+//            OrderStatusCanceled::class
+//        );
+//
+//        if($isOtherExists)
+//        {
+//            return;
+//        }
 
 
         if($message->getLast())
@@ -125,7 +113,18 @@ final class OrderReserveCancelProduct
             }
         }
 
-        $Deduplicator->save();
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusCanceled::STATUS,
+                md5(self::class)
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
 
         $this->logger->info('Снимаем общий резерв продукции в карточке при отмене заказа:');
 
@@ -135,6 +134,8 @@ final class OrderReserveCancelProduct
             /** Снимаем резерв отмененного заказа */
             $this->changeReserve($product);
         }
+
+        $Deduplicator->save();
     }
 
     /**

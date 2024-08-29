@@ -32,8 +32,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 final class OrderStatusCollection
 {
     public function __construct(
-        #[AutowireIterator('baks.order.status', defaultPriorityMethod: 'sort')]
-        private readonly iterable $status
+        #[AutowireIterator('baks.order.status', defaultPriorityMethod: 'sort')] private readonly iterable $status
     ) {}
 
     /** Возвращает массив из значений OrderStatus */

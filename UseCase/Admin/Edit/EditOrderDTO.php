@@ -43,6 +43,10 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private Invariable\EditOrderInvariableDTO $invariable;
+
     /** Статус заказа */
     private OrderStatus $status;
 
@@ -54,7 +58,11 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ?User\OrderUserDTO $usr;
 
-    /** Ответственный */
+    /**
+     * Ответственный
+     * @deprecated Переносится в Invariable
+     */
+
     private ?UserProfileUid $profile = null;
 
     /** Комментарий к заказу */
@@ -69,6 +77,8 @@ final class EditOrderDTO implements OrderEventInterface
 
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
+        $this->invariable = new Invariable\EditOrderInvariableDTO();
+
     }
 
 
@@ -178,5 +188,13 @@ final class EditOrderDTO implements OrderEventInterface
     {
         $this->comment = $comment;
         return $this;
+    }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\EditOrderInvariableDTO
+    {
+        return $this->invariable;
     }
 }

@@ -65,18 +65,6 @@ final class OrderReserveCompletedProduct
      */
     public function __invoke(OrderMessage $message): void
     {
-        $Deduplicator = $this->deduplicator
-            ->namespace(md5(self::class))
-            ->deduplication([
-                $message->getId(),
-                OrderStatusCompleted::STATUS
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
         $this->entityManager->clear();
 
         $OrderEvent = $this->entityManager
@@ -94,7 +82,18 @@ final class OrderReserveCompletedProduct
             return;
         }
 
-        $Deduplicator->save();
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusCompleted::STATUS,
+                md5(self::class)
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
 
         $this->logger->info('Снимаем общий резерв и наличие продукции в карточке при выполненном заказе:');
 
@@ -104,6 +103,8 @@ final class OrderReserveCompletedProduct
             /** Снимаем резерв выполненного заказа */
             $this->changeReserve($product);
         }
+
+        $Deduplicator->save();
     }
 
     /**

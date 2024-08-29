@@ -28,8 +28,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\UseCase\Admin\Canceled\OrderCanceledDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Canceled\OrderCanceledForm;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -68,10 +68,10 @@ final class CanceledController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        $OrderCanceledDTO = new OrderCanceledDTO($this->getProfileUid());
+        $OrderCanceledDTO = new CanceledOrderDTO($this->getProfileUid());
         $OrderEvent->getDto($OrderCanceledDTO);
 
-        $form = $this->createForm(OrderCanceledForm::class, $OrderCanceledDTO, [
+        $form = $this->createForm(CanceledOrderForm::class, $OrderCanceledDTO, [
             'action' => $this->generateUrl('orders-order:admin.order.canceled', ['id' => $Order->getId()]),
         ]);
 

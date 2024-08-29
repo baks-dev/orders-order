@@ -50,7 +50,10 @@ final class NewController extends AbstractController
         ProductUserBasketInterface $userBasket,
     ): Response {
 
-        $OrderDTO = new NewOrderDTO($this->getProfileUid());
+        $OrderDTO = new NewOrderDTO(
+            $this->getUsr(),
+            $this->getProfileUid()
+        );
 
         // Форма
         $form = $this->createForm(NewOrderForm::class, $OrderDTO, [
@@ -101,7 +104,7 @@ final class NewController extends AbstractController
 
 
                 $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'],true));
+                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'], true));
                 $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
             }
 

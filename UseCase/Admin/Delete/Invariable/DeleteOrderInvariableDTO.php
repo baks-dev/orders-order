@@ -21,38 +21,43 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Canceled;
+declare(strict_types=1);
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+namespace BaksDev\Orders\Order\UseCase\Admin\Delete\Invariable;
 
-final class OrderCanceledForm extends AbstractType
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
+use ReflectionProperty;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/** @see OrderInvariable */
+final class DeleteOrderInvariableDTO implements OrderInvariableInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
-        $builder->add('comment', TextareaType::class);
+    /**
+     * ID профиля ответственного
+     */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private readonly UserProfileUid $profile;
 
-        $builder->add(
-            'order_cancel',
-            SubmitType::class,
-            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']]
-        );
+
+    /**
+     * Profile
+     */
+    public function getProfile(): ?UserProfileUid
+    {
+        return $this->profile;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function setProfile(UserProfileUid $profile): self
     {
-        $resolver->setDefaults(
-            [
-                'data_class' => OrderCanceledDTO::class,
-                'method' => 'POST',
-                'attr' => ['class' => 'w-100'],
-                //'allow_extra_fields' => true,
-                //'validation_groups' => false,
-            ]
-        );
-    }
+        if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
+        {
+            $this->profile = $profile;
+        }
 
+        return $this;
+    }
 }

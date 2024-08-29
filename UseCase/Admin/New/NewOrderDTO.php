@@ -28,6 +28,9 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Entity\User as UserEntity;
+use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -46,6 +49,10 @@ final class NewOrderDTO implements OrderEventInterface
     private preProduct\PreProductDTO $preProduct;
 
 
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private Invariable\NewOrderInvariableDTO $invariable;
+
     /** Статус заказа */
     #[Assert\NotBlank]
     private OrderStatus $status;
@@ -63,14 +70,24 @@ final class NewOrderDTO implements OrderEventInterface
     private ?string $comment = null;
 
 
-    public function __construct(UserProfileUid $profile)
+    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
     {
+        $user = $user instanceof UserEntity ? $user->getId() : $user;
+
+        $NewOrderInvariable = new Invariable\NewOrderInvariableDTO();
+        $NewOrderInvariable->setCreated(new DateTimeImmutable());
+        $NewOrderInvariable->setProfile($profile);
+        $NewOrderInvariable->setUsr($user);
+        $this->invariable = $NewOrderInvariable;
+
+
         $this->profile = $profile;
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
         $this->preProduct = new preProduct\PreProductDTO();
         $this->status = new OrderStatus(OrderStatusNew::class);
     }
+
 
     public function getEvent(): ?OrderEventUid
     {
@@ -158,5 +175,11 @@ final class NewOrderDTO implements OrderEventInterface
         return $this;
     }
 
-
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\NewOrderInvariableDTO
+    {
+        return $this->invariable;
+    }
 }

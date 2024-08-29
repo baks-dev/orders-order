@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,52 +21,47 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Status;
+namespace BaksDev\Orders\Order\UseCase\Admin\Delete;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderStatusDTO implements OrderEventInterface
+/** @see OrderEvent */
+final class DeleteOrderDTO implements OrderEventInterface
 {
     /** Идентификатор события */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private OrderEventUid $id;
+    private readonly OrderEventUid $id;
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\StatusOrderInvariableDTO $invariable;
+    private Invariable\DeleteOrderInvariableDTO $invariable;
 
     /**
      * Ответственный
-     * @deprecated переносится в Invariable
+     * @deprecated Переносится в Invariable
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private UserProfileUid $profile;
+    private readonly UserProfileUid $profile;
 
-    /** Статус заказа */
+    /**
+     * Статус заказа
+     */
     #[Assert\NotBlank]
-    private OrderStatus $status;
+    private readonly OrderStatus $status;
 
-
-    public function __construct(
-        OrderStatus|OrderStatusInterface|string $status,
-        OrderEventUid $id,
-        UserProfileUid $profile
-    ) {
-        $this->status = new OrderStatus($status);
-        $this->id = $id;
+    public function __construct(UserProfileUid $profile)
+    {
         $this->profile = $profile;
 
-        $StatusOrderInvariableDTO = new Invariable\StatusOrderInvariableDTO();
-        $StatusOrderInvariableDTO->setProfile($profile);
-        $this->invariable = $StatusOrderInvariableDTO;
-
+        $DeleteOrderInvariable = new Invariable\DeleteOrderInvariableDTO();
+        $DeleteOrderInvariable->setProfile($profile);
+        $this->invariable = $DeleteOrderInvariable;
     }
 
     /** Идентификатор события */
@@ -81,22 +76,15 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->status;
     }
 
-
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
-    public function setProfile(UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
-
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\StatusOrderInvariableDTO
+    public function getInvariable(): Invariable\DeleteOrderInvariableDTO
     {
         return $this->invariable;
     }

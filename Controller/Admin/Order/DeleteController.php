@@ -29,9 +29,9 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\UseCase\Admin\Delete\OrderDeleteDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Delete\OrderDeleteForm;
-use BaksDev\Orders\Order\UseCase\Admin\Delete\OrderDeleteHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderForm;
+use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderHandler;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,15 +46,19 @@ final class DeleteController extends AbstractController
     public function delete(
         Request $request,
         #[MapEntity] OrderEvent $OrderEvent,
-        OrderDeleteHandler $OrderDeleteHandler,
+        DeleteOrderHandler $OrderDeleteHandler,
     ): Response {
 
-        $OrderCancelDTO = new OrderDeleteDTO($this->getProfileUid());
+        $OrderCancelDTO = new DeleteOrderDTO($this->getProfileUid());
         $OrderEvent->getDto($OrderCancelDTO);
-        $form = $this->createForm(OrderDeleteForm::class, $OrderCancelDTO, [
-            'action' => $this->generateUrl('orders-order:admin.order.delete', ['id' => $OrderCancelDTO->getEvent()]),
-        ]);
-        $form->handleRequest($request);
+
+        $form = $this
+            ->createForm(DeleteOrderForm::class, $OrderCancelDTO, [
+                'action' => $this->generateUrl('orders-order:admin.order.delete', ['id' => $OrderCancelDTO->getEvent()]),
+            ])
+            ->handleRequest($request);
+
+        //$form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_delete'))
         {

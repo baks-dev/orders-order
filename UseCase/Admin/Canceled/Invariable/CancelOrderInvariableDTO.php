@@ -21,15 +21,42 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrderEvent;
+declare(strict_types=1);
 
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+namespace BaksDev\Orders\Order\UseCase\Admin\Canceled\Invariable;
 
-interface OrderEventInterface
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
+use ReflectionProperty;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/** @see OrderInvariable */
+final class CancelOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
-     * Метод возвращает событие по идентификатору
+     * ID профиля ответственного
      */
-    public function find(OrderEventUid|string $event): OrderEvent|false;
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private readonly UserProfileUid $profile;
+
+    /**
+     * Profile
+     */
+    public function getProfile(): UserProfileUid
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(UserProfileUid $profile): self
+    {
+        if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
+        {
+            $this->profile = $profile;
+        }
+
+        return $this;
+    }
 }

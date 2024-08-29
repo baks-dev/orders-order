@@ -36,6 +36,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
@@ -53,7 +54,9 @@ use BaksDev\Reference\Currency\Type\Currencies\RUR;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -120,6 +123,23 @@ final class OrderNewTest extends KernelTestCase
         $modification = new ProductModificationUid();
         $OrderProductDTO->setModification($modification);
         self::assertSame($modification, $OrderProductDTO->getModification());
+
+
+        /** EditOrderInvariableDTO */
+
+        $EditOrderInvariableDTO = $OrderDTO->getInvariable();
+
+        $EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
+        self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
+
+        $EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
+
+        $EditOrderInvariableDTO->setNumber('order_number');
+        self::assertSame('order_number', $EditOrderInvariableDTO->getNumber());
+
+        $EditOrderInvariableDTO->setCreated($DateTimeImmutable = new DateTimeImmutable());
+        self::assertSame($DateTimeImmutable, $EditOrderInvariableDTO->getCreated());
 
 
         /** OrderPriceDTO */

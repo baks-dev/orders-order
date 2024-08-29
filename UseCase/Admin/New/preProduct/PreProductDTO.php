@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\preProduct;
 
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -33,6 +34,9 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 /** @see PreFproduct */
 final class PreProductDTO
 {
+    /** Категория */
+    private ?CategoryProductUid $category = null;
+
     /** Продукт */
     private ?ProductEventUid $preProduct = null;
 
@@ -47,6 +51,20 @@ final class PreProductDTO
 
     /** Количество */
     private ?int $preTotal = null;
+
+    /**
+     * Category
+     */
+    public function getCategory(): ?CategoryProductUid
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?CategoryProductUid $category): self
+    {
+        $this->category = $category;
+        return $this;
+    }
 
     /**
      * PreProduct

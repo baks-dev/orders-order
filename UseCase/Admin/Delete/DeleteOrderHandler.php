@@ -31,9 +31,9 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use DomainException;
 
-final class OrderDeleteHandler extends AbstractHandler
+final class DeleteOrderHandler extends AbstractHandler
 {
-    public function handle(OrderDeleteDTO $command): string|Order
+    public function handle(DeleteOrderDTO $command): string|Order
     {
         /** Валидация WbSupplyOpenDTO  */
         $this->validatorCollection->add($command);

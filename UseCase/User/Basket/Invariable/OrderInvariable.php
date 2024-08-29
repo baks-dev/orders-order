@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,84 +21,83 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Entity;
+declare(strict_types=1);
 
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
+namespace BaksDev\Orders\Order\UseCase\User\Basket\Invariable;
 
-// Order
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+use DateTimeImmutable;
+use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'orders')]
-class Order
+/** @see OrderInvariable */
+final class OrderInvariable implements OrderInvariableInterface
 {
-    public const TABLE = 'orders';
+    /**
+     * Дата заказа
+     */
+    #[Assert\NotBlank]
+    private DateTimeImmutable $created;
 
-    /** ID */
-    #[ORM\Id]
-    #[ORM\Column(type: OrderUid::TYPE)]
-    private OrderUid $id;
-
-    #[ORM\Column(type: Types::STRING, length: 20, unique: true, nullable: true)]
+    /**
+     * Идентификатор заказа
+     */
+    #[Assert\NotBlank]
     private string $number;
 
-    /** ID События */
-    #[ORM\Column(type: OrderEventUid::TYPE, unique: true)]
-    private OrderEventUid $event;
+
+    /**
+     * ID пользователя ответственного
+     */
+    #[Assert\IsNull]
+    private null $usr = null;
+
+
+    /**
+     * ID профиля ответственного
+     */
+    #[Assert\IsNull]
+    private null $profile = null;
+
 
     public function __construct()
     {
-        $this->id = new OrderUid();
+        $this->created = new DateTimeImmutable();
 
         /** Генерируем идентификатор заказа */
         $this->number = number_format((microtime(true) * 100), 0, '.', '.');
     }
 
-    public function __toString(): string
+    /**
+     * Created
+     */
+    public function getCreated(): DateTimeImmutable
     {
-        return (string) $this->id;
+        return $this->created;
     }
 
     /**
-     * Id
+     * Usr
      */
-    public function getId(): OrderUid
+    public function getUsr(): ?UserUid
     {
-        return $this->id;
+        return $this->usr;
     }
 
-    public function setId(OrderUid $id): self
+    /**
+     * Profile
+     */
+    public function getProfile(): ?UserProfileUid
     {
-        $this->id = $id;
-        return $this;
+        return $this->profile;
     }
 
     /**
      * Number
      */
-    public function getNumber(): string
+    public function getNumber(): ?string
     {
         return $this->number;
-    }
-
-    public function setNumber(string $number): self
-    {
-        $this->number = $number;
-        return $this;
-    }
-
-
-    public function getEvent(): OrderEventUid
-    {
-        return $this->event;
-    }
-
-    public function setEvent(OrderEventUid|OrderEvent $event): self
-    {
-        $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
-        return $this;
     }
 }

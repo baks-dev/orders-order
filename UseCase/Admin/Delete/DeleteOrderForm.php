@@ -28,7 +28,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class OrderDeleteForm extends AbstractType
+final class DeleteOrderForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -43,7 +43,7 @@ final class OrderDeleteForm extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => OrderDeleteDTO::class,
+                'data_class' => DeleteOrderDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
                 //'allow_extra_fields' => true,

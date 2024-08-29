@@ -79,7 +79,9 @@ final class PackageOrderForm extends AbstractType
 
         $CurrentUser = $builder->getData()->getCurrent();
 
-        /** Все профили пользователя */
+        /**
+         * Все профили пользователя
+         */
         $profiles = $this->userProfileChoice->getActiveUserProfile($CurrentUser);
 
         $this->currentProfile = (count($profiles) === 1) ? current($profiles) : null;
@@ -96,14 +98,16 @@ final class PackageOrderForm extends AbstractType
                     $data->setProfile($this->currentProfile);
                 }
 
+                /** По умолчанию присваиваем склад назначения - текущий пользователь */
+                $this->productModifier($form, $data->getProfile());
+
                 /** @var OrderDeliveryDTO $Delivery */
                 $Delivery = $data->getUsr()->getDelivery();
-
 
                 if($Delivery->getLatitude() && $Delivery->getLongitude())
                 {
                     $address = $this->geocodeAddress->fetchGeocodeAddressAssociative($Delivery->getLatitude(), $Delivery->getLongitude());
-                    $pickup = $this->contactCallByGeocode->existContactCallByGeocode($Delivery->getLatitude(), $Delivery->getLongitude());
+                    //$pickup = $this->contactCallByGeocode->existContactCallByGeocode($Delivery->getLatitude(), $Delivery->getLongitude());
 
                     if($address)
                     {
@@ -150,7 +154,7 @@ final class PackageOrderForm extends AbstractType
                             $data->setProfile($profile);
                             $this->nearestWarehouse = $profile; // Ближайший
                             $this->pickupWarehouse = $profile; // Пункт выдачи заказов
-                            $this->productModifier($event->getForm(), $profile);
+                            $this->productModifier($form, $profile);
 
                             break;
                         }
@@ -161,9 +165,17 @@ final class PackageOrderForm extends AbstractType
                             $distance = $geocodeDistance;
                             $data->setProfile($profile);
                             $this->nearestWarehouse = $profile; // Ближайший
-                            $this->productModifier($event->getForm(), $profile);
+                            $this->productModifier($form, $profile);
                         }
                     }
+
+
+                }
+
+                // Еси не указана геолокация доставки - присваиваем по умолчанию склад активного пользователя
+                else
+                {
+
                 }
             },
         );

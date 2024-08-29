@@ -11,15 +11,34 @@
 
         <div class="d-flex gap-3 align-content-center">
 
-            <div class="w-100" id="preProduct">
+            <div class="w-100">
+                {{ form_row(form.preProduct.category, {
+                    label: 'Категория',
+                    placeholder: 'Выберите категорию из списка...',
+                    attr: { 'data-select' : 'select2' } }) }}
+            </div>
 
+            <div class="w-100 d-none" id="preProduct">
                 {{ form_row(form.preProduct.preProduct, {
                     label: 'Продукт',
                     placeholder: 'Выберите продукцию из списка...',
                     attr: { 'data-select' : 'select2', placeholder: form.preProduct.preProduct.vars.data ?: 'Продукция на складе отстутсвует', } }) }}
             </div>
 
-            <div id="preOffer" class="d-flex gap-3">
+
+            <div class="w-100 d-none" id="preOffer" >
+                {{ form_row(form.preProduct.preOffer) }}
+            </div>
+
+            <div class="w-100 d-none" id="preVariation">
+                {{ form_row(form.preProduct.preVariation) }}
+            </div>
+
+            <div class="w-100 d-none" id="preModification">
+                {{ form_row(form.preProduct.preModification) }}
+            </div>
+
+            {# <div id="preOffer" class="d-flex gap-3">
 
                 <div>{{ form_row(form.preProduct.preOffer) }}</div>
 
@@ -31,8 +50,14 @@
                         <div>{{ form_row(form.preProduct.preModification) }}</div>
                     </div>
                 </div>
-            </div>
+            </div> #}
         </div>
+
+
+
+
+
+
 
 
         {# <div class="d-flex justify-content-evenly gap-1 align-items-end">

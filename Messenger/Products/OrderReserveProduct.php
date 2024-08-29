@@ -71,18 +71,6 @@ final class OrderReserveProduct
      */
     public function __invoke(OrderMessage $message): void
     {
-        $Deduplicator = $this->deduplicator
-            ->namespace(md5(self::class))
-            ->deduplication([
-                $message->getId(),
-                OrderStatusNew::STATUS
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
         /** Новый заказ не имеет предыдущего события!!! */
         if($message->getLast())
         {
@@ -106,7 +94,18 @@ final class OrderReserveProduct
             return;
         }
 
-        $Deduplicator->save();
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                (string) $message->getId(),
+                OrderStatusNew::STATUS,
+                md5(self::class)
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
 
         $this->logger->info('Добавляем общий резерв продукции в карточке:');
 
@@ -116,6 +115,8 @@ final class OrderReserveProduct
             /** Устанавливаем новый резерв продукции в заказе */
             $this->handle($product);
         }
+
+        $Deduplicator->save();
     }
 
 

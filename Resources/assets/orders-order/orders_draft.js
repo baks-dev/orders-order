@@ -23,8 +23,118 @@
 
 /** Добавить перемещение продукции со склада на склад */
 
+
+async function changeObjectCategory(forms)
+{
+    disabledElementsForm(forms);
+
+    document.getElementById('preProduct')?.classList.add('d-none');
+    document.getElementById('preOffer')?.classList.add('d-none');
+    document.getElementById('preVariation')?.classList.add('d-none');
+    document.getElementById('preModification')?.classList.add('d-none');
+
+    const data = new FormData(forms);
+    data.delete(forms.name + '[_token]');
+
+    await fetch(forms.action, {
+        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        //mode: 'same-origin', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data // body data type must match "Content-Type" header
+    })
+
+        //.then((response) => response)
+        .then((response) =>
+        {
+
+            if(response.status !== 200)
+            {
+                return false;
+            }
+
+            return response.text();
+
+        })
+
+        .then((data) =>
+        {
+
+            if(data)
+            {
+
+                var parser = new DOMParser();
+                var result = parser.parseFromString(data, 'text/html');
+
+                let preProduct = result.getElementById('preProduct');
+
+                document.getElementById('preProduct').replaceWith(preProduct);
+
+                preProduct ?
+                    document
+                        ?.getElementById('product')
+                        ?.replaceWith(preProduct) :
+                    preProduct.innerHTML = '';
+
+                /** SELECT2 */
+                let replacer = document.getElementById(forms.name +'_preProduct_preProduct');
+                replacer && replacer.type !== 'hidden' ? preProduct.classList.remove('d-none') : null;
+
+                /** Событие на изменение модификации */
+                if(replacer)
+                {
+
+                    if(replacer.tagName === 'SELECT')
+                    {
+                        new NiceSelect(replacer, {searchable: true});
+
+                        let focus = document.getElementById(forms.name +'_preProduct_preProduct_select2');
+                        focus ? focus.click() : null;
+                    }
+                }
+
+                /** сбрасываем зависимые поля */
+                let preOffer = document.getElementById('preOffer');
+                preOffer ? preOffer.innerHTML = '' : null;
+
+                /** сбрасываем зависимые поля */
+                let preVariation = document.getElementById('preVariation');
+                preVariation ? preVariation.innerHTML = '' : null;
+
+                let preModification = document.getElementById('preModification');
+                preModification ? preModification.innerHTML = '' : null;
+
+
+                if(replacer)
+                {
+
+                    replacer.addEventListener('change', function(event)
+                    {
+                        changeObjectProduct(forms);
+                        return false;
+                    });
+                }
+            }
+
+            enableElementsForm(forms);
+        });
+}
+
+
 async function changeObjectProduct(forms)
 {
+    disabledElementsForm(forms);
+
+    document.getElementById('preOffer')?.classList.add('d-none');
+    document.getElementById('preVariation')?.classList.add('d-none');
+    document.getElementById('preModification')?.classList.add('d-none');
+
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
@@ -73,20 +183,21 @@ async function changeObjectProduct(forms)
 
                     /** SELECT2 */
 
-                    let replaceOfferId = 'new_order_form_preProduct_preOffer';
+                    let replaceOfferId = forms.name +'_preProduct_preOffer';
 
                     let replacer = document.getElementById(replaceOfferId);
+                    replacer && replacer.type !== 'hidden' ? preOffer.classList.remove('d-none') : null;
 
                     if(replacer.tagName === 'SELECT')
                     {
                         new NiceSelect(replacer, {searchable: true});
 
-                        let focus = document.getElementById('new_order_form_preProduct_preOffer_select2');
+                        let focus = document.getElementById(forms.name +'_preProduct_preOffer_select2');
                         focus ? focus.click() : null;
 
                     } else
                     {
-                        selectTotal(document.getElementById('new_order_form_preProduct_preProduct'))
+                        selectTotal(document.getElementById(forms.name +'_preProduct_preProduct'))
                     }
 
                 }
@@ -101,7 +212,7 @@ async function changeObjectProduct(forms)
 
 
                 /** Событие на изменение торгового предложения */
-                let offerChange = document.getElementById('new_order_form_preProduct_preOffer');
+                let offerChange = document.getElementById(forms.name +'_preProduct_preOffer');
 
                 if(offerChange)
                 {
@@ -130,76 +241,18 @@ async function changeObjectProduct(forms)
                 // });
 
             }
+
+            enableElementsForm(forms);
         });
-}
-
-
-function _changeObjectProduct()
-{
-
-    let replaceId = 'new_order_form_preProduct_preOffer';
-
-
-    /* Создаём объект класса XMLHttpRequest */
-    const requestModalName = new XMLHttpRequest();
-    requestModalName.responseType = "document";
-
-    /* Имя формы */
-    let MovingForm = document.forms.new_order_form;
-    let formData = new FormData();
-
-
-    // const varehouse = document.getElementById('new_order_form_preProduct_targetWarehouse');
-    // formData.append(varehouse.getAttribute('name'), varehouse.value);
-
-    formData.append(this.getAttribute('name'), this.value);
-
-
-    requestModalName.open(MovingForm.getAttribute('method'), MovingForm.getAttribute('action'), true);
-
-    /* Указываем заголовки для сервера */
-    requestModalName.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    /* Получаем ответ от сервера на запрос*/
-    requestModalName.addEventListener("readystatechange", function()
-    {
-        /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if(requestModalName.readyState === 4 && requestModalName.status === 200)
-        {
-
-            let result = requestModalName.response.getElementById('preOffer');
-
-
-            document.getElementById('preOffer').replaceWith(result);
-
-            let replacer = document.getElementById(replaceId);
-
-            if(replacer.tagName === 'SELECT')
-            {
-                new NiceSelect(replacer, {searchable: true, id: 'select2-' + replaceId});
-
-                /** Событие на изменение торгового предложения */
-                let offerChange = document.getElementById('new_order_form_preProduct_preOffer');
-
-                if(offerChange)
-                {
-                    offerChange.addEventListener('change', changeObjectOffer, false);
-                }
-            }
-
-
-        }
-
-        return false;
-    });
-
-    requestModalName.send(formData);
 }
 
 
 async function changeObjectOffer(forms)
 {
+    disabledElementsForm(forms);
 
+    document.getElementById('preVariation')?.classList.add('d-none');
+    document.getElementById('preModification')?.classList.add('d-none');
 
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
@@ -251,7 +304,8 @@ async function changeObjectOffer(forms)
 
                     /** SELECT2 */
 
-                    let replacer = document.getElementById('new_order_form_preProduct_preVariation');
+                    let replacer = document.getElementById(forms.name +'_preProduct_preVariation');
+                    replacer && replacer.type !== 'hidden' ? preVariation.classList.remove('d-none') : null;
 
                     if(replacer)
                     {
@@ -260,7 +314,7 @@ async function changeObjectOffer(forms)
                         {
                             new NiceSelect(replacer, {searchable: true});
 
-                            let focus = document.getElementById('new_order_form_preProduct_preVariation_select2');
+                            let focus = document.getElementById(forms.name +'_preProduct_preVariation_select2');
                             focus ? focus.click() : null;
 
                             replacer.addEventListener('change', function(event)
@@ -270,7 +324,7 @@ async function changeObjectOffer(forms)
                             });
                         } else
                         {
-                            selectTotal(document.getElementById('new_order_form_preProduct_preOffer'))
+                            selectTotal(document.getElementById(forms.name +'_preProduct_preOffer'))
                         }
 
                     }
@@ -286,7 +340,7 @@ async function changeObjectOffer(forms)
                         document.getElementById('targetWarehouse').replaceWith(targetWarehouse);
 
                         /** SELECT2 */
-                        let replacerWarehouse = document.getElementById('new_order_form_preProduct_targetWarehouse');
+                        let replacerWarehouse = document.getElementById(forms.name +'_preProduct_targetWarehouse');
                         replacer.addEventListener('change', changeObjectWarehause, false);
 
                         if(replacerWarehouse && replacerWarehouse.tagName === 'SELECT')
@@ -302,73 +356,18 @@ async function changeObjectOffer(forms)
 
 
             }
+
+            enableElementsForm(forms);
         });
-}
-
-
-function _changeObjectOffer()
-{
-
-
-    let replaceId = 'new_order_form_preProduct_preVariation';
-
-    /* Создаём объект класса XMLHttpRequest */
-    const requestModalName = new XMLHttpRequest();
-    requestModalName.responseType = "document";
-
-    /* Имя формы */
-    let MovingForm = document.forms.new_order_form;
-    let formData = new FormData();
-    formData.append(this.getAttribute('name'), this.value);
-
-    /** Продукт */
-    const product = document.getElementById('new_order_form_preProduct_preProduct');
-    formData.append(product.getAttribute('name'), product.value);
-
-    /** Торговое предложенеи */
-    requestModalName.open(MovingForm.getAttribute('method'), MovingForm.getAttribute('action'), true);
-
-    /* Указываем заголовки для сервера */
-    requestModalName.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    /* Получаем ответ от сервера на запрос*/
-    requestModalName.addEventListener("readystatechange", function()
-    {
-        /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if(requestModalName.readyState === 4 && requestModalName.status === 200)
-        {
-
-            let result = requestModalName.response.getElementById('preVariation');
-
-            document.getElementById('preVariation').replaceWith(result);
-
-            let replacer = document.getElementById(replaceId);
-
-            if(replacer.tagName === 'SELECT')
-            {
-                new NiceSelect(document.getElementById(replaceId), {searchable: true, id: 'select2-' + replaceId});
-
-                /** Событие на изменение множественного варианта предложения */
-                let offerVariation = document.getElementById('new_order_form_preProduct_preVariation');
-
-                if(offerVariation)
-                {
-                    offerVariation.addEventListener('change', changeObjectVariation, false);
-                }
-            }
-
-        }
-
-        return false;
-    });
-
-    requestModalName.send(formData);
 }
 
 
 async function changeObjectVariation(forms)
 {
 
+    disabledElementsForm(forms);
+
+    document.getElementById('preModification')?.classList.add('d-none');
 
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
@@ -419,7 +418,8 @@ async function changeObjectVariation(forms)
                     document.getElementById('preModification').replaceWith(preModification);
 
                     /** SELECT2 */
-                    let replacer = document.getElementById('new_order_form_preProduct_preModification');
+                    let replacer = document.getElementById(forms.name +'_preProduct_preModification');
+                    replacer && replacer.type !== 'hidden' ? preModification.classList.remove('d-none') : null;
 
                     /** Событие на изменение модификации */
                     if(replacer)
@@ -429,7 +429,7 @@ async function changeObjectVariation(forms)
                         {
                             new NiceSelect(replacer, {searchable: true});
 
-                            let focus = document.getElementById('new_order_form_preProduct_preModification_select2');
+                            let focus = document.getElementById(forms.name +'_preProduct_preModification_select2');
                             focus ? focus.click() : null;
 
                             replacer.addEventListener('change', function(event)
@@ -440,76 +440,26 @@ async function changeObjectVariation(forms)
 
                         } else
                         {
-                            selectTotal(document.getElementById('new_order_form_preProduct_preVariation'))
+                            selectTotal(document.getElementById(forms.name +'_preProduct_preVariation'))
                         }
                     }
                 }
             }
+
+            enableElementsForm(forms);
         });
 }
 
-
-function _changeObjectVariation()
-{
-
-    let replaceId = 'new_order_form_preProduct_preModification';
-
-    /* Создаём объект класса XMLHttpRequest */
-    const requestModalName = new XMLHttpRequest();
-    requestModalName.responseType = "document";
-
-    /* Имя формы */
-    let MovingForm = document.forms.new_order_form;
-    let formData = new FormData();
-    formData.append(this.getAttribute('name'), this.value);
-
-    /** Продукт */
-    const product = document.getElementById('new_order_form_preProduct_preProduct');
-    formData.append(product.getAttribute('name'), product.value);
-
-    /** Торговое предложенеи */
-    const offer = document.getElementById('new_order_form_preProduct_preOffer');
-    formData.append(offer.getAttribute('name'), offer.value);
-
-    /** Множественный вариант */
-    requestModalName.open(MovingForm.getAttribute('method'), MovingForm.getAttribute('action'), true);
-
-    /* Указываем заголовки для сервера */
-    requestModalName.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    /* Получаем ответ от сервера на запрос*/
-    requestModalName.addEventListener("readystatechange", function()
-    {
-        /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if(requestModalName.readyState === 4 && requestModalName.status === 200)
-        {
-
-            let result = requestModalName.response.getElementById('preModification');
-
-            document.getElementById('preModification').replaceWith(result);
-
-            let replacer = document.getElementById(replaceId);
-
-            if(replacer.tagName === 'SELECT')
-            {
-                new NiceSelect(document.getElementById(replaceId), {searchable: true, id: 'select2-' + replaceId});
-
-            }
-        }
-
-        return false;
-    });
-
-    requestModalName.send(formData);
-
-}
 
 function selectTotal(element)
 {
     let index = element.selectedIndex;
 
-    document.getElementById('new_order_form_preProduct_preTotal')
-        .setAttribute('max', element.options[index].dataset.max);
+    let preProduct_preTotal = document.getElementById('new_order_form_preProduct_preTotal');
+
+    preProduct_preTotal.setAttribute('max', element.options[index].dataset.max);
+
+    // preProduct_preTotal.addEventListener('input', addProductOrder.debounce(3000));
 
     setTimeout(function()
     {
@@ -520,35 +470,14 @@ function selectTotal(element)
 }
 
 
-//function changeObjectWarehause()
-//{
-//    let index = this.selectedIndex;
-//    document.getElementById('new_order_form_preTotal')
-//        .setAttribute('max', this.options[index].dataset.max);
-//
-//    document.getElementById('new_order_form_destinationWarehouse').addEventListener('change', () => {
-//
-//        setTimeout(function()
-//        {
-//            let focusTotal = document.getElementById('new_order_form_preTotal');
-//            focusTotal ? focusTotal.focus() : null;
-//        }, 100);
-//
-//    }, false);
-//
-//
-//    setTimeout(function()
-//    {
-//        let focusDestination = document.getElementById('new_order_form_destinationWarehouse_select2');
-//        focusDestination ? focusDestination.click() : null;
-//    }, 100);
-//}
-//
-
 var collectionProductOrder = new Map();
 
 function addProductOrder()
 {
+    document.getElementById('preOffer')?.classList.add('d-none');
+    document.getElementById('preVariation')?.classList.add('d-none');
+    document.getElementById('preModification')?.classList.add('d-none');
+
     /* Блок для новой коллекции КАТЕГОРИИ */
     let $blockCollectionProducts = document.getElementById('collectionProductOrder');
 
@@ -702,7 +631,7 @@ function addProductOrder()
     }
 
     /* получаем прототип коллекции  */
-    let $addButtonStock = this;
+    let $addButtonStock = document.getElementById('new_order_form_addProduct');
 
     let newForm = $addButtonStock.dataset.prototype;
     let index = $addButtonStock.dataset.index * 1;
@@ -809,12 +738,13 @@ if(userProfileType)
 {
     userProfileType.addEventListener('change', function(event)
     {
-
         let forms = this.closest('form');
+
         submitProfileForm(forms);
         return false;
     });
 }
+
 
 // document.querySelectorAll('input[name="new_order_form[usr][userProfile][type]"]').forEach(function (userProfileType) {
 //     userProfileType.addEventListener('change', function (event) {
@@ -854,11 +784,14 @@ document.querySelectorAll('select.change_region_field').forEach(function(userReg
         submitRegionForm(forms, userRegion.id);
         return false;
     });
+
+    new NiceSelect(userRegion);
+
 });
 
 async function submitDeliveryForm(forms)
 {
-
+    disabledElementsForm(forms);
 
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
@@ -895,7 +828,6 @@ async function submitDeliveryForm(forms)
             if(data)
             {
 
-
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(data, 'text/html');
 
@@ -923,6 +855,7 @@ async function submitDeliveryForm(forms)
                         submitRegionForm(forms, userRegion.id);
                         return false;
                     });
+
                 });
 
                 /** Делаем перерасчет */
@@ -1015,6 +948,8 @@ async function submitDeliveryForm(forms)
 
 
             }
+
+            enableElementsForm(forms);
         });
 
 
@@ -1029,6 +964,7 @@ async function submitDeliveryForm(forms)
 async function submitRegionForm(forms, id)
 {
 
+    disabledElementsForm(forms);
 
     //console.log('submitRegionForm');
 
@@ -1088,29 +1024,43 @@ async function submitRegionForm(forms, id)
 
                 /** Определяем поле с адресом */
 
-                limitZJzxDhmvtC = 100;
-
-                setTimeout(function ZJzxDhmvtC()
+                executeFunc(function ordersDraftAddres()
                 {
-
-                    if(typeof initAdddress == 'function')
+                    if(typeof initAdddress !== 'function')
                     {
-                        initAdddress();
-                        return;
+                        return false;
                     }
 
-                    if(limitZJzxDhmvtC > 1000)
-                    {
-                        return;
-                    }
+                    initAdddress();
 
-                    limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
+                    return true;
+                });
 
-                    setTimeout(ZJzxDhmvtC, limitZJzxDhmvtC);
-
-                }, 100);
+                //limitZJzxDhmvtC = 100;
+                //
+                //setTimeout(function ZJzxDhmvtC()
+                //{
+                //
+                //    if(typeof initAdddress == 'function')
+                //    {
+                //        initAdddress();
+                //        return;
+                //    }
+                //
+                //    if(limitZJzxDhmvtC > 1000)
+                //    {
+                //        return;
+                //    }
+                //
+                //    limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
+                //
+                //    setTimeout(ZJzxDhmvtC, limitZJzxDhmvtC);
+                //
+                //}, 100);
 
             }
+
+            enableElementsForm(forms);
         });
 
 
@@ -1124,6 +1074,8 @@ async function submitRegionForm(forms, id)
 
 async function submitPaymentForm(forms)
 {
+
+    disabledElementsForm(forms);
 
     //console.log('submitPaymentForm');
 
@@ -1192,6 +1144,8 @@ async function submitPaymentForm(forms)
                 });
 
             }
+
+            enableElementsForm(forms);
         });
 
 
@@ -1205,6 +1159,8 @@ async function submitPaymentForm(forms)
 
 async function submitProfileForm(forms)
 {
+
+    disabledElementsForm(forms);
 
     //console.log('submitProfileForm');
 
@@ -1255,17 +1211,50 @@ async function submitProfileForm(forms)
 
                 userProfileType = document.getElementById('new_order_form_usr_userProfile_type');
 
+                if(userProfileType.tagName === 'SELECT')
+                {
+                    new NiceSelect(userProfileType);
+                }
+
                 userProfileType.addEventListener('change', function(event)
                 {
-
                     let forms = this.closest('form');
                     submitProfileForm(forms);
                     return false;
                 });
 
+
                 /** Блок продукции */
                 let user_products = doc.getElementById('user_products');
                 document.getElementById('user_products').replaceWith(user_products);
+
+
+                var object_category = document.getElementById('new_order_form_preProduct_category');
+
+                if(object_category)
+                {
+                    //object_product.addEventListener('change', changeObjectProduct, false);
+                    object_category.addEventListener('change', function(event)
+                    {
+                        let forms = this.closest('form');
+                        changeObjectCategory(forms);
+                        return false;
+                    });
+
+
+                    if(object_category.tagName === 'SELECT')
+                    {
+                        new NiceSelect(object_category, {searchable: true});
+                    }
+
+                    //let $addButtonStock = document.getElementById('new_order_form_addProduct');
+                    //
+                    //if($addButtonStock)
+                    //{
+                    //    $addButtonStock.addEventListener('click', addProductOrder, false);
+                    //}
+                }
+
 
                 var object_product = document.getElementById('new_order_form_preProduct_preProduct');
 
@@ -1274,6 +1263,7 @@ async function submitProfileForm(forms)
                     let focus = document.getElementById('new_order_form_preProduct_preProduct_select2');
                     focus ? focus.click() : null;
 
+
                     //object_product.addEventListener('change', changeObjectProduct, false);
                     object_product.addEventListener('change', function(event)
                     {
@@ -1281,6 +1271,7 @@ async function submitProfileForm(forms)
                         changeObjectProduct(forms);
                         return false;
                     });
+
 
                     if(object_product.tagName === 'SELECT')
                     {
@@ -1391,6 +1382,7 @@ async function submitProfileForm(forms)
 
             }
 
+            enableElementsForm(forms);
         });
 
 
@@ -1403,114 +1395,119 @@ async function submitProfileForm(forms)
 }
 
 
-if(document.readyState === 'loading')
-{
-    document.addEventListener('DOMContentLoaded', initFormDraft);
-} else
-{
-    initFormDraft();
-}
-
-function initFormDraft()
-{
-
-    let form = document.querySelector('#modal form');  //getElementById('modal');
-
-    if(typeof form == 'undefined' || !form)
-    {
-        return;
-    }
-
-    //console.log(form);
-
-    let name = form.name;
-
-    input = form.querySelector('#' + name + '_price_total'); //basket.getElementById('order_product_form_price_total');
-
-    if(input)
-    {
-
-        /** Событие на изменение количество в ручную */
-        input.addEventListener('input', orderModalCounter.debounce(300));
+//if(document.readyState === 'loading')
+//{
+//    document.addEventListener('DOMContentLoaded', initFormDraft);
+//} else
+//{
+//    initFormDraft();
+//}
 
 
-        /** Счетчик  */
-        form.querySelector('#plus').addEventListener('click', () =>
-        {
-
-            let price_total = form.querySelector('#' + name + '_price_total');
-            let result = price_total.value * 1;
-            let max = price_total.dataset.max * 1;
-
-            if(result < max)
-            {
-                result = result + 1;
-                form.querySelector('#' + name + '_price_total').value = result;
-                orderModalSum(result);
-            }
-
-        });
 
 
-        form.querySelector('#minus').addEventListener('click', () =>
-        {
-            let price_total = form.querySelector('#' + name + '_price_total');
-            let result = price_total.value * 1;
+//function initFormDraft()
+//{
+//
+//    let form = document.querySelector('#modal form');  //getElementById('modal');
+//
+//    if(typeof form == 'undefined' || !form)
+//    {
+//        return false;
+//    }
+//
+//    //console.log(form);
+//
+//    let name = form.name;
+//
+//    input = form.querySelector('#' + name + '_price_total'); //basket.getElementById('order_product_form_price_total');
+//
+//    if(input)
+//    {
+//
+//        /** Событие на изменение количество в ручную */
+//        input.addEventListener('input', orderModalCounter.debounce(300));
+//
+//
+//        /** Счетчик  */
+//        form.querySelector('#plus').addEventListener('click', () =>
+//        {
+//
+//            let price_total = form.querySelector('#' + name + '_price_total');
+//            let result = price_total.value * 1;
+//            let max = price_total.dataset.max * 1;
+//
+//            if(result < max)
+//            {
+//                result = result + 1;
+//                form.querySelector('#' + name + '_price_total').value = result;
+//                orderModalSum(result);
+//            }
+//
+//        });
+//
+//
+//        form.querySelector('#minus').addEventListener('click', () =>
+//        {
+//            let price_total = form.querySelector('#' + name + '_price_total');
+//            let result = price_total.value * 1;
+//
+//            if(result > 1)
+//            {
+//                result = result - 1
+//                form.querySelector('#' + name + '_price_total').value = result;
+//                orderModalSum(result);
+//            }
+//        });
+//
+//        //return;
+//    }
+//
+//
+//    function orderModalCounter()
+//    {
+//
+//        console.log(this);
+//
+//        let result = this.value * 1;
+//        let max = this.dataset.max * 1;
+//
+//        if(result > max)
+//        {
+//            form.querySelector('#' + name + '_price_total').value = max;
+//            form.querySelector('#summ_' + name + '_price_total').value = max;
+//            result = max;
+//        }
+//
+//        orderModalSum(result);
+//    }
+//
+//    function orderModalSum(result)
+//    {
+//
+//        let product_summ = form.querySelector('#summ_' + name + '_price_total');
+//
+//        let result_product_sum = result * product_summ.dataset.price;
+//
+//        if(product_summ.dataset.discount)
+//        {
+//            result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
+//        }
+//
+//        if(product_summ.dataset.currency)
+//        {
+//            result_product_sum = result_product_sum / 100;
+//            result_product_sum = new Intl.NumberFormat($locale, {
+//                style: 'currency',
+//                currency: product_summ.dataset.currency,
+//                maximumFractionDigits: 0
+//            }).format(result_product_sum);
+//            product_summ.innerText = result_product_sum;
+//        }
+//    }
+//
+//
+//}
 
-            if(result > 1)
-            {
-                result = result - 1
-                form.querySelector('#' + name + '_price_total').value = result;
-                orderModalSum(result);
-            }
-        });
 
-        //return;
-    }
-
-
-    function orderModalCounter()
-    {
-
-        console.log(this);
-
-        let result = this.value * 1;
-        let max = this.dataset.max * 1;
-
-        if(result > max)
-        {
-            form.querySelector('#' + name + '_price_total').value = max;
-            form.querySelector('#summ_' + name + '_price_total').value = max;
-            result = max;
-        }
-
-        orderModalSum(result);
-    }
-
-    function orderModalSum(result)
-    {
-
-        let product_summ = form.querySelector('#summ_' + name + '_price_total');
-
-        let result_product_sum = result * product_summ.dataset.price;
-
-        if(product_summ.dataset.discount)
-        {
-            result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
-        }
-
-        if(product_summ.dataset.currency)
-        {
-            result_product_sum = result_product_sum / 100;
-            result_product_sum = new Intl.NumberFormat($locale, {
-                style: 'currency',
-                currency: product_summ.dataset.currency,
-                maximumFractionDigits: 0
-            }).format(result_product_sum);
-            product_summ.innerText = result_product_sum;
-        }
-
-    }
-}
-
-
+//executeFunc(initFormDraft);

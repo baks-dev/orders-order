@@ -88,15 +88,19 @@ class OrderEvent extends EntityEvent
     #[ORM\Column(type: OrderStatus::TYPE)]
     private OrderStatus $status;
 
-    /** Ответственный */
+    /**
+     * Ответственный
+     * @deprecated переносится в invariable
+     */
     #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
     private ?UserProfileUid $profile = null;
+
 
     /** Модификатор */
     #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'])]
     private OrderModify $modify;
 
-    /** Пользователь */
+    /** Пользователь (Клиент) */
     #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
     private OrderUser $usr;
 

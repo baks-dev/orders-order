@@ -36,7 +36,7 @@ final class OrderEventRepository implements OrderEventInterface
     /**
      * Метод возвращает событие по идентификатору
      */
-    public function findByEventId(OrderEventUid|string $event): ?OrderEvent
+    public function find(OrderEventUid|string $event): OrderEvent|false
     {
         if(is_string($event))
         {
@@ -53,6 +53,6 @@ final class OrderEventRepository implements OrderEventInterface
 
         return $orm
             ->enableCache('orders-order', 3600)
-            ->getOneOrNullResult();
+            ->getOneOrNullResult() ?: false;
     }
 }

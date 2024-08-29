@@ -2,7 +2,7 @@
 
 {{ include(_self|replace({ "content.html.twig" : baks_settings.device~"/_form.html.twig" })) }}
 
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_draft.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_draft.min.js?v={{ version }}"
         class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
         class='lazy'></script>
@@ -12,4 +12,3 @@
         class='lazy'></script>
 {#
 <script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script> #}
-

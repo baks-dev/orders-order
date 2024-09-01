@@ -28,30 +28,16 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
-use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
 final class EditOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
-     * Дата заказа
-     */
-    #[Assert\NotBlank]
-    private ?DateTimeImmutable $created = null;
-
-    /**
      * Идентификатор заказа
      */
+    #[Assert\NotBlank]
     private ?string $number = null;
-
-
-    /**
-     * ID пользователя ответственного
-     */
-    //    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    private ?UserUid $usr = null;
 
 
     /**
@@ -59,38 +45,12 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
      */
     private ?UserProfileUid $profile = null;
 
-    /**
-     * Created
-     */
-    public function getCreated(): ?DateTimeImmutable
-    {
-        if($this->created instanceof DateTimeImmutable)
-        {
-            return $this->created;
-        }
 
-        return new DateTimeImmutable();
-    }
-
-    public function setCreated(?DateTimeImmutable $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    /**
-     * Usr
-     */
     public function getUsr(): ?UserUid
     {
-        return $this->usr;
+        return null;
     }
 
-    public function setUsr(?UserUid $usr): self
-    {
-        $this->usr = $usr;
-        return $this;
-    }
 
     /**
      * Profile
@@ -111,7 +71,6 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         $this->profile = null;
         return $this;
     }
-
 
     /**
      * Number

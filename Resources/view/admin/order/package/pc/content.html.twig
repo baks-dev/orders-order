@@ -63,6 +63,13 @@
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}
 
+            <div class="clearfix d-flex gap-3 align-items-center mb-3">
+                <div class="text-nowrap text-muted">Продукция в заказе</div>
+                <div class="w-100">
+                    <hr class="clearfix">
+                </div>
+            </div>
+
             {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
                 <div class="d-flex gap-3 align-items-center w-100">
 
@@ -117,15 +124,15 @@
 
                         {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.price.total > card_stock %}
 
-                            <span class="text-danger">
-                                {% if card_stock > 0 %}
-                                    В наличии на складе <strong>{{ card_stock }}</strong> шт.
-                                {% else %}
-                                    {% if form.vars.data.profile %}
-                                        Нет в наличии
-                                    {% endif %}
+
+                            {% if card_stock > 0 %}
+                                <span class="text-danger"> В наличии на складе <strong>{{ card_stock }}</strong> шт. </span>
+                            {% else %}
+                                {% if form.vars.data.profile %}
+                                    <span class="badge rounded-pill text-bg-danger">Нет в наличии на складе упаковки заказа</span>
                                 {% endif %}
-                            </span>
+                            {% endif %}
+
 
                             <div class="mt-1">
 
@@ -141,23 +148,31 @@
 
                                     {% endfor %}
 
+                                    <div class="small text-danger mb-1 text-nowrap">
+                                        Выберите для упаковки иной склад, либо переместите недостаток с другого
+                                        склада на склад упаковки
+                                        {# Вы можете переместить на указанный склад недостаток с другого, либо выбрать для сборки заказа #}
+                                    </div>
 
-                                    <div class="d-flex gap-3 align-items-center">
+                                    <div class="d-flex gap-3 align-items-center ">
                                         {% if product.move.profile is defined %}
 
                                             <span>Переместить недостоток {{ (product.vars.data.price.total - card_stock) }} шт. со склада:</span>
 
                                             <div class="w-50">
                                                 {{ form_widget(product.move.profile, {
-                                                    placeholder: 'Выберите целевой Склад для перемещения ...', attr: { 'data-select' : 'select2' }
+                                                    placeholder: 'Выберите целевой Склад для перемещения ...',
+                                                    attr: { 'data-select' : 'select2', class: 'm-0' },
                                                 }) }}
                                             </div>
 
                                         {% else %}
+
+
                                             {# {% if form.vars.data.profile %} #}
-                                            <span class="text-danger">
-                                                    Нет в наличии для перемещения
-                                                </span>
+                                            <strong class="text-danger">
+                                                Нет в наличии для перемещения
+                                            </strong>
                                             {# {% endif %} #}
 
                                         {% endif %}
@@ -175,7 +190,7 @@
                                 &nbsp; <span
                                     class="text-success">В наличии  <strong>{{ card_stock }}</strong> шт. </span>
                             {% else %}
-                                <span class="text-danger">Нет в наличии</span>
+                                <span class="badge rounded-pill text-bg-danger">Нет в наличии</span>
                             {% endif %}
 
                         {% endif %}
@@ -197,7 +212,13 @@
 
             {% if form.vars.data.usr.delivery.address %}
 
-                <label class="form-label mt-3">Адрес доставки (выдачи) заказа:</label>
+                <div class="clearfix d-flex gap-3 align-items-center my-3">
+                    <div class="text-nowrap text-muted">Адрес доставки (выдачи) заказа:</div>
+                    <div class="w-100">
+                        <hr class="clearfix">
+                    </div>
+                </div>
+
                 <div class="alert alert-warning" role="alert">
                     {{ form.vars.data.usr.delivery.address }}
                 </div>

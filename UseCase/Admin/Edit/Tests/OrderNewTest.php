@@ -129,8 +129,8 @@ final class OrderNewTest extends KernelTestCase
 
         $EditOrderInvariableDTO = $OrderDTO->getInvariable();
 
-        $EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
-        self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
+        //$EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
+        //self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
 
         $EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
         self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
@@ -138,8 +138,8 @@ final class OrderNewTest extends KernelTestCase
         $EditOrderInvariableDTO->setNumber('order_number');
         self::assertSame('order_number', $EditOrderInvariableDTO->getNumber());
 
-        $EditOrderInvariableDTO->setCreated($DateTimeImmutable = new DateTimeImmutable());
-        self::assertSame($DateTimeImmutable, $EditOrderInvariableDTO->getCreated());
+        //$EditOrderInvariableDTO->setCreated($DateTimeImmutable = new DateTimeImmutable());
+        //self::assertSame($DateTimeImmutable, $EditOrderInvariableDTO->getCreated());
 
 
         /** OrderPriceDTO */

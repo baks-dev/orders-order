@@ -32,7 +32,9 @@ use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileChoice\UserProfileChoiceInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -42,13 +44,10 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class PackageOrderForm extends AbstractType
 {
-    private GeocodeAddressInterface $geocodeAddress;
-
-    private GeocodeDistance $geocodeDistance;
-
     /** Ближайший склад */
     private ?UserProfileUid $nearestWarehouse = null;
 
@@ -58,31 +57,27 @@ final class PackageOrderForm extends AbstractType
     /** Выбранный склад */
     private ?UserProfileUid $currentProfile = null;
 
-    private ContactCallByGeocodeInterface $contactCallByGeocode;
-
-    private UserProfileChoiceInterface $userProfileChoice;
-
     public function __construct(
-        UserProfileChoiceInterface $userProfileChoice,
-        GeocodeAddressInterface $geocodeAddress,
-        GeocodeDistance $geocodeDistance,
-        ContactCallByGeocodeInterface $contactCallByGeocode,
-    ) {
-        $this->geocodeAddress = $geocodeAddress;
-        $this->geocodeDistance = $geocodeDistance;
-        $this->contactCallByGeocode = $contactCallByGeocode;
-        $this->userProfileChoice = $userProfileChoice;
-    }
+        private readonly UserProfileChoiceInterface $userProfileChoice,
+        private readonly GeocodeAddressInterface $geocodeAddress,
+        private readonly GeocodeDistance $geocodeDistance,
+        private readonly UserProfileTokenStorageInterface $profileTokenStorage,
+    ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        if(false === $this->profileTokenStorage->getUser())
+        {
+            throw new AccessDeniedException('Access Denied');
+        }
 
-        $CurrentUser = $builder->getData()->getCurrent();
+        //$CurrentUser = $builder->getData()->getCurrent();
 
         /**
          * Все профили пользователя
          */
-        $profiles = $this->userProfileChoice->getActiveUserProfile($CurrentUser);
+        $profiles = $this->userProfileChoice
+            ->getActiveUserProfile($this->profileTokenStorage->getUser());
 
         $this->currentProfile = (count($profiles) === 1) ? current($profiles) : null;
 
@@ -99,7 +94,11 @@ final class PackageOrderForm extends AbstractType
                 }
 
                 /** По умолчанию присваиваем склад назначения - текущий пользователь */
-                $this->productModifier($form, $data->getProfile());
+
+                if($data->getProfile())
+                {
+                    $this->productModifier($form, $data->getProfile());
+                }
 
                 /** @var OrderDeliveryDTO $Delivery */
                 $Delivery = $data->getUsr()->getDelivery();
@@ -175,7 +174,7 @@ final class PackageOrderForm extends AbstractType
                 // Еси не указана геолокация доставки - присваиваем по умолчанию склад активного пользователя
                 else
                 {
-
+                    $data->setProfile($this->profileTokenStorage->getProfile());
                 }
             },
         );
@@ -183,10 +182,10 @@ final class PackageOrderForm extends AbstractType
         /* Коллекция продукции */
         $builder->add('product', CollectionType::class, [
             'entry_type' => Products\PackageOrderProductForm::class,
-            'entry_options' => [
+            /*'entry_options' => [
                 'label' => false,
                 'usr' => $CurrentUser
-            ],
+            ],*/
             'label' => false,
             'by_reference' => false,
             'allow_delete' => true,
@@ -229,7 +228,7 @@ final class PackageOrderForm extends AbstractType
 
                     if($this->nearestWarehouse && $warehouse->equals($this->nearestWarehouse))
                     {
-                        return $warehouse->getAttr().' (ближайший)';
+                        return $warehouse->getAttr().' (Ближайший к клиенту)';
                     }
 
                     return $warehouse->getAttr();

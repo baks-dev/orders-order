@@ -38,7 +38,7 @@ final class OrderInvariable implements OrderInvariableInterface
      * Дата заказа
      */
     #[Assert\NotBlank]
-    private DateTimeImmutable $created;
+    private ?DateTimeImmutable $created = null;
 
     /**
      * Идентификатор заказа
@@ -53,7 +53,6 @@ final class OrderInvariable implements OrderInvariableInterface
     #[Assert\IsNull]
     private null $usr = null;
 
-
     /**
      * ID профиля ответственного
      */
@@ -63,10 +62,9 @@ final class OrderInvariable implements OrderInvariableInterface
 
     public function __construct()
     {
-        $this->created = new DateTimeImmutable();
-
         /** Генерируем идентификатор заказа */
         $this->number = number_format((microtime(true) * 100), 0, '.', '.');
+        $this->created = new DateTimeImmutable();
     }
 
     /**
@@ -74,7 +72,12 @@ final class OrderInvariable implements OrderInvariableInterface
      */
     public function getCreated(): DateTimeImmutable
     {
-        return $this->created;
+        if($this->created instanceof DateTimeImmutable)
+        {
+            return $this->created;
+        }
+
+        return new DateTimeImmutable();
     }
 
     /**

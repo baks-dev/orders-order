@@ -31,6 +31,7 @@ use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrd
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
@@ -90,7 +91,7 @@ final class PackageController extends AbstractController
 
         if($socket->isError())
         {
-            return new JsonResponse($socket->getMessage());
+            return new JsonResponse($socket->getMessage(), status: 500);
         }
 
         $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
@@ -112,12 +113,17 @@ final class PackageController extends AbstractController
          * Создаем складскую заявку на упаковку заказа
          */
 
-        $PackageOrderDTO = new PackageOrderDTO($this->getUsr()?->getId());
+        $PackageOrderDTO = new PackageOrderDTO($this->getUsr(), $this->getProfileUid());
+        $PackageOrderDTO->setProfile($this->getProfileUid());
         $OrderEvent->getDto($PackageOrderDTO);
 
         $form = $this->createForm(PackageOrderForm::class, $PackageOrderDTO, [
             'action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()]),
         ]);
+
+
+
+
 
         $form->handleRequest($request);
 
@@ -135,7 +141,7 @@ final class PackageController extends AbstractController
 
             if($socket->isError())
             {
-                return new JsonResponse($socket->getMessage());
+                return new JsonResponse($socket->getMessage(), status: 500);
             }
 
             $PackageProductStockDTO = new PackageProductStockDTO($this->getUsr()?->getId());
@@ -317,7 +323,13 @@ final class PackageController extends AbstractController
             /**
              * Обновляем статус заказа и присваиваем профиль склада упаковки.
              */
-            $OrderStatusDTO = new OrderStatusDTO(new OrderStatus(new OrderStatus\OrderStatusPackage()), $Order->getEvent(), $this->getProfileUid());
+            $OrderStatusDTO = new OrderStatusDTO(
+                OrderStatusPackage::class,
+                $Order->getEvent(),
+                $this->getUsr(),
+                $this->getProfileUid()
+            );
+
             //$OrderStatusDTO->setProfile($PackageProductStockDTO->getProfile());
 
 
@@ -358,9 +370,9 @@ final class PackageController extends AbstractController
                 'type' => 'danger',
                 'header' => sprintf('Заказ #%s', $number),
                 'message' => sprintf('Ошибка %s при обновлении заказа', $code),
-                'status' => 400,
+                'status' => 500,
             ],
-            400
+            500
         );
     }
 }

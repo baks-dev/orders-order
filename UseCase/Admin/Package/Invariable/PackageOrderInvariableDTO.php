@@ -59,8 +59,13 @@ final class PackageOrderInvariableDTO implements OrderInvariableInterface
         return $this->usr;
     }
 
-    public function setUsr(UserUid $usr): self
+    public function setUsr(?UserUid $usr): self
     {
+        if(is_null($usr))
+        {
+            return $this;
+        }
+
         if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
         {
             $this->usr = $usr;

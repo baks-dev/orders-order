@@ -33,7 +33,6 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
@@ -85,7 +84,15 @@ final class StatusController extends AbstractController
 
 
         $OrderStatus = $orderStatusCollection->from($status);
-        $OrderStatusDTO = new OrderStatusDTO($OrderStatus, $Order->getEvent(), $this->getProfileUid());
+
+        $OrderStatusDTO = new OrderStatusDTO(
+            $OrderStatus,
+            $Order->getEvent(),
+            $this->getUsr(),
+            $this->getProfileUid()
+        );
+
+
         $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
 
 

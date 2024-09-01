@@ -24,9 +24,12 @@
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Type\UidType\Uid;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
 
 interface OrderEventInterface
 {
     /** @see OrderEvent */
     public function getEvent(): ?Uid;
+
+    public function getInvariable(): OrderInvariableInterface;
 }

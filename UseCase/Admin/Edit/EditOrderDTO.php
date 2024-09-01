@@ -45,7 +45,7 @@ final class EditOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\EditOrderInvariableDTO $invariable;
+    private readonly Invariable\EditOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     private OrderStatus $status;

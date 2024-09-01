@@ -28,6 +28,8 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Entity\User as UserEntity;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderStatusDTO implements OrderEventInterface
@@ -39,7 +41,7 @@ final class OrderStatusDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\StatusOrderInvariableDTO $invariable;
+    private readonly Invariable\StatusOrderInvariableDTO $invariable;
 
     /**
      * Ответственный
@@ -57,15 +59,19 @@ final class OrderStatusDTO implements OrderEventInterface
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
         OrderEventUid $id,
+        UserEntity|UserUid $user,
         UserProfileUid $profile
     ) {
-        $this->status = new OrderStatus($status);
         $this->id = $id;
-        $this->profile = $profile;
+        $this->status = new OrderStatus($status);
 
+        $user = $user instanceof UserEntity ? $user->getId() : $user;
         $StatusOrderInvariableDTO = new Invariable\StatusOrderInvariableDTO();
+        $StatusOrderInvariableDTO->setUsr($user);
         $StatusOrderInvariableDTO->setProfile($profile);
         $this->invariable = $StatusOrderInvariableDTO;
+
+        $this->profile = $profile;
 
     }
 

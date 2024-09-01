@@ -68,7 +68,10 @@ final class CanceledController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        $OrderCanceledDTO = new CanceledOrderDTO($this->getProfileUid());
+        $OrderCanceledDTO = new CanceledOrderDTO(
+            $this->getUsr(),
+            $this->getProfileUid()
+        );
         $OrderEvent->getDto($OrderCanceledDTO);
 
         $form = $this->createForm(CanceledOrderForm::class, $OrderCanceledDTO, [

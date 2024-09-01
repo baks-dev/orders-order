@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Entity\User as UserEntity;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
@@ -49,7 +50,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\PackageOrderInvariableDTO $invariable;
+    private readonly Invariable\PackageOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -61,7 +62,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
 
     /**
-     * Склад (Профиль пользователя)
+     * Склад назначения (Профиль пользователя)
      * @deprecated
      */
     #[Assert\Uuid]
@@ -71,13 +72,17 @@ final class PackageOrderDTO implements OrderEventInterface
     private UserUid $current;
 
 
-    public function __construct(UserUid $current)
+    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
     {
-        $this->current = $current;
+        $user = $user instanceof UserEntity ? $user->getId() : $user;
+
+        $this->current = $user;
         $this->product = new ArrayCollection();
 
         $PackageOrderInvariable = new Invariable\PackageOrderInvariableDTO();
-        $PackageOrderInvariable->setUsr($current);
+        $PackageOrderInvariable->setUsr($user);
+        $PackageOrderInvariable->setProfile($profile);
+
         $this->invariable = $PackageOrderInvariable;
 
     }
@@ -137,11 +142,12 @@ final class PackageOrderDTO implements OrderEventInterface
 
     public function setProfile(?UserProfileUid $profile): self
     {
-        /** Присваиваем постоянный  */
+        /** Присваиваем постоянную величину  */
         $PackageOrderInvariable = $this->getInvariable();
         $PackageOrderInvariable->setProfile($profile);
 
         $this->profile = $profile;
+
         return $this;
     }
 

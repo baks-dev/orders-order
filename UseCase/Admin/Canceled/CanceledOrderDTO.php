@@ -28,6 +28,8 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Entity\User as UserEntity;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
@@ -40,7 +42,7 @@ final class CanceledOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\CancelOrderInvariableDTO $invariable;
+    private readonly Invariable\CancelOrderInvariableDTO $invariable;
 
     /**
      * Ответственный
@@ -58,12 +60,16 @@ final class CanceledOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private ?string $comment = null;
 
-    public function __construct(UserProfileUid $profile)
+    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
     {
         $this->status = new OrderStatus(OrderStatusCanceled::class);
         $this->profile = $profile;
 
+
+        $user = $user instanceof UserEntity ? $user->getId() : $user;
+
         $CancelOrderInvariable = new Invariable\CancelOrderInvariableDTO();
+        $CancelOrderInvariable->setUsr($user);
         $CancelOrderInvariable->setProfile($profile);
         $this->invariable = $CancelOrderInvariable;
 

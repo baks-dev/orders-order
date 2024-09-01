@@ -38,7 +38,7 @@ final class StatusOrderInvariableDTO implements OrderInvariableInterface
     /**
      * ID пользователя ответственного
      */
-    //#[Assert\NotBlank]
+    #[Assert\NotBlank]
     #[Assert\Uuid]
     private readonly ?UserUid $usr;
 
@@ -48,17 +48,17 @@ final class StatusOrderInvariableDTO implements OrderInvariableInterface
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly UserProfileUid $profile;
+    private readonly ?UserProfileUid $profile;
 
     /**
      * Profile
      */
-    public function getProfile(): UserProfileUid
+    public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
     }
 
-    public function setProfile(UserProfileUid $profile): self
+    public function setProfile(?UserProfileUid $profile): self
     {
         if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
         {

@@ -49,7 +49,10 @@ final class DeleteController extends AbstractController
         DeleteOrderHandler $OrderDeleteHandler,
     ): Response {
 
-        $OrderCancelDTO = new DeleteOrderDTO($this->getProfileUid());
+        $OrderCancelDTO = new DeleteOrderDTO(
+            $this->getUsr(),
+            $this->getProfileUid()
+        );
         $OrderEvent->getDto($OrderCancelDTO);
 
         $form = $this

@@ -33,6 +33,8 @@ use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserByUserProfile\UserByUserProfileInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -44,15 +46,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class PackageOrderProductForm extends AbstractType
 {
     public function __construct(
-        private readonly UserByUserProfileInterface $userByUserProfile,
         private readonly ProductUserBasketInterface $info,
-        private readonly ProductWarehouseTotalInterface $warehouseTotal
+        private readonly ProductWarehouseTotalInterface $warehouseTotal,
+        private readonly UserTokenStorageInterface $userTokenStorage,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
-
         /*  Перемещение */
         $builder->add('move', HiddenType::class);
 
@@ -113,22 +113,22 @@ final class PackageOrderProductForm extends AbstractType
                     /** @var OrderDeliveryDTO $Delivery */
                     $Delivery = $form->getParent()?->getParent()?->getData()->getUsr()->getDelivery();
 
-
                     /* Если в заказе количество больше, чем в наличии на складе - добавляем перемещение */
                     if($Delivery->isPickup() === false && $data->getPrice()->getTotal() > $totalStock)
                     {
 
-                        $UserUid = null;
+                        //                        $UserUid = null;
+                        //
+                        //                        if($warehouse)
+                        //                        {
+                        //                            $UserByUserProfile = $this->userByUserProfile
+                        //                                ->forProfile($warehouse)
+                        //                                ->findUser();
+                        //                            $UserUid = $UserByUserProfile?->getId();
+                        //                        }
 
-                        if($warehouse)
-                        {
-                            $UserByUserProfile = $this->userByUserProfile
-                                ->forProfile($warehouse)
-                                ->findUser();
-                            $UserUid = $UserByUserProfile?->getId();
-                        }
 
-                        $ProductMoving = new Moving\Products\ProductStockDTO($UserUid);
+                        $ProductMoving = new Moving\Products\ProductStockDTO($this->userTokenStorage->getUser());
                         $ProductMoving->setProduct($ProductUid);
                         $ProductMoving->setOffer($ProductOfferConst);
                         $ProductMoving->setVariation($ProductVariationConst);

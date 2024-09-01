@@ -80,6 +80,7 @@ final class OrderStatusHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
+
         /**
          * Проверяем, если статус заказа может присваиваться только единожды
          */

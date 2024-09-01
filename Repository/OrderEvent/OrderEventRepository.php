@@ -29,9 +29,9 @@ use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 
-final class OrderEventRepository implements OrderEventInterface
+final readonly class OrderEventRepository implements OrderEventInterface
 {
-    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
+    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
      * Метод возвращает событие по идентификатору

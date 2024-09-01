@@ -38,7 +38,7 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      * Дата заказа
      */
     #[Assert\NotBlank]
-    private DateTimeImmutable $created;
+    private ?DateTimeImmutable $created = null;
 
     /**
      * Идентификатор заказа
@@ -73,7 +73,12 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getCreated(): DateTimeImmutable
     {
-        return $this->created;
+        if($this->created instanceof DateTimeImmutable)
+        {
+            return $this->created;
+        }
+
+        return new DateTimeImmutable();
     }
 
     public function setCreated(DateTimeImmutable $created): self
@@ -96,6 +101,8 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
         return $this;
     }
 
+
+
     /**
      * Profile
      */
@@ -109,6 +116,10 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
         $this->profile = $profile;
         return $this;
     }
+
+
+
+
 
     public function resetProfile(): self
     {

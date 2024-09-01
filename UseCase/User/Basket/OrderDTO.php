@@ -46,13 +46,22 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    /** Ответственный */
+    /**
+     * Ответственный
+     * @deprecated Переносится в Invariable
+     */
     private ?UserProfileUid $profile = null;
+
+
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private readonly Invariable\OrderInvariable $invariable;
 
     public function __construct()
     {
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
+        $this->invariable = new Invariable\OrderInvariable();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -112,5 +121,13 @@ final class OrderDTO implements OrderEventInterface
     {
         $this->profile = $profile;
         return $this;
+    }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\OrderInvariable
+    {
+        return $this->invariable;
     }
 }

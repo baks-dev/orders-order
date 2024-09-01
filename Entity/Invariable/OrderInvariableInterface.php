@@ -23,4 +23,13 @@
 
 namespace BaksDev\Orders\Order\Entity\Invariable;
 
-interface OrderInvariableInterface {}
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
+
+interface OrderInvariableInterface
+{
+    public function getUsr(): ?UserUid;
+
+    public function getProfile(): ?UserProfileUid;
+
+}

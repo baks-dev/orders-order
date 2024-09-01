@@ -27,15 +27,17 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Entity\User as UserEntity;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
-final class DeleteOrderDTO implements OrderEventInterface
+final readonly class DeleteOrderDTO implements OrderEventInterface
 {
     /** Идентификатор события */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly OrderEventUid $id;
+    private OrderEventUid $id;
 
     /** Постоянная величина */
     #[Assert\Valid]
@@ -47,19 +49,22 @@ final class DeleteOrderDTO implements OrderEventInterface
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly UserProfileUid $profile;
+    private UserProfileUid $profile;
 
     /**
      * Статус заказа
      */
     #[Assert\NotBlank]
-    private readonly OrderStatus $status;
+    private OrderStatus $status;
 
-    public function __construct(UserProfileUid $profile)
+    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
     {
         $this->profile = $profile;
 
+        $user = $user instanceof UserEntity ? $user->getId() : $user;
+
         $DeleteOrderInvariable = new Invariable\DeleteOrderInvariableDTO();
+        $DeleteOrderInvariable->setUsr($user);
         $DeleteOrderInvariable->setProfile($profile);
         $this->invariable = $DeleteOrderInvariable;
     }

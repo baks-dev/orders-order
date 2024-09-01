@@ -91,10 +91,11 @@ final class MovingProductStockForm extends AbstractType
                                 },
 
                                 'choice_label' => function (UserProfileUid $profile) {
-                                    return $profile->getAttr().' ( '.$profile->getProperty().' )';
+                                    return $profile->getAttr().' ['.$profile->getProperty().']';
                                 },
 
-                                'label' => false
+                                'label' => false,
+                                'required' => true
                             ]
                         );
                     }

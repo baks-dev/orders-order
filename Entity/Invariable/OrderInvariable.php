@@ -90,6 +90,7 @@ class OrderInvariable extends EntityReadonly
     {
         $this->event = $event;
         $this->main = $event->getMain();
+        $this->created = new DateTimeImmutable();
     }
 
     public function __toString(): string

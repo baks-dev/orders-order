@@ -20,25 +20,26 @@
  *  THE SOFTWARE.
  */
 
+
+executeFunc(initOrderPackage);
+
 function initOrderPackage()
 {
     let orderpackageWarehouse = document.getElementById('package_order_form_profile');
-    if(orderpackageWarehouse)
+
+    if(orderpackageWarehouse === null)
     {
-
-        orderpackageWarehouse.addEventListener('change', changeObjectPackageWarehouse, false);
-
-        /** Изменияем список целевых складов */
-        // new NiceSelect(document.getElementById('package_order_form_warehouse'), {
-        //     searchable: true,
-        //     id: 'select2-package_order_form_warehouse'
-        // });
+        return false;
     }
-}
 
+    orderpackageWarehouse.addEventListener('change', changeObjectPackageWarehouse, false);
+
+    return true;
+}
 
 function changeObjectPackageWarehouse()
 {
+
 
     //console.log('changeObjectPackageWarehouse');
 
@@ -50,6 +51,9 @@ function changeObjectPackageWarehouse()
 
     /* Имя формы */
     let PackageOrderForm = document.forms.package_order_form;
+    disabledElementsForm(PackageOrderForm);
+
+
     let formData = new FormData();
 
 
@@ -71,7 +75,14 @@ function changeObjectPackageWarehouse()
         {
 
             let result = requestModalName.response.getElementById('modal-body');
+
+            result.querySelectorAll('[data-select="select2"]').forEach(function(item)
+            {
+                new NiceSelect(item, {searchable: true});
+            });
+
             document.getElementById('modal-body').replaceWith(result);
+
 
             /** Изменияем список целевых складов */
             // new NiceSelect(document.getElementById('package_order_form_warehouse'), {
@@ -82,6 +93,8 @@ function changeObjectPackageWarehouse()
             initOrderPackage();
         }
 
+        enableElementsForm(PackageOrderForm);
+
         return false;
     });
 
@@ -89,24 +102,24 @@ function changeObjectPackageWarehouse()
 
 }
 
-limit = 100;
-
-setTimeout(function OxMvRIBczY()
-{
-
-    if(typeof initOrderPackage == 'function')
-    {
-        initOrderPackage();
-        console.log('initOrderPackage');
-        return;
-    }
-
-    console.log(limit);
-
-    if(limit > 1000)
-    { return; }
-
-    setTimeout(OxMvRIBczY, limit);
-
-}, 100);
+//limit = 100;
+//
+//setTimeout(function OxMvRIBczY()
+//{
+//
+//    if(typeof initOrderPackage == 'function')
+//    {
+//        initOrderPackage();
+//        console.log('initOrderPackage');
+//        return;
+//    }
+//
+//    console.log(limit);
+//
+//    if(limit > 1000)
+//    { return; }
+//
+//    setTimeout(OxMvRIBczY, limit);
+//
+//}, 100);
 

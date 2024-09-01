@@ -130,7 +130,6 @@ final class SendClientEmailOrderNews
 
         $TemplatedEmail = new TemplatedEmail();
 
-
         $orderDetail = $this->orderDetail->fetchDetailOrderAssociative($message->getId());
 
 
@@ -154,7 +153,7 @@ final class SendClientEmailOrderNews
         // Отправляем письмо пользователю
         $this->mailer->send($email);
 
-        $this->logger->notice('Оправили уведомление клиенту на Email '.$AccountEmail);
+        $this->logger->notice('Оправили уведомление о заказе клиенту на Email '.$AccountEmail);
 
         $Deduplicator->save();
     }

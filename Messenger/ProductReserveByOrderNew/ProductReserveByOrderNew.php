@@ -36,11 +36,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/**
- * Ставит продукцию в резерв в карточке товара
- * @note Имеет самый высокий приоритет
- */
-#[AsMessageHandler(priority: 100)]
+
+/** Работа с резервами в карточке - самый высокий приоритет */
+#[AsMessageHandler(priority: 999)]
 final class ProductReserveByOrderNew
 {
     private LoggerInterface $logger;

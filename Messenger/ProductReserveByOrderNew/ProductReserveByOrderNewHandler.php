@@ -29,7 +29,9 @@ use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantity
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(priority: 0)]
+
+/** Работа с резервами в карточке - самый высокий приоритет */
+#[AsMessageHandler(priority: 999)]
 final class ProductReserveByOrderNewHandler
 {
     private LoggerInterface $logger;

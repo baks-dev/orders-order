@@ -36,7 +36,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+/** Работа с резервами в карточке - самый высокий приоритет */
+#[AsMessageHandler(priority: 999)]
 final class ProductsReserveByOrderCancel
 {
     private LoggerInterface $logger;

@@ -347,17 +347,17 @@ final class PackageController extends AbstractController
             }
 
 
-            return $this->redirectToRoute('orders-order:admin.index');
+            //return $this->redirectToRoute('orders-order:admin.index');
 
-            //            return new JsonResponse(
-            //                [
-            //                    'type' => 'success',
-            //                    'header' => 'Заказ #'.$Order->getNumber(),
-            //                    'message' => 'Статус успешно обновлен',
-            //                    'status' => 200,
-            //                ],
-            //                200
-            //            );
+                        return new JsonResponse(
+                            [
+                                'type' => 'success',
+                                'header' => 'Заказ #'.$Order->getNumber(),
+                                'message' => 'Статус успешно обновлен',
+                                'status' => 200,
+                            ],
+                            200
+                        );
         }
 
         return $this->render(['form' => $form->createView()]);

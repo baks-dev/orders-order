@@ -29,7 +29,6 @@ use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantity
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-
 /** Работа с резервами в карточке - самый высокий приоритет */
 #[AsMessageHandler(priority: 999)]
 final class ProductReserveByOrderNewHandler
@@ -45,6 +44,13 @@ final class ProductReserveByOrderNewHandler
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void
     {
+        /** Log Data */
+        $dataLogs['total'] = (string) $message->getTotal();
+        $dataLogs['ProductEventUid'] = (string) $message->getEvent();
+        $dataLogs['ProductOfferUid'] = (string) $message->getOffer();
+        $dataLogs['ProductVariationUid'] = (string) $message->getVariation();
+        $dataLogs['ProductModificationUid'] = (string) $message->getModification();
+
         $result = $this
             ->addProductQuantity
             ->forEvent($message->getEvent())
@@ -55,34 +61,25 @@ final class ProductReserveByOrderNewHandler
             ->addQuantity(false)
             ->update();
 
-        if($result === 0)
-        {
-            $this->logger->critical(
-                'Невозможно добавить резерв на новый заказ: карточка не найдена либо недостаточное количество для резерва)',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => (string) $message->getTotal(),
-                    'ProductEventUid' => (string) $message->getEvent(),
-                    'ProductOfferUid' => (string) $message->getOffer(),
-                    'ProductVariationUid' => (string) $message->getVariation(),
-                    'ProductModificationUid' => (string) $message->getModification(),
-                ]
-            );
 
+        if($result === false)
+        {
+            $dataLogs[0] = self::class.':'.__LINE__;
+            $this->logger->critical('orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена', $dataLogs);
             return;
         }
 
+        if($result === 0)
+        {
+            $dataLogs[0] = self::class.':'.__LINE__;
+            $this->logger->critical('orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва', $dataLogs);
+            return;
+        }
+
+        $dataLogs[0] = self::class.':'.__LINE__;
         $this->logger->info(
-            sprintf('Добавили %s резерва продукции в карточке', $message->getTotal()),
-            [
-                self::class.':'.__LINE__,
-                'ProductEventUid' => (string) $message->getEvent(),
-                'ProductOfferUid' => (string) $message->getOffer(),
-                'ProductVariationUid' => (string) $message->getVariation(),
-                'ProductModificationUid' => (string) $message->getModification(),
-            ]
+            sprintf('orders-order: Добавили %s резерва продукции в карточке', $message->getTotal()),
+            $dataLogs
         );
-
-
     }
 }

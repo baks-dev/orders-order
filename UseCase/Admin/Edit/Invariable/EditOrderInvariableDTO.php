@@ -45,12 +45,17 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
      */
     private ?UserProfileUid $profile = null;
 
+    public function __construct()
+    {
+        /** Генерируем идентификатор заказа */
+        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
+    }
+
 
     public function getUsr(): ?UserUid
     {
         return null;
     }
-
 
     /**
      * Profile
@@ -81,9 +86,6 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         {
             return $this->number;
         }
-
-        /** Генерируем идентификатор заказа */
-        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
 
         return $this->number;
     }

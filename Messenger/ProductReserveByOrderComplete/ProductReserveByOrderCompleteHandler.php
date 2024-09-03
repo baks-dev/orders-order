@@ -45,6 +45,14 @@ final class ProductReserveByOrderCompleteHandler
 
     public function __invoke(ProductReserveByOrderCompleteMessage $message): void
     {
+
+        /** Log Data */
+        $dataLogs['total'] = (string) $message->getTotal();
+        $dataLogs['ProductEventUid'] = (string) $message->getEvent();
+        $dataLogs['ProductOfferUid'] = (string) $message->getOffer();
+        $dataLogs['ProductVariationUid'] = (string) $message->getVariation();
+        $dataLogs['ProductModificationUid'] = (string) $message->getModification();
+
         $result = $this
             ->subProductQuantity
             ->forEvent($message->getEvent())
@@ -55,33 +63,32 @@ final class ProductReserveByOrderCompleteHandler
             ->subQuantity($message->getTotal())
             ->update();
 
+        if($result === false)
+        {
+            $dataLogs[0] = self::class.':'.__LINE__;
+            $this->logger->critical(
+                'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена',
+                $dataLogs
+            );
+            return;
+        }
+
+
         if($result === 0)
         {
+            $dataLogs[0] = self::class.':'.__LINE__;
             $this->logger->critical(
-                'Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => (string) $message->getTotal(),
-                    'ProductEventUid' => (string) $message->getEvent(),
-                    'ProductOfferUid' => (string) $message->getOffer(),
-                    'ProductVariationUid' => (string) $message->getVariation(),
-                    'ProductModificationUid' => (string) $message->getModification(),
-                ]
+                'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: недостаточное количество либо резерва',
+                $dataLogs
             );
 
             return;
         }
 
         $this->logger->info(
-            'Сняли резерв и наличие продукции в карточке при выполненном заказе',
-            [
-                self::class.':'.__LINE__,
-                'total' => (string) $message->getTotal(),
-                'ProductEventUid' => (string) $message->getEvent(),
-                'ProductOfferUid' => (string) $message->getOffer(),
-                'ProductVariationUid' => (string) $message->getVariation(),
-                'ProductModificationUid' => (string) $message->getModification(),
-            ]
+            sprintf('orders-order: Сняли %s резерва и наличия продукции в карточке при выполненном заказе', $message->getTotal()),
+            $dataLogs
         );
+
     }
 }

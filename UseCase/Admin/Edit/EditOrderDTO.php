@@ -39,6 +39,10 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderUid $order = null;
 
+    /** Идентификатор заказа */
+    #[Assert\Uuid]
+    private ?OrderUid $orders = null;
+
     /** Идентификатор события */
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
@@ -73,6 +77,7 @@ final class EditOrderDTO implements OrderEventInterface
         if($order)
         {
             $this->order = $order;
+            $this->orders = $order;
         }
 
         $this->product = new ArrayCollection();
@@ -159,7 +164,7 @@ final class EditOrderDTO implements OrderEventInterface
      */
     public function getOrder(): ?OrderUid
     {
-        return $this->order;
+        return $this->orders ?: $this->order;
     }
 
     /**

@@ -29,11 +29,11 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 interface CurrentOrderEventInterface
 {
-    public function order(Order|OrderUid|string $order): self;
+    public function forOrder(Order|OrderUid|string $order): self;
 
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEvent(): ?OrderEvent;
+    public function find(): OrderEvent|false;
 
 }

@@ -39,8 +39,7 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
 
     public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
-
-    public function order(Order|OrderUid|string $order): self
+    public function forOrder(Order|OrderUid|string $order): self
     {
         if($order instanceof Order)
         {
@@ -60,18 +59,8 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEvent(): ?OrderEvent
+    public function find(): OrderEvent|false
     {
-        if($this->order === false)
-        {
-            if(Kernel::isTestEnvironment())
-            {
-                return EntityTestGenerator::get(OrderEvent::class);
-            }
-
-            return null;
-        }
-
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $orm
@@ -93,7 +82,6 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
                 'event.id = orders.event'
             );
 
-        return $orm->getOneOrNullResult();
+        return $orm->getOneOrNullResult() ?: false;
     }
-
 }

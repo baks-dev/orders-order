@@ -257,15 +257,14 @@
                             {% else %}
                                 <span class="text-muted small fw-bolder">: &nbsp; бесплатно</span>
                             {% endif %}
-
                         </div>
 
                         {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd') %}
-                            <span class="badge bg-danger small">Просрочен:</span>
+                            <span class="badge bg-danger small p-1">Просрочен</span>
                         {% elseif order.delivery_date|date('Ymd') == date("now")|date('Ymd') %}
-                            <span class="badge bg-warning text-dark small">Опоздание:</span>
+                            <span class="badge bg-warning text-dark small p-1">Опоздание</span>
                         {% else %}
-                            <span class="text-muted small">Доставка:</span>
+                            <span class="text-muted small">Доставка</span>
                         {% endif %}
 
                         &nbsp;

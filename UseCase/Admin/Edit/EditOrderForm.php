@@ -23,11 +23,14 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class EditOrderForm extends AbstractType
@@ -47,36 +50,29 @@ final class EditOrderForm extends AbstractType
 
         $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 
-
-        //		$builder
-        //			->add('status', ChoiceType::class, [
-        //				'choices' => OrderStatus::cases(),
-        //				'choice_value' => function(?OrderStatus $status) {
-        //					return $status?->getOrderStatusValue();
-        //				},
-        //
-        //				'choice_label' => function(OrderStatus $status) {
-        //					return $status->getOrderStatusValue();
-        //				},
-        //
-        //				'expanded' => false,
-        //				'multiple' => false,
-        //				'required' => true,
-        //				'translation_domain' => 'status.order',
-        //                'attr' => ['data-order' => $builder->getData()->getOrder()]
-        //			])
-        //		;
-
-
         $builder->add('comment', TextareaType::class, ['required' => false]);
 
-        /* Сохранить ******************************************************/
-        $builder->add(
-            'order',
-            SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-        );
 
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event): void {
+
+                $form = $event->getForm();
+
+                /** @var EditOrderDTO $data */
+                $data = $event->getData();
+
+                /** Если заказ выполнен - не отображаем кнопку для сохранения изменений */
+                if(false === $data->getStatus()->equals(OrderStatusCompleted::class))
+                {
+                    $form->add(
+                        'order',
+                        SubmitType::class,
+                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+                    );
+                }
+            }
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

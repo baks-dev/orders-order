@@ -339,12 +339,13 @@
     <div class="w-100 d-flex justify-content-between align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
 
         <div>
-            {{ form_widget(form.order, { label: '
-                <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
-                <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-		    ',
-                attr: { class: 'btn-danger', title : "Оформить заказ" }
-            }) }}
+            {% if order.order_status != 'completed' %}
+                {{ form_widget(form.order, { label: '
+                    <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+		        ', attr: { class: 'btn-danger', title : "Сохранить изменения" }
+                }) }}
+            {% endif %}
         </div>
 
 

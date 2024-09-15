@@ -24,12 +24,12 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
-use Symfony\Config\FrameworkConfig;
+use Symfony\Config\TwigConfig;
 
-return static function (FrameworkConfig $config) {
+return static function (TwigConfig $twig) {
 
-    $config
-        ->translator()
-        ->paths([BaksDevOrdersOrderBundle::PATH.'Resources/translations/']);
-
+    $twig->path(
+        BaksDevOrdersOrderBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), // .'Resources/view',
+        'orders-order'
+    );
 };

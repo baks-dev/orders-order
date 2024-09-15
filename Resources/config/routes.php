@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2023.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,19 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
-
 use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
-use Symfony\Config\TwigConfig;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-return static function (TwigConfig $twig) {
+return function (RoutingConfigurator $routes) {
 
-    $twig->path(
-        BaksDevOrdersOrderBundle::PATH.'Resources/view',
-        'orders-order'
-    );
+    $MODULE = BaksDevOrdersOrderBundle::PATH;
+
+    $routes->import(
+        $MODULE.'Controller',
+        'attribute',
+        false,
+        $MODULE.implode(DIRECTORY_SEPARATOR, ['Controller', '**', '*Test.php'])
+    )
+        ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
+        ->namePrefix('orders-order:');
 };

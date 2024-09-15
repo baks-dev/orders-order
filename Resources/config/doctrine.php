@@ -76,7 +76,7 @@ return static function (ContainerConfigurator $container, DoctrineConfig $doctri
         ->type('attribute')
         ->dir(BaksDevOrdersOrderBundle::PATH.'Entity')
         ->isBundle(false)
-        ->prefix('BaksDev\Orders\Order\Entity')
+        ->prefix(BaksDevOrdersOrderBundle::NAMESPACE.'\\Entity')
         ->alias('orders-order');
 
 };

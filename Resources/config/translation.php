@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,15 @@
  *  THE SOFTWARE.
  */
 
+namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+
 use BaksDev\Orders\Order\BaksDevOrdersOrderBundle;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Config\FrameworkConfig;
 
-return function (RoutingConfigurator $routes) {
+return static function (FrameworkConfig $config) {
 
-    $PATH = BaksDevOrdersOrderBundle::PATH;
+    $config
+        ->translator()
+        ->paths([BaksDevOrdersOrderBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'translations', ''])]); // .'Resources/translations/']);
 
-    $routes->import(
-        $PATH.'Controller',
-        'attribute',
-        false,
-        $PATH.'Controller/**/*Test.php'
-    )
-        ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
-        ->namePrefix('orders-order:');
 };

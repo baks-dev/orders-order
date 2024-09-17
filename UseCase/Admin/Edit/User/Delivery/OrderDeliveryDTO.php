@@ -37,11 +37,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderDeliveryDTO implements OrderDeliveryInterface
 {
-    /** Способ оплаты */
+    /** Способ доставки */
     #[Assert\NotBlank]
     private ?DeliveryUid $delivery = null;
 
-    /** Событие способа оплаты (для расчета стоимости) */
+    /** Событие способа доставки (для расчета стоимости) */
     #[Assert\NotBlank]
     private DeliveryEventUid $event;
 
@@ -164,6 +164,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
     public function setDeliveryDate(?DateTimeImmutable $deliveryDate): self
     {
+        /** Указываем дату доставки на следующий день */
         if(!$deliveryDate)
         {
             $now = (new DateTimeImmutable())->setTime(0, 0, 0);

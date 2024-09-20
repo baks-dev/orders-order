@@ -28,6 +28,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
@@ -46,27 +48,31 @@ final class CanceledController extends AbstractController
     #[Route('/admin/order/canceled/{id}', name: 'admin.order.canceled', methods: ['GET', 'POST'])]
     public function canceled(
         Request $request,
-        #[MapEntity] Order $Order,
         EntityManagerInterface $entityManager,
         CentrifugoPublishInterface $publish,
-        OrderStatusHandler $OrderStatusHandler
+        OrderStatusHandler $OrderStatusHandler,
+        string $id
     ): Response {
 
-        /**
-         * Отправляем сокет для скрытия заказа у других менеджеров
-         */
-        $publish
-            ->addData(['order' => (string) $Order->getId()])
-            ->addData(['profile' => (string) $this->getProfileUid()])
-            ->send('orders');
+        /** Пробуем найти по идентификатору заказа */
+        $OrderUid = new OrderUid($id);
+        $Order = $entityManager->getRepository(Order::class)->find($OrderUid);
 
-
-        $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
+        $OrderEventUid = $Order instanceof Order ? $Order->getEvent() : new OrderEventUid($id);
+        $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($OrderEventUid);
 
         if(!$OrderEvent)
         {
             return $this->redirectToReferer();
         }
+
+        /**
+         * Отправляем сокет для скрытия заказа у других менеджеров
+         */
+        $publish
+            ->addData(['order' => (string) $OrderEvent->getMain()])
+            ->addData(['profile' => (string) $this->getProfileUid()])
+            ->send('orders');
 
         $OrderCanceledDTO = new CanceledOrderDTO(
             $this->getUsr(),

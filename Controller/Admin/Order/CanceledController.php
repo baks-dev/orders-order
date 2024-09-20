@@ -66,6 +66,11 @@ final class CanceledController extends AbstractController
             return $this->redirectToReferer();
         }
 
+        if(false === ($Order instanceof Order))
+        {
+            $Order = $entityManager->getRepository(Order::class)->find($OrderEvent->getMain());
+        }
+
         /**
          * Отправляем сокет для скрытия заказа у других менеджеров
          */
@@ -81,7 +86,7 @@ final class CanceledController extends AbstractController
         $OrderEvent->getDto($OrderCanceledDTO);
 
         $form = $this->createForm(CanceledOrderForm::class, $OrderCanceledDTO, [
-            'action' => $this->generateUrl('orders-order:admin.order.canceled', ['id' => $Order->getId()]),
+            'action' => $this->generateUrl('orders-order:admin.order.canceled', ['id' => $OrderEvent->getMain()]),
         ]);
 
         $form->handleRequest($request);

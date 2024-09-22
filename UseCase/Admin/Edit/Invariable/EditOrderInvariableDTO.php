@@ -81,9 +81,9 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         return $this->number;
     }
 
-    //    public function setNumber(?string $number): self
-    //    {
-    //        $this->number = $number;
-    //        return $this;
-    //    }
+    public function setNumber(?string $number): self
+    {
+        $this->number = $number;
+        return $this;
+    }
 }

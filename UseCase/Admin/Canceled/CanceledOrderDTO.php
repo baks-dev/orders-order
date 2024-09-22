@@ -28,8 +28,6 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Entity\User as UserEntity;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
@@ -46,7 +44,7 @@ final class CanceledOrderDTO implements OrderEventInterface
 
     /**
      * Ответственный
-     * @deprecated переносится
+     * @deprecated переносится в invariable
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -60,18 +58,18 @@ final class CanceledOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private ?string $comment = null;
 
-    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
+    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
     {
         $this->status = new OrderStatus(OrderStatusCanceled::class);
-        $this->profile = $profile;
 
+        //$this->profile = $profile;
 
-        $user = $user instanceof UserEntity ? $user->getId() : $user;
+        /*$user = $user instanceof UserEntity ? $user->getId() : $user;*/
 
-        $CancelOrderInvariable = new Invariable\CancelOrderInvariableDTO();
-        $CancelOrderInvariable->setUsr($user);
-        $CancelOrderInvariable->setProfile($profile);
-        $this->invariable = $CancelOrderInvariable;
+        //$CancelOrderInvariable = new Invariable\CancelOrderInvariableDTO();
+        //$CancelOrderInvariable->setUsr($user);
+        //$CancelOrderInvariable->setProfile($profile);
+        $this->invariable = new Invariable\CancelOrderInvariableDTO();
 
     }
 
@@ -87,11 +85,19 @@ final class CanceledOrderDTO implements OrderEventInterface
         return $this->status;
     }
 
-
+    /** @deprecated переносится в invariable  */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
+
+    /** @deprecated переносится в invariable  */
+    public function setProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
 
     /**
      * Invariable

@@ -23,15 +23,32 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Delete;
 
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class DeleteOrderForm extends AbstractType
 {
+    public function __construct(private readonly UserProfileTokenStorageInterface $userProfileTokenStorage) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            /** @var DeleteOrderDTO $DeleteOrderDTO */
+            $DeleteOrderDTO = $event->getData();
+
+            /** При удалении переопределяем только профиль, пользователь остается неизменным */
+            $NewOrderInvariableDTO = $DeleteOrderDTO->getInvariable();
+            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+            $DeleteOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+        });
+
         $builder->add(
             'order_delete',
             SubmitType::class,

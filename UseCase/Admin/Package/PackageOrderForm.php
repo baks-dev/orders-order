@@ -54,9 +54,6 @@ final class PackageOrderForm extends AbstractType
     /** Склад - пункт выдачи */
     private ?UserProfileUid $pickupWarehouse = null;
 
-    /** Выбранный склад */
-    private ?UserProfileUid $currentProfile = null;
-
     public function __construct(
         private readonly UserProfileChoiceInterface $userProfileChoice,
         private readonly GeocodeAddressInterface $geocodeAddress,
@@ -66,10 +63,6 @@ final class PackageOrderForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if(false === $this->profileTokenStorage->getUser())
-        {
-            throw new AccessDeniedException('Access Denied');
-        }
 
         //$CurrentUser = $builder->getData()->getCurrent();
 
@@ -79,29 +72,32 @@ final class PackageOrderForm extends AbstractType
         $profiles = $this->userProfileChoice
             ->getActiveUserProfile($this->profileTokenStorage->getUser());
 
-        $this->currentProfile = (count($profiles) === 1) ? current($profiles) : null;
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function (FormEvent $event) use ($profiles): void {
-                /** @var PackageOrderDTO $data */
-                $data = $event->getData();
+
+                /** @var PackageOrderDTO $PackageOrderDTO */
+                $PackageOrderDTO = $event->getData();
                 $form = $event->getForm();
 
-                if($this->currentProfile)
-                {
-                    $data->setProfile($this->currentProfile);
-                }
+                $UserProfileUid = $this->profileTokenStorage->getProfile();
 
-                /** По умолчанию присваиваем склад назначения - текущий пользователь */
+                $PackageOrderInvariableDTO = $PackageOrderDTO->getInvariable();
+                $PackageOrderInvariableDTO->setUsr($this->profileTokenStorage->getUser());
+                $PackageOrderInvariableDTO->setProfile($UserProfileUid);
 
-                if($data->getProfile())
+                /**
+                 * Если в списке присутствует только один профиль - присваиваем профиль активного пользователя
+                 */
+                if(count($profiles) === 1)
                 {
-                    $this->productModifier($form, $data->getProfile());
+                    $PackageOrderDTO->setProfile($UserProfileUid);
+                    $this->productModifier($form, $UserProfileUid);
                 }
 
                 /** @var OrderDeliveryDTO $Delivery */
-                $Delivery = $data->getUsr()->getDelivery();
+                $Delivery = $PackageOrderDTO->getUsr()->getDelivery();
 
                 if($Delivery->getLatitude() && $Delivery->getLongitude())
                 {
@@ -144,37 +140,33 @@ final class PackageOrderForm extends AbstractType
 
                         $geocodeDistance = $this->geocodeDistance->getDistance();
 
-                        //dump($distance);
-                        //dump($geocodeDistance);
-
-                        /** Если геолокация заказа равна геолокации профиля - присваиваем */
+                        /**
+                         * Если геолокация заказа равна геолокации профиля - присваиваем профиль
+                         */
                         if($this->geocodeDistance->isEquals())
                         {
-                            $data->setProfile($profile);
-                            $this->nearestWarehouse = $profile; // Ближайший
-                            $this->pickupWarehouse = $profile; // Пункт выдачи заказов
-                            $this->productModifier($form, $profile);
+                            $PackageOrderDTO->setProfile($UserProfileUid);
+                            $this->nearestWarehouse = $UserProfileUid; // Ближайший
+                            $this->pickupWarehouse = $UserProfileUid; // Пункт выдачи заказов
+                            $this->productModifier($form, $UserProfileUid);
 
                             break;
                         }
 
-
                         if($distance === null || $geocodeDistance < $distance)
                         {
                             $distance = $geocodeDistance;
-                            $data->setProfile($profile);
-                            $this->nearestWarehouse = $profile; // Ближайший
-                            $this->productModifier($form, $profile);
+                            $PackageOrderDTO->setProfile($UserProfileUid);
+                            $this->nearestWarehouse = $UserProfileUid; // Ближайший
+                            $this->productModifier($form, $UserProfileUid);
                         }
                     }
-
-
                 }
 
                 // Еси не указана геолокация доставки - присваиваем по умолчанию склад активного пользователя
                 else
                 {
-                    $data->setProfile($this->profileTokenStorage->getProfile());
+                    $PackageOrderDTO->setProfile($UserProfileUid);
                 }
             },
         );
@@ -221,11 +213,13 @@ final class PackageOrderForm extends AbstractType
                 },
                 'choice_label' => function (UserProfileUid $warehouse) {
 
+                    /** Если склад - пункт выдачи заказов */
                     if($this->pickupWarehouse && $warehouse->equals($this->pickupWarehouse))
                     {
                         return $warehouse->getAttr().' (Пункт выдачи заказов)';
                     }
 
+                    /** Если склад ближе к клиенту */
                     if($this->nearestWarehouse && $warehouse->equals($this->nearestWarehouse))
                     {
                         return $warehouse->getAttr().' (Ближайший к клиенту)';
@@ -237,7 +231,6 @@ final class PackageOrderForm extends AbstractType
                 'label' => false,
                 'required' => false,
                 'choice_attr' => function ($warehouse) {
-
 
                     if($this->pickupWarehouse && !$warehouse->equals($this->pickupWarehouse))
                     {
@@ -253,8 +246,8 @@ final class PackageOrderForm extends AbstractType
         $builder->get('profile')->addEventListener(
             FormEvents::POST_SUBMIT,
             function (FormEvent $event): void {
-                $data = (string) $event->getData();
-                $this->productModifier($event->getForm()->getParent(), new UserProfileUid($data));
+                $PackageOrderDTO = (string) $event->getData();
+                $this->productModifier($event->getForm()->getParent(), new UserProfileUid($PackageOrderDTO));
             }
         );
 

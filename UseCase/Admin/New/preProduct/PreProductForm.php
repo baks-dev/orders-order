@@ -165,6 +165,24 @@ final class PreProductForm extends AbstractType
         );
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /**
          * Событие на изменение
          */
@@ -244,11 +262,10 @@ final class PreProductForm extends AbstractType
         );
     }
 
-
     private function formOfferModifier(FormInterface $form, ProductEventUid $product): void
     {
         /* Список торговых предложений продукции */
-        $offer = $this->productOfferChoice->fetchProductOfferExistsByProductEvent($product);
+        $offer = $this->productOfferChoice->findOnlyExistsByProductEvent($product);
 
         // Если у продукта нет ТП
         if(!$offer?->valid())
@@ -288,7 +305,6 @@ final class PreProductForm extends AbstractType
                 ]
             );
     }
-
 
     private function formVariationModifier(FormInterface $form, ProductOfferUid $offer): void
     {

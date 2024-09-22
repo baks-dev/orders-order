@@ -38,7 +38,7 @@ final class OrderInvariable implements OrderInvariableInterface
      * Дата заказа
      */
     #[Assert\NotBlank]
-    private ?DateTimeImmutable $created = null;
+    private ?DateTimeImmutable $created;
 
     /**
      * Идентификатор заказа

@@ -23,17 +23,38 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New;
 
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class NewOrderForm extends AbstractType
 {
+    public function __construct(private readonly UserProfileTokenStorageInterface $userProfileTokenStorage) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        /**
+         * Если заказ создается в ручную - строго присваиваем ответственного пользователя
+         */
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            /** @var NewOrderDTO $NewOrderDTO */
+            $NewOrderDTO = $event->getData();
+
+            $NewOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+            $NewOrderInvariableDTO = $NewOrderDTO->getInvariable();
+            $NewOrderInvariableDTO->setUsr($this->userProfileTokenStorage->getUser());
+            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+        });
+
 
         $builder->add('preProduct', preProduct\PreProductForm::class, ['label' => false]);
 

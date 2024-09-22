@@ -36,13 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class CancelOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
-     * ID пользователя ответственного
-     */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    private ?UserUid $usr;
-
-    /**
      * ID профиля ответственного
      */
     #[Assert\NotBlank]
@@ -70,19 +63,8 @@ final readonly class CancelOrderInvariableDTO implements OrderInvariableInterfac
     /**
      * Usr
      */
-    public function getUsr(): ?UserUid
+    public function getUsr(): null
     {
-        return $this->usr;
+        return null;
     }
-
-    public function setUsr(?UserUid $usr): self
-    {
-        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
-        {
-            $this->usr = $usr;
-        }
-
-        return $this;
-    }
-
 }

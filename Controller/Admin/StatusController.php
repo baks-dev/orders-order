@@ -88,7 +88,6 @@ final class StatusController extends AbstractController
         $OrderStatusDTO = new OrderStatusDTO(
             $OrderStatus,
             $Order->getEvent(),
-            $this->getUsr(),
             $this->getProfileUid()
         );
 

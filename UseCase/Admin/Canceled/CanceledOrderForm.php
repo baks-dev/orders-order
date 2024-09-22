@@ -23,16 +23,35 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Canceled;
 
+use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class CanceledOrderForm extends AbstractType
 {
+    public function __construct(private readonly UserProfileTokenStorageInterface $userProfileTokenStorage) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            /** @var CanceledOrderDTO $CanceledOrderDTO */
+            $CanceledOrderDTO = $event->getData();
+
+            /** При отмене переопределяем только профиль, пользователь остается неизменным */
+            $NewOrderInvariableDTO = $CanceledOrderDTO->getInvariable();
+            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+            $CanceledOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+        });
+
         $builder->add('comment', TextareaType::class);
 
         $builder->add(

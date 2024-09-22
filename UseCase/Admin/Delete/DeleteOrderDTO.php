@@ -57,16 +57,18 @@ final readonly class DeleteOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private OrderStatus $status;
 
-    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
+    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
     {
-        $this->profile = $profile;
+        //$this->profile = $profile;
 
-        $user = $user instanceof UserEntity ? $user->getId() : $user;
+        //$user = $user instanceof UserEntity ? $user->getId() : $user;
 
-        $DeleteOrderInvariable = new Invariable\DeleteOrderInvariableDTO();
-        $DeleteOrderInvariable->setUsr($user);
-        $DeleteOrderInvariable->setProfile($profile);
-        $this->invariable = $DeleteOrderInvariable;
+        //        $DeleteOrderInvariable = new Invariable\DeleteOrderInvariableDTO();
+        //        $DeleteOrderInvariable->setUsr($user);
+        //        $DeleteOrderInvariable->setProfile($profile);
+        //        $this->invariable = $DeleteOrderInvariable;
+
+        $this->invariable = new Invariable\DeleteOrderInvariableDTO();
     }
 
     /** Идентификатор события */
@@ -81,10 +83,19 @@ final readonly class DeleteOrderDTO implements OrderEventInterface
         return $this->status;
     }
 
+    /** @deprecated Переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
+
+    /** @deprecated Переносится в Invariable */
+    public function setProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
 
     /**
      * Invariable

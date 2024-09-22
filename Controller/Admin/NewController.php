@@ -50,10 +50,7 @@ final class NewController extends AbstractController
         ProductUserBasketInterface $userBasket,
     ): Response {
 
-        $OrderDTO = new NewOrderDTO(
-            $this->getUsr(),
-            $this->getProfileUid()
-        );
+        $OrderDTO = new NewOrderDTO();
 
         // Форма
         $form = $this->createForm(NewOrderForm::class, $OrderDTO, [

@@ -39,27 +39,17 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
     #[Assert\NotBlank]
     private ?string $number = null;
 
-
     /**
      * ID профиля ответственного
      */
     private ?UserProfileUid $profile = null;
 
-    public function __construct()
-    {
-        /** Генерируем идентификатор заказа */
-        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
-    }
-
-
+    /** Заказ всегда привязан к пользователю */
     public function getUsr(): ?UserUid
     {
         return null;
     }
 
-    /**
-     * Profile
-     */
     public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
@@ -71,6 +61,7 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         return $this;
     }
 
+    /** Сбрасываем профиль пользователя, если доступен всем профилям пользователя User */
     public function resetProfile(): self
     {
         $this->profile = null;
@@ -82,18 +73,17 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getNumber(): ?string
     {
-        if($this->number)
+        if(!$this->number)
         {
-            return $this->number;
+            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
         }
 
         return $this->number;
     }
 
-    public function setNumber(?string $number): self
-    {
-        $this->number = $number;
-        return $this;
-    }
-
+    //    public function setNumber(?string $number): self
+    //    {
+    //        $this->number = $number;
+    //        return $this;
+    //    }
 }

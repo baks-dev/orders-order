@@ -48,6 +48,14 @@ final class NewOrderDTO implements OrderEventInterface
 
     private preProduct\PreProductDTO $preProduct;
 
+    /**
+     * Ответственный
+     * @deprecated Переносится в Invariable
+     */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private UserProfileUid $profile;
+
 
     /** Постоянная величина */
     #[Assert\Valid]
@@ -57,10 +65,6 @@ final class NewOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private OrderStatus $status;
 
-    /** Ответственный */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    private UserProfileUid $profile;
 
     /** Пользователь */
     #[Assert\Valid]
@@ -70,18 +74,18 @@ final class NewOrderDTO implements OrderEventInterface
     private ?string $comment = null;
 
 
-    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
+    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
     {
-        $user = $user instanceof UserEntity ? $user->getId() : $user;
-
         $NewOrderInvariable = new Invariable\NewOrderInvariableDTO();
         $NewOrderInvariable->setCreated(new DateTimeImmutable());
-        $NewOrderInvariable->setProfile($profile);
-        $NewOrderInvariable->setUsr($user);
         $this->invariable = $NewOrderInvariable;
 
+        // $user = $user instanceof UserEntity ? $user->getId() : $user;
+        //        $NewOrderInvariable->setProfile($profile);
+        //        $NewOrderInvariable->setUsr($user);
+        //$this->profile = $profile;
 
-        $this->profile = $profile;
+
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
         $this->preProduct = new preProduct\PreProductDTO();
@@ -141,9 +145,16 @@ final class NewOrderDTO implements OrderEventInterface
         $this->usr = $users;
     }
 
+    /** @deprecated Переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
+    }
+
+    public function setProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
     }
 
 

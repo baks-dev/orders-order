@@ -79,10 +79,7 @@ final class CanceledController extends AbstractController
             ->addData(['profile' => (string) $this->getProfileUid()])
             ->send('orders');
 
-        $OrderCanceledDTO = new CanceledOrderDTO(
-            $this->getUsr(),
-            $this->getProfileUid()
-        );
+        $OrderCanceledDTO = new CanceledOrderDTO();
         $OrderEvent->getDto($OrderCanceledDTO);
 
         $form = $this->createForm(CanceledOrderForm::class, $OrderCanceledDTO, [

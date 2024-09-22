@@ -63,27 +63,27 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /**
      * Склад назначения (Профиль пользователя)
-     * @deprecated
+     * @deprecated переносится в Invariable
      */
     #[Assert\Uuid]
     private ?UserProfileUid $profile = null;
 
 
-    private UserUid $current;
+//    private UserUid $current;
 
 
-    public function __construct(UserEntity|UserUid $user, UserProfileUid $profile)
+    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
     {
-        $user = $user instanceof UserEntity ? $user->getId() : $user;
+        //$user = $user instanceof UserEntity ? $user->getId() : $user;
 
-        $this->current = $user;
+        //$this->current = $user;
         $this->product = new ArrayCollection();
 
-        $PackageOrderInvariable = new Invariable\PackageOrderInvariableDTO();
-        $PackageOrderInvariable->setUsr($user);
-        $PackageOrderInvariable->setProfile($profile);
+        //        $PackageOrderInvariable = new Invariable\PackageOrderInvariableDTO();
+        //        $PackageOrderInvariable->setUsr($user);
+        //        $PackageOrderInvariable->setProfile($profile);
 
-        $this->invariable = $PackageOrderInvariable;
+        $this->invariable = new Invariable\PackageOrderInvariableDTO();
 
     }
 
@@ -132,14 +132,13 @@ final class PackageOrderDTO implements OrderEventInterface
     }
 
 
-    /**
-     * Profile
-     */
+    /** @deprecated переносится в Invariable */
     public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
     }
 
+    /** @deprecated переносится в Invariable */
     public function setProfile(?UserProfileUid $profile): self
     {
         /** Присваиваем постоянную величину  */
@@ -151,13 +150,13 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this;
     }
 
-    /**
-     * Current
-     */
-    public function getCurrent(): UserUid
-    {
-        return $this->current;
-    }
+//    /**
+//     * Current
+//     */
+//    public function getCurrent(): UserUid
+//    {
+//        return $this->current;
+//    }
 
     /**
      * Status

@@ -59,15 +59,12 @@ final class OrderStatusDTO implements OrderEventInterface
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
         OrderEventUid $id,
-        UserEntity|UserUid $user,
         UserProfileUid $profile
     ) {
         $this->id = $id;
         $this->status = new OrderStatus($status);
 
-        $user = $user instanceof UserEntity ? $user->getId() : $user;
         $StatusOrderInvariableDTO = new Invariable\StatusOrderInvariableDTO();
-        $StatusOrderInvariableDTO->setUsr($user);
         $StatusOrderInvariableDTO->setProfile($profile);
         $this->invariable = $StatusOrderInvariableDTO;
 
@@ -88,11 +85,13 @@ final class OrderStatusDTO implements OrderEventInterface
     }
 
 
+    /** @deprecated переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
+    /** @deprecated переносится в Invariable */
     public function setProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;

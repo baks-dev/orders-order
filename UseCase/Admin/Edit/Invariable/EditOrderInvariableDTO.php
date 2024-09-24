@@ -37,7 +37,7 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
      * Идентификатор заказа
      */
     #[Assert\NotBlank]
-    private ?string $number = null;
+    private readonly string $number;
 
     /**
      * ID профиля ответственного
@@ -81,9 +81,4 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         return $this->number;
     }
 
-    public function setNumber(?string $number): self
-    {
-        $this->number = $number;
-        return $this;
-    }
 }

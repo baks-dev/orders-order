@@ -46,8 +46,8 @@ final class CanceledOrderDTO implements OrderEventInterface
      * Ответственный
      * @deprecated переносится в invariable
      */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
+    //#[Assert\NotBlank]
+    //#[Assert\Uuid]
     private readonly UserProfileUid $profile;
 
     /** Статус заказа */
@@ -92,9 +92,9 @@ final class CanceledOrderDTO implements OrderEventInterface
     }
 
     /** @deprecated переносится в invariable  */
-    public function setProfile(UserProfileUid $profile): self
+    public function setProfile(?UserProfileUid $profile): self
     {
-        $this->profile = $profile;
+        //$this->profile = $profile;
         return $this;
     }
 

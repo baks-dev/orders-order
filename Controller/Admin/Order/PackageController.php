@@ -101,28 +101,57 @@ final class PackageController extends AbstractController
             throw new InvalidArgumentException('Page not found');
         }
 
-        /** Делаем проверку на отсутствие упаковки с данным заказом */
-        $isExistsProductStockOrder = $entityManager->getRepository(ProductStockOrder::class)->findBy(['ord' => $Order->getId()]);
+        $PackageOrderDTO = new PackageOrderDTO($this->getUsr(), $this->getProfileUid());
+        $PackageOrderDTO->setProfile($this->getProfileUid());
+        $OrderEvent->getDto($PackageOrderDTO);
+
+
+        /**
+         * Делаем проверку, что заказ не отменен автоматически
+         */
+        if($PackageOrderDTO->getStatus()->equals(OrderStatus\OrderStatusCanceled::class))
+        {
+            return new JsonResponse(
+                [
+                    'type' => 'danger',
+                    'header' => sprintf('Заказ #%s', $Order->getNumber()),
+                    'message' => 'Заказ был отменен',
+                    'status' => 500,
+                ],
+                500
+            );
+        }
+
+
+        /**
+         * Делаем проверку на отсутствие упаковки с данным заказом
+         * на случай, если заказ уже кем-то отправлен на упаковку
+         */
+        $isExistsProductStockOrder = $entityManager
+            ->getRepository(ProductStockOrder::class)
+            ->findBy(['ord' => $Order->getId()]);
 
         if($isExistsProductStockOrder)
         {
-            return $this->redirectToRoute('orders-order:admin.index');
+            return new JsonResponse(
+                [
+                    'type' => 'danger',
+                    'header' => sprintf('Заказ #%s', $Order->getNumber()),
+                    'message' => 'Заказ уже отправлен на склад',
+                    'status' => 500,
+                ],
+                500
+            );
         }
 
         /**
          * Создаем складскую заявку на упаковку заказа
          */
 
-        $PackageOrderDTO = new PackageOrderDTO($this->getUsr(), $this->getProfileUid());
-        $PackageOrderDTO->setProfile($this->getProfileUid());
-        $OrderEvent->getDto($PackageOrderDTO);
 
         $form = $this->createForm(PackageOrderForm::class, $PackageOrderDTO, [
             'action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()]),
         ]);
-
-
-
 
 
         $form->handleRequest($request);
@@ -348,15 +377,15 @@ final class PackageController extends AbstractController
 
             //return $this->redirectToRoute('orders-order:admin.index');
 
-                        return new JsonResponse(
-                            [
-                                'type' => 'success',
-                                'header' => 'Заказ #'.$Order->getNumber(),
-                                'message' => 'Статус успешно обновлен',
-                                'status' => 200,
-                            ],
-                            200
-                        );
+            return new JsonResponse(
+                [
+                    'type' => 'success',
+                    'header' => 'Заказ #'.$Order->getNumber(),
+                    'message' => 'Статус успешно обновлен',
+                    'status' => 200,
+                ],
+                200
+            );
         }
 
         return $this->render(['form' => $form->createView()]);

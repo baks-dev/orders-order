@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
+use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
@@ -102,7 +103,6 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     }
 
 
-
     /**
      * Profile
      */
@@ -118,9 +118,6 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     }
 
 
-
-
-
     public function resetProfile(): self
     {
         $this->profile = null;
@@ -133,6 +130,11 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getNumber(): ?string
     {
+        if(!(new ReflectionProperty(self::class, 'number'))->isInitialized($this))
+        {
+            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
+        }
+
         return $this->number;
     }
 

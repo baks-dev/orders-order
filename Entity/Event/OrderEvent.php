@@ -136,6 +136,16 @@ class OrderEvent extends EntityEvent
         return $this->orders;
     }
 
+    public function setMain(OrderUid|Order $order): void
+    {
+        $this->orders = $order instanceof Order ? $order->getId() : $order;
+    }
+
+
+    /**
+     * @deprecated  используйте метод isStatusEquals
+     * @see self::isStatusEquals
+     */
     public function getStatus(): OrderStatus
     {
         return $this->status;
@@ -146,10 +156,20 @@ class OrderEvent extends EntityEvent
         return $this->status->equals($status);
     }
 
-    public function setMain(OrderUid|Order $order): void
+    public function getOrderNumber(): ?string
     {
-        $this->orders = $order instanceof Order ? $order->getId() : $order;
+        return $this->invariable->getNumber();
     }
+
+    /**
+     * Profile
+     */
+    public function getOrderProfile(): ?UserProfileUid
+    {
+        return $this->invariable->getNumber();
+    }
+
+
 
     public function getDto($dto): mixed
     {

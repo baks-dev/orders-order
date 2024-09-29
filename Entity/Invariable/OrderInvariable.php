@@ -104,6 +104,14 @@ class OrderInvariable extends EntityReadonly
         return $this;
     }
 
+    /**
+     * Number
+     */
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
+
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;

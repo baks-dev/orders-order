@@ -135,6 +135,10 @@ final class OrderNewTest extends KernelTestCase
         $EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
         self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
 
+        /** Взываем метод $EditOrderInvariableDTO->getNumber() */
+        $number = $EditOrderInvariableDTO->getNumber();
+        self::assertNotEmpty($number);
+
         //$EditOrderInvariableDTO->setNumber('order_number');
         //self::assertSame('order_number', $EditOrderInvariableDTO->getNumber());
 

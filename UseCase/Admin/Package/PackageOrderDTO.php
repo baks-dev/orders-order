@@ -29,13 +29,9 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Entity\User as UserEntity;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
-
-//use BaksDev\Users\User\Entity\User;
 
 /** @see OrderEvent */
 final class PackageOrderDTO implements OrderEventInterface
@@ -50,7 +46,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private readonly Invariable\PackageOrderInvariableDTO $invariable;
+    private Invariable\PackageOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -60,38 +56,21 @@ final class PackageOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-
-    /**
-     * Склад назначения (Профиль пользователя)
-     * @deprecated переносится в Invariable
-     */
+    /** Профиль ответственного */
     #[Assert\Uuid]
     private ?UserProfileUid $profile = null;
 
 
-//    private UserUid $current;
-
-
-    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
+    public function __construct()
     {
-        //$user = $user instanceof UserEntity ? $user->getId() : $user;
-
-        //$this->current = $user;
         $this->product = new ArrayCollection();
-
-        //        $PackageOrderInvariable = new Invariable\PackageOrderInvariableDTO();
-        //        $PackageOrderInvariable->setUsr($user);
-        //        $PackageOrderInvariable->setProfile($profile);
-
         $this->invariable = new Invariable\PackageOrderInvariableDTO();
-
     }
 
     public function getEvent(): ?OrderEventUid
     {
         return $this->id;
     }
-
 
     /** Коллекция продукции в заказе */
 
@@ -131,8 +110,6 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this->usr;
     }
 
-
-    /** @deprecated переносится в Invariable */
     public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
@@ -141,22 +118,9 @@ final class PackageOrderDTO implements OrderEventInterface
     /** @deprecated переносится в Invariable */
     public function setProfile(?UserProfileUid $profile): self
     {
-        /** Присваиваем постоянную величину  */
-        $PackageOrderInvariable = $this->getInvariable();
-        $PackageOrderInvariable->setProfile($profile);
-
         $this->profile = $profile;
-
         return $this;
     }
-
-//    /**
-//     * Current
-//     */
-//    public function getCurrent(): UserUid
-//    {
-//        return $this->current;
-//    }
 
     /**
      * Status

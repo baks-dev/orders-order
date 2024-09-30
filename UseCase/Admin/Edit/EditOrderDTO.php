@@ -62,10 +62,7 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ?User\OrderUserDTO $usr;
 
-    /**
-     * Ответственный
-     * @deprecated Переносится в Invariable
-     */
+    /** Ответственный */
     private ?UserProfileUid $profile = null;
 
     /** Комментарий к заказу */
@@ -166,17 +163,11 @@ final class EditOrderDTO implements OrderEventInterface
         return $this->orders ?: $this->order;
     }
 
-    /**
-     * @deprecated Переносится в Invariable
-     */
     public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
     }
 
-    /**
-     * @deprecated Переносится в Invariable
-     */
     public function setProfile(?UserProfileUid $profile): self
     {
         $this->profile = $profile;

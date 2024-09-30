@@ -35,15 +35,16 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
+
+use BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field\OrderDeliveryFieldDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\OrderDeliveryDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\User\OrderUserDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\Field\OrderPaymentFieldDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\OrderPaymentDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\Price\NewOrderPriceDTO;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
@@ -59,7 +60,12 @@ use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /** @group orders-order */
 #[When(env: 'test')]
@@ -67,6 +73,12 @@ final class OrderNewTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
     {
+        // Бросаем событие консольной комманды
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
+        $dispatcher->dispatch($event, 'console.command');
+
+
         $container = self::getContainer();
 
         /** @var EntityManagerInterface $em */
@@ -90,21 +102,23 @@ final class OrderNewTest extends KernelTestCase
         }
 
         $em->clear();
-        //$em->close();
-
     }
 
     public function testUseCase(): void
     {
-        $OrderDTO = new EditOrderDTO();
+        //$OrderDTO = new EditOrderDTO();
+        $OrderDTO = new NewOrderDTO();
 
-        $status = new OrderStatus(new OrderStatus\OrderStatusNew());
-        $OrderDTO->setStatus($status);
-        self::assertSame($status, $OrderDTO->getStatus());
+        //$status = new OrderStatus(new OrderStatus\OrderStatusNew());
+        //$OrderDTO->setStatus($status);
+        self::assertTrue($OrderDTO->getStatus()->equals(OrderStatus\OrderStatusNew::class));
+
+        $OrderDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $OrderDTO->getProfile());
 
         /** OrderProductDTO */
 
-        $OrderProductDTO = new OrderProductDTO();
+        $OrderProductDTO = new NewOrderProductDTO();
         $OrderDTO->addProduct($OrderProductDTO);
         self::assertTrue($OrderDTO->getProduct()->contains($OrderProductDTO));
 
@@ -129,11 +143,11 @@ final class OrderNewTest extends KernelTestCase
 
         $EditOrderInvariableDTO = $OrderDTO->getInvariable();
 
-        //$EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
-        //self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
+        $EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
+        self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
 
-        $EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
-        self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
+        //$EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        //self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
 
         /** Взываем метод $EditOrderInvariableDTO->getNumber() */
         $number = $EditOrderInvariableDTO->getNumber();
@@ -148,7 +162,7 @@ final class OrderNewTest extends KernelTestCase
 
         /** OrderPriceDTO */
 
-        $OrderPriceDTO = new OrderPriceDTO();
+        $OrderPriceDTO = new NewOrderPriceDTO();
         $OrderProductDTO->setPrice($OrderPriceDTO);
         self::assertSame($OrderPriceDTO, $OrderProductDTO->getPrice());
 
@@ -244,16 +258,12 @@ final class OrderNewTest extends KernelTestCase
 
         self::bootKernel();
 
-        /** @var EditOrderHandler $OrderHandler */
-        $OrderHandler = self::getContainer()->get(EditOrderHandler::class);
+        /** @var NewOrderHandler $OrderHandler */
+        $OrderHandler = self::getContainer()->get(NewOrderHandler::class);
         $handle = $OrderHandler->handle($OrderDTO);
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
 
 
     }
 
-    public function testComplete(): void
-    {
-        self::assertTrue(true);
-    }
 }

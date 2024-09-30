@@ -38,17 +38,10 @@ final class CanceledOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private readonly OrderEventUid $id;
 
-    /** Постоянная величина */
-    #[Assert\Valid]
-    private readonly Invariable\CancelOrderInvariableDTO $invariable;
-
-    /**
-     * Ответственный
-     * @deprecated переносится в invariable
-     */
-    //#[Assert\NotBlank]
-    //#[Assert\Uuid]
-    private readonly UserProfileUid $profile;
+    /** Ответственный */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private ?UserProfileUid $profile;
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -58,19 +51,9 @@ final class CanceledOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private ?string $comment = null;
 
-    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
+    public function __construct()
     {
         $this->status = new OrderStatus(OrderStatusCanceled::class);
-
-        //$this->profile = $profile;
-
-        /*$user = $user instanceof UserEntity ? $user->getId() : $user;*/
-
-        //$CancelOrderInvariable = new Invariable\CancelOrderInvariableDTO();
-        //$CancelOrderInvariable->setUsr($user);
-        //$CancelOrderInvariable->setProfile($profile);
-        $this->invariable = new Invariable\CancelOrderInvariableDTO();
-
     }
 
     /** Идентификатор события */
@@ -85,26 +68,16 @@ final class CanceledOrderDTO implements OrderEventInterface
         return $this->status;
     }
 
-    /** @deprecated переносится в invariable  */
+    /** @deprecated переносится в invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
-    /** @deprecated переносится в invariable  */
     public function setProfile(?UserProfileUid $profile): self
     {
-        //$this->profile = $profile;
+        $this->profile = $profile;
         return $this;
-    }
-
-
-    /**
-     * Invariable
-     */
-    public function getInvariable(): Invariable\CancelOrderInvariableDTO
-    {
-        return $this->invariable;
     }
 
     /**

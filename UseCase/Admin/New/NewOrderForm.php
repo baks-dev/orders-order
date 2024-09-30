@@ -40,18 +40,19 @@ final class NewOrderForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
-        /**
-         * Если заказ создается в ручную - строго присваиваем ответственного пользователя
-         */
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
             /** @var NewOrderDTO $NewOrderDTO */
             $NewOrderDTO = $event->getData();
 
+            /** Присваиваем ответственного пользователя */
             $NewOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
 
+            /**
+             * Новому заказу присваиваем только пользователя
+             * Профиль заказа будет присвоен при упаковке
+             */
             $NewOrderInvariableDTO = $NewOrderDTO->getInvariable();
             $NewOrderInvariableDTO->setUsr($this->userProfileTokenStorage->getUser());
-            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
 
         });
 

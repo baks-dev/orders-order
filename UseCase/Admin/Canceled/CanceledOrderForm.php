@@ -41,13 +41,9 @@ final class CanceledOrderForm extends AbstractType
     {
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+
             /** @var CanceledOrderDTO $CanceledOrderDTO */
             $CanceledOrderDTO = $event->getData();
-
-            /** При отмене переопределяем только профиль, пользователь остается неизменным */
-            $NewOrderInvariableDTO = $CanceledOrderDTO->getInvariable();
-            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
-
             $CanceledOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
 
         });

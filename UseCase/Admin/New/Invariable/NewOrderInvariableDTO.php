@@ -39,31 +39,33 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      * Дата заказа
      */
     #[Assert\NotBlank]
-    private ?DateTimeImmutable $created = null;
+    private readonly DateTimeImmutable $created;
 
     /**
      * Идентификатор заказа
      */
-    private ?string $number = null;
+    private readonly string $number;
 
 
     /**
-     * ID пользователя ответственного
+     * ID пользователя заказа
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private ?UserUid $usr = null;
 
-
     /**
-     * ID профиля ответственного
+     * ID профиля заказа
      */
-    private ?UserProfileUid $profile = null;
+    #[Assert\IsNull]
+    private readonly null $profile;
 
 
     public function __construct()
     {
         $this->created = new DateTimeImmutable();
+
+        $this->profile = null;
 
         /** Генерируем идентификатор заказа */
         $this->number = number_format((microtime(true) * 100), 0, '.', '.');
@@ -74,19 +76,9 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getCreated(): DateTimeImmutable
     {
-        if($this->created instanceof DateTimeImmutable)
-        {
-            return $this->created;
-        }
-
-        return new DateTimeImmutable();
+        return $this->created;
     }
 
-    public function setCreated(DateTimeImmutable $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
 
     /**
      * Usr
@@ -106,42 +98,17 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     /**
      * Profile
      */
-    public function getProfile(): ?UserProfileUid
+    public function getProfile(): null
     {
         return $this->profile;
     }
-
-    public function setProfile(?UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
-
-
-    public function resetProfile(): self
-    {
-        $this->profile = null;
-        return $this;
-    }
-
 
     /**
      * Number
      */
     public function getNumber(): ?string
     {
-        if(!(new ReflectionProperty(self::class, 'number'))->isInitialized($this))
-        {
-            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
-        }
-
         return $this->number;
-    }
-
-    public function setNumber(?string $number): self
-    {
-        $this->number = $number;
-        return $this;
     }
 
 }

@@ -28,30 +28,27 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Entity\User as UserEntity;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderStatusDTO implements OrderEventInterface
 {
-    /** Идентификатор события */
+    /**
+     * Идентификатор события
+     */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private OrderEventUid $id;
 
-    /** Постоянная величина */
-    #[Assert\Valid]
-    private readonly Invariable\StatusOrderInvariableDTO $invariable;
-
     /**
      * Ответственный
-     * @deprecated переносится в Invariable
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private UserProfileUid $profile;
 
-    /** Статус заказа */
+    /**
+     * Статус заказа
+     */
     #[Assert\NotBlank]
     private OrderStatus $status;
 
@@ -63,13 +60,7 @@ final class OrderStatusDTO implements OrderEventInterface
     ) {
         $this->id = $id;
         $this->status = new OrderStatus($status);
-
-        $StatusOrderInvariableDTO = new Invariable\StatusOrderInvariableDTO();
-        $StatusOrderInvariableDTO->setProfile($profile);
-        $this->invariable = $StatusOrderInvariableDTO;
-
         $this->profile = $profile;
-
     }
 
     /** Идентификатор события */
@@ -84,26 +75,15 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->status;
     }
 
-
-    /** @deprecated переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
-    /** @deprecated переносится в Invariable */
     public function setProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;
         return $this;
-    }
-
-    /**
-     * Invariable
-     */
-    public function getInvariable(): Invariable\StatusOrderInvariableDTO
-    {
-        return $this->invariable;
     }
 
 }

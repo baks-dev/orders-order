@@ -50,7 +50,6 @@ final class NewOrderDTO implements OrderEventInterface
 
     /**
      * Ответственный
-     * @deprecated Переносится в Invariable
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -76,14 +75,7 @@ final class NewOrderDTO implements OrderEventInterface
 
     public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
     {
-        $NewOrderInvariable = new Invariable\NewOrderInvariableDTO();
-        $NewOrderInvariable->setCreated(new DateTimeImmutable());
-        $this->invariable = $NewOrderInvariable;
-
-        // $user = $user instanceof UserEntity ? $user->getId() : $user;
-        //        $NewOrderInvariable->setProfile($profile);
-        //        $NewOrderInvariable->setUsr($user);
-        //$this->profile = $profile;
+        $this->invariable = new Invariable\NewOrderInvariableDTO();
 
 
         $this->product = new ArrayCollection();
@@ -145,7 +137,6 @@ final class NewOrderDTO implements OrderEventInterface
         $this->usr = $users;
     }
 
-    /** @deprecated Переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;

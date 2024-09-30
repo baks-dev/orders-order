@@ -38,13 +38,9 @@ final class DeleteOrderForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+
             /** @var DeleteOrderDTO $DeleteOrderDTO */
             $DeleteOrderDTO = $event->getData();
-
-            /** При удалении переопределяем только профиль, пользователь остается неизменным */
-            $NewOrderInvariableDTO = $DeleteOrderDTO->getInvariable();
-            $NewOrderInvariableDTO->setProfile($this->userProfileTokenStorage->getProfile());
-
             $DeleteOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
 
         });
@@ -62,9 +58,7 @@ final class DeleteOrderForm extends AbstractType
             [
                 'data_class' => DeleteOrderDTO::class,
                 'method' => 'POST',
-                'attr' => ['class' => 'w-100'],
-                //'allow_extra_fields' => true,
-                //'validation_groups' => false,
+                'attr' => ['class' => 'w-100']
             ]
         );
     }

@@ -35,6 +35,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class EditOrderForm extends AbstractType
 {
+
+
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /* Коллекция продукции */

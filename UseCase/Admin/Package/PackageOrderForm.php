@@ -83,6 +83,10 @@ final class PackageOrderForm extends AbstractType
 
                 $UserProfileUid = $this->profileTokenStorage->getProfile();
 
+                /**
+                 * Присваиваем идентификаторы заказа
+                 * методы присвоят идентификаторы только в случае, если ранее они не были определены
+                 */
                 $PackageOrderInvariableDTO = $PackageOrderDTO->getInvariable();
                 $PackageOrderInvariableDTO->setUsr($this->profileTokenStorage->getUser());
                 $PackageOrderInvariableDTO->setProfile($UserProfileUid);

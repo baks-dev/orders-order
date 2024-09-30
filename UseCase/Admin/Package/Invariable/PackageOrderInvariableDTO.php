@@ -33,22 +33,22 @@ use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
-final class PackageOrderInvariableDTO implements OrderInvariableInterface
+final readonly class PackageOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
-     * ID пользователя ответственного
+     * ID пользователя заказа
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly UserUid $usr;
+    private UserUid $usr;
 
 
     /**
-     * ID профиля ответственного
+     * ID профиля заказа
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private ?UserProfileUid $profile = null;
+    private UserProfileUid $profile;
 
 
     /**
@@ -56,6 +56,11 @@ final class PackageOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getUsr(): ?UserUid
     {
+        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
+        {
+            return null;
+        }
+
         return $this->usr;
     }
 
@@ -79,12 +84,26 @@ final class PackageOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getProfile(): ?UserProfileUid
     {
+        if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
+        {
+            return null;
+        }
+
         return $this->profile;
     }
 
     public function setProfile(?UserProfileUid $profile): self
     {
-        $this->profile = $profile;
+        if(is_null($profile))
+        {
+            return $this;
+        }
+
+        if(!(new ReflectionProperty(self::class, 'profile'))->isInitialized($this))
+        {
+            $this->profile = $profile;
+        }
+
         return $this;
     }
 }

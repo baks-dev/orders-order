@@ -32,46 +32,26 @@ use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
-final class EditOrderInvariableDTO implements OrderInvariableInterface
+final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
      * Идентификатор заказа
      */
     #[Assert\NotBlank]
-    private readonly string $number;
+    private string $number;
 
     /**
-     * ID профиля ответственного
+     * ID пользователя заказа
      */
-    private ?UserProfileUid $profile = null;
-
-    /** Заказ всегда привязан к пользователю */
-    public function getUsr(): ?UserUid
-    {
-        return null;
-    }
-
-    public function getProfile(): ?UserProfileUid
-    {
-        return $this->profile;
-    }
-
-    public function setProfile(?UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
-
-    /** Сбрасываем профиль пользователя, если доступен всем профилям пользователя User */
-    public function resetProfile(): self
-    {
-        $this->profile = null;
-        return $this;
-    }
+    #[Assert\NotBlank]
+    private ?UserUid $usr;
 
     /**
-     * Number
+     * ID профиля заказа
      */
+    #[Assert\NotBlank]
+    private UserProfileUid $profile;
+
     public function getNumber(): ?string
     {
         if(!(new ReflectionProperty(self::class, 'number'))->isInitialized($this))
@@ -80,6 +60,16 @@ final class EditOrderInvariableDTO implements OrderInvariableInterface
         }
 
         return $this->number;
+    }
+
+    public function getProfile(): ?UserProfileUid
+    {
+        return $this->profile;
+    }
+
+    public function getUsr(): ?UserUid
+    {
+        return $this->usr;
     }
 
 }

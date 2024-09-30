@@ -161,15 +161,10 @@ class OrderEvent extends EntityEvent
         return $this->invariable->getNumber();
     }
 
-    /**
-     * Profile
-     */
     public function getOrderProfile(): ?UserProfileUid
     {
-        return $this->invariable->getNumber();
+        return $this->invariable->getProfile();
     }
-
-
 
     public function getDto($dto): mixed
     {

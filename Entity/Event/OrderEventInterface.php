@@ -31,5 +31,5 @@ interface OrderEventInterface
     /** @see OrderEvent */
     public function getEvent(): ?Uid;
 
-    public function getInvariable(): OrderInvariableInterface;
+    //public function getInvariable(): OrderInvariableInterface;
 }

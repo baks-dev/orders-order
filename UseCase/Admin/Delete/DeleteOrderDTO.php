@@ -34,18 +34,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderEvent */
 final readonly class DeleteOrderDTO implements OrderEventInterface
 {
-    /** Идентификатор события */
+    /**
+     * Идентификатор события
+     */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private OrderEventUid $id;
 
-    /** Постоянная величина */
-    #[Assert\Valid]
-    private Invariable\DeleteOrderInvariableDTO $invariable;
-
     /**
      * Ответственный
-     * @deprecated Переносится в Invariable
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -57,19 +54,6 @@ final readonly class DeleteOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private OrderStatus $status;
 
-    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
-    {
-        //$this->profile = $profile;
-
-        //$user = $user instanceof UserEntity ? $user->getId() : $user;
-
-        //        $DeleteOrderInvariable = new Invariable\DeleteOrderInvariableDTO();
-        //        $DeleteOrderInvariable->setUsr($user);
-        //        $DeleteOrderInvariable->setProfile($profile);
-        //        $this->invariable = $DeleteOrderInvariable;
-
-        $this->invariable = new Invariable\DeleteOrderInvariableDTO();
-    }
 
     /** Идентификатор события */
     public function getEvent(): OrderEventUid
@@ -83,26 +67,14 @@ final readonly class DeleteOrderDTO implements OrderEventInterface
         return $this->status;
     }
 
-    /** @deprecated Переносится в Invariable */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
-    /** @deprecated Переносится в Invariable */
     public function setProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;
         return $this;
     }
-
-
-    /**
-     * Invariable
-     */
-    public function getInvariable(): Invariable\DeleteOrderInvariableDTO
-    {
-        return $this->invariable;
-    }
-
 }

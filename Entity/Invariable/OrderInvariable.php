@@ -68,13 +68,13 @@ class OrderInvariable extends EntityReadonly
     private ?string $number = null;
 
     /**
-     * ID пользователя ответственного
+     * ID пользователя заказа
      */
     #[ORM\Column(type: UserUid::TYPE, nullable: true)]
     private ?UserUid $usr = null;
 
     /**
-     * ID профиля ответственного
+     * ID профиля заказа
      */
     #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
     private ?UserProfileUid $profile = null;
@@ -104,12 +104,14 @@ class OrderInvariable extends EntityReadonly
         return $this;
     }
 
-    /**
-     * Number
-     */
     public function getNumber(): ?string
     {
         return $this->number;
+    }
+
+    public function getProfile(): ?UserProfileUid
+    {
+        return $this->profile;
     }
 
     public function getDto($dto): mixed

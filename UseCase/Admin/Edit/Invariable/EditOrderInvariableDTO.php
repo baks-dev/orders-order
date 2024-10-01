@@ -40,17 +40,18 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
     #[Assert\NotBlank]
     private string $number;
 
+
     /**
      * ID пользователя заказа
+     * (при новом заказе через корзину - может быть null)
      */
-    #[Assert\NotBlank]
     private ?UserUid $usr;
 
     /**
      * ID профиля заказа
+     * (при новом заказе через корзину - может быть null)
      */
-    #[Assert\NotBlank]
-    private UserProfileUid $profile;
+    private ?UserProfileUid $profile;
 
     public function getNumber(): ?string
     {

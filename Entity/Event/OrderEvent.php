@@ -76,7 +76,7 @@ class OrderEvent extends EntityEvent
      * Постоянная величина
      */
     #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
-    private OrderInvariable $invariable;
+    private ?OrderInvariable $invariable = null;
 
     /** Дата заказа */
     #[Assert\NotBlank]
@@ -158,12 +158,12 @@ class OrderEvent extends EntityEvent
 
     public function getOrderNumber(): ?string
     {
-        return $this->invariable->getNumber();
+        return $this->invariable?->getNumber();
     }
 
     public function getOrderProfile(): ?UserProfileUid
     {
-        return $this->invariable->getProfile();
+        return $this->invariable?->getProfile();
     }
 
     public function getDto($dto): mixed

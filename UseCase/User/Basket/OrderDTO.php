@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
@@ -38,6 +39,10 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
+    /** Постоянная величина */
+    #[Assert\Valid]
+    private readonly Invariable\OrderInvariable $invariable;
+
     /** Коллекция продукции в заказе */
     #[Assert\Valid]
     private ArrayCollection $product;
@@ -46,16 +51,9 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    /**
-     * Ответственный
-     * @deprecated Переносится в Invariable
-     */
-    private ?UserProfileUid $profile = null;
+    /** Комментарий к заказу */
+    private ?string $comment = null;
 
-
-    /** Постоянная величина */
-    #[Assert\Valid]
-    private readonly Invariable\OrderInvariable $invariable;
 
     public function __construct()
     {
@@ -72,6 +70,14 @@ final class OrderDTO implements OrderEventInterface
     public function resetId(): void
     {
         $this->id = null;
+    }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\OrderInvariable
+    {
+        return $this->invariable;
     }
 
     /** Коллекция продукции в заказе */
@@ -110,24 +116,16 @@ final class OrderDTO implements OrderEventInterface
     }
 
     /**
-     * Profile
+     * Comment
      */
-    public function getProfile(): ?UserProfileUid
+    public function getComment(): ?string
     {
-        return $this->profile;
+        return $this->comment;
     }
 
-    public function setProfile(?UserProfileUid $profile): self
+    public function setComment(?string $comment): self
     {
-        $this->profile = $profile;
+        $this->comment = $comment;
         return $this;
-    }
-
-    /**
-     * Invariable
-     */
-    public function getInvariable(): Invariable\OrderInvariable
-    {
-        return $this->invariable;
     }
 }

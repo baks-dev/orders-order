@@ -51,61 +51,50 @@ document.querySelectorAll('.order-basket').forEach(function(forms)
 });
 
 
-initDatepicker();
+executeFunc(initDatepicker);
 
 function initDatepicker()
 {
     var $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
 
-    if($elementDeliveryDate)
+    if($elementDeliveryDate === null)
     {
-        let JrKZvcNyRepeat = 100;
-
-        setTimeout(function JrKZvcNy()
-        {
-
-            if(JrKZvcNyRepeat >= 1000)
-            { return; }
-
-            if(typeof MCDatepicker === 'object')
-            {
-
-
-                const [day, month, year] = $elementDeliveryDate.value.split('.');
-                $selectedDate = new Date(+year, month - 1, +day);
-
-                let currentDate = new Date();
-                const nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
-
-                currentDate = new Date();
-                const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
-
-                MCDatepicker.create({
-                    el: '#' + $elementDeliveryDate.id,
-                    bodyType: 'modal',
-                    autoClose: false,
-                    closeOndblclick: true,
-                    closeOnBlur: false,
-                    customOkBTN: 'OK',
-                    customClearBTN: datapickerLang[$locale].customClearBTN,
-                    customCancelBTN: datapickerLang[$locale].customCancelBTN,
-                    firstWeekday: datapickerLang[$locale].firstWeekday,
-                    dateFormat: 'DD.MM.YYYY',
-                    customWeekDays: datapickerLang[$locale].customWeekDays,
-                    customMonths: datapickerLang[$locale].customMonths,
-                    selectedDate: $selectedDate,
-                    minDate: nextDay,
-                    maxDate: limitDay,
-                });
-
-                return;
-            }
-
-            JrKZvcNyRepeat = JrKZvcNyRepeat * 2;
-            setTimeout(JrKZvcNy, 100);
-
-        }, 100);
+        return false;
     }
+
+    if(typeof MCDatepicker !== 'object')
+    {
+        return false;
+    }
+
+    const [day, month, year] = $elementDeliveryDate.value.split('.');
+    $selectedDate = new Date(+year, month - 1, +day);
+
+    let currentDate = new Date();
+    const nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
+
+    currentDate = new Date();
+    const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
+
+    MCDatepicker.create({
+        el: '#' + $elementDeliveryDate.id,
+        bodyType: 'modal',
+        autoClose: false,
+        closeOndblclick: true,
+        closeOnBlur: false,
+        customOkBTN: 'OK',
+        customClearBTN: datapickerLang[$locale].customClearBTN,
+        customCancelBTN: datapickerLang[$locale].customCancelBTN,
+        firstWeekday: datapickerLang[$locale].firstWeekday,
+        dateFormat: 'DD.MM.YYYY',
+        customWeekDays: datapickerLang[$locale].customWeekDays,
+        customMonths: datapickerLang[$locale].customMonths,
+        selectedDate: $selectedDate,
+        minDate: nextDay,
+        maxDate: limitDay,
+    });
+
+    return true;
 }
 
 

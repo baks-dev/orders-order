@@ -158,6 +158,24 @@ class BasketController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
+
+            /** Делаем проверку геоданных */
+            $OrderDeliveryDTO = $OrderUserDTO->getDelivery();
+            $Latitude = $OrderDeliveryDTO->getLatitude();
+            $Longitude = $OrderDeliveryDTO->getLongitude();
+
+            if($Latitude === null || $Longitude === null)
+            {
+                $comment = 'Требуется уточнить адрес доставки!';
+
+                if(!empty($OrderDTO->getComment()))
+                {
+                    $comment .= ' Комментарий клиента: '.$OrderDTO->getComment();
+                }
+
+                $OrderDTO->setComment($comment);
+            }
+
             /**
              * Проверяем, что продукция в наличии в карточке
              */
@@ -165,8 +183,6 @@ class BasketController extends AbstractController
             foreach($OrderDTO->getProduct() as $product)
             {
                 $ProductDetail = $product->getCard();
-
-                //dd($ProductDetail);
 
                 if(
                     $ProductDetail['event'] !== $ProductDetail['current_event'] ||
@@ -177,7 +193,7 @@ class BasketController extends AbstractController
                      * Удаляем из корзины продукцию
                      * @var OrderProductDTO $element
                      */
-                    $predicat = function ($key, OrderProductDTO $element) use ($product) {
+                    $predicat = static function ($key, OrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 

@@ -53,13 +53,11 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     /**
      * GPS широта.
      */
-    #[Assert\NotBlank]
     private ?GpsLatitude $latitude = null;
 
     /**
      * GPS долгота.
      */
-    #[Assert\NotBlank]
     private ?GpsLongitude $longitude = null;
 
     /** Координаты на карте */
@@ -75,8 +73,30 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     {
         $this->field = new ArrayCollection();
 
-        $now = (new DateTimeImmutable())->setTime(0, 0, 0);
-        $this->deliveryDate = $now->add(new DateInterval('P1D'));
+        $delivery = (new DateTimeImmutable())->setTime(0, 0, 0);
+
+        $delivery = $delivery->modify('+1 day');
+
+        /**
+         * Если заказ после 18:00 - заказ на после завтра
+         */
+        if((new DateTimeImmutable())->format('H') >= 18)
+        {
+            $delivery = $delivery->modify('+1 day');
+        }
+
+        /**
+         * Если дата доставки воскресенье - указываем дату понедельника
+         */
+
+        $weekDay = (int) $delivery->format('N');
+
+        if($weekDay === 7)
+        {
+            $delivery = $delivery->modify('+1 day');
+        }
+
+        $this->deliveryDate = $delivery;
     }
 
     /** Способ доставки */

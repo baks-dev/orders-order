@@ -114,6 +114,7 @@ class OrderEvent extends EntityEvent
         $this->modify = new OrderModify($this);
         $this->created = new DateTimeImmutable();
         $this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
+
     }
 
     public function __clone()

@@ -42,6 +42,7 @@ class Order
     #[ORM\Column(type: OrderUid::TYPE)]
     private OrderUid $id;
 
+    /** @deprecated Переносится в invariable */
     #[ORM\Column(type: Types::STRING, length: 20, unique: true, nullable: true)]
     private string $number;
 
@@ -78,12 +79,14 @@ class Order
 
     /**
      * Number
+     * @deprecated Переносится в invariable
      */
     public function getNumber(): string
     {
         return $this->number;
     }
 
+    /** @deprecated Переносится в invariable */
     public function setNumber(string $number): self
     {
         $this->number = $number;
@@ -98,7 +101,16 @@ class Order
 
     public function setEvent(OrderEventUid|OrderEvent $event): self
     {
+        if($event instanceof OrderEvent)
+        {
+            if($number = $event->getOrderNumber())
+            {
+                $this->number = $number;
+            }
+        }
+
         $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
+
         return $this;
     }
 }

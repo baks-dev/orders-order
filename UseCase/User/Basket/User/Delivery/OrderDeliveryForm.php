@@ -74,7 +74,7 @@ final class OrderDeliveryForm extends AbstractType
                     return $gps instanceof GpsLatitude ? $gps->getValue() : $gps;
                 },
                 function ($gps) {
-                    return new GpsLatitude($gps);
+                    return $gps !== 'undefined' ? new GpsLatitude($gps) : null;
                 }
             )
         );
@@ -89,7 +89,7 @@ final class OrderDeliveryForm extends AbstractType
                     return $gps instanceof GpsLongitude ? $gps->getValue() : $gps;
                 },
                 function ($gps) {
-                    return new GpsLongitude($gps);
+                    return $gps !== 'undefined' ? new GpsLongitude($gps) : null;
                 }
             )
         );
@@ -104,7 +104,6 @@ final class OrderDeliveryForm extends AbstractType
             'format' => 'dd.MM.yyyy',
             'input' => 'datetime_immutable',
         ]);
-
 
         /* Коллекция пользовательских свойств */
         $builder->add('field', CollectionType::class, [

@@ -66,16 +66,9 @@ final class OrderHandler extends AbstractHandler
 
     public function handle(OrderDTO $command): string|Order
     {
-
-        /* Валидация DTO  */
-        $this->validatorCollection->add($command);
-
         $OrderUserDTO = $command->getUsr();
 
-
-        /**
-         * Создаем профиль пользователя если отсутствует
-         */
+        /** Создаем профиль пользователя если отсутствует */
         if($OrderUserDTO->getProfile() === null)
         {
 
@@ -144,18 +137,8 @@ final class OrderHandler extends AbstractHandler
             }
         }
 
-
-        $this->main = new Order();
-        $this->event = new OrderEvent();
-
-        try
-        {
-            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
-        }
-        catch(DomainException $errorUniqid)
-        {
-            return $errorUniqid->getMessage();
-        }
+        $this->setCommand($command);
+        $this->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /* Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
@@ -163,7 +146,7 @@ final class OrderHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->flush();
+        $this->flush();
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch

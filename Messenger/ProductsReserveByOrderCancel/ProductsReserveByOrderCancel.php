@@ -27,12 +27,11 @@ namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -43,9 +42,9 @@ final class ProductsReserveByOrderCancel
     private LoggerInterface $logger;
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
         private readonly DeduplicatorInterface $deduplicator,
         private readonly MessageDispatchInterface $messageDispatch,
+        private readonly OrderEventInterface $orderEventRepository,
         LoggerInterface $ordersOrderLogger,
     ) {
         $this->logger = $ordersOrderLogger;
@@ -54,44 +53,48 @@ final class ProductsReserveByOrderCancel
     /** Снимаем резерв с продукции при отмене заказа  */
     public function __invoke(OrderMessage $message): void
     {
-        $OrderEvent = $this->entityManager
-            ->getRepository(OrderEvent::class)
-            ->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
-        if(!$OrderEvent)
+        if($OrderEvent === false)
         {
             return;
         }
+
+        /** Если статус заказа не "ОТМЕНА" - завершаем обработчик */
+        if(false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
+        {
+            return;
+        }
+
+        $this->logger->info(sprintf(
+            '%s: Снимаем общий резерв продукции в карточке при отмене заказа:',
+            $OrderEvent->getOrderNumber()
+        ));
 
         $EditOrderDTO = new EditOrderDTO();
         $OrderEvent->getDto($EditOrderDTO);
-        $this->entityManager->clear();
-
-
-        /** Если статус не "ОТМЕНА" - завершаем обработчик */
-        if(false === $EditOrderDTO->getStatus()->equals(OrderStatusCanceled::class))
-        {
-            return;
-        }
 
         $Deduplicator = $this->deduplicator
-            ->namespace('orders-order')
-            ->deduplication([
-                (string) $message->getId(),
-                OrderStatusCanceled::STATUS,
-                md5(self::class)
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
-        $this->logger->info('Снимаем общий резерв продукции в карточке при отмене заказа:');
+            ->namespace('orders-order');
 
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
+            $Deduplicator->deduplication([
+                (string) $message->getId(),
+                (string) $product->getProduct(),
+                (string) $product->getOffer(),
+                (string) $product->getVariation(),
+                (string) $product->getModification(),
+                OrderStatusCanceled::STATUS,
+                md5(self::class)
+            ]);
+
+            if($Deduplicator->isExecuted())
+            {
+                continue;
+            }
+
             /** Снимаем резерв отмененного заказа */
             $this->messageDispatch->dispatch(
                 new ProductsReserveByOrderCancelMessage(
@@ -103,10 +106,8 @@ final class ProductsReserveByOrderCancel
                 ),
                 transport: 'products-product'
             );
+
+            $Deduplicator->save();
         }
-
-        $Deduplicator->save();
     }
-
-
 }

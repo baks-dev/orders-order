@@ -69,12 +69,6 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
-        /** Новый заказ не имеет предыдущего события */
-        if($message->getLast())
-        {
-            return;
-        }
-
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
         if($OrderEvent === false)
@@ -114,14 +108,13 @@ final class SendClientEmailOrderNews
             ->deduplication([
                 $message->getId(),
                 OrderStatusNew::STATUS,
-                md5(self::class)
+                self::class
             ]);
 
         if($Deduplicator->isExecuted())
         {
             return;
         }
-
 
         $TemplatedEmail = new TemplatedEmail();
 

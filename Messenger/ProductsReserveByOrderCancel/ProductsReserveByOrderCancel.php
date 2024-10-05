@@ -27,13 +27,11 @@ namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -55,6 +53,19 @@ final class ProductsReserveByOrderCancel
     /** Снимаем резерв с продукции при отмене заказа  */
     public function __invoke(OrderMessage $message): void
     {
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                $message->getId(),
+                OrderStatusCanceled::STATUS,
+                self::class
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
         if($OrderEvent === false)
@@ -68,23 +79,11 @@ final class ProductsReserveByOrderCancel
             return;
         }
 
-        $Deduplicator = $this->deduplicator
-            ->namespace('orders-order')
-            ->deduplication([
-                $message,
-                OrderStatusCanceled::STATUS,
-                md5(self::class)
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
         $this->logger->info(
             '#{number}: Снимаем общий резерв продукции в карточке при отмене заказа (см. products-product.log)',
             [
                 'number' => $OrderEvent->getOrderNumber(),
+                'status' => OrderStatusCanceled::STATUS,
                 'deduplicator' => $Deduplicator->getKey()
             ]
         );

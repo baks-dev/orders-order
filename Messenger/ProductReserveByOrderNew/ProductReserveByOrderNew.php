@@ -27,13 +27,11 @@ namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -58,6 +56,21 @@ final class ProductReserveByOrderNew
      */
     public function __invoke(OrderMessage $message): void
     {
+
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                $message->getId(),
+                OrderStatusNew::STATUS,
+                self::class
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+
         /** Новый заказ не имеет предыдущего события!!! */
         if($message->getLast())
         {
@@ -77,23 +90,11 @@ final class ProductReserveByOrderNew
             return;
         }
 
-        $Deduplicator = $this->deduplicator
-            ->namespace('orders-order')
-            ->deduplication([
-                $message,
-                OrderStatusNew::STATUS,
-                self::class
-            ]);
-
-        if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
         $this->logger->info(
-            '#{number}: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
+            '{number}: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
             [
                 'number' => $OrderEvent->getOrderNumber(),
+                'status' => OrderStatusNew::STATUS,
                 'deduplicator' => $Deduplicator->getKey()
             ]
         );

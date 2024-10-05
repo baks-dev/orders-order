@@ -30,14 +30,14 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use Doctrine\DBAL\Types\Types;
 
-final class CurrentOrderNumberRepository implements CurrentOrderNumberInterface
+final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
 {
-    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
+    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function getCurrentOrderEvent(int|string $number): ?OrderEvent
+    public function find(int|string $number): OrderEvent|false
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
@@ -55,7 +55,7 @@ final class CurrentOrderNumberRepository implements CurrentOrderNumberInterface
                 'event.id = orders.event'
             );
 
-        return $orm->getOneOrNullResult();
+        return $orm->getOneOrNullResult() ?: false;
     }
 
 }

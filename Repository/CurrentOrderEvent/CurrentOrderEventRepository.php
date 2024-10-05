@@ -59,7 +59,7 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function find(): OrderEvent|false
+    public function execute(): OrderEvent|false
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 

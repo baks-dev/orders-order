@@ -56,7 +56,7 @@ class DeleteOrderTest extends KernelTestCase
 
         /** @var CurrentOrderEventInterface $OrderCurrentEvent */
         $OrderCurrentEvent = self::getContainer()->get(CurrentOrderEventInterface::class);
-        $OrderEvent = $OrderCurrentEvent->forOrder(OrderUid::TEST)->find();
+        $OrderEvent = $OrderCurrentEvent->forOrder(OrderUid::TEST)->execute();
         self::assertNotNull($OrderEvent);
 
         /** @see OrderDeleteDTO */

@@ -70,7 +70,7 @@ final class StatusController extends AbstractController
 
         $OrderEvent = $currentOrderEvent
             ->forOrder($Order->getId())
-            ->find();
+            ->execute();
 
         if(!$OrderEvent)
         {

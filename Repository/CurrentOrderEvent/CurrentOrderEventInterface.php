@@ -34,6 +34,6 @@ interface CurrentOrderEventInterface
     /**
      * Метод возвращает текущее активное событие заказа
      */
-    public function find(): OrderEvent|false;
+    public function execute(): OrderEvent|false;
 
 }

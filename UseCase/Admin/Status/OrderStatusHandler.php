@@ -58,22 +58,9 @@ final class OrderStatusHandler extends AbstractHandler
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
-
-        /** Валидация DTO  */
-        $this->validatorCollection->add($command);
-
-        $this->main = new Order();
-        $this->event = new OrderEvent();
-
-        try
-        {
-            //$command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
-            $this->preUpdate($command, true);
-        }
-        catch(DomainException $errorUniqid)
-        {
-            return $errorUniqid->getMessage();
-        }
+        $this
+            ->setCommand($command)
+            ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
@@ -94,8 +81,7 @@ final class OrderStatusHandler extends AbstractHandler
             }
         }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
+        $this->flush();
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch

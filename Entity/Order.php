@@ -44,7 +44,7 @@ class Order
 
     /** @deprecated Переносится в invariable */
     #[ORM\Column(type: Types::STRING, length: 20, unique: true, nullable: true)]
-    private string $number;
+    private ?string $number = null;
 
     /** ID События */
     #[ORM\Column(type: OrderEventUid::TYPE, unique: true)]
@@ -55,7 +55,7 @@ class Order
         $this->id = new OrderUid();
 
         /** Генерируем идентификатор заказа */
-        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
+        /* $this->number = number_format((microtime(true) * 100), 0, '.', '.'); */
     }
 
     public function __toString(): string
@@ -103,10 +103,15 @@ class Order
     {
         if($event instanceof OrderEvent)
         {
-            if($number = $event->getOrderNumber())
+            if($this->number === null && $number = $event->getOrderNumber())
             {
                 $this->number = $number;
             }
+        }
+
+        if($this->number === null)
+        {
+            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
         }
 
         $this->event = $event instanceof OrderEvent ? $event->getId() : $event;

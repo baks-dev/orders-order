@@ -52,7 +52,7 @@ final readonly class OrderEventRepository implements OrderEventInterface
             ->setParameter('event', $event, OrderEventUid::TYPE);
 
         return $orm
-            ->enableCache('orders-order', 3600)
+            ->enableCache('orders-order')
             ->getOneOrNullResult() ?: false;
     }
 }

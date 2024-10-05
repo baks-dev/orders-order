@@ -32,6 +32,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
@@ -52,7 +53,7 @@ final class ProductReserveByOrderCompleted
     private LoggerInterface $logger;
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly OrderEventInterface $orderEventRepository,
         private readonly DeduplicatorInterface $deduplicator,
         private readonly MessageDispatchInterface $messageDispatch,
         LoggerInterface $ordersOrderLogger,
@@ -66,22 +67,15 @@ final class ProductReserveByOrderCompleted
      */
     public function __invoke(OrderMessage $message): void
     {
-        $OrderEvent = $this->entityManager
-            ->getRepository(OrderEvent::class)
-            ->find($message->getEvent());
-
+        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
         if(!$OrderEvent)
         {
             return;
         }
 
-        $EditOrderDTO = new EditOrderDTO();
-        $OrderEvent->getDto($EditOrderDTO);
-        $this->entityManager->clear();
-
         /** Если статус не Completed «Выполнен» - завершаем обработчик */
-        if(false === $EditOrderDTO->getStatus()->equals(OrderStatusCompleted::class))
+        if(false === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
         {
             return;
         }
@@ -89,9 +83,9 @@ final class ProductReserveByOrderCompleted
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                (string) $message->getId(),
+                $message,
                 OrderStatusCompleted::STATUS,
-                md5(self::class)
+                self::class
             ]);
 
         if($Deduplicator->isExecuted())
@@ -100,11 +94,15 @@ final class ProductReserveByOrderCompleted
         }
 
         $this->logger->info(
-            sprintf(
-                '#%s: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
-                $EditOrderDTO->getInvariable()->getNumber()
-            )
+            '#{number}: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
+            [
+                'number' => $OrderEvent->getOrderNumber(),
+                'deduplicator' => $Deduplicator->getKey()
+            ]
         );
+
+        $EditOrderDTO = new EditOrderDTO();
+        $OrderEvent->getDto($EditOrderDTO);
 
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)

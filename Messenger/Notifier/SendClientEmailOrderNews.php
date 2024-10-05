@@ -33,6 +33,7 @@ use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileValues\UserProfileValuesInterface;
@@ -52,12 +53,12 @@ final class SendClientEmailOrderNews
 
     public function __construct(
         #[Autowire(env: 'HOST')] private readonly string $HOST,
-        private readonly EntityManagerInterface $entityManager,
         private readonly OrderDetailInterface $orderDetail,
         private readonly UserProfileValuesInterface $userProfileValues,
         private readonly MailerInterface $mailer,
         private readonly ParameterBagInterface $parameters,
         private readonly DeduplicatorInterface $deduplicator,
+        private readonly OrderEventInterface $orderEventRepository,
         LoggerInterface $ordersOrderLogger,
     ) {
         $this->logger = $ordersOrderLogger;
@@ -68,31 +69,27 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
-
         /** Новый заказ не имеет предыдущего события */
         if($message->getLast())
         {
             return;
         }
 
-        $this->entityManager->clear();
+        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
-        $OrderEvent = $this->entityManager->getRepository(OrderEvent::class)->find($message->getEvent());
+        if($OrderEvent === false)
+        {
+            return;
+        }
 
-        if(!$OrderEvent)
+        /** Если статус не New «Новый»  */
+        if(false === $OrderEvent->isStatusEquals(OrderStatusNew::class))
         {
             return;
         }
 
         $OrderDTO = new EditOrderDTO();
         $OrderEvent->getDto($OrderDTO);
-
-        /** Если статус не New «Новый»  */
-        if(false === $OrderDTO->getStatus()->equals(OrderStatusNew::class))
-        {
-            return;
-        }
-
         $UserProfileEventUid = $OrderDTO->getUsr()?->getProfile();
 
         if(!$UserProfileEventUid)
@@ -111,11 +108,11 @@ final class SendClientEmailOrderNews
             return;
         }
 
-
+        /** Не отправляем сообщение дважды */
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                (string) $message->getId(),
+                $message->getId(),
                 OrderStatusNew::STATUS,
                 md5(self::class)
             ]);
@@ -126,12 +123,10 @@ final class SendClientEmailOrderNews
         }
 
 
-        $AccountEmail = new AccountEmail($AccountEmail['value']);
-
         $TemplatedEmail = new TemplatedEmail();
 
+        $AccountEmail = new AccountEmail($AccountEmail['value']);
         $orderDetail = $this->orderDetail->fetchDetailOrderAssociative($message->getId());
-
 
         $email = $TemplatedEmail
             ->from(
@@ -152,8 +147,7 @@ final class SendClientEmailOrderNews
 
         // Отправляем письмо пользователю
         $this->mailer->send($email);
-
-        $this->logger->notice('Оправили уведомление о заказе клиенту на Email '.$AccountEmail);
+        $this->logger->info('Оправили уведомление о заказе клиенту на Email '.$AccountEmail);
 
         $Deduplicator->save();
     }

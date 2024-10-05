@@ -29,13 +29,13 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
 
 /** Работа с резервами в карточке - самый высокий приоритет */
 #[AsMessageHandler(priority: 999)]
@@ -44,7 +44,7 @@ final class ProductReserveByOrderNew
     private LoggerInterface $logger;
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly OrderEventInterface $orderEventRepository,
         private readonly DeduplicatorInterface $deduplicator,
         private readonly MessageDispatchInterface $messageDispatch,
         LoggerInterface $ordersOrderLogger,
@@ -64,22 +64,15 @@ final class ProductReserveByOrderNew
             return;
         }
 
-        $OrderEvent = $this->entityManager
-            ->getRepository(OrderEvent::class)
-            ->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
-
-        if(!$OrderEvent)
+        if($OrderEvent === false)
         {
             return;
         }
 
-        $EditOrderDTO = new EditOrderDTO();
-        $OrderEvent->getDto($EditOrderDTO);
-        $this->entityManager->clear();
-
         /** Если заказ не является новым - завершаем обработчик */
-        if(false === $EditOrderDTO->getStatus()->equals(OrderStatusNew::class))
+        if(false === $OrderEvent->isStatusEquals(OrderStatusNew::class))
         {
             return;
         }
@@ -87,9 +80,9 @@ final class ProductReserveByOrderNew
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                (string) $message->getId(),
+                $message,
                 OrderStatusNew::STATUS,
-                md5(self::class)
+                self::class
             ]);
 
         if($Deduplicator->isExecuted())
@@ -98,17 +91,20 @@ final class ProductReserveByOrderNew
         }
 
         $this->logger->info(
-            sprintf(
-                '#%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
-                $EditOrderDTO->getInvariable()->getNumber()
-            )
+            '#{number}: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
+            [
+                'number' => $OrderEvent->getOrderNumber(),
+                'deduplicator' => $Deduplicator->getKey()
+            ]
         );
+
+        $EditOrderDTO = new EditOrderDTO();
+        $OrderEvent->getDto($EditOrderDTO);
 
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
             /** Устанавливаем новый резерв продукции в заказе */
-
             $this->messageDispatch->dispatch(
                 new ProductReserveByOrderNewMessage(
                     $product->getProduct(),

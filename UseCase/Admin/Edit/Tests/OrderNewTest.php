@@ -89,19 +89,17 @@ final class OrderNewTest extends KernelTestCase
         if($Order)
         {
             $em->remove($Order);
-
-            $OrderEvent = $em->getRepository(OrderEvent::class)
-                ->findBy(['orders' => OrderUid::TEST]);
-
-            foreach($OrderEvent as $remove)
-            {
-                $em->remove($remove);
-            }
-
-            $em->flush();
         }
 
-        $em->clear();
+        $OrderEvent = $em->getRepository(OrderEvent::class)
+            ->findBy(['orders' => OrderUid::TEST]);
+
+        foreach($OrderEvent as $remove)
+        {
+            $em->remove($remove);
+        }
+
+        $em->flush();
     }
 
     public function testUseCase(): void

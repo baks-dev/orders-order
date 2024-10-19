@@ -57,7 +57,8 @@ final class NewOrderHandler extends AbstractHandler
         FileUploadInterface $fileUpload,
         UserProfileHandler $profileHandler,
         CurrentUserProfileEventInterface $currentUserProfileEvent,
-    ) {
+    )
+    {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
 
 
@@ -68,9 +69,6 @@ final class NewOrderHandler extends AbstractHandler
 
     public function handle(NewOrderDTO $command): string|Order
     {
-        /* Валидация DTO  */
-        $this->validatorCollection->add($command);
-
         $OrderUserDTO = $command->getUsr();
 
         /**
@@ -80,9 +78,6 @@ final class NewOrderHandler extends AbstractHandler
         {
 
             $UserProfileDTO = $OrderUserDTO->getUserProfile();
-
-            //dd($UserProfileDTO);
-
             $this->validatorCollection->add($UserProfileDTO);
 
             if($UserProfileDTO === null)
@@ -92,14 +87,11 @@ final class NewOrderHandler extends AbstractHandler
 
             /** Пробуем найти активный профиль пользователя */
             $UserProfileEvent = $this->currentUserProfileEvent
-                ->findByUser($OrderUserDTO->getUsr())?->getId();
+                ->findByUser($OrderUserDTO->getUsr());
 
-            if(!$UserProfileEvent)
+            if(false === $UserProfileEvent)
             {
                 /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
-
-                //$InfoDTO = $UserProfileDTO->getInfo();
-
 
                 $UserProfileDTO->getInfo()->setUsr($OrderUserDTO->getUsr());
 
@@ -111,18 +103,20 @@ final class NewOrderHandler extends AbstractHandler
                 }
 
                 $UserProfileEvent = $UserProfile->getEvent();
-
-                //dd($UserProfileEvent);
-
             }
+            else
+            {
+                $UserProfileEvent = $UserProfileEvent->getId();
+            }
+
 
             $OrderUserDTO->setProfile($UserProfileEvent);
         }
 
-        $this->main = new Order();
-        $this->event = new OrderEvent();
 
-        $this->prePersist($command);
+        $this
+            ->setCommand($command)
+            ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
@@ -130,15 +124,15 @@ final class NewOrderHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->flush();
+        $this->flush();
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch
             ->addClearCacheOther('products-product')
             ->dispatch(
-            message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-            transport: 'orders-order'
-        );
+                message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+                transport: 'orders-order'
+            );
 
         return $this->main;
     }

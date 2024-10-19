@@ -253,27 +253,27 @@
 
 
             {% if product.price.price is defined %}
-                {% if is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+                {% if is_granted('ROLE_ORDERS_DISCOUNT_15') %}
                     <tr>
-                        <td colspan="4">
-                            <span class="badge text-bg-danger">Скидка до 5%</span>
+                    <td colspan="4">
+                    <span class="badge text-bg-danger">Скидка до 15%</span>
                 {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
                     <tr>
-                        <td colspan="4">
-                            <span class="badge text-bg-danger">Скидка до 10%</span>
-                {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+                    <td colspan="4">
+                    <span class="badge text-bg-danger">Скидка до 10%</span>
+                {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
                     <tr>
-                        <td colspan="4">
-                            <span class="badge text-bg-danger">Скидка до 15%</span>
+                    <td colspan="4">
+                    <span class="badge text-bg-danger">Скидка до 5%</span>
                 {% else %}
                     <tr>
-                        <td colspan="4">
-                            <span class="badge text-bg-danger">Скидка до 20%</span>
+                    <td colspan="4">
+                    <span class="badge text-bg-danger">Скидка до 20%</span>
                 {% endif %}
 
-                        &nbsp;<small> мин. стомиость: </small>
-                        &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
-                    </td>
+                &nbsp;<small> мин. стомиость: </small>
+                &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+                </td>
                 </tr>
             {% else %}
                 &nbsp;

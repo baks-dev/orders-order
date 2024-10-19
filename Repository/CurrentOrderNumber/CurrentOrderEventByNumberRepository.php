@@ -27,7 +27,7 @@ namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber;
 
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use Doctrine\DBAL\Types\Types;
 
 final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
@@ -42,7 +42,7 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $orm
-            ->from(Order::class, 'orders')
+            ->from(OrderInvariable::class, 'orders')
             ->where('orders.number = :order')
             ->setParameter('order', (string) $number, Types::STRING);
 

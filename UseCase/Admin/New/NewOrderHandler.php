@@ -33,6 +33,7 @@ use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
@@ -89,6 +90,11 @@ final class NewOrderHandler extends AbstractHandler
             $UserProfileEvent = $this->currentUserProfileEvent
                 ->findByUser($OrderUserDTO->getUsr());
 
+            if($UserProfileEvent instanceof UserProfileEvent)
+            {
+                $UserProfileEvent = $UserProfileEvent->getId();
+            }
+
             if(false === $UserProfileEvent)
             {
                 /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
@@ -104,11 +110,6 @@ final class NewOrderHandler extends AbstractHandler
 
                 $UserProfileEvent = $UserProfile->getEvent();
             }
-            else
-            {
-                $UserProfileEvent = $UserProfileEvent->getId();
-            }
-
 
             $OrderUserDTO->setProfile($UserProfileEvent);
         }

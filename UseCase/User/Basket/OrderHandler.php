@@ -35,12 +35,12 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\User\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfileUser;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
 use Doctrine\ORM\EntityManagerInterface;
-use DomainException;
 
 final class OrderHandler extends AbstractHandler
 {
@@ -83,9 +83,14 @@ final class OrderHandler extends AbstractHandler
 
             /** Пробуем найти активный профиль пользователя */
             $UserProfileEvent = $this->currentUserProfileEvent
-                ->findByUser($OrderUserDTO->getUsr())?->getId();
+                ->findByUser($OrderUserDTO->getUsr());
 
-            if(!$UserProfileEvent)
+            if($UserProfileEvent instanceof UserProfileEvent)
+            {
+                $UserProfileEvent = $UserProfileEvent->getId();
+            }
+
+            if(false === $UserProfileEvent)
             {
                 /* Присваиваем новому профилю идентификатор пользователя (либо нового, либо уже созданного) */
 

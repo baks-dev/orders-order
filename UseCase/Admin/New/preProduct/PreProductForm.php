@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,10 +61,10 @@ final class PreProductForm extends AbstractType
 
         $builder->add('category', ChoiceType::class, [
             'choices' => $this->categoryChoice->findAll(),
-            'choice_value' => function (?CategoryProductUid $category) {
+            'choice_value' => function(?CategoryProductUid $category) {
                 return $category?->getValue();
             },
-            'choice_label' => function (CategoryProductUid $category) {
+            'choice_label' => function(CategoryProductUid $category) {
                 return $category->getOptions();
             },
             'label' => false,
@@ -87,10 +87,10 @@ final class PreProductForm extends AbstractType
         $builder
             ->get('preProduct')->addModelTransformer(
                 new CallbackTransformer(
-                    function ($product) {
+                    function($product) {
                         return $product instanceof ProductEventUid ? $product->getValue() : $product;
                     },
-                    function ($product) {
+                    function($product) {
                         return $product ? new ProductEventUid($product) : null;
                     }
                 ),
@@ -110,10 +110,10 @@ final class PreProductForm extends AbstractType
 
         $builder->get('preOffer')->addModelTransformer(
             new CallbackTransformer(
-                function ($offer) {
+                function($offer) {
                     return $offer instanceof ProductOfferUid ? $offer->getValue() : $offer;
                 },
-                function ($offer) {
+                function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
                 }
             ),
@@ -133,10 +133,10 @@ final class PreProductForm extends AbstractType
 
         $builder->get('preVariation')->addModelTransformer(
             new CallbackTransformer(
-                function ($variation) {
+                function($variation) {
                     return $variation instanceof ProductVariationUid ? $variation->getValue() : $variation;
                 },
-                function ($variation) {
+                function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
                 }
             ),
@@ -155,32 +155,14 @@ final class PreProductForm extends AbstractType
 
         $builder->get('preModification')->addModelTransformer(
             new CallbackTransformer(
-                function ($modification) {
+                function($modification) {
                     return $modification instanceof ProductModificationUid ? $modification->getValue() : $modification;
                 },
-                function ($modification) {
+                function($modification) {
                     return $modification ? new ProductModificationUid($modification) : null;
                 }
             ),
         );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         /**
@@ -189,7 +171,7 @@ final class PreProductForm extends AbstractType
 
         $builder->get('preVariation')->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event): void {
+            function(FormEvent $event): void {
 
                 $parent = $event->getForm()->getParent();
 
@@ -243,14 +225,14 @@ final class PreProductForm extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $productChoice,
-                'choice_value' => function (?ProductEventUid $product) {
+                'choice_value' => function(?ProductEventUid $product) {
                     return $product?->getValue();
                 },
 
-                'choice_label' => function (ProductEventUid $product) {
+                'choice_label' => function(ProductEventUid $product) {
                     return $product->getAttr();
                 },
-                'choice_attr' => function (?ProductEventUid $product) {
+                'choice_attr' => function(?ProductEventUid $product) {
                     return $product ? [
                         'data-filter' => ' ['.$product->getOption().']',
                         'data-max' => $product->getOption(),
@@ -287,13 +269,13 @@ final class PreProductForm extends AbstractType
                 ChoiceType::class,
                 [
                     'choices' => $offer,
-                    'choice_value' => function (?ProductOfferUid $offer) {
+                    'choice_value' => function(?ProductOfferUid $offer) {
                         return $offer?->getValue();
                     },
-                    'choice_label' => function (ProductOfferUid $offer) {
+                    'choice_label' => function(ProductOfferUid $offer) {
                         return $offer->getAttr();
                     },
-                    'choice_attr' => function (?ProductOfferUid $offer) {
+                    'choice_attr' => function(?ProductOfferUid $offer) {
                         return $offer ? [
                             'data-filter' => ' ['.$offer->getOption().']',
                             'data-max' => $offer->getOption(),
@@ -331,13 +313,13 @@ final class PreProductForm extends AbstractType
                 ChoiceType::class,
                 [
                     'choices' => $variations,
-                    'choice_value' => function (?ProductVariationUid $variation) {
+                    'choice_value' => function(?ProductVariationUid $variation) {
                         return $variation?->getValue();
                     },
-                    'choice_label' => function (ProductVariationUid $variation) {
+                    'choice_label' => function(ProductVariationUid $variation) {
                         return $variation->getAttr();
                     },
-                    'choice_attr' => function (?ProductVariationUid $variation) {
+                    'choice_attr' => function(?ProductVariationUid $variation) {
                         return $variation ? [
                             'data-filter' => ' ['.$variation->getOption().']',
                             'data-max' => $variation->getOption(),
@@ -375,13 +357,13 @@ final class PreProductForm extends AbstractType
                 ChoiceType::class,
                 [
                     'choices' => $modifications,
-                    'choice_value' => function (?ProductModificationUid $modification) {
+                    'choice_value' => function(?ProductModificationUid $modification) {
                         return $modification?->getValue();
                     },
-                    'choice_label' => function (ProductModificationUid $modification) {
+                    'choice_label' => function(ProductModificationUid $modification) {
                         return $modification->getAttr();
                     },
-                    'choice_attr' => function (?ProductModificationUid $modification) {
+                    'choice_attr' => function(?ProductModificationUid $modification) {
                         return $modification ? [
                             'data-filter' => ' ['.$modification->getOption().']',
                             'data-max' => $modification->getOption(),

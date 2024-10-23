@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -53,15 +53,15 @@ final class OrderPaymentForm extends AbstractType
         $builder
             ->add('payment', ChoiceType::class, [
                 'choices' => $paymentChoice,
-                'choice_value' => function (?PaymentUid $payment) {
+                'choice_value' => function(?PaymentUid $payment) {
                     return $payment?->getValue();
                 },
 
-                'choice_label' => function (PaymentUid $payment) {
+                'choice_label' => function(PaymentUid $payment) {
                     return $payment->getAttr();
                 },
 
-                'choice_attr' => function (PaymentUid $choice) {
+                'choice_attr' => function(PaymentUid $choice) {
                     return [
                         //'checked' => ($choice->equals($deliveryChecked)),
                         //'data-price' => $choice->getPrice()?->getValue(),
@@ -96,10 +96,10 @@ final class OrderPaymentForm extends AbstractType
 
         $builder->get('payment')->addModelTransformer(
             new CallbackTransformer(
-                function ($payment) {
+                function($payment) {
                     return $payment instanceof PaymentUid ? $payment->getValue() : $payment;
                 },
-                function ($payment) {
+                function($payment) {
 
                     return new PaymentUid($payment);
                 }
@@ -109,7 +109,7 @@ final class OrderPaymentForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($options) {
+            function(FormEvent $event) use ($options) {
 
                 if($options['user_profile_type'])
                 {
@@ -132,7 +132,7 @@ final class OrderPaymentForm extends AbstractType
 
                     if($Payment)
                     {
-                        $paymentCheckedFilter = array_filter($paymentChoice, function ($v, $k) use ($Payment) {
+                        $paymentCheckedFilter = array_filter($paymentChoice, function($v, $k) use ($Payment) {
                             return $v->equals($Payment);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -152,15 +152,15 @@ final class OrderPaymentForm extends AbstractType
                     $form
                         ->add('payment', ChoiceType::class, [
                             'choices' => $paymentChoice,
-                            'choice_value' => function (?PaymentUid $payment) {
+                            'choice_value' => function(?PaymentUid $payment) {
                                 return $payment?->getValue();
                             },
 
-                            'choice_label' => function (PaymentUid $payment) {
+                            'choice_label' => function(PaymentUid $payment) {
                                 return $payment->getOption();
                             },
 
-                            'choice_attr' => function (PaymentUid $choice) use ($paymentChecked) {
+                            'choice_attr' => function(PaymentUid $choice) use ($paymentChecked) {
                                 return ['checked' => ($choice->equals($paymentChecked))];
                             },
 

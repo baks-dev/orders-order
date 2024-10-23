@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,10 +46,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
-                function ($product) {
+                function($product) {
                     return $product instanceof ProductEventUid ? $product->getValue() : $product;
                 },
-                function ($product) {
+                function($product) {
                     return new ProductEventUid($product);
                 }
             )
@@ -61,10 +61,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('offer')->addModelTransformer(
             new CallbackTransformer(
-                function ($offer) {
+                function($offer) {
                     return $offer instanceof ProductOfferUid ? $offer->getValue() : $offer;
                 },
-                function ($offer) {
+                function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
                 }
             )
@@ -76,10 +76,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('variation')->addModelTransformer(
             new CallbackTransformer(
-                function ($variation) {
+                function($variation) {
                     return $variation instanceof ProductVariationUid ? $variation->getValue() : $variation;
                 },
-                function ($variation) {
+                function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
                 }
             )
@@ -91,10 +91,10 @@ final class NewOrderProductForm extends AbstractType
 
         $builder->get('modification')->addModelTransformer(
             new CallbackTransformer(
-                function ($modification) {
+                function($modification) {
                     return $modification instanceof ProductModificationUid ? $modification->getValue() : $modification;
                 },
-                function ($modification) {
+                function($modification) {
 
                     return $modification ? new ProductModificationUid($modification) : null;
                 }

@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -57,10 +57,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('delivery')->addModelTransformer(
             new CallbackTransformer(
-                function ($delivery) {
+                function($delivery) {
                     return $delivery instanceof DeliveryUid ? $delivery->getValue() : $delivery;
                 },
-                function ($delivery) {
+                function($delivery) {
                     return new DeliveryUid($delivery);
                 }
             )
@@ -70,10 +70,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('latitude')->addModelTransformer(
             new CallbackTransformer(
-                function ($gps) {
+                function($gps) {
                     return $gps instanceof GpsLatitude ? $gps->getValue() : $gps;
                 },
-                function ($gps) {
+                function($gps) {
                     return $gps !== 'undefined' ? new GpsLatitude($gps) : null;
                 }
             )
@@ -85,10 +85,10 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->get('longitude')->addModelTransformer(
             new CallbackTransformer(
-                function ($gps) {
+                function($gps) {
                     return $gps instanceof GpsLongitude ? $gps->getValue() : $gps;
                 },
-                function ($gps) {
+                function($gps) {
                     return $gps !== 'undefined' ? new GpsLongitude($gps) : null;
                 }
             )
@@ -119,7 +119,7 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($options) {
+            function(FormEvent $event) use ($options) {
 
                 if($options['user_profile_type'])
                 {
@@ -147,7 +147,7 @@ final class OrderDeliveryForm extends AbstractType
 
                     if($Delivery)
                     {
-                        $deliveryCheckedFilter = array_filter($deliveryChoice, function ($v, $k) use ($Delivery) {
+                        $deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
                             return $v->equals($Delivery);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -167,15 +167,15 @@ final class OrderDeliveryForm extends AbstractType
                     $form
                         ->add('delivery', ChoiceType::class, [
                             'choices' => $deliveryChoice,
-                            'choice_value' => function (?DeliveryUid $delivery) {
+                            'choice_value' => function(?DeliveryUid $delivery) {
                                 return $delivery?->getValue();
                             },
 
-                            'choice_label' => function (DeliveryUid $delivery) {
+                            'choice_label' => function(DeliveryUid $delivery) {
                                 return $delivery->getAttr();
                             },
 
-                            'choice_attr' => function (DeliveryUid $choice) use ($deliveryChecked) {
+                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
                                 return [
                                     'checked' => ($choice->equals($deliveryChecked)),
                                     'data-price' => $choice->getPrice()?->getValue(),

@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -75,7 +75,7 @@ final class PackageOrderForm extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($profiles): void {
+            function(FormEvent $event) use ($profiles): void {
 
                 /** @var PackageOrderDTO $PackageOrderDTO */
                 $PackageOrderDTO = $event->getData();
@@ -194,10 +194,10 @@ final class PackageOrderForm extends AbstractType
         $builder
             ->add('profile', ChoiceType::class, [
                 'choices' => $profiles,
-                'choice_value' => function (?UserProfileUid $profile) {
+                'choice_value' => function(?UserProfileUid $profile) {
                     return $profile?->getValue();
                 },
-                'choice_label' => function (UserProfileUid $profile) {
+                'choice_label' => function(UserProfileUid $profile) {
                     return $profile->getAttr();
                 },
 
@@ -212,10 +212,10 @@ final class PackageOrderForm extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $profiles,
-                'choice_value' => function (?UserProfileUid $profile) {
+                'choice_value' => function(?UserProfileUid $profile) {
                     return $profile?->getValue();
                 },
-                'choice_label' => function (UserProfileUid $warehouse) {
+                'choice_label' => function(UserProfileUid $warehouse) {
 
                     /** Если склад - пункт выдачи заказов */
                     if($this->pickupWarehouse && $warehouse->equals($this->pickupWarehouse))
@@ -234,7 +234,7 @@ final class PackageOrderForm extends AbstractType
 
                 'label' => false,
                 'required' => false,
-                'choice_attr' => function ($warehouse) {
+                'choice_attr' => function($warehouse) {
 
                     if($this->pickupWarehouse && !$warehouse->equals($this->pickupWarehouse))
                     {
@@ -249,7 +249,7 @@ final class PackageOrderForm extends AbstractType
 
         $builder->get('profile')->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event): void {
+            function(FormEvent $event): void {
                 $PackageOrderDTO = (string) $event->getData();
                 $this->productModifier($event->getForm()->getParent(), new UserProfileUid($PackageOrderDTO));
             }

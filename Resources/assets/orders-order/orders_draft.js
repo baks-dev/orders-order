@@ -1,16 +1,16 @@
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -83,7 +83,7 @@ async function changeObjectCategory(forms)
                     preProduct.innerHTML = '';
 
                 /** SELECT2 */
-                let replacer = document.getElementById(forms.name +'_preProduct_preProduct');
+                let replacer = document.getElementById(forms.name + '_preProduct_preProduct');
                 replacer && replacer.type !== 'hidden' ? preProduct.classList.remove('d-none') : null;
 
                 /** Событие на изменение модификации */
@@ -94,7 +94,7 @@ async function changeObjectCategory(forms)
                     {
                         new NiceSelect(replacer, {searchable: true});
 
-                        let focus = document.getElementById(forms.name +'_preProduct_preProduct_select2');
+                        let focus = document.getElementById(forms.name + '_preProduct_preProduct_select2');
                         focus ? focus.click() : null;
                     }
                 }
@@ -183,7 +183,7 @@ async function changeObjectProduct(forms)
 
                     /** SELECT2 */
 
-                    let replaceOfferId = forms.name +'_preProduct_preOffer';
+                    let replaceOfferId = forms.name + '_preProduct_preOffer';
 
                     let replacer = document.getElementById(replaceOfferId);
                     replacer && replacer.type !== 'hidden' ? preOffer.classList.remove('d-none') : null;
@@ -192,12 +192,12 @@ async function changeObjectProduct(forms)
                     {
                         new NiceSelect(replacer, {searchable: true});
 
-                        let focus = document.getElementById(forms.name +'_preProduct_preOffer_select2');
+                        let focus = document.getElementById(forms.name + '_preProduct_preOffer_select2');
                         focus ? focus.click() : null;
 
                     } else
                     {
-                        selectTotal(document.getElementById(forms.name +'_preProduct_preProduct'))
+                        selectTotal(document.getElementById(forms.name + '_preProduct_preProduct'))
                     }
 
                 }
@@ -212,7 +212,7 @@ async function changeObjectProduct(forms)
 
 
                 /** Событие на изменение торгового предложения */
-                let offerChange = document.getElementById(forms.name +'_preProduct_preOffer');
+                let offerChange = document.getElementById(forms.name + '_preProduct_preOffer');
 
                 if(offerChange)
                 {
@@ -304,7 +304,7 @@ async function changeObjectOffer(forms)
 
                     /** SELECT2 */
 
-                    let replacer = document.getElementById(forms.name +'_preProduct_preVariation');
+                    let replacer = document.getElementById(forms.name + '_preProduct_preVariation');
                     replacer && replacer.type !== 'hidden' ? preVariation.classList.remove('d-none') : null;
 
                     if(replacer)
@@ -314,7 +314,7 @@ async function changeObjectOffer(forms)
                         {
                             new NiceSelect(replacer, {searchable: true});
 
-                            let focus = document.getElementById(forms.name +'_preProduct_preVariation_select2');
+                            let focus = document.getElementById(forms.name + '_preProduct_preVariation_select2');
                             focus ? focus.click() : null;
 
                             replacer.addEventListener('change', function(event)
@@ -324,7 +324,7 @@ async function changeObjectOffer(forms)
                             });
                         } else
                         {
-                            selectTotal(document.getElementById(forms.name +'_preProduct_preOffer'))
+                            selectTotal(document.getElementById(forms.name + '_preProduct_preOffer'))
                         }
 
                     }
@@ -340,7 +340,7 @@ async function changeObjectOffer(forms)
                         document.getElementById('targetWarehouse').replaceWith(targetWarehouse);
 
                         /** SELECT2 */
-                        let replacerWarehouse = document.getElementById(forms.name +'_preProduct_targetWarehouse');
+                        let replacerWarehouse = document.getElementById(forms.name + '_preProduct_targetWarehouse');
                         replacer.addEventListener('change', changeObjectWarehause, false);
 
                         if(replacerWarehouse && replacerWarehouse.tagName === 'SELECT')
@@ -418,7 +418,7 @@ async function changeObjectVariation(forms)
                     document.getElementById('preModification').replaceWith(preModification);
 
                     /** SELECT2 */
-                    let replacer = document.getElementById(forms.name +'_preProduct_preModification');
+                    let replacer = document.getElementById(forms.name + '_preProduct_preModification');
                     replacer && replacer.type !== 'hidden' ? preModification.classList.remove('d-none') : null;
 
                     /** Событие на изменение модификации */
@@ -429,7 +429,7 @@ async function changeObjectVariation(forms)
                         {
                             new NiceSelect(replacer, {searchable: true});
 
-                            let focus = document.getElementById(forms.name +'_preProduct_preModification_select2');
+                            let focus = document.getElementById(forms.name + '_preProduct_preModification_select2');
                             focus ? focus.click() : null;
 
                             replacer.addEventListener('change', function(event)
@@ -440,7 +440,7 @@ async function changeObjectVariation(forms)
 
                         } else
                         {
-                            selectTotal(document.getElementById(forms.name +'_preProduct_preVariation'))
+                            selectTotal(document.getElementById(forms.name + '_preProduct_preVariation'))
                         }
                     }
                 }
@@ -1402,8 +1402,6 @@ async function submitProfileForm(forms)
 //{
 //    initFormDraft();
 //}
-
-
 
 
 //function initFormDraft()

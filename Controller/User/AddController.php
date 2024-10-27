@@ -63,11 +63,21 @@ class AddController extends AbstractController
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
     ): Response
     {
-        if(
-            (!empty($modification) && (empty($offer) ||
-                    empty($variation)))
-            || (!empty($variation) && empty($offer))
-        )
+
+        /** Проверяем обязательное значение event */
+        if(empty($event))
+        {
+            return $this->ErrorResponse();
+        }
+
+        /** Проверяем обязательное значение offer если передан variation */
+        if(!empty($variation) && empty($offer))
+        {
+            return $this->ErrorResponse();
+        }
+
+        /** Проверяем обязательное значение variation если передан modification */
+        if(!empty($modification) && empty($variation))
         {
             return $this->ErrorResponse();
         }
@@ -87,22 +97,23 @@ class AddController extends AbstractController
         $AddProductBasketDTO->setVariation($variation);
         $AddProductBasketDTO->setModification($modification);
 
-        $form = $this->createForm(
-            OrderProductForm::class,
-            $AddProductBasketDTO,
-            [
-                'action' => $this->generateUrl(
-                    'orders-order:user.add',
-                    [
-                        'product' => $AddProductBasketDTO->getProduct(),
-                        'offer' => $AddProductBasketDTO->getOffer(),
-                        'variation' => $AddProductBasketDTO->getVariation(),
-                        'modification' => $AddProductBasketDTO->getModification(),
-                    ]
-                ),
-            ]
-        );
-        $form->handleRequest($request);
+        $form = $this
+            ->createForm(
+                OrderProductForm::class,
+                $AddProductBasketDTO,
+                [
+                    'action' => $this->generateUrl(
+                        'orders-order:user.add',
+                        [
+                            'product' => $AddProductBasketDTO->getProduct(),
+                            'offer' => $AddProductBasketDTO->getOffer(),
+                            'variation' => $AddProductBasketDTO->getVariation(),
+                            'modification' => $AddProductBasketDTO->getModification(),
+                        ]
+                    ),
+                ]
+            )
+            ->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
         {
@@ -188,8 +199,6 @@ class AddController extends AbstractController
             'name' => $Event->getOption(),
             'card' => $ProductDetail,
         ]);
-
-        // return $this->ErrorResponse();
     }
 
     public function ErrorResponse(): JsonResponse

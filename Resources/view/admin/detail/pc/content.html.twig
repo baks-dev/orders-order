@@ -129,10 +129,20 @@
                             </li>
 
                             <li>
-                                <a href="{{ path('products-sign:admin.document.orders', { order : order.order_id }) }}"
+                                <a href="{{ path('products-sign:admin.txt.orders', { order : order.order_id }) }}"
                                    class="dropdown-item"
+                                   target="_sign"
                                 >
-                                    Скачать список маркировок
+                                    Скачать список маркировок (.txt)
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ path('products-sign:admin.csv.orders', { order : order.order_id }) }}"
+                                   class="dropdown-item"
+                                   target="_sign"
+                                >
+                                    Скачать таблицу маркировок (.csv)
                                 </a>
                             </li>
 

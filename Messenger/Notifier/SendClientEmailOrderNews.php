@@ -69,6 +69,22 @@ final class SendClientEmailOrderNews
      */
     public function __invoke(OrderMessage $message): void
     {
+        /** Не отправляем сообщение дважды */
+        $Deduplicator = $this->deduplicator
+            ->namespace('orders-order')
+            ->deduplication([
+                $message->getId(),
+                OrderStatusNew::STATUS,
+                self::class
+            ]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+        $this->logger->debug(self::class, [$message]);
+
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
         if($OrderEvent === false)
@@ -98,20 +114,6 @@ final class SendClientEmailOrderNews
             ->findFieldByEvent($UserProfileEventUid);
 
         if(empty($AccountEmail) || empty($AccountEmail['value']))
-        {
-            return;
-        }
-
-        /** Не отправляем сообщение дважды */
-        $Deduplicator = $this->deduplicator
-            ->namespace('orders-order')
-            ->deduplication([
-                $message->getId(),
-                OrderStatusNew::STATUS,
-                self::class
-            ]);
-
-        if($Deduplicator->isExecuted())
         {
             return;
         }

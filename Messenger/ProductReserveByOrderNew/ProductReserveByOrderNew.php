@@ -71,6 +71,8 @@ final class ProductReserveByOrderNew
             return;
         }
 
+        $this->logger->debug(self::class, [$message]);
+
 
         /** Новый заказ не имеет предыдущего события!!! */
         if($message->getLast())

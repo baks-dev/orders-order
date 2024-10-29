@@ -57,7 +57,7 @@ final class ProductsReserveByOrderCancel
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                $message->getId(),
+                (string) $message->getId(),
                 OrderStatusCanceled::STATUS,
                 self::class
             ]);

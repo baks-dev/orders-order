@@ -61,7 +61,7 @@ final class ProductReserveByOrderNew
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                $message->getId(),
+                (string) $message->getId(),
                 OrderStatusNew::STATUS,
                 self::class
             ]);

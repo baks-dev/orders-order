@@ -83,8 +83,6 @@ final class SendClientEmailOrderNews
             return;
         }
 
-        $this->logger->debug(self::class, [$message]);
-
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
         if($OrderEvent === false)

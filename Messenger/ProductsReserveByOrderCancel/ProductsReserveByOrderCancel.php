@@ -51,7 +51,9 @@ final class ProductsReserveByOrderCancel
         $this->logger = $ordersOrderLogger;
     }
 
-    /** Снимаем резерв с продукции при отмене заказа  */
+    /**
+     * Снимаем резерв с продукции при отмене заказа
+     */
     public function __invoke(OrderMessage $message): void
     {
         $Deduplicator = $this->deduplicator
@@ -66,8 +68,6 @@ final class ProductsReserveByOrderCancel
         {
             return;
         }
-
-        $this->logger->debug(self::class, [$message]);
 
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 

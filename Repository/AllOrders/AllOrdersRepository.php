@@ -661,7 +661,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         }
 
 
-        if((string) $this->status === 'completed')
+        if(is_null($this->status) || (string) $this->status === 'completed')
         {
             $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
         }

@@ -53,7 +53,8 @@ final class OrderPaymentForm extends AbstractType
         $builder
             ->add('payment', ChoiceType::class, [
                 'choices' => $paymentChoice,
-                'choice_value' => function(?PaymentUid $payment) {
+                'choice_value' => function(mixed $payment) {
+                    $payment = $payment ? new PaymentUid((string) $payment) : null;
                     return $payment?->getValue();
                 },
 

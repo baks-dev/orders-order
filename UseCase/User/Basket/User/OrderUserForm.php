@@ -43,6 +43,7 @@ final class OrderUserForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
+
         $builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
 
         $builder->addEventListener(

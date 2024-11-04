@@ -36,7 +36,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Range;
 
 final class OrderPriceForm extends AbstractType
 {
@@ -48,10 +47,10 @@ final class OrderPriceForm extends AbstractType
     {
         $this->discount = match (true)
         {
-            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
-            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_20') => 20,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
-            $this->security->isGranted('ROLE_ADMIN') => 50,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
             default => false,
         };
 

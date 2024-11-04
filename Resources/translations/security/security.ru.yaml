@@ -32,6 +32,10 @@ ROLE_ORDERS_DISCOUNT_15:
   name: 'Скидка 15%'
   desc: ''
 
+ROLE_ORDERS_DISCOUNT_20:
+  name: 'Скидка 20%'
+  desc: ''
+
 # Роль статусо заказов
 ROLE_ORDERS_STATUS:
   name: 'Статусы заказов'

@@ -30,6 +30,10 @@ ROLE_ORDERS_DISCOUNT_15:
   name: 'Discount 15%'
   desc: ''
 
+ROLE_ORDERS_DISCOUNT_20:
+  name: 'Discount 20%'
+  desc: ''
+
 ROLE_ORDERS_STATUS:
   name: 'Order statuses'
   desc: 'Rules for user access to orders of a certain status'

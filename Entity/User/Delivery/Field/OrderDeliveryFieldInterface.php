@@ -23,4 +23,9 @@
 
 namespace BaksDev\Orders\Order\Entity\User\Delivery\Field;
 
-interface OrderDeliveryFieldInterface { }
+interface OrderDeliveryFieldInterface
+{
+
+    public function getValue(): ?string;
+
+}

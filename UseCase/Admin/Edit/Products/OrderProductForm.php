@@ -39,6 +39,10 @@ final class OrderProductForm extends AbstractType
 {
     private int|false $total = false;
 
+    private int|false $newTotal = false;
+
+    private bool $error = false;
+
     public function __construct(
         private readonly RequestStack $request,
         private readonly AddProductQuantityInterface $AddProductQuantity,
@@ -50,128 +54,141 @@ final class OrderProductForm extends AbstractType
     {
         $builder->add('price', Price\OrderPriceForm::class);
 
+
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
 
             /** @var OrderProductDTO $OrderProductDTO */
             $OrderProductDTO = $event->getData();
 
-            if($OrderProductDTO)
+            if(is_null($OrderProductDTO))
             {
-                if(false === $this->total)
-                {
-                    $this->total = $OrderProductDTO->getPrice()->getTotal();
-                }
-
-                if(false !== $this->total && $this->total !== $OrderProductDTO->getPrice()->getTotal())
-                {
-                    $Session = $this->request->getSession();
-
-                    /** Если количество изменилось в БОЛЬШУЮ сторону - проверяем доступное наличие и обновляем резерв */
-                    if($OrderProductDTO->getPrice()->getTotal() > $this->total)
-                    {
-                        $card = $OrderProductDTO->getCard();
-
-                        if($card['event'] !== $card['current_event'])
-                        {
-                            $Session = $this->request->getSession();
-
-                            $Session
-                                ->getFlashBag()
-                                ->add('Ошибка обновления количества',
-                                    sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name'])
-                                );
-
-                            return;
-                        }
-
-                        // Разница в новом количестве
-                        $newTotal = $OrderProductDTO->getPrice()->getTotal() - $this->total;
-
-                        $quantity = $card['product_quantity'];
-
-                        $update = false;
-
-                        /**
-                         * Проверяем, что нового резерва будет достаточно
-                         */
-
-                        if($quantity >= $newTotal)
-                        {
-                            /** Если количество изменилось в БОЛЬШУЮ сторону - обновляем и добавляем новый резерв */
-
-                            $update = $this->AddProductQuantity
-                                ->forEvent($OrderProductDTO->getProduct())
-                                ->forOffer($OrderProductDTO->getOffer())
-                                ->forVariation($OrderProductDTO->getVariation())
-                                ->forModification($OrderProductDTO->getModification())
-                                ->addQuantity(false)
-                                ->addReserve($newTotal)
-                                ->update();
-                        }
-                        else
-                        {
-                            /** Присваиваем предыдущее значение и уведомляем пользователя, что нет необходимого наличия */
-                            $OrderProductDTO->getPrice()->setTotal($this->total);
-                        }
-
-                        if(false === $update)
-                        {
-                            $Session
-                                ->getFlashBag()
-                                ->add('Ошибка обновления количества ',
-                                    sprintf('Недостаточное количество продукции %s для резерва', $card['product_name'])
-                                );
-                        }
-                    }
-
-                    /** Если количество изменилось в МЕНЬШУЮ сторону - обновляем и снимаем резерв */
-                    if($this->total > $OrderProductDTO->getPrice()->getTotal())
-                    {
-                        $newTotal = $this->total - $OrderProductDTO->getPrice()->getTotal();
-
-                        /** Снимаем резерв в карточке */
-                        $this->SubProductQuantity
-                            ->forEvent($OrderProductDTO->getProduct())
-                            ->forOffer($OrderProductDTO->getOffer())
-                            ->forVariation($OrderProductDTO->getVariation())
-                            ->forModification($OrderProductDTO->getModification())
-                            ->subQuantity(false)
-                            ->subReserve($newTotal)
-                            ->update();
-                    }
-                }
-
+                return;
             }
+
+            if(false === $this->total)
+            {
+                /** Присваиваем первоначальное значение */
+                $this->total = $OrderProductDTO->getPrice()->getTotal();
+                return;
+            }
+
+
+            if(false === $this->newTotal)
+            {
+                /** Присваиваем первоначальное значение */
+                $this->newTotal = $OrderProductDTO->getPrice()->getTotal();
+                return;
+            }
+
+            dump('PRE_SET_DATA');
+            dump($OrderProductDTO);
+
+            //            $card = $OrderProductDTO->getCard();
+            //
+            //            if($card['event'] !== $card['current_event'])
+            //            {
+            //                return;
+            //            }
+
+
         });
 
 
         $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event): void {
 
-            /** @var OrderProductDTO $OrderProductDTO */
-            $OrderProductDTO = $event->getData();
-
-            $card = $OrderProductDTO->getCard();
-
-            $newTotal = $OrderProductDTO->getPrice()->getTotal() - $this->total;
-            $quantity = $card['product_quantity'];
-
-            /** Если фактическое наличие недостаточно для резерва */
-            if($newTotal > $quantity)
-            {
-                $event->getForm()->addError(new FormError('Ошибка обновления количества'));
-            }
-
-            if(false !== $this->total && $this->total >= $OrderProductDTO->getPrice()->getTotal())
+            if($this->total === false || $this->newTotal === false)
             {
                 return;
             }
 
-            /** Если событие продукта (цена, описание, либо наличие) изменилось - запрещаем изменять на повышение */
-            if($card['event'] !== $card['current_event'])
+            /** @var OrderProductDTO $OrderProductDTO */
+            $OrderProductDTO = $event->getData();
+
+            if(is_null($OrderProductDTO))
             {
-                $event->getForm()->addError(new FormError('Ошибка обновления количества'));
+                return;
+            }
+
+            $Session = $this->request->getSession();
+
+            $card = $OrderProductDTO->getCard();
+            $quantity = $card['product_quantity'];
+
+            /** Если количество изменилось в БОЛЬШУЮ сторону - обновляем и добавляем новый резерв */
+
+            if($this->newTotal > $this->total)
+            {
+                /**
+                 * Если продукт изменился - нельзя обновить на увеличение
+                 */
+
+                if($card['event'] !== $card['current_event'])
+                {
+                    $Session
+                        ->getFlashBag()
+                        ->add('Ошибка обновления количества',
+                            sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name'])
+                        );
+
+                    $event->getForm()->addError(new FormError('Ошибка обновления количества'));
+
+                    return;
+                }
+
+                $total = $this->newTotal - $this->total;
+
+
+                /**
+                 * Если доступное количество недостаточно для резерва
+                 */
+
+                if($total > $quantity)
+                {
+                    $Session
+                        ->getFlashBag()
+                        ->add('Ошибка обновления количества ',
+                            sprintf('Недостаточное количество продукции %s для резерва', $card['product_name'])
+                        );
+
+                    $event->getForm()->addError(new FormError('Ошибка обновления количества'));
+
+                    return;
+                }
+
+
+                $this->AddProductQuantity
+                    ->forEvent($OrderProductDTO->getProduct())
+                    ->forOffer($OrderProductDTO->getOffer())
+                    ->forVariation($OrderProductDTO->getVariation())
+                    ->forModification($OrderProductDTO->getModification())
+                    ->addQuantity(false)
+                    ->addReserve($total)
+                    ->update();
+
+                return;
+            }
+
+            /**
+             * Если количество изменилось в МЕНЬШУЮ сторону - обновляем и снимаем резерв
+             */
+
+            if($this->total > $this->newTotal)
+            {
+                $total = $this->total - $this->newTotal;
+
+                /** Снимаем резерв в карточке */
+                $this->SubProductQuantity
+                    ->forEvent($OrderProductDTO->getProduct())
+                    ->forOffer($OrderProductDTO->getOffer())
+                    ->forVariation($OrderProductDTO->getVariation())
+                    ->forModification($OrderProductDTO->getModification())
+                    ->subQuantity(false)
+                    ->subReserve($total)
+                    ->update();
             }
         });
+
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void

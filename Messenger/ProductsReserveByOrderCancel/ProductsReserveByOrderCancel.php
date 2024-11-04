@@ -32,6 +32,11 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -43,6 +48,7 @@ final class ProductsReserveByOrderCancel
 
     public function __construct(
         private readonly OrderEventInterface $orderEventRepository,
+        private readonly CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
         private readonly DeduplicatorInterface $deduplicator,
         private readonly MessageDispatchInterface $messageDispatch,
         LoggerInterface $ordersOrderLogger,
@@ -97,13 +103,23 @@ final class ProductsReserveByOrderCancel
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
+            /** Получаем активные идентификаторы карточки на случай, если товар обновлялся */
+
+            $currentProduct = $this->CurrentProductIdentifierRepository
+                ->forEvent($product->getProduct())
+                ->forOffer($product->getOffer())
+                ->forVariation($product->getVariation())
+                ->forModification($product->getModification())
+                ->find();
+
             /** Снимаем резерв отмененного заказа */
+
             $this->messageDispatch->dispatch(
                 new ProductsReserveByOrderCancelMessage(
-                    $product->getProduct(),
-                    $product->getOffer(),
-                    $product->getVariation(),
-                    $product->getModification(),
+                    new ProductEventUid($currentProduct['event']),
+                    $currentProduct['offer'] ? new ProductOfferUid($currentProduct['offer']) : null,
+                    $currentProduct['variation'] ? new ProductVariationUid($currentProduct['variation']) : null,
+                    $currentProduct['variation'] ? new ProductModificationUid($currentProduct['modification']) : null,
                     $product->getPrice()->getTotal()
                 ),
                 transport: 'products-product'
@@ -112,6 +128,4 @@ final class ProductsReserveByOrderCancel
 
         $Deduplicator->save();
     }
-
-
 }

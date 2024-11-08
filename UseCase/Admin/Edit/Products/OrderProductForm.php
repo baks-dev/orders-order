@@ -72,25 +72,12 @@ final class OrderProductForm extends AbstractType
                 return;
             }
 
-
             if(false === $this->newTotal)
             {
                 /** Присваиваем первоначальное значение */
                 $this->newTotal = $OrderProductDTO->getPrice()->getTotal();
                 return;
             }
-
-            dump('PRE_SET_DATA');
-            dump($OrderProductDTO);
-
-            //            $card = $OrderProductDTO->getCard();
-            //
-            //            if($card['event'] !== $card['current_event'])
-            //            {
-            //                return;
-            //            }
-
-
         });
 
 

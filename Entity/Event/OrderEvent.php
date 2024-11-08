@@ -107,7 +107,7 @@ class OrderEvent extends EntityEvent
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
-    /** Комментарий к заказу */
+    /** Выделить заказ */
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $danger = false;
 
@@ -118,7 +118,6 @@ class OrderEvent extends EntityEvent
         $this->modify = new OrderModify($this);
         $this->created = new DateTimeImmutable();
         $this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
-
     }
 
     public function __clone()

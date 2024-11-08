@@ -201,13 +201,13 @@ final class OrderDeliveryForm extends AbstractType
                         ]);
 
 
+                    // Condition is always 'true' because '$deliveryChecked' is evaluated at this point
+                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+
+
                     /** Получаем пользовательские поля */
-                    if($deliveryChecked)
+                    if($fields)
                     {
-
-                        $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-
-
                         /** @var ArrayCollection $dataFields */
                         $dataFields = $data->getField();
 

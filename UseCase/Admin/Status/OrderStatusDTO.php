@@ -52,6 +52,14 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private OrderStatus $status;
 
+    /**
+     * Модификатор
+     *
+     * Присваивается User в случае, если статус асинхронно меняется складской заявкой
+     */
+    #[Assert\Valid]
+    private Modify\ModifyDTO $modify;
+
 
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
@@ -62,6 +70,7 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->id = $id;
         $this->status = new OrderStatus($status);
         $this->profile = $profile;
+        $this->modify = new Modify\ModifyDTO();
     }
 
     /** Идентификатор события */
@@ -85,6 +94,14 @@ final class OrderStatusDTO implements OrderEventInterface
     {
         $this->profile = $profile;
         return $this;
+    }
+
+    /**
+     * Modify
+     */
+    public function getModify(): Modify\ModifyDTO
+    {
+        return $this->modify;
     }
 
 }

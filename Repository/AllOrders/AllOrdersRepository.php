@@ -128,7 +128,8 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->addSelect('order_event.created AS order_created')
             ->addSelect('order_event.status AS order_status')
-            ->addSelect('order_event.comment AS order_comment');
+            ->addSelect('order_event.comment AS order_comment')
+            ->addSelect('order_event.danger AS order_danger');
 
         //        if($this->status)
         //        {

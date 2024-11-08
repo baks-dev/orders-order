@@ -25,9 +25,24 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Payment;
 
+use BaksDev\Megamarket\Orders\BaksDevMegamarketOrdersBundle;
+use BaksDev\Megamarket\Orders\Type\PaymentType\TypePaymentDbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\PaymentType\TypePaymentFbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\ProfileType\TypeProfileDbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\ProfileType\TypeProfileFbsMegamarket;
 use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
+use BaksDev\Ozon\Orders\BaksDevOzonOrdersBundle;
+use BaksDev\Ozon\Orders\Type\PaymentType\TypePaymentDbsOzon;
+use BaksDev\Ozon\Orders\Type\PaymentType\TypePaymentFbsOzon;
+use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileDbsOzon;
+use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileFbsOzon;
 use BaksDev\Payment\Type\Id\PaymentUid;
+use BaksDev\Yandex\Market\Orders\BaksDevYandexMarketOrdersBundle;
+use BaksDev\Yandex\Market\Orders\Type\PaymentType\TypePaymentDbsYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\PaymentType\TypePaymentFbsYandex;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileDbsYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYandexMarket;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -119,6 +134,60 @@ final class OrderPaymentForm extends AbstractType
                     $form = $event->getForm();
 
                     //dd($options['user_profile_type']);
+
+
+                    /**
+                     * Присваиваем по умолчанию способы доставки соответствующие профилю
+                     */
+
+                    /** Если выбрана доставка Ozon */
+                    if(class_exists(BaksDevOzonOrdersBundle::class))
+                    {
+                        $TypeProfileOzon = match (true)
+                        {
+                            TypeProfileFbsOzon::equals($options['user_profile_type']) => TypePaymentFbsOzon::TYPE,
+                            TypeProfileDbsOzon::equals($options['user_profile_type']) => TypePaymentDbsOzon::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeProfileOzon)
+                        {
+                            $data->setPayment(new PaymentUid($TypeProfileOzon));
+                        }
+                    }
+
+                    /** Если выбрана доставка Yandex Market */
+                    if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+                    {
+                        $TypeDeliveryYaMarket = match (true)
+                        {
+                            TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypePaymentFbsYandex::TYPE,
+                            TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypePaymentDbsYaMarket::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeDeliveryYaMarket)
+                        {
+                            $data->setPayment(new PaymentUid($TypeDeliveryYaMarket));
+                        }
+                    }
+
+                    /** Если выбрана доставка Magamarket */
+                    if(class_exists(BaksDevMegamarketOrdersBundle::class))
+                    {
+                        $TypeDeliveryMegamarket = match (true)
+                        {
+                            TypeProfileFbsMegamarket::equals($options['user_profile_type']) => TypePaymentFbsMegamarket::TYPE,
+                            TypeProfileDbsMegamarket::equals($options['user_profile_type']) => TypePaymentDbsMegamarket::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeDeliveryMegamarket)
+                        {
+                            $data->setPayment(new PaymentUid($TypeDeliveryMegamarket));
+                        }
+                    }
+
 
                     $paymentChoice = $this->paymentChoice->fetchPaymentByProfile($options['user_profile_type']);
 

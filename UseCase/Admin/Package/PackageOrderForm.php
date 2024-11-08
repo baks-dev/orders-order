@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 
-use BaksDev\Contacts\Region\Repository\ContactCallByGeocode\ContactCallByGeocodeInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
@@ -34,7 +33,6 @@ use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileChoice\UserProfileChoiceInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -44,7 +42,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class PackageOrderForm extends AbstractType
 {
@@ -90,15 +87,23 @@ final class PackageOrderForm extends AbstractType
                 $PackageOrderInvariableDTO = $PackageOrderDTO->getInvariable();
                 $PackageOrderInvariableDTO->setUsr($this->profileTokenStorage->getUser());
                 $PackageOrderInvariableDTO->setProfile($UserProfileUid);
+                $this->productModifier($form, $UserProfileUid);
 
-                /**
-                 * Если в списке присутствует только один профиль - присваиваем профиль активного пользователя
-                 */
-                if(count($profiles) === 1)
-                {
-                    $PackageOrderDTO->setProfile($UserProfileUid);
-                    $this->productModifier($form, $UserProfileUid);
-                }
+                //                /**
+                //                 * Если в списке присутствует только один профиль - присваиваем профиль активного пользователя
+                //                 */
+                //                if(count($profiles) === 1)
+                //                {
+                //                    //$PackageOrderDTO->setProfile($UserProfileUid);
+                //
+                //                    $PackageOrderInvariableDTO->setProfile($UserProfileUid);
+                //                    $this->productModifier($form, $UserProfileUid);
+                //                }
+
+
+                ///$PackageOrderDTO->setProfile($UserProfileUid);
+                ///$PackageOrderInvariableDTO->setProfile($UserProfileUid);
+
 
                 /** @var OrderDeliveryDTO $Delivery */
                 $Delivery = $PackageOrderDTO->getUsr()->getDelivery();
@@ -149,7 +154,8 @@ final class PackageOrderForm extends AbstractType
                          */
                         if($this->geocodeDistance->isEquals())
                         {
-                            $PackageOrderDTO->setProfile($UserProfileUid);
+                            //$PackageOrderDTO->setProfile($UserProfileUid);
+                            $PackageOrderInvariableDTO->setProfile($UserProfileUid);
                             $this->nearestWarehouse = $UserProfileUid; // Ближайший
                             $this->pickupWarehouse = $UserProfileUid; // Пункт выдачи заказов
                             $this->productModifier($form, $UserProfileUid);
@@ -160,7 +166,8 @@ final class PackageOrderForm extends AbstractType
                         if($distance === null || $geocodeDistance < $distance)
                         {
                             $distance = $geocodeDistance;
-                            $PackageOrderDTO->setProfile($UserProfileUid);
+                            //$PackageOrderDTO->setProfile($UserProfileUid);
+                            $PackageOrderInvariableDTO->setProfile($UserProfileUid);
                             $this->nearestWarehouse = $UserProfileUid; // Ближайший
                             $this->productModifier($form, $UserProfileUid);
                         }
@@ -168,10 +175,11 @@ final class PackageOrderForm extends AbstractType
                 }
 
                 // Еси не указана геолокация доставки - присваиваем по умолчанию склад активного пользователя
-                else
-                {
-                    $PackageOrderDTO->setProfile($UserProfileUid);
-                }
+                //                else
+                //                {
+                //                    $PackageOrderDTO->setProfile($UserProfileUid);
+                //                    $PackageOrderInvariableDTO->setProfile($UserProfileUid);
+                //                }
             },
         );
 

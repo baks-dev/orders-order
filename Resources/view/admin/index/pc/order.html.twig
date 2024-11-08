@@ -2,11 +2,14 @@
 
 <div class="draggable" id="{{ order.order_id }}" tabindex="0">
 
+
     <div class="border-bottom border-4 rounded-4"
-         style="background-color: {{ color }}; border-color: {{ color }} !important;"
+         style="background-color: {{ order.order_danger ? 'red' : color }}; border-color: {{ order.order_danger ? 'red' : color }} !important;"
     >
 
-        <div class="card bg-light-primary rounded-4">
+
+        <div class="card bg-light-primary rounded-4"
+             border-color: {{ order.order_danger ? 'style="border-color: red;"' }}>
 
             <div class="card-body d-flex justify-content-between small p-2">
 

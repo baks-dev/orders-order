@@ -68,6 +68,7 @@ final class PackageOrderProductForm extends AbstractType
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) use ($options): void {
+
                 /** @var PackageOrderProductDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
@@ -76,6 +77,8 @@ final class PackageOrderProductForm extends AbstractType
                 {
 
                     $warehouse = $options['warehouse'];
+
+                    dump($warehouse);
 
                     /** Получаем информацию о продукте */
                     $product = $this->info->fetchProductBasketAssociative(
@@ -89,6 +92,7 @@ final class PackageOrderProductForm extends AbstractType
                     {
                         return;
                     }
+
 
                     $ProductUid = new ProductUid($product['id']);
                     $ProductOfferConst = $product['product_offer_const'] ? new ProductOfferConst($product['product_offer_const']) : null;
@@ -106,6 +110,7 @@ final class PackageOrderProductForm extends AbstractType
                             $ProductModificationConst
                         );
                     }
+
 
                     $product['stock'] = $totalStock;
                     $data->setCard($product);

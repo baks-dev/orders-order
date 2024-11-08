@@ -61,6 +61,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
+use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
@@ -528,7 +531,8 @@ final class OrderDetailRepository implements OrderDetailInterface
         /* Автарка профиля клиента */
         $dbal->addSelect("CONCAT ( '/upload/".$dbal->table(UserProfileAvatar::class)."' , '/', profile_avatar.name) AS profile_avatar_name");
 
-        $dbal->addSelect('profile_avatar.ext AS profile_avatar_ext')
+        $dbal
+            ->addSelect('profile_avatar.ext AS profile_avatar_ext')
             ->addSelect('profile_avatar.cdn AS profile_avatar_cdn')
             ->leftJoin(
                 'user_profile',
@@ -551,6 +555,25 @@ final class OrderDetailRepository implements OrderDetailInterface
         //				"
         //        );
 
+
+        if(class_exists(BaksDevProductsStocksBundle::class))
+        {
+            $dbal->leftJoin(
+                'orders',
+                ProductStockOrder::class,
+                'stock_order',
+                'stock_order.ord = orders.id'
+            );
+
+            $dbal->leftJoin(
+                'stock_order',
+                ProductStockEvent::class,
+                'stock_event',
+                'stock_event.id = orders.id'
+            );
+
+        }
+
         $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -568,6 +591,8 @@ final class OrderDetailRepository implements OrderDetailInterface
 			)
 			AS order_user"
         );
+
+        /** Получаем информацию о складской заявке */
 
 
         $dbal->allGroupByExclude();

@@ -28,8 +28,23 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Megamarket\Orders\BaksDevMegamarketOrdersBundle;
+use BaksDev\Megamarket\Orders\Type\DeliveryType\TypeDeliveryDbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\DeliveryType\TypeDeliveryFbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\ProfileType\TypeProfileDbsMegamarket;
+use BaksDev\Megamarket\Orders\Type\ProfileType\TypeProfileFbsMegamarket;
 use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Ozon\Orders\BaksDevOzonOrdersBundle;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryDbsOzon;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFbsOzon;
+use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileDbsOzon;
+use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileFbsOzon;
+use BaksDev\Yandex\Market\Orders\BaksDevYandexMarketOrdersBundle;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryDbsYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryFbsYandexMarket;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileDbsYaMarket;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYandexMarket;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -157,9 +172,62 @@ final class OrderDeliveryForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                //if($data->getDelivery() && $options['user_profile_type'])
+
                 if($options['user_profile_type'])
                 {
+
+                    /**
+                     * Присваиваем по умолчанию способы доставки соответствующие профилю
+                     */
+
+                    /** Если выбрана доставка Ozon */
+                    if(class_exists(BaksDevOzonOrdersBundle::class))
+                    {
+                        $TypeProfileOzon = match (true)
+                        {
+                            TypeProfileFbsOzon::equals($options['user_profile_type']) => TypeDeliveryFbsOzon::TYPE,
+                            TypeProfileDbsOzon::equals($options['user_profile_type']) => TypeDeliveryDbsOzon::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeProfileOzon)
+                        {
+                            $data->setDelivery(new DeliveryUid($TypeProfileOzon));
+                        }
+                    }
+
+                    /** Если выбрана доставка Yandex Market */
+                    if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+                    {
+                        $TypeDeliveryYaMarket = match (true)
+                        {
+                            TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypeDeliveryFbsYandexMarket::TYPE,
+                            TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypeDeliveryDbsYaMarket::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeDeliveryYaMarket)
+                        {
+                            $data->setDelivery(new DeliveryUid($TypeDeliveryYaMarket));
+                        }
+                    }
+
+                    /** Если выбрана доставка Magamarket */
+                    if(class_exists(BaksDevMegamarketOrdersBundle::class))
+                    {
+                        $TypeDeliveryMegamarket = match (true)
+                        {
+                            TypeProfileFbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryFbsMegamarket::TYPE,
+                            TypeProfileDbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryDbsMegamarket::TYPE,
+                            default => false,
+                        };
+
+                        if($TypeDeliveryMegamarket)
+                        {
+                            $data->setDelivery(new DeliveryUid($TypeDeliveryMegamarket));
+                        }
+                    }
+
 
                     $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
                     $deliveryChoice = iterator_to_array($deliveryChoice);
@@ -244,12 +312,16 @@ final class OrderDeliveryForm extends AbstractType
                             }
                         }
 
-                        foreach($fields as $field)
+                        if($fields)
                         {
-                            $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-                            $OrderDeliveryFieldDTO->setField($field);
-                            $data->addField($OrderDeliveryFieldDTO);
+                            foreach($fields as $field)
+                            {
+                                $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+                                $OrderDeliveryFieldDTO->setField($field);
+                                $data->addField($OrderDeliveryFieldDTO);
+                            }
                         }
+
 
                         /* Коллекция продукции */
                         $form->add('field', CollectionType::class, [

@@ -78,7 +78,7 @@ final class PackageOrderProductForm extends AbstractType
 
                     $warehouse = $options['warehouse'];
 
-                    dump($warehouse);
+                    //dump($warehouse);
 
                     /** Получаем информацию о продукте */
                     $product = $this->info->fetchProductBasketAssociative(

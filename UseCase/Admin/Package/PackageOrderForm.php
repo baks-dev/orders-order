@@ -154,7 +154,7 @@ final class PackageOrderForm extends AbstractType
                          */
                         if($this->geocodeDistance->isEquals())
                         {
-                            //$PackageOrderDTO->setProfile($UserProfileUid);
+                            $PackageOrderDTO->setProfile($UserProfileUid);
                             $PackageOrderInvariableDTO->setProfile($UserProfileUid);
                             $this->nearestWarehouse = $UserProfileUid; // Ближайший
                             $this->pickupWarehouse = $UserProfileUid; // Пункт выдачи заказов

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,8 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
-use BaksDev\Products\Stocks\Entity\Move\ProductStockMove;
-use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
+use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMove;
+use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Type\Event\ProductStockEventUid;
 
 final class OrderDeliveryRepository implements OrderDeliveryInterface

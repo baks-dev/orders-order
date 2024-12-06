@@ -62,8 +62,8 @@ use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
-use BaksDev\Products\Stocks\Entity\Event\ProductStockEvent;
-use BaksDev\Products\Stocks\Entity\Orders\ProductStockOrder;
+use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
+use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
@@ -542,18 +542,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
 
-        /** Артикул продукта */
 
-        //        $qb->addSelect("
-        //					CASE
-        //					   WHEN product_modification.article IS NOT NULL THEN product_modification.article
-        //					   WHEN product_variation.article IS NOT NULL THEN product_variation.article
-        //					   WHEN product_offer.article IS NOT NULL THEN product_offer.article
-        //					   WHEN product_info.article IS NOT NULL THEN product_info.article
-        //					   ELSE NULL
-        //					END AS product_article
-        //				"
-        //        );
 
 
         if(class_exists(BaksDevProductsStocksBundle::class))

@@ -26,7 +26,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Status\Modify;
 use BaksDev\Core\Type\Modify\Modify\ModifyActionUpdate;
 use BaksDev\Core\Type\Modify\ModifyAction;
 use BaksDev\Orders\Order\Entity\Modify\OrderModifyInterface;
-use BaksDev\Products\Stocks\Entity\Modify\ProductStockModify;
+use BaksDev\Products\Stocks\Entity\Stock\Modify\ProductStockModify;
 use BaksDev\Users\User\Type\Id\UserUid;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;

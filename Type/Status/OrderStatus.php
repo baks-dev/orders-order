@@ -31,9 +31,9 @@ use InvalidArgumentException;
 
 final class OrderStatus
 {
-    public const TYPE = 'order_status_type';
+    public const string TYPE = 'order_status_type';
 
-    public const TEST = OrderStatusNew::class;
+    public const string TEST = OrderStatusNew::class;
 
     private OrderStatusInterface $status;
 

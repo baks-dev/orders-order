@@ -1,16 +1,16 @@
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,6 +44,7 @@ function addOrder(event)
 document.querySelectorAll('.order-basket').forEach(function(forms)
 {
     const btn = forms.querySelector('button[type="submit"]');
+
     if(btn)
     {
         btn.addEventListener('click', addOrder);
@@ -101,7 +102,12 @@ function initDatepicker()
 function resolve(forms)
 {
 
-    if(forms !== false && forms.name === 'order_product_form')
+    if(forms === false)
+    {
+        return;
+    }
+
+    if(forms.name === 'order_product_form')
     {
 
         /** Увеличиваем бейдж корзины */
@@ -137,6 +143,8 @@ function resolve(forms)
         //forms.action = '/basket';
 
     }
+
+
 }
 
 
@@ -148,16 +156,21 @@ document.querySelectorAll('.minus').forEach(function(btn)
     {
 
         let result = document.getElementById(this.dataset.id).value * 1 - 1;
+
         if(result <= 0)
-        { return; }
+        {
+            return;
+        }
 
         document.getElementById(this.dataset.id).value = result;
 
         /** Пересчет Суммы */
         orderSum(result, this.dataset.id);
 
-        /** Персчет всего количество */
+        /** Пересчет всего количества */
         total();
+
+        /** Сохраняем количество в сесиию */
 
     });
 });
@@ -169,7 +182,6 @@ document.querySelectorAll('.total').forEach(function(input)
     {
         if(typeof orderCounter.debounce == 'function')
         {
-
             /** Событие на изменение количество в ручную */
             input.addEventListener('input', orderCounter.debounce(300));
             return;
@@ -181,7 +193,9 @@ document.querySelectorAll('.total').forEach(function(input)
 
 });
 
-/** Увеличиваем число продукции */
+/**
+ * Увеличиваем число продукции
+ */
 document.querySelectorAll('.plus').forEach(function(btn)
 {
 
@@ -207,10 +221,8 @@ document.querySelectorAll('.plus').forEach(function(btn)
 
 function orderCounter()
 {
-
     let result = this.value * 1;
     let max = this.dataset.max * 1;
-
 
     if(result < 1)
     {
@@ -232,12 +244,10 @@ function orderCounter()
 
 function orderSum(result, id)
 {
-
     let product_summ = document.getElementById('summ_' + id);
 
     if(product_summ)
     {
-
 
         let result_product_sum = result * product_summ.dataset.price;
 
@@ -247,11 +257,13 @@ function orderSum(result, id)
         }
 
         result_product_sum = result_product_sum / 100;
+
         result_product_sum = new Intl.NumberFormat($locale, {
             style: 'currency',
             currency: product_summ.dataset.currency,
             maximumFractionDigits: 0
         }).format(result_product_sum);
+
         product_summ.innerText = result_product_sum;
     }
 }
@@ -293,6 +305,7 @@ function total()
 
 
     let total_result = document.getElementById('total_result');
+
     if(total_result)
     {
         total_result.innerText = result_product_sum;
@@ -300,6 +313,7 @@ function total()
 
 
     let total_product_sum = document.getElementById('total_product_sum');
+
     if(total_product_sum)
     {
         total_product_sum.innerText = result_product_sum;
@@ -321,18 +335,26 @@ function total()
     }).format(result_total);
 
     let total_all_sum = document.getElementById('total_all_sum');
+
     if(total_all_sum)
-    { total_all_sum.innerText = result_all_sum; }
+    {
+        total_all_sum.innerText = result_all_sum;
+    }
+
+
+    return true;
 
 }
-
 
 document.querySelectorAll('.delete-product').forEach(function(btn)
 {
     btn.addEventListener('click', function(event)
     {
         event.preventDefault();
+
         submitLink(btn.href, btn.dataset.id);
+
+        setTimeout(total, 1000);
     });
 });
 

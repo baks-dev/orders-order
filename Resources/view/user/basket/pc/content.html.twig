@@ -127,15 +127,6 @@
 
                 </div>
 
-
-                {# {{ dump(field_value(form.usr.vars.usr)) }}
-
-				{{ dump(form.usr.vars.usr) }} #}
-
-
-
-
-
                 {# <div class="d-flex justify-content-between">
 						<div class="w-50">
 							<label for="address">Адрес доставки: *</label>
@@ -172,8 +163,6 @@
 
                         {% else %}
 
-                            {# {{ dump(baks_profile) }} #}
-                            {# {{ dump(form.usr.vars.data.userProfile) }} #}
                             {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
 
                             {% if baks_profile.id is null %}

@@ -31,7 +31,7 @@ return static function(FrameworkConfig $framework) {
 
     $messenger
         ->transport('orders-order')
-        ->dsn('redis://%env(REDIS_PASSWORD)%@%env(REDIS_HOST)%:%env(REDIS_PORT)%?dbindex=%env(REDIS_TABLE)&auto_setup=true')
+        ->dsn('redis://%env(REDIS_PASSWORD)%@%env(REDIS_HOST)%:%env(REDIS_PORT)%?dbindex=%env(REDIS_TABLE)%&auto_setup=true')
         ->options(['stream' => 'orders-order'])
         ->failureTransport('failed-orders-order')
         ->retryStrategy()

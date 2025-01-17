@@ -13,7 +13,9 @@ baks-dev/payment \
 baks-dev/users-address \
 baks-dev/contacts-region \
 baks-dev/centrifugo \
-baks-dev/orders-order
+baks-dev/orders-order \
+baks-dev/products-stocks \
+baks-dev/delivery \
 ```
 
 ## Cервер Centrifugo

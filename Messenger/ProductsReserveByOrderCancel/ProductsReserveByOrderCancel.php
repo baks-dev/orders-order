@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -38,24 +38,20 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /** Работа с резервами в карточке - самый высокий приоритет */
 #[AsMessageHandler(priority: 999)]
-final class ProductsReserveByOrderCancel
+final readonly class ProductsReserveByOrderCancel
 {
-    private LoggerInterface $logger;
-
     public function __construct(
-        private readonly OrderEventInterface $orderEventRepository,
-        private readonly CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
-        private readonly DeduplicatorInterface $deduplicator,
-        private readonly MessageDispatchInterface $messageDispatch,
-        LoggerInterface $ordersOrderLogger,
-    )
-    {
-        $this->logger = $ordersOrderLogger;
-    }
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
+        private OrderEventInterface $orderEventRepository,
+        private CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
+        private DeduplicatorInterface $deduplicator,
+        private MessageDispatchInterface $messageDispatch,
+    ) {}
 
     /**
      * Снимаем резерв с продукции при отмене заказа

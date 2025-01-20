@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,21 +27,17 @@ namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /** Работа с резервами в карточке - самый высокий приоритет */
 #[AsMessageHandler(priority: 999)]
-final class ProductsReserveByOrderCancelHandler
+final readonly class ProductsReserveByOrderCancelHandler
 {
-    private LoggerInterface $logger;
-
     public function __construct(
-        private readonly SubProductQuantityInterface $subProductQuantity,
-        LoggerInterface $productsProductLogger,
-    )
-    {
-        $this->logger = $productsProductLogger;
-    }
+        #[Target('productsProductLogger')] private LoggerInterface $logger,
+        private SubProductQuantityInterface $subProductQuantity,
+    ) {}
 
     public function __invoke(ProductsReserveByOrderCancelMessage $message): void
     {

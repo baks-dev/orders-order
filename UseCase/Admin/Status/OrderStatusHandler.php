@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -39,19 +39,17 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderStatusHandler extends AbstractHandler
 {
-    private ExistOrderEventByStatusInterface $existOrderEventByStatus;
-
     public function __construct(
+        private readonly ExistOrderEventByStatusInterface $existOrderEventByStatus,
+
         EntityManagerInterface $entityManager,
         MessageDispatchInterface $messageDispatch,
         ValidatorCollectionInterface $validatorCollection,
         ImageUploadInterface $imageUpload,
         FileUploadInterface $fileUpload,
-        ExistOrderEventByStatusInterface $existOrderEventByStatus
     )
     {
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
-        $this->existOrderEventByStatus = $existOrderEventByStatus;
     }
 
 

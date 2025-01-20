@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\Notifier;
 
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
-use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
-use BaksDev\Core\Lock\AppLockInterface;
 use BaksDev\Core\Type\Field\InputField;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
@@ -36,10 +34,10 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileValues\UserProfileValuesInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -48,21 +46,16 @@ use Symfony\Component\Mime\Address;
 #[AsMessageHandler(priority: 0)]
 final class SendClientEmailOrderNews
 {
-    private LoggerInterface $logger;
-
     public function __construct(
         #[Autowire(env: 'HOST')] private readonly string $HOST,
+        #[Target('ordersOrderLogger')] private readonly LoggerInterface $logger,
         private readonly OrderDetailInterface $orderDetail,
         private readonly UserProfileValuesInterface $userProfileValues,
         private readonly MailerInterface $mailer,
         private readonly ParameterBagInterface $parameters,
         private readonly DeduplicatorInterface $deduplicator,
         private readonly OrderEventInterface $orderEventRepository,
-        LoggerInterface $ordersOrderLogger,
-    )
-    {
-        $this->logger = $ordersOrderLogger;
-    }
+    ) {}
 
     /**
      * Отправляем сообщение клиенту на указанный Email уведомление о новом заказе

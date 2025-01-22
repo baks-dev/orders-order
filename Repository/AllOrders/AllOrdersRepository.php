@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -67,6 +67,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 
 final class AllOrdersRepository implements AllOrdersInterface
 {
@@ -206,8 +207,8 @@ final class AllOrdersRepository implements AllOrdersInterface
             //($date ? ' AND part_modify.mod_date = :date' : '')
             $dbal->andWhere('orders_modify.mod_date BETWEEN :start AND :end');
 
-            $dbal->setParameter('start', $startOfDay, 'datetime_immutable');
-            $dbal->setParameter('end', $endOfDay, 'datetime_immutable');
+            $dbal->setParameter('start', $startOfDay, Types::DATETIME_IMMUTABLE);
+            $dbal->setParameter('end', $endOfDay, Types::DATETIME_IMMUTABLE);
         }
 
         $dbal

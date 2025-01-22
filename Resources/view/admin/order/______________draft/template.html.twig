@@ -58,6 +58,8 @@
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/products_product/filter.min.js?v={{ version }}" class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src='/assets/js/radio.input.min.js?v={{ version }}' class='lazy'></script>
 
+{{ dd(opens) }}
+
 <script nonce="{{ csp_nonce() }}">
 
         let TTmzCXyCq = 100;
@@ -66,25 +68,29 @@
         setTimeout(function SpgGHaQzun()
         {
 
-            if(TTmzCXyCq > 1000)
+            if(typeof centrifuge !== 'object')
             {
-                return;
+                if(TTmzCXyCq > 1000) { return; }
+
+                TTmzCXyCq = TTmzCXyCq * 2;
+                return setTimeout(SpgGHaQzun, TTmzCXyCq);
             }
 
 
-            if(typeof Centrifuge === 'function')
+            centrifuge.newSubscription('orders').on('publication', function(ctx)
             {
-                centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
-                    {
-                        token: "{{ token }}",
-                        getToken: function(ctx)
-                        {
-                            return getToken('/centrifugo/credentials/user', ctx);
-                        },
-                        debug: '{{ app.environment }}' === 'dev',
-                    });
+                if(ctx.data.profile !== '{{ current_profile }}')
+                {
+                    /* Удаляем у остальных менеджеров заказ */
+                    document.getElementById(ctx.data.order).remove();
+                }
 
-                {% if opens %}
+            }).subscribe();
+
+
+
+
+            {% if opens %}
 
                 centrifuge.newSubscription('{{ opens.order_event }}').on('publication', function(ctx)
                 {
@@ -97,7 +103,33 @@
 
                 centrifuge.connect();
 
-                {% endif %}
+            {% endif %}
+
+
+
+        }, 100);
+
+
+    </script>
+
+
+
+    <script nonce="{{ csp_nonce() }}">
+
+        let TTmzCXyCq = 100;
+
+        /** Сокеты */
+        setTimeout(function SpgGHaQzun()
+        {
+
+
+
+
+            if(typeof Centrifuge === 'function')
+            {
+
+
+
 
                 // /** Удаляем из списка у всех продукт */
                 centrifuge.newSubscription('remove').on('publication', function(ctx)

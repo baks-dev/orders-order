@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -75,7 +75,6 @@ final class OrderUserForm extends AbstractType
                     }
                 }
 
-
                 if(!$data->getUsr())
                 {
                     $form->add(
@@ -100,6 +99,8 @@ final class OrderUserForm extends AbstractType
                 );
                 //}
 
+
+                dump($userProfileType);
 
                 if($userProfileType)
                 {

@@ -38,68 +38,46 @@
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}" class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}" class='lazy'></script>
 
-    <script nonce="{{ csp_nonce() }}">
+{#  Сокеты  #}
 
-        document.addEventListener("DOMContentLoaded", (event) =>
+<script nonce="{{ csp_nonce() }}">
+    window.centrifugo_dsn = "{{ centrifugo_dsn }}";
+    window.centrifugo_token = "{{ token }}";
+</script>
+
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/socket.min.js?v={{ version }}" class='lazy'></script>
+
+<script nonce="{{ csp_nonce() }}">
+
+    let hfgsZAPeF = 100;
+
+    setTimeout(function xA1wFjaW7B()
+    {
+        if(typeof centrifuge !== 'object')
         {
-            const form = document.forms.order_delivery_filter_form;
-            form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
-        });
+            if(hfgsZAPeF > 1000) { return; }
 
-        //function changeDatapicker(input)
-        //{
-        //    let forms = input.closest('form');
-        //    forms.submit();
-        //}
-
-    </script>
+            hfgsZAPeF = hfgsZAPeF * 2;
+            return setTimeout(xA1wFjaW7B, hfgsZAPeF);
+        }
 
 
-    {% if baks_profile.id is defined %}
+        const publish = centrifuge.newSubscription('orders');
 
-        <script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
-
-        <script nonce="{{ csp_nonce() }}">
-
-            /** Сокеты */
-            setTimeout(function xA1wFjaW7B()
+        publish.on('publication', function(ctx)
+        {
+            if(ctx.data.profile !== '{{ current_profile }}')
             {
-                if(typeof Centrifuge === 'function')
-                {
-                    centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
-                        {
-                            token: "{{ token }}",
-                            getToken: function(ctx)
-                            {
-                                return getToken('/centrifugo/credentials/user', ctx);
-                            },
-                            debug: '{{ app.environment }}' === 'dev',
-                        });
+                /* Удаляем у остальных менеджеров заказ */
+                document.getElementById(ctx.data.order).remove();
+            }
 
-                    const publish = centrifuge.newSubscription('orders');
+        }).subscribe();
 
-                    publish.on('publication', function(ctx)
-                    {
+    }, 100);
 
-                        if(ctx.data.profile !== '{{ baks_profile.id }}')
-                        {
-                            /* Удаляем у остальных менеджеров заказ */
-                            document.getElementById(ctx.data.order).remove();
-                            //console.log(ctx.data);
-                        }
-
-                    }).subscribe();
-
-                    centrifuge.connect();
-                    return;
-                }
-
-                setTimeout(xA1wFjaW7B, 100);
-
-            }, 100);
-        </script>
-
-    {% endif %}
+</script>
 
 {% endblock %}
 

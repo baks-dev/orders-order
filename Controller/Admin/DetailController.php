@@ -94,8 +94,6 @@ final class DetailController extends AbstractController
                 $product->getModification()
             );
 
-            //			/dump($ProductDetailByValue);
-
             $product->setCard($ProductDetail);
         }
 

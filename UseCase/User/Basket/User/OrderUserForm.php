@@ -61,8 +61,6 @@ final class OrderUserForm extends AbstractType
                 {
                     $CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUsr());
 
-                    //dump('CurrentUserProfile '.$CurrentUserProfile?->getType());
-
                     if($CurrentUserProfile)
                     {
                         /* Присваиваем идентификатор события профиля */
@@ -100,7 +98,6 @@ final class OrderUserForm extends AbstractType
                 //}
 
 
-                dump($userProfileType);
 
                 if($userProfileType)
                 {

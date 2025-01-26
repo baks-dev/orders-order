@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -34,28 +34,27 @@ final class ProductReserveByOrderCompleteMessage
 {
     private int $total;
 
-    private ProductEventUid $event;
+    private string $event;
 
-    private ?ProductOfferUid $offer;
+    private string|false $offer;
 
-    private ?ProductVariationUid $variation;
+    private string|false $variation;
 
-    private ?ProductModificationUid $modification;
-
+    private string|false $modification;
 
     public function __construct(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer,
-        ?ProductVariationUid $variation,
-        ?ProductModificationUid $modification,
+        ProductEventUid|string $event,
+        ProductOfferUid|string|null|false $offer,
+        ProductVariationUid|string|null|false $variation,
+        ProductModificationUid|string|null|false $modification,
         int $total,
     )
     {
         $this->total = $total;
-        $this->event = $event;
-        $this->offer = $offer;
-        $this->variation = $variation;
-        $this->modification = $modification;
+        $this->event = (string) $event;
+        $this->offer = $offer ? (string) $offer : false;
+        $this->variation = $variation ? (string) $variation : false;
+        $this->modification = $modification ? (string) $modification : false;
     }
 
     /**
@@ -71,31 +70,31 @@ final class ProductReserveByOrderCompleteMessage
      */
     public function getEvent(): ProductEventUid
     {
-        return $this->event;
+        return new ProductEventUid($this->event);
     }
 
     /**
      * Offer
      */
-    public function getOffer(): ?ProductOfferUid
+    public function getOffer(): ProductOfferUid|false
     {
-        return $this->offer;
+        return $this->offer ? new ProductOfferUid($this->offer) : false;
     }
 
     /**
      * Variation
      */
-    public function getVariation(): ?ProductVariationUid
+    public function getVariation(): ProductVariationUid|false
     {
-        return $this->variation;
+        return $this->variation ? new ProductVariationUid($this->variation) : false;
     }
 
     /**
      * Modification
      */
-    public function getModification(): ?ProductModificationUid
+    public function getModification(): ProductModificationUid|false
     {
-        return $this->modification;
+        return $this->modification ? new ProductModificationUid($this->modification) : false;
     }
 
 }

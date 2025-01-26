@@ -113,9 +113,9 @@ final readonly class ProductsReserveByOrderCancel
             $this->messageDispatch->dispatch(
                 new ProductsReserveByOrderCancelMessage(
                     new ProductEventUid($currentProduct['event']),
-                    $currentProduct['offer'] ? new ProductOfferUid($currentProduct['offer']) : null,
-                    $currentProduct['variation'] ? new ProductVariationUid($currentProduct['variation']) : null,
-                    $currentProduct['variation'] ? new ProductModificationUid($currentProduct['modification']) : null,
+                    isset($currentProduct['offer']) ? new ProductOfferUid($currentProduct['offer']) : false,
+                    isset($currentProduct['variation']) ? new ProductVariationUid($currentProduct['variation']) : false,
+                    isset($currentProduct['modification']) ? new ProductModificationUid($currentProduct['modification']) : false,
                     $product->getPrice()->getTotal()
                 ),
                 transport: 'products-product'

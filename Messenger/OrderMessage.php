@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,26 +25,25 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger;
 
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 final class OrderMessage
 {
     /** Идентификатор заказа */
-    private OrderUid $id;
+    private string $id;
 
     /** Идентификатор события заказа */
-    private OrderEventUid $event;
+    private string $event;
 
     /** Идентификатор предыдущего события заказа */
-    private ?OrderEventUid $last;
+    private string|false $last;
 
     public function __construct(OrderUid $id, OrderEventUid $event, ?OrderEventUid $last = null)
     {
-        $this->last = $last;
-        $this->id = $id;
-        $this->event = $event;
+        $this->id = (string) $id;
+        $this->event = (string) $event;
+        $this->last = $last ? (string) $last : false;
     }
 
 
@@ -52,7 +51,7 @@ final class OrderMessage
 
     public function getId(): OrderUid
     {
-        return $this->id;
+        return new OrderUid($this->id);
     }
 
 
@@ -60,14 +59,14 @@ final class OrderMessage
 
     public function getEvent(): OrderEventUid
     {
-        return $this->event;
+        return new OrderEventUid($this->event);
     }
 
     /** Идентификатор предыдущего события */
 
-    public function getLast(): ?OrderEventUid
+    public function getLast(): OrderEventUid|false
     {
-        return $this->last;
+        return $this->last ? new OrderEventUid($this->last) : false;
     }
 
 }

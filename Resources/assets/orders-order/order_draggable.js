@@ -51,6 +51,7 @@ function getToken(url, ctx)
             .then(data =>
             {
                 resolve(data.token);
+
             })
             .catch(err =>
             {
@@ -67,6 +68,9 @@ executeFunc(function P8X1I2diQ4()
     {
         return false;
     }
+
+    const modal = document.getElementById('modal');
+    const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
 
 
     var droppable = new Droppable.default(containers, {
@@ -145,26 +149,18 @@ executeFunc(function P8X1I2diQ4()
         if(e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== 'restricted')
         {
             /** ВКЛючаем preload */
-            const modal = document.getElementById('modal');
+
             modal.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="d-flex justify-content-center w-100"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div></div></div>';
-            bootstrap.Modal.getOrCreateInstance(modal).show();
-
-            /* Закрываем модальное окно */
-            //let myModalEl = document.querySelector('#modal')
-            //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
-            //modal.hide();
-
+            modal_bootstrap.show();
 
             fetch('/admin/order/' + droppableLevel + '/' + id, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
 
                 .then(function(response)
                 {
-
                     /** ВЫКЛючаем preload */
-
                     if(response.status === 302 || response.status === 404)
                     {
-                        bootstrap.Modal.getOrCreateInstance(modal).hide();
+                        modal_bootstrap.hide();
                         return true;
                     }
 
@@ -174,13 +170,14 @@ executeFunc(function P8X1I2diQ4()
                         return response.text();
                     }
 
+
                     let $dangerOrderToast = '{ "type":"danger" , ' +
                         '"header":"Ошибка при изменении"  , ' +
                         '"message" : "Ошибка при изменении статуса заказа!" }';
 
                     createToast(JSON.parse($dangerOrderToast));
 
-                    bootstrap.Modal.getOrCreateInstance(modal).hide();
+                    modal_bootstrap.hide();
 
                     return false;
 
@@ -189,14 +186,10 @@ executeFunc(function P8X1I2diQ4()
                 .then(function(html)
                 {
 
-                    //const modal = document.getElementById('modal');
-                    //new bootstrap.Modal(modal).hide();
-                    //return;
-
                     if(html === true)
                     {
                         submitLink('/admin/order/status/' + droppableLevel + '/' + id);
-                        bootstrap.Modal.getOrCreateInstance(modal).hide();
+                        modal_bootstrap.hide();
                         return;
                     }
 

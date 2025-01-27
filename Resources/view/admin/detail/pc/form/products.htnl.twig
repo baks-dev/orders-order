@@ -98,7 +98,7 @@
                         </div>
 
                         <div class="col position-relative mt-2">
-                            {% if card.product_price != (product.vars.data.price.price.value * 100) %}
+                            {% if card.product_price is not null and card.product_price != (product.vars.data.price.price.value * 100) %}
                                 <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0 mt-2">
                                     <strike class="small text-muted">
                                         {{ money(card.product_price, card.product_currency) }}

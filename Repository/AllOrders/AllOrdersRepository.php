@@ -253,7 +253,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
         //}
 
-        if($this->filter->getDelivery())
+        if($this->filter?->getDelivery())
         {
             $dbal
                 ->join(

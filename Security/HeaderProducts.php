@@ -28,43 +28,51 @@ namespace BaksDev\Orders\Order\Security;
 use BaksDev\Menu\Admin\Command\Upgrade\MenuAdminInterface;
 use BaksDev\Menu\Admin\Type\SectionGroup\Group\Collection\MenuAdminSectionGroupCollectionInterface;
 use BaksDev\Products\Category\Security\MenuGroupProducts;
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
+use BaksDev\Products\Stocks\Security\MenuGroupStocks;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AutoconfigureTag('baks.security.role')]
 #[AutoconfigureTag('baks.menu.admin')]
-final class Role implements RoleInterface, MenuAdminInterface
+final class HeaderProducts implements MenuAdminInterface
 {
-    public const ROLE = 'ROLE_ORDERS';
 
     public function getRole(): string
     {
-        return self::ROLE;
+        return Role::ROLE;
     }
 
     /**
-     * Добавляем раздел в меню администрирования.
+     * Добавляем заголовок в меню администрирования.
      */
 
-    /** Метод возвращает PATH раздела */
-    public function getPath(): string
+    public function getPath(): null
     {
-        return 'orders-order:admin.index';
+        return null;
     }
 
-    /** Метод возвращает секцию, в которую помещается ссылка на раздел */
-    public function getGroupMenu(): MenuAdminSectionGroupCollectionInterface|bool
+    /**
+     * Метод возвращает секцию, в которую помещается ссылка на раздел
+     */
+    public function getGroupMenu(): MenuAdminSectionGroupCollectionInterface|array|bool
     {
-        return new MenuGroupProducts();
+        $groups = null;
+
+        !class_exists(MenuGroupProducts::class) ?: $groups[] = new MenuGroupProducts();
+        !class_exists(MenuGroupStocks::class) ?: $groups[] = new MenuGroupStocks();
+
+        return empty($groups) ? false : $groups;
     }
 
-    /** Метод возвращает позицию, в которую располагается ссылка в секции меню */
+    /**
+     * Метод возвращает позицию, в которую располагается ссылка в секции меню
+     */
     public function getSortMenu(): int
     {
-        return 900;
+        return 889;
     }
 
-    /** Метод возвращает флаг "Показать в выпадающем меню"  */
+    /**
+     * Метод возвращает флаг "Показать в выпадающем меню"
+     */
     public function getDropdownMenu(): bool
     {
         return true;

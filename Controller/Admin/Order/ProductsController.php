@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -56,15 +56,15 @@ final class ProductsController extends AbstractController
     {
 
         /** Поиск */
-        $search = new SearchDTO($request);
-        $searchForm = $this->createForm(
-            SearchForm::class,
-            $search,
-            [
-                'action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),
-            ]
-        );
-        $searchForm->handleRequest($request);
+        $search = new SearchDTO();
+
+        $searchForm = $this
+            ->createForm(
+                type: SearchForm::class,
+                data: $search,
+                options: ['action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),]
+            )
+            ->handleRequest($request);
 
         /**
          * Фильтр продукции по ТП

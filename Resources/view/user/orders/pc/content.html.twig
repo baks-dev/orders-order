@@ -8,7 +8,7 @@
         <div class="d-flex align-items-center gap-2 mb-2">
 
             <a href="{{ path('orders-order:user.orders', { status: constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusNew::STATUS') } ) }}"
-               class="btn border fw-bold text-secondary btn-alt rounded-5">
+               class="btn border fw-bold text-secondary btn-alt rounded-5" {{ status == constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusNew::STATUS') ? 'active' }}>
                 Активные заказы
             </a>
 
@@ -45,9 +45,7 @@
 
         {% endfor %}
 
-        {% if orders.data is not empty %}
-            {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
-        {% endif %}
+        {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
 
     </section>
 

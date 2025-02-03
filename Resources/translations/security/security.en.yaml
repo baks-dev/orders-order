@@ -1,6 +1,7 @@
 ROLE_ORDERS:
   name: 'Orders'
   desc: 'Orders received by the control system'
+  header: 'Orders'
 
 ROLE_ORDERS_INDEX:
   name: 'View'

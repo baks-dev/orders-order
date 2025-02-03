@@ -23,27 +23,40 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving\Move;
+namespace BaksDev\Orders\Order\UseCase\Admin\Access\Products\Price;
 
-use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMoveInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPriceInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see MaterialStockMove */
-final class ProductStockMoveDTO implements ProductStockMoveInterface
+/** @see OrderPrice */
+final class AccessOrderPriceDTO implements OrderPriceInterface
 {
-    /** Константа склада назначения при перемещении */
-    #[Assert\Uuid]
-    private ?UserProfileUid $destination = null;
+    /** Количество в заказе */
+    #[Assert\NotBlank]
+    private readonly int $total;
 
-    /** Константа склада назначения при перемещении */
-    public function getDestination(): ?UserProfileUid
+    /** Количество готовых к упаковке товаров */
+    private int $access;
+
+    /**
+     * Total
+     */
+    public function getTotal(): int
     {
-        return $this->destination;
+        return $this->total;
     }
 
-    public function setDestination(?UserProfileUid $destination): void
+    public function addAccess(): self
     {
-        $this->destination = $destination;
+        ++$this->access;
+
+        return $this;
     }
+
+    /** Количество в заказе */
+    public function isAccess(): bool
+    {
+        return $this->total === $this->access;
+    }
+
 }

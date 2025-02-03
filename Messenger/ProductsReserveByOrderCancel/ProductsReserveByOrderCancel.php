@@ -101,7 +101,7 @@ final readonly class ProductsReserveByOrderCancel
         {
             /** Получаем активные идентификаторы карточки на случай, если товар обновлялся */
 
-            $currentProduct = $this->CurrentProductIdentifierRepository
+            $CurrentProductIdentifier = $this->CurrentProductIdentifierRepository
                 ->forEvent($product->getProduct())
                 ->forOffer($product->getOffer())
                 ->forVariation($product->getVariation())
@@ -112,10 +112,10 @@ final readonly class ProductsReserveByOrderCancel
 
             $this->messageDispatch->dispatch(
                 new ProductsReserveByOrderCancelMessage(
-                    new ProductEventUid($currentProduct['event']),
-                    isset($currentProduct['offer']) ? new ProductOfferUid($currentProduct['offer']) : false,
-                    isset($currentProduct['variation']) ? new ProductVariationUid($currentProduct['variation']) : false,
-                    isset($currentProduct['modification']) ? new ProductModificationUid($currentProduct['modification']) : false,
+                    $CurrentProductIdentifier->getEvent(),
+                    $CurrentProductIdentifier->getOffer(),
+                    $CurrentProductIdentifier->getVariation(),
+                    $CurrentProductIdentifier->getModification(),
                     $product->getPrice()->getTotal()
                 ),
                 transport: 'products-product'

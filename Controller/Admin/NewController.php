@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Materials\Stocks\BaksDevMaterialsStocksBundle;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
@@ -86,8 +87,14 @@ final class NewController extends AbstractController
                     return $this->redirectToRoute('orders-order:admin.index');
                 }
 
-                /** Редирект, если продукции не достаточно в наличии */
-                if($product->getPrice()->getTotal() > $ProductDetail['product_quantity'])
+
+                /**
+                 * Если бизнаес-модель не производство и на складе нет достаточного количества
+                 */
+                if(
+                    false === class_exists(BaksDevMaterialsStocksBundle::class) &&
+                    $product->getPrice()->getTotal() > $ProductDetail['product_quantity']
+                )
                 {
                     $this->addFlash(
                         'danger',
@@ -112,7 +119,7 @@ final class NewController extends AbstractController
                 'page.new',
                 $handle instanceof Order ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                $handle
+                $handle instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle
             );
 
             if($handle instanceof Order)

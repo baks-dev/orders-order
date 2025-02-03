@@ -2,6 +2,7 @@
 ROLE_ORDERS:
   name: 'Заказы'
   desc: 'Заказы, поступившие в систему контроля'
+  header: 'Заказы'
 
 # Правила
 ROLE_ORDERS_INDEX:

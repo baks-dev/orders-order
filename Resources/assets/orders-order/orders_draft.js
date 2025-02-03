@@ -1,5 +1,5 @@
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -506,9 +506,13 @@ function addProductOrder()
 
         if($TOTAL > $totalMax)
         {
-            $errorFormHandler = '{ "type":"danger" , ' +
+            $warninfFormHandler = '{ "type":"danger" , ' +
                 '"header":"' + header + '"  , ' +
-                '"message" : "Недостаточное количество продукции" }';
+                '"message" : "На складе продукции отстутсвует необходимое количество" }';
+
+
+            createToast(JSON.parse($warninfFormHandler));
+
         }
 
         if($TOTAL < 1)
@@ -615,12 +619,14 @@ function addProductOrder()
     }
 
 
+    /*
     if(collectionProductOrder.size >= 5)
     {
         $errorFormHandler = '{ "type":"danger" , ' +
             '"header":"' + header + '"  , ' +
             '"message" : "Количество в заявке временно ограничено до 5 позиций! Сохраните активную и добавьте новую." }';
     }
+     */
 
     /* Выводим сообщение об ошибке заполнения */
 

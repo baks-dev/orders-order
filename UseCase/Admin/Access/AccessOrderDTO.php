@@ -21,76 +21,63 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace BaksDev\Orders\Order\UseCase\Admin\Access;
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Price;
-
-use BaksDev\Orders\Order\Entity\Products\Price\OrderPriceInterface;
-use BaksDev\Reference\Currency\Type\Currency;
-use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see OrderPrice */
-final class PackageOrderPriceDTO implements OrderPriceInterface
+/** @see OrderEvent */
+final class AccessOrderDTO implements OrderEventInterface
 {
-    /** Количество в заказе */
+    /** Идентификатор события */
+    #[Assert\Uuid]
     #[Assert\NotBlank]
-    private int $total = 1;
+    private readonly OrderEventUid $id;
 
-    private int $access;
+    /** Статус заказа */
+    private readonly OrderStatus $status;
 
-    /** Стоимость */
-    private ?Money $price;
-
-    /** Валюта */
-    #[Assert\NotBlank]
-    private Currency $currency;
-
+    /** Коллекция продукции в заказе */
+    #[Assert\Valid]
+    private ArrayCollection $product;
 
     public function __construct()
     {
-        $this->currency = new Currency();
+        $this->product = new ArrayCollection();
     }
 
-    /** Количество в заказе */
-    public function getTotal(): int
+    public function getEvent(): ?OrderEventUid
     {
-        $this->access = $this->total;
-        return $this->total;
+        return $this->id;
     }
 
+    /**
+     * Коллекция продукции в заказе
+     */
 
-    public function setTotal(int $total): void
+    public function getProduct(): ArrayCollection
     {
-        $this->total = $total;
+        return $this->product;
     }
 
-
-    /** Стоимость */
-
-    public function getPrice(): Money
+    public function addProduct(Products\AccessOrderProductDTO $product): void
     {
-        return $this->price;
+        if(!$this->product->contains($product))
+        {
+            $this->product->add($product);
+        }
     }
 
+    /**
+     * Статус заказа
+     */
 
-    public function setPrice(Money $price): void
+    public function getStatus(): OrderStatus
     {
-        $this->price = $price;
+        return $this->status;
     }
-
-
-    /** Валюта */
-
-    public function getCurrency(): Currency
-    {
-        return $this->currency;
-    }
-
-
-    public function setCurrency(Currency $currency): void
-    {
-        $this->currency = $currency;
-    }
-
 }

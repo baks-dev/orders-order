@@ -28,9 +28,6 @@ const form = document.forms.order_delivery_filter_form;
 form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
 
 
-
-
-
 function getToken(url, ctx)
 {
     return new Promise((resolve, reject) =>
@@ -64,14 +61,14 @@ function getToken(url, ctx)
 executeFunc(function P8X1I2diQ4()
 {
 
-    if(typeof Droppable !== 'object')
+    if(typeof Droppable !== 'object' || typeof bootstrap !== 'object')
     {
         return false;
     }
 
+
     const modal = document.getElementById('modal');
     const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
-
 
     var droppable = new Droppable.default(containers, {
         draggable: ".draggable",

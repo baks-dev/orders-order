@@ -23,27 +23,34 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving\Move;
+namespace BaksDev\Orders\Order\Repository\UpdateAccessOrderProduct;
 
-use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMoveInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 
-/** @see MaterialStockMove */
-final class ProductStockMoveDTO implements ProductStockMoveInterface
+
+final readonly class UpdateAccessOrderProductRepository implements UpdateAccessOrderProductInterface
 {
-    /** Константа склада назначения при перемещении */
-    #[Assert\Uuid]
-    private ?UserProfileUid $destination = null;
+    public function __construct(private DBALQueryBuilder $DBALQueryBuilder) {}
 
-    /** Константа склада назначения при перемещении */
-    public function getDestination(): ?UserProfileUid
+    /**
+     * Метод добавляет единицу продукции в заказ готовых к сборке
+     */
+    public function update(OrderProductUid $product): int
     {
-        return $this->destination;
-    }
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-    public function setDestination(?UserProfileUid $destination): void
-    {
-        $this->destination = $destination;
+        $dbal
+            ->update(OrderPrice::class)
+            ->where('product = :product')
+            ->setParameter(
+                'product',
+                $product,
+                OrderProductUid::TYPE
+            )
+            ->set('access', 'access + 1');
+
+        return (int) $dbal->executeStatement();
     }
 }

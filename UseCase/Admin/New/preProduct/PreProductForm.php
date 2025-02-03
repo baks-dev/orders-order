@@ -35,6 +35,7 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -45,6 +46,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class PreProductForm extends AbstractType
 {
@@ -53,7 +55,8 @@ final class PreProductForm extends AbstractType
         private readonly ProductChoiceInterface $productChoice,
         private readonly ProductOfferChoiceInterface $productOfferChoice,
         private readonly ProductVariationChoiceInterface $productVariationChoice,
-        private readonly ProductModificationChoiceInterface $productModificationChoice
+        private readonly ProductModificationChoiceInterface $productModificationChoice,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -217,8 +220,10 @@ final class PreProductForm extends AbstractType
 
     private function formProductModifier(FormInterface $form, ?CategoryProductUid $category): void
     {
-        /** Получаем список доступной продукции */
-        $productChoice = $this->productChoice->fetchAllProductEventByExists($category ?: false);
+        /** Получаем список доступной продукции (общие либо собственные) */
+        $productChoice = $this->productChoice
+            ->profile($this->UserProfileTokenStorage->getProfile())
+            ->fetchAllProductEventByExists($category ?: false);
 
         $form->add(
             'preProduct',
@@ -247,7 +252,8 @@ final class PreProductForm extends AbstractType
     private function formOfferModifier(FormInterface $form, ProductEventUid $product): void
     {
         /* Список торговых предложений продукции */
-        $offer = $this->productOfferChoice->findOnlyExistsByProductEvent($product);
+        $offer = $this->productOfferChoice
+            ->findOnlyExistsByProductEvent($product);
 
         // Если у продукта нет ТП
         if(!$offer?->valid())
@@ -263,6 +269,7 @@ final class PreProductForm extends AbstractType
         /** @var ProductOfferUid $CurrentProductOfferUid */
         $CurrentProductOfferUid = $offer->current();
 
+
         $form
             ->add(
                 'preOffer',
@@ -273,7 +280,7 @@ final class PreProductForm extends AbstractType
                         return $offer?->getValue();
                     },
                     'choice_label' => function(ProductOfferUid $offer) {
-                        return $offer->getAttr();
+                        return trim($offer->getAttr());
                     },
                     'choice_attr' => function(?ProductOfferUid $offer) {
                         return $offer ? [
@@ -282,6 +289,8 @@ final class PreProductForm extends AbstractType
                             'data-name' => $offer->getAttr()
                         ] : [];
                     },
+
+                    'translation_domain' => $CurrentProductOfferUid->getCharacteristic(),
                     'label' => $CurrentProductOfferUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductOfferUid->getProperty()),
                 ]
@@ -317,7 +326,7 @@ final class PreProductForm extends AbstractType
                         return $variation?->getValue();
                     },
                     'choice_label' => function(ProductVariationUid $variation) {
-                        return $variation->getAttr();
+                        return trim($variation->getAttr());
                     },
                     'choice_attr' => function(?ProductVariationUid $variation) {
                         return $variation ? [
@@ -326,6 +335,7 @@ final class PreProductForm extends AbstractType
                             'data-name' => $variation->getAttr()
                         ] : [];
                     },
+                    'translation_domain' => $CurrentProductVariationUid->getCharacteristic(),
                     'label' => $CurrentProductVariationUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductVariationUid->getProperty()),
                 ],
@@ -361,7 +371,7 @@ final class PreProductForm extends AbstractType
                         return $modification?->getValue();
                     },
                     'choice_label' => function(ProductModificationUid $modification) {
-                        return $modification->getAttr();
+                        return trim($modification->getAttr());
                     },
                     'choice_attr' => function(?ProductModificationUid $modification) {
                         return $modification ? [
@@ -370,6 +380,7 @@ final class PreProductForm extends AbstractType
                             'data-name' => $modification->getAttr()
                         ] : [];
                     },
+                    'translation_domain' => $CurrentProductModificationUid->getCharacteristic(),
                     'label' => $CurrentProductModificationUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductModificationUid->getProperty()),
                 ]

@@ -37,9 +37,9 @@ use BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest;
 #[When(env: 'test')]
 final class PackageControllerTest extends WebTestCase
 {
-    private const URL = '/admin/order/package/%s';
+    private const string URL = '/admin/order/package/%s';
 
-    private const ROLE = 'ROLE_ORDERS_STATUS';
+    private const string ROLE = 'ROLE_ORDERS_STATUS';
 
 
     public static function tearDownAfterClass(): void

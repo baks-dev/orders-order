@@ -21,29 +21,14 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace BaksDev\Orders\Order\Repository\UpdateAccessOrderProduct;
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving\Move;
+use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 
-use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMoveInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Symfony\Component\Validator\Constraints as Assert;
-
-/** @see MaterialStockMove */
-final class ProductStockMoveDTO implements ProductStockMoveInterface
+interface UpdateAccessOrderProductInterface
 {
-    /** Константа склада назначения при перемещении */
-    #[Assert\Uuid]
-    private ?UserProfileUid $destination = null;
-
-    /** Константа склада назначения при перемещении */
-    public function getDestination(): ?UserProfileUid
-    {
-        return $this->destination;
-    }
-
-    public function setDestination(?UserProfileUid $destination): void
-    {
-        $this->destination = $destination;
-    }
+    /**
+     * Метод добавляет единицу продукции в заказ готовых к сборке
+     */
+    public function update(OrderProductUid $product): int;
 }

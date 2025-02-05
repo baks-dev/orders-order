@@ -1,16 +1,16 @@
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -273,18 +273,17 @@ function orderCounter()
 
 function orderSum(result, id)
 {
-
     let product_total = document.getElementById(id);
     let product_summ = document.getElementById('summ_' + id);
 
     if(product_summ)
     {
-        let result_product_sum = result * product_total.dataset.price / 100;
+        let result_product_sum = (result * product_total.dataset.price) / 100;
 
         result_product_sum = new Intl.NumberFormat($locale, {
             style: 'currency',
-            currency: product_summ.dataset.currency,
-            maximumFractionDigits: 0
+            currency: product_total.dataset.currency,
+            maximumFractionDigits: 2
         }).format(result_product_sum);
 
         product_summ.innerText = result_product_sum;

@@ -60,8 +60,9 @@
                                 postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
 
                             }) }}"
-                               class="text-dark me-3 text-uppercase text-decoration-none"
+                               class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
                                target="_blank"
+                               style="width: 250px;"
                             >
 
                                 {{ card.product_name }} <br>
@@ -78,9 +79,9 @@
                             </a>
 
 
-                            {% if date() < card.product_active_from|date_modify("+1 month") %}
+                            {# {% if date() < card.product_active_from|date_modify("+1 month") %}
                                 <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
-                            {% endif %}
+                            {% endif %} #}
 
 
 
@@ -183,9 +184,9 @@
                             attr: {
                                 class : 'form-control-sm mx-1 rounded-3 total',
                                 style: 'width: 60px;',
-                                'data-price' : ''~card.product_price,
+                                'data-price' : ''~product.price.vars.data.price.value*100,
                                 'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
-                                'data-currency' : card.product_currency|upper
+                                'data-currency' : product.price.vars.data.currency|upper
                             } } ) }}
 
 
@@ -276,7 +277,10 @@
                 </td>
                 </tr>
             {% else %}
-                &nbsp;
+    <tr>
+        <td colspan="4">
+            &nbsp;
+
             {% endif %}
 
 

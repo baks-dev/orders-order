@@ -21,20 +21,32 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrderProducts;
+declare(strict_types=1);
 
-use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
-use Generator;
+namespace BaksDev\Orders\Order\Repository\OrderProducts\Tests;
 
-interface OrderProductsInterface
+use BaksDev\Orders\Order\Repository\OrderProducts\OrderProductsInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
+
+
+/**
+ * @group orders-order
+ */
+#[When(env: 'test')]
+class OrderProductsRepositoryTest extends KernelTestCase
 {
-    public function order(Order|OrderUid|string $order): self;
+    public function testUseCase(): void
+    {
+        /** @var OrderProductsInterface $OrderProducts */
+        $OrderProducts = self::getContainer()->get(OrderProductsInterface::class);
 
-    /**
-     * Метод возвращает идентификаторы продукции в заказе
-     *
-     * @return Generator<OrderProductRepositoryDTO>
-     */
-    public function findAllProducts(): Generator|false;
+        $products = $OrderProducts
+            ->order('0194cb5b-4ffd-7d83-92be-24820d8bec02')
+            ->findAllProducts();
+
+        self::assertTrue($products->valid());
+    }
+
+
 }

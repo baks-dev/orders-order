@@ -119,7 +119,7 @@
                             <li><h6 class="dropdown-header">Честный знак</h6></li>
 
                             <li>
-                                <a href="{{ path('products-sign:admin.print.orders', { order : order.order_id }) }}"
+                                <a href="{{ path('products-sign:admin.print.orders', {  order : order.order_id }) }}"
                                    class="dropdown-item prnt"
                                    data-bs-toggle="modal"
                                    data-bs-target="#modal"
@@ -129,7 +129,7 @@
                             </li>
 
                             <li>
-                                <a href="{{ path('products-sign:admin.txt.orders', { order : order.order_id }) }}"
+                                <a href="{{ path('products-sign:admin.txt.orders', { article: order.order_number, order : order.order_id }) }}"
                                    class="dropdown-item"
                                    target="_sign"
                                 >

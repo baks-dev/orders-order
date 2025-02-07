@@ -96,6 +96,7 @@ final class AccessOrderNewTest extends KernelTestCase
             ->forOffer($ProductOfferUid)
             ->forVariation($ProductVariationUid)
             ->forModification($ProductModificationUid)
+            ->onlyNewStatus()
             ->find();
 
         /** @var AccessOrderDTO $AccessOrderDTO */

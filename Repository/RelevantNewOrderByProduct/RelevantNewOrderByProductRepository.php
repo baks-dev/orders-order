@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
@@ -57,6 +58,8 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
     private ProductVariationUid|false $variation = false;
 
     private ProductModificationUid|false $modification = false;
+
+    private string $status = OrderStatusNew::class;
 
     public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
@@ -164,6 +167,20 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
+    public function onlyNewStatus(): self
+    {
+        $this->status = OrderStatusNew::class;
+
+        return $this;
+    }
+
+    public function onlyPackageStatus(): self
+    {
+        $this->status = OrderStatusPackage::class;
+
+        return $this;
+    }
+
     /**
      * Метод возвращает событие самого старого (более актуального) нового заказа
      * на указанный способ доставки и в котором имеется указанная продукция
@@ -196,7 +213,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
             )
             ->setParameter(
                 'status',
-                OrderStatusNew::class,
+                $this->status,
                 OrderStatus::TYPE
             );
 

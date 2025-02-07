@@ -47,6 +47,10 @@ interface RelevantNewOrderByProductInterface
 
     public function forModification(ProductModification|ProductModificationUid|string|null|false $modification): self;
 
+    public function onlyNewStatus(): self;
+
+    public function onlyPackageStatus(): self;
+
     /**
      * Метод возвращает событие самого старого заказа (более актуального для сборки)
      * на указанный способ доставки и в котором имеется указанная продукция

@@ -27,8 +27,8 @@ namespace BaksDev\Orders\Order\Repository\OrderProducts;
 
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -73,9 +73,9 @@ final readonly class OrderProductRepositoryDTO
     /**
      * ProductId
      */
-    public function getProduct(): OrderProductUid
+    public function getProduct(): ProductUid
     {
-        return new OrderProductUid($this->product_id);
+        return new ProductUid($this->product_id);
     }
 
     /**

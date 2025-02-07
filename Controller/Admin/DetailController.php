@@ -66,7 +66,7 @@ final class DetailController extends AbstractController
         /** Получаем активное событие заказа */
         $Event = $currentOrderEvent
             ->forOrder($Order->getId())
-            ->execute();
+            ->find();
 
         if(!$Event)
         {

@@ -26,14 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products;
 
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\UserByUserProfile\UserByUserProfileInterface;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -48,7 +45,6 @@ final class PackageOrderProductForm extends AbstractType
     public function __construct(
         private readonly ProductUserBasketInterface $info,
         private readonly ProductWarehouseTotalInterface $warehouseTotal,
-        private readonly UserTokenStorageInterface $userTokenStorage,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -75,8 +71,12 @@ final class PackageOrderProductForm extends AbstractType
 
                 if($data)
                 {
-
                     $warehouse = $options['warehouse'];
+
+                    if(is_null($warehouse))
+                    {
+                        return;
+                    }
 
                     /** Получаем информацию о продукте */
                     $product = $this->info->fetchProductBasketAssociative(
@@ -86,75 +86,29 @@ final class PackageOrderProductForm extends AbstractType
                         $data->getModification()
                     );
 
+
                     if(!$product)
                     {
                         return;
                     }
 
-
                     $ProductUid = new ProductUid($product['id']);
                     $ProductOfferConst = $product['product_offer_const'] ? new ProductOfferConst($product['product_offer_const']) : null;
                     $ProductVariationConst = $product['product_variation_const'] ? new ProductVariationConst($product['product_variation_const']) : null;
                     $ProductModificationConst = $product['product_modification_const'] ? new ProductModificationConst($product['product_modification_const']) : null;
-                    $totalStock = 0;
 
-                    if($warehouse)
-                    {
-                        $totalStock = $this->warehouseTotal->getProductProfileTotal(
-                            $warehouse,
-                            $ProductUid,
-                            $ProductOfferConst,
-                            $ProductVariationConst,
-                            $ProductModificationConst
-                        );
-                    }
-
+                    $totalStock = $this->warehouseTotal->getProductProfileTotal(
+                        $warehouse,
+                        $ProductUid,
+                        $ProductOfferConst,
+                        $ProductVariationConst,
+                        $ProductModificationConst
+                    );
 
                     $product['stock'] = $totalStock;
+
                     $data->setCard($product);
 
-                    /** @var OrderDeliveryDTO $Delivery */
-                    $Delivery = $form->getParent()?->getParent()?->getData()->getUsr()->getDelivery();
-
-                    /* Если в заказе количество больше, чем в наличии на складе - добавляем перемещение */
-                    if($Delivery->isPickup() === false && $data->getPrice()->getTotal() > $totalStock)
-                    {
-
-                        //                        $UserUid = null;
-                        //
-                        //                        if($warehouse)
-                        //                        {
-                        //                            $UserByUserProfile = $this->userByUserProfile
-                        //                                ->forProfile($warehouse)
-                        //                                ->findUser();
-                        //                            $UserUid = $UserByUserProfile?->getId();
-                        //                        }
-
-
-                        $ProductMoving = new Moving\Products\ProductStockDTO($this->userTokenStorage->getUser());
-                        $ProductMoving->setProduct($ProductUid);
-                        $ProductMoving->setOffer($ProductOfferConst);
-                        $ProductMoving->setVariation($ProductVariationConst);
-                        $ProductMoving->setModification($ProductModificationConst);
-
-                        /** Недостаток */
-                        $ProductMovingDiff = $data->getPrice()->getTotal() - $totalStock;
-                        $ProductMoving->setTotal($ProductMovingDiff);
-
-                        $Move = new Moving\MovingProductStockDTO();
-                        $Move->getMove()->setDestination($warehouse);
-                        $Move->addProduct($ProductMoving);
-
-                        $data->setMove($Move);
-
-
-                        $form->add(
-                            'move',
-                            Moving\MovingProductStockForm::class,
-                            ['label' => false]
-                        );
-
-                    }
                 }
             },
         );

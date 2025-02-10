@@ -31,6 +31,7 @@ use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
@@ -60,6 +61,8 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
     private ProductModificationUid|false $modification = false;
 
     private string $status = OrderStatusNew::class;
+
+    private bool|null $access = null;
 
     public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
 
@@ -181,11 +184,23 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
-    /**
-     * Метод возвращает событие самого старого (более актуального) нового заказа
-     * на указанный способ доставки и в котором имеется указанная продукция
-     */
-    public function find(): OrderEvent|false
+    /** Только заказы, требуемые производства */
+    public function filterProductAccess(): self
+    {
+        $this->access = true;
+
+        return $this;
+    }
+
+    /** Только заказы, которые произведены */
+    public function filterProductNotAccess(): self
+    {
+        $this->access = false;
+
+        return $this;
+    }
+
+    private function builder(): ORMQueryBuilder
     {
         if(false === $this->delivery)
         {
@@ -196,6 +211,9 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         {
             throw new InvalidArgumentException('Invalid Argument Product');
         }
+
+
+        $this->ORMQueryBuilder->clear();
 
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
@@ -258,6 +276,20 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                 ProductEventUid::TYPE
             );
 
+
+        if(is_bool($this->access))
+        {
+            $orm
+                ->join(
+                    OrderPrice::class,
+                    'price',
+                    'WITH',
+                    '
+                    price.product = product.id AND 
+                    price.total '.($this->access ? '!=' : '=').' price.access
+                ');
+        }
+
         false === $this->offer ?: $orm->setParameter('offer', $this->offer, ProductOfferUid::TYPE);
         false === $this->variation ?: $orm->setParameter('variation', $this->variation, ProductVariationUid::TYPE);
         false === $this->modification ?: $orm->setParameter('modification', $this->modification, ProductModificationUid::TYPE);
@@ -265,8 +297,31 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
 
         $orm->orderBy('delivery.deliveryDate');
 
+        return $orm;
+    }
+
+    /**
+     * Метод возвращает событие самого старого (более актуального) нового заказа
+     * на указанный способ доставки и в котором имеется указанная продукция
+     */
+    public function find(): OrderEvent|false
+    {
+        $orm = $this->builder();
+
         $orm->setMaxResults(1);
 
         return $orm->getOneOrNullResult() ?: false;
     }
+
+    /**
+     * Метод возвращает се заказы самого старого (более актуального) нового заказа
+     * на указанный способ доставки и в котором имеется указанная продукция
+     */
+    public function findAll(): array|false
+    {
+        $orm = $this->builder();
+
+        return $orm->getResult() ?: false;
+    }
+
 }

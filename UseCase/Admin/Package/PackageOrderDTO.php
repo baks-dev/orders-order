@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -56,9 +56,9 @@ final class PackageOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    /** Профиль ответственного */
-    #[Assert\Uuid]
-    private ?UserProfileUid $profile = null;
+    //    /** Профиль ответственного */
+    //    #[Assert\Uuid]
+    //    private ?UserProfileUid $profile = null;
 
 
     public function __construct()
@@ -110,16 +110,16 @@ final class PackageOrderDTO implements OrderEventInterface
         return $this->usr;
     }
 
-    public function getProfile(): ?UserProfileUid
-    {
-        return $this->profile;
-    }
-
-    public function setProfile(?UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
+    //    public function getProfile(): ?UserProfileUid
+    //    {
+    //        return $this->profile;
+    //    }
+    //
+    //    public function setProfile(?UserProfileUid $profile): self
+    //    {
+    //        $this->profile = $profile;
+    //        return $this;
+    //    }
 
     /**
      * Status

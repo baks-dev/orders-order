@@ -103,7 +103,7 @@ final class PackageController extends AbstractController
         }
 
         $PackageOrderDTO = new PackageOrderDTO($this->getUsr(), $this->getProfileUid());
-        $PackageOrderDTO->setProfile($this->getProfileUid());
+        //$PackageOrderDTO->setProfile($this->getProfileUid());
         $OrderEvent->getDto($PackageOrderDTO);
 
 
@@ -149,13 +149,13 @@ final class PackageController extends AbstractController
          * Создаем складскую заявку на упаковку заказа
          */
 
-
-        $form = $this->createForm(PackageOrderForm::class, $PackageOrderDTO, [
-            'action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()]),
-        ]);
-
-
-        $form->handleRequest($request);
+        $form = $this
+            ->createForm(
+                type: PackageOrderForm::class,
+                data: $PackageOrderDTO,
+                options: ['action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()])]
+            )
+            ->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {

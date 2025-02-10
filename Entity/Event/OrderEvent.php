@@ -158,6 +158,11 @@ class OrderEvent extends EntityEvent
         return $this->status->equals($status);
     }
 
+    public function isDeliveryTypeEquals(mixed $delivery): bool
+    {
+        return $this->usr->getDelivery()->getDeliveryType()->equals($delivery);
+    }
+
     public function getOrderNumber(): ?string
     {
         return $this->invariable?->getNumber();

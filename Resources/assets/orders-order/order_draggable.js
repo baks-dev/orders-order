@@ -167,12 +167,21 @@ executeFunc(function P8X1I2diQ4()
                         return response.text();
                     }
 
-
                     let $dangerOrderToast = '{ "type":"danger" , ' +
                         '"header":"Ошибка при изменении"  , ' +
                         '"message" : "Ошибка при изменении статуса заказа!" }';
 
                     createToast(JSON.parse($dangerOrderToast));
+
+                    let json = response.json();
+
+                    json.then(result =>
+                    {
+                        if(result.type && result.header && result.message)
+                        {
+                            createToast(result);
+                        }
+                    });
 
                     modal_bootstrap.hide();
 

@@ -1,5 +1,7 @@
 {% trans_default_domain 'orders-order.admin' %}
 
+{% set disabled = {} %}
+
 
 <div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
     {{ form_start(form) }}
@@ -59,7 +61,7 @@
             {% endif %} #}
 
 
-            {{ form_row(form.profile, {
+            {{ form_row(form.invariable.profile, {
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}
 
@@ -78,20 +80,10 @@
 
 
                     {# Обложка  #}
-                    {% set image_path = '/assets/img/blank.svg' %}
 
-                    {% if card.product_image_ext is defined and card.product_image_ext is not null %}
-                        {% set img_host =  card.product_image_cdn == true  ? CDN_HOST : '' %}
-                        {% set img_dir = card.product_image %}
-                        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.product_image_ext %}
-                        {% set image_path = img_host ~ img_dir ~ img_file %}
-                    {% endif %}
-
-
-                    {# ФОТО ПРОДУКТА  #}
                     <div>
                         <div class="icon rounded-4 mb-2 bg-contain p-1"
-                             style="width: 75px; height: 75px; background-image: url('{{ image_path }}');"
+                             style="width: 75px; height: 75px; background-image: url('{{ cdn_image_path(card.product_image, card.product_image_ext, card.product_image_cdn, 'min') }}');"
                         ></div>
                     </div>
 
@@ -122,15 +114,15 @@
 
                         &nbsp;
 
+
                         {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.price.total > card_stock %}
 
 
                             {% if card_stock > 0 %}
                                 <span class="text-danger"> В наличии на складе <strong>{{ card_stock }}</strong> шт. </span>
                             {% else %}
-                                {% if form.vars.data.profile %}
-                                    <span class="badge rounded-pill text-bg-danger">Нет в наличии на складе упаковки заказа</span>
-                                {% endif %}
+                                <span class="badge rounded-pill text-bg-danger">Нет в наличии на складе упаковки заказа</span>
+                                {% set disabled = { disabled : true } %}
                             {% endif %}
 
 
@@ -191,6 +183,7 @@
                                     class="text-success">В наличии  <strong>{{ card_stock }}</strong> шт. </span>
                             {% else %}
                                 <span class="badge rounded-pill text-bg-danger">Нет в наличии</span>
+                                {% set disabled = { disabled : true } %}
                             {% endif %}
 
                         {% endif %}
@@ -225,6 +218,8 @@
             {% endif %}
         </div>
 
+        {{ dump(disabled) }}  {# TODO: удалить !!! #}
+
 
         <div class="modal-footer">
 
@@ -239,12 +234,11 @@
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
 
-
                 {# Удалить #}
                 {{ form_widget(form.package, { label: '
-				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
-				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-			'}) }}
+                    <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+			    ', attr:  disabled }) }}
             </div>
         </div>
     </div>

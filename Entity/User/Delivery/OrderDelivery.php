@@ -132,4 +132,12 @@ class OrderDelivery extends EntityEvent
         $this->price = null;
         return $this;
     }
+
+    /**
+     * Delivery
+     */
+    public function getDeliveryType(): DeliveryUid
+    {
+        return $this->delivery;
+    }
 }

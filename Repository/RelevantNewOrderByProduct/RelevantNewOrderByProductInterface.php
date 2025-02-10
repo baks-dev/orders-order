@@ -51,6 +51,14 @@ interface RelevantNewOrderByProductInterface
 
     public function onlyPackageStatus(): self;
 
+
+    /** Только заказы, требуемые производства */
+    public function filterProductAccess(): self;
+
+    /** Только заказы, которые произведены */
+    public function filterProductNotAccess(): self;
+
+
     /**
      * Метод возвращает событие самого старого заказа (более актуального для сборки)
      * на указанный способ доставки и в котором имеется указанная продукция

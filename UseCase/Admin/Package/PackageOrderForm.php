@@ -134,8 +134,6 @@ final class PackageOrderForm extends AbstractType
 
     public function productModifier(FormInterface $form, ?UserProfileUid $profile): void
     {
-        dump($profile);  /* TODO: удалить !!! */
-
         if(is_null($profile))
         {
             return;

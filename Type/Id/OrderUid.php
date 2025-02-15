@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -34,21 +34,50 @@ final class OrderUid extends Uid
 
     private mixed $attr;
 
+    private mixed $option;
+
+    private mixed $property;
+
+    private mixed $characteristic;
+
+
     public function __construct(
-        AbstractUid|self|string|null $value = null,
+        AbstractUid|string|null $value = null,
         mixed $attr = null,
+        mixed $option = null,
+        mixed $property = null,
+        mixed $characteristic = null,
     )
     {
         parent::__construct($value);
+
         $this->attr = $attr;
+        $this->option = $option;
+        $this->property = $property;
+        $this->characteristic = $characteristic;
     }
 
-    /**
-     * Attr
-     */
+
     public function getAttr(): mixed
     {
         return $this->attr;
+    }
+
+
+    public function getOption(): mixed
+    {
+        return $this->option;
+    }
+
+
+    public function getProperty(): mixed
+    {
+        return $this->property;
+    }
+
+    public function getCharacteristic(): mixed
+    {
+        return $this->characteristic;
     }
 
 }

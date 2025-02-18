@@ -184,7 +184,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
-    /** Только заказы, требуемые производства */
+    /** Только заказы, которые требуют производства */
     public function filterProductAccess(): self
     {
         $this->access = true;
@@ -192,7 +192,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
-    /** Только заказы, которые произведены */
+    /** Только заказы, которые произведены и готовы к упаковке */
     public function filterProductNotAccess(): self
     {
         $this->access = false;
@@ -223,7 +223,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
 
         $orm
             ->select('event')
-            ->leftJoin(
+            ->join(
                 OrderEvent::class,
                 'event',
                 'WITH',
@@ -314,7 +314,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
     }
 
     /**
-     * Метод возвращает се заказы самого старого (более актуального) нового заказа
+     * Метод возвращает все заказы самого старого (более актуального) нового заказа
      * на указанный способ доставки и в котором имеется указанная продукция
      */
     public function findAll(): array|false

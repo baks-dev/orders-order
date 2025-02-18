@@ -44,6 +44,7 @@ final readonly class UpdateAccessOrderProductRepository implements UpdateAccessO
         $dbal
             ->update(OrderPrice::class)
             ->where('product = :product')
+            ->andWhere('total > access')
             ->setParameter(
                 'product',
                 $product,

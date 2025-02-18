@@ -52,10 +52,10 @@ interface RelevantNewOrderByProductInterface
     public function onlyPackageStatus(): self;
 
 
-    /** Только заказы, требуемые производства */
+    /** Только заказы, которые требуют производства */
     public function filterProductAccess(): self;
 
-    /** Только заказы, которые произведены */
+    /** Только заказы, которые произведены и готовы к упаковке */
     public function filterProductNotAccess(): self;
 
 
@@ -64,5 +64,11 @@ interface RelevantNewOrderByProductInterface
      * на указанный способ доставки и в котором имеется указанная продукция
      */
     public function find(): OrderEvent|false;
+
+    /**
+     * Метод возвращает все заказы самого старого (более актуального) нового заказа
+     * на указанный способ доставки и в котором имеется указанная продукция
+     */
+    public function findAll(): array|false;
 
 }

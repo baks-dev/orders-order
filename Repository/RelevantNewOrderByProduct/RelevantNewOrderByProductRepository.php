@@ -277,6 +277,10 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
             );
 
 
+        /**
+         * true - заказы, которым еще требуется производство, т.е. у которых total НЕ РАВЕН access
+         * false - на заказы уже полностью имеется произведенная продукция, total РАВЕН access
+         */
         if(is_bool($this->access))
         {
             $orm
@@ -286,7 +290,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                     'WITH',
                     '
                     price.product = product.id AND 
-                    price.total '.($this->access ? '!=' : '=').' price.access
+                    price.total '.($this->access === true ? '!=' : '=').' price.access
                 ');
         }
 

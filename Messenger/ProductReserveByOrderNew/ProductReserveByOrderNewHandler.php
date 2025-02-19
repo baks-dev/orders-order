@@ -30,7 +30,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Работа с резервами в карточке - самый высокий приоритет */
+/**
+ * Добавить резерв на новый заказ
+ * @note Работа с резервами в карточке - самый высокий приоритет
+ */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductReserveByOrderNewHandler
 {
@@ -41,13 +44,6 @@ final readonly class ProductReserveByOrderNewHandler
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void
     {
-        /** Log Data */
-        $dataLogs['total'] = (string) $message->getTotal();
-        $dataLogs['ProductEventUid'] = (string) $message->getEvent();
-        $dataLogs['ProductOfferUid'] = (string) $message->getOffer();
-        $dataLogs['ProductVariationUid'] = (string) $message->getVariation();
-        $dataLogs['ProductModificationUid'] = (string) $message->getModification();
-
         $result = $this
             ->addProductQuantity
             ->forEvent($message->getEvent())
@@ -61,22 +57,27 @@ final readonly class ProductReserveByOrderNewHandler
 
         if($result === false)
         {
-            $dataLogs[0] = self::class.':'.__LINE__;
-            $this->logger->critical('orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена', $dataLogs);
+            $this->logger->critical(
+                'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
+                [$message, self::class.':'.__LINE__]
+            );
+
             return;
         }
 
         if($result === 0)
         {
-            $dataLogs[0] = self::class.':'.__LINE__;
-            $this->logger->critical('orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва', $dataLogs);
+            $this->logger->critical(
+                'orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва',
+                [$message, self::class.':'.__LINE__]
+            );
+
             return;
         }
 
-        $dataLogs[0] = self::class.':'.__LINE__;
         $this->logger->info(
             sprintf('orders-order: Добавили %s резерва продукции в карточке', $message->getTotal()),
-            $dataLogs
+            [$message, self::class.':'.__LINE__]
         );
     }
 }

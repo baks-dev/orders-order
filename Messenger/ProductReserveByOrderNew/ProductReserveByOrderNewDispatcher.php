@@ -36,9 +36,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Работа с резервами в карточке - самый высокий приоритет */
+/**
+ * Создаем резерв продукции при поступлении нового заказа
+ * @note Работа с резервами в карточке - самый высокий приоритет
+ */
 #[AsMessageHandler(priority: 999)]
-final readonly class ProductReserveByOrderNew
+final readonly class ProductReserveByOrderNewDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
@@ -48,9 +51,6 @@ final readonly class ProductReserveByOrderNew
     ) {}
 
 
-    /**
-     * Сообщение ставит продукцию в резерв в карточке товара
-     */
     public function __invoke(OrderMessage $message): void
     {
 

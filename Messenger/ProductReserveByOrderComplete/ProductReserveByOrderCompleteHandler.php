@@ -30,7 +30,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Работа с резервами в карточке - самый высокий приоритет */
+/**
+ * Снимает резерв и наличие с карточки товара выполненного заказа
+ * @note работа с резервами в карточке - самый высокий приоритет
+ */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductReserveByOrderCompleteHandler
 {
@@ -41,14 +44,6 @@ final readonly class ProductReserveByOrderCompleteHandler
 
     public function __invoke(ProductReserveByOrderCompleteMessage $message): void
     {
-
-        /** Log Data */
-        $dataLogs['total'] = (string) $message->getTotal();
-        $dataLogs['ProductEventUid'] = (string) $message->getEvent();
-        $dataLogs['ProductOfferUid'] = (string) $message->getOffer();
-        $dataLogs['ProductVariationUid'] = (string) $message->getVariation();
-        $dataLogs['ProductModificationUid'] = (string) $message->getModification();
-
         $result = $this
             ->subProductQuantity
             ->forEvent($message->getEvent())
@@ -61,21 +56,20 @@ final readonly class ProductReserveByOrderCompleteHandler
 
         if($result === false)
         {
-            $dataLogs[0] = self::class.':'.__LINE__;
             $this->logger->critical(
                 'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена',
-                $dataLogs
+                [$message, self::class.':'.__LINE__]
             );
+
             return;
         }
 
 
         if($result === 0)
         {
-            $dataLogs[0] = self::class.':'.__LINE__;
             $this->logger->critical(
                 'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: недостаточное количество либо резерва',
-                $dataLogs
+                [$message, self::class.':'.__LINE__]
             );
 
             return;
@@ -83,7 +77,7 @@ final readonly class ProductReserveByOrderCompleteHandler
 
         $this->logger->info(
             sprintf('orders-order: Сняли %s резерва и наличия продукции в карточке при выполненном заказе', $message->getTotal()),
-            $dataLogs
+            [$message, self::class.':'.__LINE__]
         );
 
     }

@@ -30,7 +30,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Работа с резервами в карточке - самый высокий приоритет */
+/**
+ * Снимает резерв с карточки товара при отмене заказа
+ * @note Работа с резервами в карточке - самый высокий приоритет
+ */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductsReserveByOrderCancelHandler
 {
@@ -55,14 +58,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         {
             $this->logger->critical(
                 'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [
-                    self::class.':'.__LINE__,
-                    'total' => (string) $message->getTotal(),
-                    'ProductEventUid' => (string) $message->getEvent(),
-                    'ProductOfferUid' => (string) $message->getOffer(),
-                    'ProductVariationUid' => (string) $message->getVariation(),
-                    'ProductModificationUid' => (string) $message->getModification(),
-                ]
+                [$message, self::class.':'.__LINE__,]
             );
 
             return;
@@ -70,14 +66,7 @@ final readonly class ProductsReserveByOrderCancelHandler
 
         $this->logger->info(
             'Сняли общий резерв продукции в карточке при отмене заказа',
-            [
-                self::class.':'.__LINE__,
-                'total' => (string) $message->getTotal(),
-                'ProductEventUid' => (string) $message->getEvent(),
-                'ProductOfferUid' => (string) $message->getOffer(),
-                'ProductVariationUid' => (string) $message->getVariation(),
-                'ProductModificationUid' => (string) $message->getModification(),
-            ]
+            [$message, self::class.':'.__LINE__,]
         );
     }
 }

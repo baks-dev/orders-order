@@ -23,46 +23,41 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
+namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderComplete;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Работа с резервами в карточке - самый высокий приоритет */
-#[AsMessageHandler(priority: 999)]
-final readonly class ProductsReserveByOrderCancel
+/**
+ * Снимаем резерв и наличие с продукта если заказ выполнен
+ * @note Работа с резервами в карточке - самый высокий приоритет
+ */
+#[AsMessageHandler(priority: 900)]
+final readonly class ProductReserveByOrderCompletedDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private OrderEventInterface $orderEventRepository,
-        private CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
 
-    /**
-     * Снимаем резерв с продукции при отмене заказа
-     */
+
     public function __invoke(OrderMessage $message): void
     {
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                OrderStatusCanceled::STATUS,
+                OrderStatusCompleted::STATUS,
                 self::class
             ]);
 
@@ -73,22 +68,22 @@ final readonly class ProductsReserveByOrderCancel
 
         $OrderEvent = $this->orderEventRepository->find($message->getEvent());
 
-        if($OrderEvent === false)
+        if(!$OrderEvent)
         {
             return;
         }
 
-        /** Если статус не "ОТМЕНА" - завершаем обработчик */
-        if(false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
+        /** Если статус не Completed «Выполнен» - завершаем обработчик */
+        if(false === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
         {
             return;
         }
 
         $this->logger->info(
-            '#{number}: Снимаем общий резерв продукции в карточке при отмене заказа (см. products-product.log)',
+            '#{number}: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
             [
                 'number' => $OrderEvent->getOrderNumber(),
-                'status' => OrderStatusCanceled::STATUS,
+                'status' => OrderStatusCompleted::STATUS,
                 'deduplicator' => $Deduplicator->getKey()
             ]
         );
@@ -99,23 +94,13 @@ final readonly class ProductsReserveByOrderCancel
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
-            /** Получаем активные идентификаторы карточки на случай, если товар обновлялся */
-
-            $CurrentProductIdentifier = $this->CurrentProductIdentifierRepository
-                ->forEvent($product->getProduct())
-                ->forOffer($product->getOffer())
-                ->forVariation($product->getVariation())
-                ->forModification($product->getModification())
-                ->find();
-
-            /** Снимаем резерв отмененного заказа */
-
+            /** Снимаем резерв и наличие выполненного заказа */
             $this->messageDispatch->dispatch(
-                new ProductsReserveByOrderCancelMessage(
-                    $CurrentProductIdentifier->getEvent(),
-                    $CurrentProductIdentifier->getOffer(),
-                    $CurrentProductIdentifier->getVariation(),
-                    $CurrentProductIdentifier->getModification(),
+                new ProductReserveByOrderCompleteMessage(
+                    $product->getProduct(),
+                    $product->getOffer(),
+                    $product->getVariation(),
+                    $product->getModification(),
                     $product->getPrice()->getTotal()
                 ),
                 transport: 'products-product'

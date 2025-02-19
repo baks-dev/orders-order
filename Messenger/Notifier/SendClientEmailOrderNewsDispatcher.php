@@ -43,23 +43,23 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Mime\Address;
 
-#[AsMessageHandler(priority: 0)]
-final class SendClientEmailOrderNews
+/**
+ * Отправляем сообщение клиенту на указанный Email уведомление о новом заказе
+ */
+#[AsMessageHandler(priority: -100)]
+final readonly class SendClientEmailOrderNewsDispatcher
 {
     public function __construct(
-        #[Autowire(env: 'HOST')] private readonly string $HOST,
-        #[Target('ordersOrderLogger')] private readonly LoggerInterface $logger,
-        private readonly OrderDetailInterface $orderDetail,
-        private readonly UserProfileValuesInterface $userProfileValues,
-        private readonly MailerInterface $mailer,
-        private readonly ParameterBagInterface $parameters,
-        private readonly DeduplicatorInterface $deduplicator,
-        private readonly OrderEventInterface $orderEventRepository,
+        #[Autowire(env: 'HOST')] private string $HOST,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
+        private OrderDetailInterface $orderDetail,
+        private UserProfileValuesInterface $userProfileValues,
+        private MailerInterface $mailer,
+        private ParameterBagInterface $parameters,
+        private DeduplicatorInterface $deduplicator,
+        private OrderEventInterface $orderEventRepository,
     ) {}
 
-    /**
-     * Отправляем сообщение клиенту на указанный Email уведомление о новом заказе
-     */
     public function __invoke(OrderMessage $message): void
     {
         /** Не отправляем сообщение дважды */

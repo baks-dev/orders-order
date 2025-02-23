@@ -134,7 +134,7 @@ final class OrderProductsRepository implements OrderProductsInterface
 
         $result = $dbal
             ->enableCache('orders-order', 3600)
-            ->fetchAllHydrate(OrderProductRepositoryDTO::class);
+            ->fetchAllHydrate(OrderProductResultDTO::class);
 
         return $result->valid() ? $result : false;
     }

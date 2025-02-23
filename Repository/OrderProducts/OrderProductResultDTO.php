@@ -36,7 +36,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
-final readonly class OrderProductRepositoryDTO
+final readonly class OrderProductResultDTO
 {
     public function __construct(
         private string $order_id,

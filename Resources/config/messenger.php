@@ -31,20 +31,20 @@ return static function(FrameworkConfig $framework) {
 
     $messenger
         ->transport('orders-order')
-        ->dsn('redis://%env(REDIS_PASSWORD)%@%env(REDIS_HOST)%:%env(REDIS_PORT)%?dbindex=%env(REDIS_TABLE)%&auto_setup=true')
-        ->options(['stream' => 'orders-order'])
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%&table_name=messenger-orders-order')
+        ->options(['queue_name' => 'high'])
         ->failureTransport('failed-orders-order')
         ->retryStrategy()
         ->maxRetries(3)
         ->delay(1000)
-        ->maxDelay(0)
-        ->multiplier(3) // увеличиваем задержку перед каждой повторной попыткой
+        ->maxDelay(1)
+        ->multiplier(3)
         ->service(null);
 
     $messenger
         ->transport('orders-order-low')
-        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'orders-order'])
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%&table_name=messenger-orders-order')
+        ->options(['queue_name' => 'high'])
         ->failureTransport('failed-orders-order')
         ->retryStrategy()
         ->maxRetries(1)
@@ -53,10 +53,9 @@ return static function(FrameworkConfig $framework) {
         ->multiplier(2)
         ->service(null);
 
-    $failure = $framework->messenger();
-
-    $failure->transport('failed-orders-order')
-        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
-        ->options(['queue_name' => 'failed-orders-order']);
+    $messenger
+        ->transport('failed-orders-order')
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%&table_name=messenger-orders-order')
+        ->options(['queue_name' => 'failed']);
 
 };

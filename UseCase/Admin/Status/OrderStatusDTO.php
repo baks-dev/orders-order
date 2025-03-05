@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see OrderEvent */
 final class OrderStatusDTO implements OrderEventInterface
 {
     /**
@@ -39,12 +40,12 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\Uuid]
     private OrderEventUid $id;
 
-    /**
-     * Ответственный
-     */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    private UserProfileUid $profile;
+    //    /**
+    //     * Ответственный
+    //     */
+    //    #[Assert\NotBlank]
+    //    #[Assert\Uuid]
+    //    private UserProfileUid $profile;
 
     /**
      * Статус заказа
@@ -60,17 +61,19 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\Valid]
     private Modify\ModifyDTO $modify;
 
+    private Invariable\StatusOrderInvariableDTO $invariable;
+
 
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
-        OrderEventUid $id,
-        UserProfileUid $profile
+        OrderEventUid $id
     )
     {
         $this->id = $id;
         $this->status = new OrderStatus($status);
-        $this->profile = $profile;
         $this->modify = new Modify\ModifyDTO();
+
+        $this->invariable = new Invariable\StatusOrderInvariableDTO();
     }
 
     /** Идентификатор события */
@@ -85,14 +88,14 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->status;
     }
 
-    public function getProfile(): UserProfileUid
-    {
-        return $this->profile;
-    }
-
+    //    public function getProfile(): UserProfileUid
+    //    {
+    //        return $this->profile;
+    //    }
+    //
     public function setProfile(UserProfileUid $profile): self
     {
-        $this->profile = $profile;
+        $this->invariable->setProfile($profile);
         return $this;
     }
 
@@ -103,5 +106,15 @@ final class OrderStatusDTO implements OrderEventInterface
     {
         return $this->modify;
     }
+
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\StatusOrderInvariableDTO
+    {
+        return $this->invariable;
+    }
+
+
 
 }

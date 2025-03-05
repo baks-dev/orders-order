@@ -88,9 +88,9 @@ final class StatusController extends AbstractController
 
         $OrderStatusDTO = new OrderStatusDTO(
             $OrderStatus,
-            $Order->getEvent(),
-            $this->getProfileUid()
-        );
+            $Order->getEvent()
+        )
+            ->setProfile($this->getProfileUid());
 
 
         $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');

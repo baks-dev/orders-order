@@ -356,8 +356,8 @@ final class PackageController extends AbstractController
             $OrderStatusDTO = new OrderStatusDTO(
                 OrderStatusPackage::class,
                 $Order->getEvent(),
-                $this->getProfileUid()
-            );
+            )
+                ->setProfile($this->getProfileUid());
 
             //$OrderStatusDTO->setProfile($PackageProductStockDTO->getProfile());
 

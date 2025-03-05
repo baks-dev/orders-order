@@ -30,7 +30,7 @@ use DateTimeImmutable;
 
 final class OrderDeliveryFilterDTO implements OrderFilterInterface
 {
-    public const delivery = '';
+    public const delivery = 'zFFtvNTQsC';
 
     private ?DeliveryUid $delivery = null;
 

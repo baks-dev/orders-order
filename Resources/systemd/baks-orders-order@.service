@@ -2,12 +2,12 @@
 
 # systemctl daemon-reload
 
-# systemctl enable baks-orders-order@1.service
-# systemctl disable baks-orders-order@1.service
+# systemctl enable baks-orders-order@{1..10}.service
+# systemctl disable baks-orders-order@{1..10}.service
 
-# systemctl start baks-orders-order@1.service
-# systemctl restart baks-orders-order@1.service
-# systemctl stop baks-orders-order@1.service
+# systemctl start baks-orders-order@{1..10}.service
+# systemctl restart baks-orders-order@{1..10}.service
+# systemctl stop baks-orders-order@{1..10}.service
 
 [Unit]
 Description=nginx-unit

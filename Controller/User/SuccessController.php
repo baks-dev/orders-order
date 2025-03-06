@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ namespace BaksDev\Orders\Order\Controller\User;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use DateTimeImmutable;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -44,6 +45,13 @@ class SuccessController extends AbstractController
 
         /** Информация о заказе */
         $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Order->getId());
+
+        $diff = new DateTimeImmutable($OrderInfo['order_data'])->diff(new DateTimeImmutable('now'));
+
+        if($diff->d > 1 || $diff->i > 1 || $diff->m > 1)
+        {
+            return $this->redirectToRoute('core:user.homepage');
+        }
 
         return $this->render([
             'number' => $Order->getNumber(),

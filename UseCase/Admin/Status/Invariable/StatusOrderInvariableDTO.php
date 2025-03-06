@@ -51,7 +51,7 @@ final class StatusOrderInvariableDTO implements OrderInvariableInterface
 
     public function setProfile(?UserProfileUid $profile): self
     {
-        if(false === (new ReflectionProperty(self::class, 'profile')->isInitialized($this)))
+        if($profile && false === (new ReflectionProperty(self::class, 'profile')->isInitialized($this)))
         {
             $this->profile = $profile;
         }

@@ -86,7 +86,7 @@ final class OrderStatusHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order'
+                transport: 'orders-order-low'
             );
 
         return $this->main;

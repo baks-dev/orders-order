@@ -109,10 +109,10 @@ final class DetailController extends AbstractController
             ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
         );
 
-        if($request->headers->get('X-Requested-With') === null)
+        /*if($request->headers->get('X-Requested-With') === null)
         {
             $form->handleRequest($request);
-        }
+        }*/
 
         if($form->isSubmitted() && false === $form->isValid())
         {

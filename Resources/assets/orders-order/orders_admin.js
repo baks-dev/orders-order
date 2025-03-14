@@ -452,8 +452,6 @@ document.querySelectorAll('select.change_region_field').forEach(function(userReg
 
 async function submitDeliveryForm(forms)
 {
-
-
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
@@ -463,7 +461,6 @@ async function submitDeliveryForm(forms)
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-            // 'X-Requested-With': 'XMLHttpChange'
             'X-Requested-With': 'XMLHttpRequest'
         },
         redirect: 'follow', // manual, *follow, error
@@ -485,10 +482,8 @@ async function submitDeliveryForm(forms)
 
         .then((data) =>
         {
-
             if(data)
             {
-
 
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(data, 'text/html');
@@ -589,9 +584,9 @@ async function submitRegionForm(forms, id)
         //mode: 'same-origin', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
-        // headers: {
-        //     'X-Requested-With': 'XMLHttpChange'
-        // },
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
 
 
         redirect: 'follow', // manual, *follow, error
@@ -680,7 +675,6 @@ async function submitPaymentForm(forms)
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-            // 'X-Requested-With': 'XMLHttpChange'
             'X-Requested-With': 'XMLHttpRequest'
         },
         redirect: 'follow', // manual, *follow, error
@@ -759,7 +753,6 @@ async function submitOrderForm(forms)
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
-            // 'X-Requested-With': 'XMLHttpChange'
             'X-Requested-With': 'XMLHttpRequest'
         },
         redirect: 'follow', // manual, *follow, error

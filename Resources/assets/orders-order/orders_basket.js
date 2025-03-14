@@ -451,7 +451,7 @@ async function submitDeliveryForm(forms)
                 var doc = parser.parseFromString(data, 'text/html');
 
                 let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
+                document.getElementById('user_delivery')?.replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
                 document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
@@ -582,7 +582,7 @@ async function submitRegionForm(forms, id)
                 let call = doc.getElementById(callId);
 
 
-                document.getElementById(callId).replaceWith(call);
+                document.getElementById(callId)?.replaceWith(call);
 
 
                 /** Сбрасываем значения геолокации */
@@ -668,7 +668,7 @@ async function submitPaymentForm(forms)
                 var doc = parser.parseFromString(data, 'text/html');
 
                 let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
+                document.getElementById('user_payment')?.replaceWith(user_payment);
 
 
                 document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(user_payment)
@@ -750,12 +750,12 @@ async function submitOrderForm(forms)
 
                 /** Блок профиля пользователя */
                 let user_profile = doc.getElementById('user_profile');
-                document.getElementById('user_profile').replaceWith(user_profile);
+                document.getElementById('user_profile')?.replaceWith(user_profile);
 
 
                 /** Блок способа оплаты */
                 let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
+                document.getElementById('user_payment')?.replaceWith(user_payment);
 
 
                 /** Пересобираем события способа оплаты */
@@ -772,7 +772,7 @@ async function submitOrderForm(forms)
 
                 /** Блок способа дотсавки */
                 let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
+                document.getElementById('user_delivery')?.replaceWith(user_delivery);
 
                 /** Пересобираем поля для способа дотсавки */
                 document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
@@ -821,49 +821,3 @@ async function submitOrderForm(forms)
     // }); // parses JSON response into native JavaScript objects
 }
 
-
-//
-// document.querySelectorAll('input[name="order_form[users][userProfile][type]"]').forEach(function (userProfileType) {
-//     userProfileType.addEventListener('change', function (event) {
-//
-//
-//             let replaceId = 'user_profile';
-//
-//
-//             /* Создаём объект класса XMLHttpRequest */
-//             const requestOrderName = new XMLHttpRequest();
-//         requestOrderName.responseType = "document";
-//
-//             /* Имя формы */
-//             let orderForm = document.forms.order_form;
-//             let formData = new FormData();
-//
-//
-//             //formData.append('type', userProfileType.value);
-//
-//         requestOrderName.open(orderForm.getAttribute('method'), orderForm.getAttribute('action'), true);
-//
-//             /* Получаем ответ от сервера на запрос*/
-//         requestOrderName.addEventListener("readystatechange", function () {
-//                 /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-//                 if (requestOrderName.readyState === 4 && requestOrderName.status === 200) {
-//
-//                     let result = requestOrderName.response.getElementById(replaceId);
-//
-//
-//                     document.getElementById(replaceId).replaceWith(result);
-//
-//                     //});
-//                 }
-//
-//                 return false;
-//             });
-//
-//         requestOrderName.send(formData);
-//
-//
-//
-//
-//
-//     });
-// });

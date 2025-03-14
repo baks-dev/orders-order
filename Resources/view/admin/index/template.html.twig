@@ -70,7 +70,7 @@
             if(ctx.data.profile !== '{{ current_profile }}')
             {
                 /* Удаляем у остальных менеджеров заказ */
-                document.getElementById(ctx.data.order).remove();
+                document.getElementById(ctx.data.order)?.remove();
             }
 
         }).subscribe();

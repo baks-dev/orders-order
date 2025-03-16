@@ -4,6 +4,7 @@ completed: 'Выполнен'
 canceled: 'Отменен'
 extradition: 'Собран'
 unpaid: 'Не оплачен'
+marketplace: 'Маркетплейс'
 
 public_new: 'Создан'
 public_package: 'В обработке'

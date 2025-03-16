@@ -59,3 +59,15 @@ ROLE_ORDERS_STATUS_PACKAGE:
 ROLE_ORDERS_STATUS_EXTRADITION:
   name: 'Extradition'
   desc: ''
+
+ROLE_ORDERS_STATUS_UNPAID:
+  name: 'Unpaid'
+  desc: ''
+
+ROLE_ORDERS_STATUS_MARKETPLACE:
+  name: 'Marketplace'
+  desc: ''
+
+ROLE_ORDERS_STATUS_DELIVERY:
+  name: 'Delivery'
+  desc: 'Front to the delivery service'

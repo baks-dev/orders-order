@@ -62,3 +62,16 @@ ROLE_ORDERS_STATUS_PACKAGE:
 ROLE_ORDERS_STATUS_EXTRADITION:
   name: 'Сборка'
   desc: ''
+
+
+ROLE_ORDERS_STATUS_UNPAID:
+  name: 'Неоплачен'
+  desc: ''
+
+ROLE_ORDERS_STATUS_MARKETPLACE:
+  name: 'Marketplace'
+  desc: 'Передн в службу доставки маркетплейса'
+
+ROLE_ORDERS_STATUS_DELIVERY:
+  name: 'Доставка'
+  desc: 'Передн в службу доставки'

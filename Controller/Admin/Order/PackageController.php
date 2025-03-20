@@ -88,7 +88,7 @@ final class PackageController extends AbstractController
 
         $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($Order->getEvent());
 
-        if(!$OrderEvent)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
             throw new InvalidArgumentException('Page not found');
         }
@@ -191,10 +191,10 @@ final class PackageController extends AbstractController
                 {
                     // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
                     $isAccess = $productStocksTotalAccess
-                        ->product($ProductStockDTO->getProduct())
-                        ->offer($ProductStockDTO->getOffer())
-                        ->variation($ProductStockDTO->getVariation())
-                        ->modification($ProductStockDTO->getModification())
+                        ->product($CurrentProduct->getProduct())
+                        ->offer($CurrentProduct->getOfferConst())
+                        ->variation($CurrentProduct->getVariationConst())
+                        ->modification($CurrentProduct->getModificationConst())
                         ->get();
 
                     if($isAccess <= 0)
@@ -209,12 +209,12 @@ final class PackageController extends AbstractController
                 if($packageOrderProducts && class_exists(BaksDevDeliveryTransportBundle::class))
                 {
                     /* Параметры упаковки товара */
-                    $parameter = $packageOrderProducts->fetchParameterProductAssociative(
-                        $ProductStockDTO->getProduct(),
-                        $ProductStockDTO->getOffer(),
-                        $ProductStockDTO->getVariation(),
-                        $ProductStockDTO->getModification()
-                    );
+                    $parameter = $packageOrderProducts
+                        ->product($CurrentProduct->getProduct())
+                        ->offerConst($CurrentProduct->getOfferConst())
+                        ->variationConst($CurrentProduct->getVariationConst())
+                        ->modificationConst($CurrentProduct->getModificationConst())
+                        ->find();
 
                     if(empty($parameter['size']) || empty($parameter['weight']))
                     {
@@ -302,10 +302,11 @@ final class PackageController extends AbstractController
             $PackageProductStockForm->submit($request->request->all($form->getName()));
 
             // Присваиваем заявке идентификатор заказа
+
             $ProductStockOrderDTO = new ProductStockOrderDTO();
             $ProductStockOrderDTO->setOrd($Order->getId());
 
-            $PackageProductStockDTO->setNumber($OrderEvent->getNumber());
+            $PackageProductStockDTO->setNumber($OrderEvent->getOrderNumber());
             $PackageProductStockDTO->setOrd($ProductStockOrderDTO);
 
             /** @var PackageProductStockHandler $packageHandler */

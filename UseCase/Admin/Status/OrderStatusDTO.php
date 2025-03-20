@@ -61,8 +61,7 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\Valid]
     private Modify\ModifyDTO $modify;
 
-    //private Invariable\StatusOrderInvariableDTO $invariable;
-
+    private Invariable\StatusOrderInvariableDTO $invariable;
 
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
@@ -73,7 +72,7 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->status = new OrderStatus($status);
         $this->modify = new Modify\ModifyDTO();
 
-        //$this->invariable = new Invariable\StatusOrderInvariableDTO();
+        $this->invariable = new Invariable\StatusOrderInvariableDTO();
     }
 
     /** Идентификатор события */
@@ -88,14 +87,9 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->status;
     }
 
-    //    public function getProfile(): UserProfileUid
-    //    {
-    //        return $this->profile;
-    //    }
-    //
     public function setProfile(UserProfileUid $profile): self
     {
-        //$this->invariable->setProfile($profile);
+        $this->invariable->setProfile($profile);
         return $this;
     }
 
@@ -106,15 +100,6 @@ final class OrderStatusDTO implements OrderEventInterface
     {
         return $this->modify;
     }
-
-    /**
-     * Invariable
-     */
-    //    public function getInvariable(): Invariable\StatusOrderInvariableDTO
-    //    {
-    //        return $this->invariable;
-    //    }
-
 
 
 }

@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusMarketplace;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderStatusHandler extends AbstractHandler
@@ -86,7 +87,7 @@ final class OrderStatusHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order-low'
+                transport: 'orders-order'.($this->event->isStatusEquals(OrderStatusMarketplace::class) ? '-low' : '')
             );
 
         return $this->main;

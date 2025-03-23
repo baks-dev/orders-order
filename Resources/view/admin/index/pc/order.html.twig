@@ -225,11 +225,12 @@
                 {% endif %}
 
 
-                {% if order.order_status != 'delivery' and  order.order_status != 'completed' %}
+                {% if order.order_status != 'delivery' and
+                    order.order_status != 'completed' and
+                    order.order_status != 'marketplace' %}
 
                     <div class="border-top mt-2">
                         <div>
-
 
                             <span class="text-muted small">{{ order.delivery_name }}</span>
 

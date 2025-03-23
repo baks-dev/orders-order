@@ -225,7 +225,8 @@
                 {% endif %}
 
 
-                {% if order.order_status != 'delivery' and
+                {% if
+                    order.order_status != 'delivery' and
                     order.order_status != 'completed' and
                     order.order_status != 'marketplace' %}
 

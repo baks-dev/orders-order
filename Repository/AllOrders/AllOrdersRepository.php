@@ -136,7 +136,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     order_invariable.usr = :user AND 
                     
                 '.
-                ($this->status->equals(OrderStatus\OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
+                ($this->status?->equals(OrderStatus\OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
             )
             ->setParameter(
                 'user',

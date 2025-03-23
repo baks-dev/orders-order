@@ -32,7 +32,6 @@ use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
-use DateInterval;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -65,32 +64,21 @@ final class AllController extends AbstractController
 
 
         // Фильтр
-        $filter = new OrderFilterDTO($request);
-        $filterForm = $this->createForm(OrderFilterForm::class, $filter);
-        $filterForm->handleRequest($request);
+        $filter = new OrderFilterDTO();
 
-
-        if($filterForm->isSubmitted())
-        {
-            if($filterForm->get('back')->isClicked())
-            {
-                $filter->setDate($filter->getDate()?->sub(new DateInterval('P1D')));
-                return $this->redirectToReferer();
-            }
-
-            if($filterForm->get('next')->isClicked())
-            {
-                $filter->setDate($filter->getDate()?->add(new DateInterval('P1D')));
-                return $this->redirectToReferer();
-            }
-        }
+        $filterForm = $this
+            ->createForm(
+                type: OrderFilterForm::class,
+                data: $filter,
+                options: ['action' => $this->generateUrl('orders-order:admin.order.all')]
+            )
+            ->handleRequest($request);
 
         // Получаем список
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
             ->findPaginator($this->getProfileUid());
-
 
         return $this->render(
             [

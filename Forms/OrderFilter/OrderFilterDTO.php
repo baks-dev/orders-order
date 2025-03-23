@@ -26,86 +26,31 @@ namespace BaksDev\Orders\Order\Forms\OrderFilter;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use DateTimeImmutable;
-use Symfony\Component\HttpFoundation\Request;
 
 final class OrderFilterDTO implements OrderFilterInterface
 {
-    public const date = 'KRNQMIHrZn';
-
-    public const status = 'wPusZvbJUN';
-
-    private Request $request;
-
     /**
-     * Дата
-     */
-    private ?DateTimeImmutable $date = null;
-
-
-    /**
-     * Статус производственной партии
+     * Статус заказа
      */
     private ?OrderStatus $status = null;
-
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
-
-    /**
-     * Date.
-     */
-    public function getDate(): ?DateTimeImmutable
-    {
-        $session = $this->request->getSession();
-
-        $sessionDate = $session->get(self::date) ?? new DateTimeImmutable();
-
-        if(time() - $session->getMetadataBag()->getLastUsed() > 300)
-        {
-            $session->remove(self::date);
-            $this->date = new DateTimeImmutable();
-        }
-
-        return $this->date ?: $sessionDate;
-    }
-
-    public function setDate(?DateTimeImmutable $date): void
-    {
-        if($date === null)
-        {
-            $this->request->getSession()->remove(self::date);
-        }
-        else
-        {
-            $this->request->getSession()->set(self::date, $date);
-        }
-
-        $this->date = $date;
-    }
 
     /**
      * Status
      */
     public function getStatus(): ?OrderStatus
     {
-        $sessionStatus = $this->request->getSession()->get(self::status) ?: null;
-
-        return $this->status ?: $sessionStatus;
-
+        return $this->status;
     }
 
-    public function setStatus(?OrderStatus $status): self
+    public function setStatus(OrderStatus|string|null $status): self
     {
-        if(empty($this->status))
+        if(is_string($status))
         {
-            $this->request->getSession()->remove(self::status);
+            $status = new OrderStatus($status);
         }
 
         $this->status = $status;
+
         return $this;
     }
 

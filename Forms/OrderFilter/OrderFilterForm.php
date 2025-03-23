@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Forms\OrderFilter;
 
+use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use Symfony\Component\Form\AbstractType;
@@ -33,29 +34,22 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderFilterForm extends AbstractType
 {
-    public function __construct(private readonly RequestStack $request) {}
+    private string $sessionKey;
+
+    private SessionInterface|false $session = false;
+
+    public function __construct(private readonly RequestStack $request)
+    {
+        $this->sessionKey = md5(self::class);
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
-        $builder->add('date', DateType::class, [
-            'widget' => 'single_text',
-            'html5' => false,
-            'attr' => ['class' => 'js-datepicker'],
-            'required' => false,
-            'format' => 'dd.MM.yyyy',
-            'input' => 'datetime_immutable',
-        ]);
-
-
-        /**
-         * Категория производства
-         */
-
         $builder
             ->add('status', ChoiceType::class, [
                 'choices' => OrderStatus::cases(),
@@ -76,28 +70,77 @@ final class OrderFilterForm extends AbstractType
 
 
         $builder->addEventListener(
-            FormEvents::POST_SUBMIT,
+            FormEvents::PRE_SET_DATA,
             function(FormEvent $event): void {
+
                 /** @var OrderFilterDTO $data */
                 $data = $event->getData();
 
-                $this->request->getSession()->set(OrderFilterDTO::date, $data->getDate());
-                $this->request->getSession()->set(OrderFilterDTO::status, $data->getStatus());
+                if($this->session === false)
+                {
+                    $this->session = $this->request->getSession();
+                }
+
+                if($this->session && $this->session->get('statusCode') === 307)
+                {
+                    $this->session->remove($this->sessionKey);
+                    $this->session = false;
+                }
+
+                if($this->session)
+                {
+                    if(time() - $this->session->getMetadataBag()->getLastUsed() > 300)
+                    {
+                        $this->session->remove($this->sessionKey);
+                        $data->setStatus(null);
+                        return;
+                    }
+
+                    $sessionData = $this->request->getSession()->get($this->sessionKey);
+                    $sessionJson = $sessionData ? base64_decode($sessionData) : false;
+                    $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true) : [];
+
+                    $data->setStatus($sessionArray['status'] ?? null);
+                }
             }
         );
 
 
-        $builder->add(
-            'back',
-            SubmitType::class,
-            ['label' => 'Back', 'label_html' => true, 'attr' => ['class' => 'btn-light']]
-        );
+
+        $builder->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function(FormEvent $event): void {
+
+                /** @var OrderFilterDTO $data */
+                $data = $event->getData();
+
+                if($this->session === false)
+                {
+                    $this->session = $this->request->getSession();
+                }
+
+                if($this->session)
+                {
+                    $sessionArray = [];
+
+                    !$data->getStatus() ?: $sessionArray['status'] = (string) $data->getStatus();
+
+                    if($sessionArray)
+                    {
+                        $sessionJson = json_encode($sessionArray);
+                        $sessionData = base64_encode($sessionJson);
+                        $this->request->getSession()->set($this->sessionKey, $sessionData);
+                        return;
+                    }
+
+                    $this->request->getSession()->remove($this->sessionKey);
+                }
 
 
-        $builder->add(
-            'next',
-            SubmitType::class,
-            ['label' => 'next', 'label_html' => true, 'attr' => ['class' => 'btn-light']]
+                /** @var OrderFilterDTO $data */
+                $data = $event->getData();
+                $this->request->getSession()->set('order_status', $data->getStatus());
+            }
         );
     }
 

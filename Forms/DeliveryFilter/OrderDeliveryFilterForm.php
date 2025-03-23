@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -38,14 +38,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderDeliveryFilterForm extends AbstractType
 {
-    // время актуальности сессии (300 = 5 мин)
     private const int LIFETIME = 300;
 
-    public function __construct(private readonly RequestStack $request) {}
+    private string $sessionKey;
+
+    public function __construct(private readonly RequestStack $request)
+    {
+        $this->sessionKey = md5(self::class);
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
         $builder->add('delivery', DeliveryForm::class, ['required' => false]);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
@@ -55,10 +58,9 @@ final class OrderDeliveryFilterForm extends AbstractType
 
             if($session = $this->clearSessionLifetime())
             {
-                $OrderDeliveryFilterDTO->setDelivery($session->get(OrderDeliveryFilterDTO::delivery));
+                $OrderDeliveryFilterDTO->setDelivery($session->get($this->sessionKey));
             }
         });
-
 
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
@@ -70,11 +72,11 @@ final class OrderDeliveryFilterForm extends AbstractType
 
                 if($OrderDeliveryFilterDTO->getDelivery() === null)
                 {
-                    $session->remove(OrderDeliveryFilterDTO::delivery);
+                    $session->remove($this->sessionKey);
                     return;
                 }
 
-                $this->request->getSession()->set(OrderDeliveryFilterDTO::delivery, $OrderDeliveryFilterDTO->getDelivery());
+                $this->request->getSession()->set($this->sessionKey, $OrderDeliveryFilterDTO->getDelivery());
 
             }
         );
@@ -87,7 +89,7 @@ final class OrderDeliveryFilterForm extends AbstractType
 
         if(time() - $session->getMetadataBag()->getLastUsed() > self::LIFETIME)
         {
-            $session->remove(OrderDeliveryFilterDTO::delivery);
+            $session->remove($this->sessionKey);
             return null;
         }
 

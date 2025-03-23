@@ -34,6 +34,7 @@ use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -44,7 +45,6 @@ use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
@@ -64,10 +64,9 @@ use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Personal\UserProfilePersonal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
-use DateTimeImmutable;
-use Doctrine\DBAL\Types\Types;
 
 final class AllOrdersRepository implements AllOrdersInterface
 {
@@ -82,6 +81,7 @@ final class AllOrdersRepository implements AllOrdersInterface
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
 
@@ -122,8 +122,32 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal
             ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
-            ->addSelect('orders.number AS order_number')
             ->from(Order::class, 'orders');
+
+
+        $dbal
+            ->addSelect('order_invariable.number AS order_number')
+            ->join(
+                'orders',
+                OrderInvariable::class,
+                'order_invariable',
+                '
+                    order_invariable.main = orders.id AND 
+                    order_invariable.usr = :user AND 
+                    
+                '.
+                ($this->status->equals(OrderStatus\OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
+            )
+            ->setParameter(
+                'user',
+                $this->UserProfileTokenStorage->getUser(),
+                UserUid::TYPE
+            )
+            ->setParameter(
+                'profile',
+                $this->UserProfileTokenStorage->getProfile(),
+                UserProfileUid::TYPE
+            );
 
 
         $dbal
@@ -145,31 +169,13 @@ final class AllOrdersRepository implements AllOrdersInterface
             $this->status = $this->filter->getStatus();
         }
 
-
         $condition = 'order_event.id = orders.event';
 
         if($this->status)
         {
             $condition .= ' AND order_event.status = :status';
             $dbal->setParameter('status', $this->status, OrderStatus::TYPE);
-
-            if($this->status->equals(OrderStatusNew::class))
-            {
-                $condition .= ' AND (order_event.profile = :profile OR order_event.profile IS NULL)';
-            }
-            else
-            {
-                $condition .= ' AND order_event.profile IS NOT NULL';
-
-                $dbal
-                    ->andWhereExists(
-                        OrderEvent::class,
-                        'profile_exists',
-                        'profile_exists.orders = order_event.orders AND profile_exists.profile = :profile'
-                    );
-            }
         }
-
 
         $dbal
             ->join(
@@ -178,9 +184,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_event',
                 $condition
             );
-
-        $dbal->setParameter('profile', $usr, UserProfileUid::TYPE);
-
 
         $dbal
             ->addSelect('orders_modify.mod_date AS modify')
@@ -191,25 +194,28 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders_modify.event = orders.event'
             );
 
+        /**
+         * Идентификатор ответственного склада
+         */
 
-        // Продукция
+        $dbal
+            ->leftJoin(
+                'order_invariable',
+                UserProfile::class,
+                'stock_profile',
+                'stock_profile.id = order_invariable.profile'
+            );
 
-        if($this->search?->getQuery() === null && $this->filter?->getDate())
-        {
-            $date = $this->filter->getDate() ?: new DateTimeImmutable();
+        $dbal
+            ->addSelect('stock_profile_personal.username AS stock_profile_username')
+            ->addSelect('stock_profile_personal.location AS stock_profile_location')
+            ->leftJoin(
+                'stock_profile',
+                UserProfilePersonal::class,
+                'stock_profile_personal',
+                'stock_profile_personal.event = stock_profile.event'
+            );
 
-            // Начало дня
-            $startOfDay = $date->setTime(0, 0, 0);
-
-            // Конец дня
-            $endOfDay = $date->setTime(23, 59, 59);
-
-            //($date ? ' AND part_modify.mod_date = :date' : '')
-            $dbal->andWhere('orders_modify.mod_date BETWEEN :start AND :end');
-
-            $dbal->setParameter('start', $startOfDay, Types::DATETIME_IMMUTABLE);
-            $dbal->setParameter('end', $endOfDay, Types::DATETIME_IMMUTABLE);
-        }
 
         $dbal
             ->leftJoin(
@@ -482,29 +488,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 );
 
 
-            $dbal
-                ->leftJoin(
-                    'stock_event',
-                    UserProfile::class,
-                    'stock_profile',
-                    'stock_profile.id = stock_event.profile'
-                );
-
-
-            //$dbal->addSelect('FALSE AS stock_profile_username')
-            //->addSelect('FALSE AS stock_profile_location');
-
-            $dbal
-                ->addSelect('stock_profile_personal.username AS stock_profile_username')
-                ->addSelect('stock_profile_personal.location AS stock_profile_location')
-                ->leftJoin(
-                    'stock_event',
-                    UserProfilePersonal::class,
-                    'stock_profile_personal',
-                    'stock_profile_personal.event = stock_event.profile'
-                );
-
-
             // Профиль ответственного (Клиент)
 
             //            $dbal->leftJoin(
@@ -648,7 +631,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 ->createSearchQueryBuilder($this->search)
                 ->addSearchEqualUid('orders.id')
                 ->addSearchEqualUid('orders.event')
-                ->addSearchLike('orders.number')
+                ->addSearchLike('order_invariable.number')
                 ->addSearchLike('user_profile_value.value')
                 ->addSearchLike('delivery_trans.name')
                 ->addSearchLike('product_info.article')
@@ -663,13 +646,16 @@ final class AllOrdersRepository implements AllOrdersInterface
         }
 
 
-        if(is_null($this->status) || (string) $this->status === 'completed')
+        /** По умолчанию сортировка по дате доставки */
+        $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+
+        if(
+            is_null($this->status) ||
+            $this->status->equals(OrderStatus\OrderStatusCompleted::class) ||
+            $this->status->equals(OrderStatus\OrderStatusMarketplace::class)
+        )
         {
-            $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
-        }
-        else
-        {
-            $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+            $dbal->orderBy('orders_modify.mod_date', 'DESC');
         }
 
         $dbal->allGroupByExclude();

@@ -67,14 +67,16 @@ final class IndexController extends AbstractController
             ->handleRequest($request);
 
 
+        /** Фильтр по способу доставки */
         $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO();
 
-        $OrderDeliveryFilterForm = $this->createForm(
-            OrderDeliveryFilterForm::class,
-            $OrderDeliveryFilterDTO,
-            ['action' => $this->generateUrl('orders-order:admin.index')]
-        );
-        $OrderDeliveryFilterForm->handleRequest($request);
+        $OrderDeliveryFilterForm = $this
+            ->createForm(
+                type: OrderDeliveryFilterForm::class,
+                data: $OrderDeliveryFilterDTO,
+                options: ['action' => $this->generateUrl('orders-order:admin.index')]
+            )
+            ->handleRequest($request);
 
         $orders = null;
 

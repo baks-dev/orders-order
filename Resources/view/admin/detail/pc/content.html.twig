@@ -109,16 +109,16 @@
                             </a>
                         </li>
 
-                        {% if constant('BaksDev\\Products\\Sign\\BaksDevProductsSignBundle::NAMESPACE') is defined %}
+                        {# {% if constant('BaksDev\\Products\\Sign\\BaksDevProductsSignBundle::NAMESPACE') is defined %} #}
 
 
-                            <li>
+                        {# <li>
                                 <hr class="dropdown-divider">
-                            </li>
+                            </li> #}
 
-                            <li><h6 class="dropdown-header">Честный знак</h6></li>
+                        {# <li><h6 class="dropdown-header">Честный знак</h6></li> #}
 
-                            <li>
+                        {# <li>
                                 <a href="{{ path('products-sign:admin.print.orders', {  order : order.order_id }) }}"
                                    class="dropdown-item prnt"
                                    data-bs-toggle="modal"
@@ -126,19 +126,19 @@
                                 >
                                     Печать честных знаков
                                 </a>
-                            </li>
+                            </li> #}
 
-                            <li>
+                        {# <li>
                                 <a href="{{ path('products-sign:admin.txt.orders', { article: order.order_number, order : order.order_id }) }}"
                                    class="dropdown-item"
                                    target="_sign"
                                 >
                                     Скачать список маркировок (.txt)
                                 </a>
-                            </li>
+                            </li> #}
 
 
-                        {% endif %}
+                        {# {% endif %} #}
 
 
                     </ul>

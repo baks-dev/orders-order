@@ -26,6 +26,7 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
@@ -62,19 +63,18 @@ final class DetailController extends AbstractController
         string $id,
     ): Response
     {
-
         /** Получаем активное событие заказа */
-        $Event = $currentOrderEvent
+        $OrderEvent = $currentOrderEvent
             ->forOrder($Order->getId())
             ->find();
 
-        if(!$Event)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
             throw new RouteNotFoundException('Page Not Found');
         }
 
         /** Информация о заказе */
-        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Event->getMain());
+        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($OrderEvent->getMain());
 
         if(!$OrderInfo)
         {
@@ -82,7 +82,7 @@ final class DetailController extends AbstractController
         }
 
         $OrderDTO = new EditOrderDTO($Order->getId());
-        $Event->getDto($OrderDTO);
+        $OrderEvent->getDto($OrderDTO);
 
         /** @var OrderProductDTO $product */
         foreach($OrderDTO->getProduct() as $product)
@@ -97,22 +97,14 @@ final class DetailController extends AbstractController
             $product->setCard($ProductDetail);
         }
 
-        // Динамическая форма корзины
-        $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
-        $handleForm->handleRequest($request);
-
-
         // форма заказа
-        $form = $this->createForm(
-            EditOrderForm::class,
-            $OrderDTO,
-            ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
-        );
-
-        /*if($request->headers->get('X-Requested-With') === null)
-        {
-            $form->handleRequest($request);
-        }*/
+        $form = $this
+            ->createForm(
+                type: EditOrderForm::class,
+                data: $OrderDTO,
+                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
+            )
+            ->handleRequest($request);
 
         if($form->isSubmitted() && false === $form->isValid())
         {
@@ -140,12 +132,12 @@ final class DetailController extends AbstractController
 
         /** История изменения статусов */
         $History = $orderHistory
-            ->order($Event->getMain())
+            ->order($OrderEvent->getMain())
             ->findAllHistory();
 
         // Отпарвляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
-            ->addData(['order' => (string) $Event->getMain()])
+            ->addData(['order' => (string) $OrderEvent->getMain()])
             ->addData(['profile' => (string) $this->getCurrentProfileUid()])
             ->send('orders');
 

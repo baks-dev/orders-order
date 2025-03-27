@@ -53,7 +53,6 @@ final readonly class ProductReserveByOrderNewDispatcher
 
     public function __invoke(OrderMessage $message): void
     {
-
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([

@@ -36,7 +36,7 @@
 
                     <div class="small">
 
-                        <span class="small text-muted ">от {{ order.order_created|format_datetime(pattern="d MMMM") }} | </span>
+                        <span class="small text-muted ">{{ order.order_created|format_datetime(pattern="d MMMM") }} | </span>
                         <strong
 
                                 role="tooltip"

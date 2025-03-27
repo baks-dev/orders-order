@@ -101,5 +101,12 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->modify;
     }
 
+    /**
+     * Invariable
+     */
+    public function getInvariable(): Invariable\StatusOrderInvariableDTO
+    {
+        return $this->invariable;
+    }
 
 }

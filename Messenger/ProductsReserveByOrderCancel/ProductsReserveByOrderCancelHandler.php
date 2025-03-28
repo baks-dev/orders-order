@@ -58,7 +58,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         {
             $this->logger->critical(
                 'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [$message, self::class.':'.__LINE__,]
+                [var_export($message, true), self::class.':'.__LINE__,]
             );
 
             return;
@@ -66,7 +66,7 @@ final readonly class ProductsReserveByOrderCancelHandler
 
         $this->logger->info(
             'Сняли общий резерв продукции в карточке при отмене заказа',
-            [$message, self::class.':'.__LINE__,]
+            [var_export($message, true), self::class.':'.__LINE__,]
         );
     }
 }

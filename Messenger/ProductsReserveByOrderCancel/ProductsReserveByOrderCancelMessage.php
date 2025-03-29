@@ -45,18 +45,19 @@ final class ProductsReserveByOrderCancelMessage
 
 
     public function __construct(
-        ProductEventUid|string $event,
-        ProductOfferUid|string|null|false $offer,
-        ProductVariationUid|string|null|false $variation,
-        ProductModificationUid|string|null|false $modification,
+        ProductEventUid $event,
+        ProductOfferUid|null|false $offer,
+        ProductVariationUid|null|false $variation,
+        ProductModificationUid|null|false $modification,
         int $total,
     )
     {
         $this->total = $total;
         $this->event = (string) $event;
-        $this->offer = $offer ? (string) $offer : false;
-        $this->variation = $variation ? (string) $variation : false;
-        $this->modification = $modification ? (string) $modification : false;
+
+        $this->offer = empty($offer) ? false : (string) $offer;
+        $this->variation = empty($variation) ? false : (string) $variation;
+        $this->modification = empty($modification) ? false : (string) $modification;
     }
 
     /**

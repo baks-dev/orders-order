@@ -109,21 +109,24 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
         /** @var OrderProductDTO $lastProduct */
         foreach($LastOrderDTO->getProduct() as $lastProduct)
         {
-
             // Найдем в второй коллекции DTO с совпадающими event, offer, variation, modification
-            $matching = $CurrentOrderDTO->getProduct()->filter(function(OrderProductDTO $currentProduct) use (
-                $lastProduct
-            ) {
-                return
-                    $currentProduct->getProduct()->equals($lastProduct->getProduct()) &&
-                    (is_null($currentProduct->getOffer()) === is_null($lastProduct->getOffer()) || $currentProduct->getOffer()->equals($lastProduct->getOffer())) &&
-                    (is_null($currentProduct->getVariation()) === is_null($lastProduct->getVariation()) || $currentProduct->getVariation()->equals($lastProduct->getVariation())) &&
-                    (is_null($currentProduct->getModification()) === is_null($lastProduct->getModification()) || $currentProduct->getModification()->equals($lastProduct->getModification())) &&
-                    $currentProduct->getPrice()->getTotal() !== $lastProduct->getPrice()->getTotal();
-            });
+            $matching = $CurrentOrderDTO->getProduct()->filter
+            (
+                function(OrderProductDTO $currentProduct) use ($lastProduct) {
+                    return
+                        $currentProduct->getProduct()->equals($lastProduct->getProduct())
+                        && ((is_null($currentProduct->getOffer()) === true && is_null($lastProduct->getOffer()) === true) || $currentProduct->getOffer()->equals($lastProduct->getOffer()))
+                        && ((is_null($currentProduct->getVariation()) === true && is_null($lastProduct->getVariation()) === true) || $currentProduct->getVariation()->equals($lastProduct->getVariation()))
+                        && ((is_null($currentProduct->getModification()) === true && is_null($lastProduct->getModification()) === true) || $currentProduct->getModification()->equals($lastProduct->getModification()))
+                        && $currentProduct->getPrice()->getTotal() !== $lastProduct->getPrice()->getTotal();
+                }
+            );
 
-            // Если нашли совпадения с разными total, добавляем в результат
-            if($matching->current() instanceof OrderProductDTO)
+            $currentProduct = $matching->current();
+
+            // Если нашли совпадения с разными total, добавляем в очередь на изменение остатков
+
+            if($currentProduct instanceof OrderProductDTO)
             {
                 $this->messageDispatch->dispatch(
                     new ProductsReserveByOrderCancelMessage(
@@ -134,8 +137,6 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $lastProduct->getPrice()->getTotal()
                     )
                 );
-
-                $currentProduct = $matching->current();
 
                 $this->messageDispatch->dispatch(
                     new ProductReserveByOrderNewMessage(

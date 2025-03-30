@@ -37,7 +37,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Снимаем резерв и наличие с продукта если заказ выполнен
+ * При изменении статуса заказа - снимаем резерв и наличие с продукта если заказ выполнен
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[AsMessageHandler(priority: 900)]

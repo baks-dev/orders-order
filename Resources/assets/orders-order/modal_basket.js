@@ -1,16 +1,16 @@
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,17 +22,24 @@
 
 const basket = document.querySelector('#modal');  //getElementById('modal');
 
+modal_form = null;
+
 basket.addEventListener('shown.bs.modal', function(event)
 {
 
-    setTimeout(function initModalBasket()
+    executeFunc(function initModalBasket()
     {
+        modal_form = basket.querySelector('form');
 
-        let input = basket.querySelector('#order_product_form_price_total'); //basket.getElementById('order_product_form_price_total');
+        if(!modal_form)
+        {
+            return false;
+        }
+
+        let input = basket.querySelector('#' + modal_form.name + '_price_total'); //basket.getElementById('order_product_form_price_total');
 
         if(input)
         {
-
             /** Событие на изменение количество в ручную */
             input.addEventListener('input', orderModalCounter.debounce(300));
 
@@ -40,14 +47,14 @@ basket.addEventListener('shown.bs.modal', function(event)
             basket.querySelector('#plus').addEventListener('click', () =>
             {
 
-                let price_total = basket.querySelector('#order_product_form_price_total');
+                let price_total = basket.querySelector('#' + modal_form.name + '_price_total');
                 let result = price_total.value * 1;
                 let max = price_total.dataset.max * 1;
 
                 if(result < max)
                 {
                     result = result + 1;
-                    basket.querySelector('#order_product_form_price_total').value = result;
+                    basket.querySelector('#' + modal_form.name + '_price_total').value = result;
                     orderModalSum(result);
                 }
 
@@ -56,36 +63,35 @@ basket.addEventListener('shown.bs.modal', function(event)
 
             basket.querySelector('#minus').addEventListener('click', () =>
             {
-                let price_total = basket.querySelector('#order_product_form_price_total');
+                let price_total = basket.querySelector('#' + modal_form.name + '_price_total');
                 let result = price_total.value * 1;
 
                 if(result > 1)
                 {
                     result = result - 1
-                    basket.querySelector('#order_product_form_price_total').value = result;
+                    basket.querySelector('#' + modal_form.name + '_price_total').value = result;
                     orderModalSum(result);
                 }
             });
 
-            return;
+            return true;
         }
 
         setTimeout(initModalBasket, 100);
 
-    }, 100);
+    })
 
 });
 
 function orderModalCounter()
 {
-
     let result = this.value * 1;
     let max = this.dataset.max * 1;
 
 
     if(result > max)
     {
-        basket.querySelector('#order_product_form_price_total').value = max;
+        basket.querySelector('#' + modal_form.name + '_price_total').value = max;
         result = max;
     }
 
@@ -95,8 +101,7 @@ function orderModalCounter()
 
 function orderModalSum(result)
 {
-
-    let product_summ = basket.querySelector('#summ_order_product_form_price_total');
+    let product_summ = basket.querySelector('#summ_' + modal_form.name + '_price_total');
 
     let result_product_sum = result * product_summ.dataset.price;
 

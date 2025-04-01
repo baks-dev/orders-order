@@ -57,8 +57,8 @@ final readonly class ProductReserveByOrderCompleteHandler
         if($result === false)
         {
             $this->logger->critical(
-                'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: карточка не найдена',
-                [$message, self::class.':'.__LINE__]
+                'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
+                [self::class.':'.__LINE__, var_export($message, true)]
             );
 
             return;
@@ -68,8 +68,8 @@ final readonly class ProductReserveByOrderCompleteHandler
         if($result === 0)
         {
             $this->logger->critical(
-                'orders-order: Невозможно снять резерв и наличие с карточки товара выпаленного заказа: недостаточное количество либо резерва',
-                [$message, self::class.':'.__LINE__]
+                'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: недостаточное количество либо резерва',
+                [self::class.':'.__LINE__, var_export($message, true)]
             );
 
             return;
@@ -77,7 +77,7 @@ final readonly class ProductReserveByOrderCompleteHandler
 
         $this->logger->info(
             sprintf('orders-order: Сняли %s резерва и наличия продукции в карточке при выполненном заказе', $message->getTotal()),
-            [$message, self::class.':'.__LINE__]
+            [self::class.':'.__LINE__, var_export($message, true)]
         );
 
     }

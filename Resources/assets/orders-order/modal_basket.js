@@ -116,4 +116,3 @@ function orderModalSum(result)
     product_summ.innerText = result_product_sum;
 
 }
-

@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderComplete;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
@@ -66,10 +67,16 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository
+            ->find($message->getEvent());
 
-        if(!$OrderEvent)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
+            $this->logger->critical(
+                'products-sign: Не найдено событие OrderEvent',
+                [self::class.':'.__LINE__, var_export($message, true)]
+            );
+
             return;
         }
 

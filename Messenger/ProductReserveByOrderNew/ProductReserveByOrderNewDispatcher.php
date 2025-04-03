@@ -27,8 +27,10 @@ namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
@@ -50,7 +52,6 @@ final readonly class ProductReserveByOrderNewDispatcher
         private MessageDispatchInterface $messageDispatch,
     ) {}
 
-
     public function __invoke(OrderMessage $message): void
     {
         $Deduplicator = $this->deduplicator
@@ -68,15 +69,21 @@ final readonly class ProductReserveByOrderNewDispatcher
 
 
         /** Новый заказ не имеет предыдущего события!!! */
-        if($message->getLast())
+        if(false === ($message->getLast() instanceof OrderEventUid))
         {
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository
+            ->find($message->getEvent());
 
-        if($OrderEvent === false)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
+            $this->logger->critical(
+                'products-sign: Не найдено событие OrderEvent',
+                [self::class.':'.__LINE__, var_export($message, true)]
+            );
+
             return;
         }
 

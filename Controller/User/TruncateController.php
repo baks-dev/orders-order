@@ -38,7 +38,7 @@ class TruncateController extends AbstractController
     public function index(Request $request, AppCacheInterface $cache): Response
     {
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
-        $AppCache = $cache->init('orders-basket');
+        $AppCache = $cache->init('orders-order-basket');
         $AppCache->delete($key);
 
         $this->addFlash('success', 'user.basket.success.truncate', 'user.order');

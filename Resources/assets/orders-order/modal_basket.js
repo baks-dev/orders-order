@@ -26,6 +26,7 @@ modal_form = null;
 
 basket.addEventListener('shown.bs.modal', function(event)
 {
+
     executeFunc(function initModalBasket()
     {
         modal_form = basket.querySelector('form');
@@ -45,7 +46,6 @@ basket.addEventListener('shown.bs.modal', function(event)
             /** Счетчик  */
             basket.querySelector('#plus').addEventListener('click', () =>
             {
-
                 let price_total = basket.querySelector('#' + modal_form.name + '_price_total');
                 let result = price_total.value * 1;
                 let max = price_total.dataset.max * 1;
@@ -56,6 +56,7 @@ basket.addEventListener('shown.bs.modal', function(event)
                     basket.querySelector('#' + modal_form.name + '_price_total').value = result;
                     orderModalSum(result);
                 }
+
             });
 
 
@@ -76,7 +77,9 @@ basket.addEventListener('shown.bs.modal', function(event)
         }
 
         return false;
+
     })
+
 });
 
 function orderModalCounter()
@@ -92,6 +95,7 @@ function orderModalCounter()
     }
 
     orderModalSum(result);
+
 }
 
 function orderModalSum(result)
@@ -106,13 +110,12 @@ function orderModalSum(result)
     }
 
     result_product_sum = result_product_sum / 100;
-
     result_product_sum = new Intl.NumberFormat($locale, {
         style: 'currency',
         currency: product_summ.dataset.currency,
         maximumFractionDigits: 0
     }).format(result_product_sum);
-
     product_summ.innerText = result_product_sum;
 
 }
+

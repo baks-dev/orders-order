@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Entity\Stock\ProductStock;
@@ -173,7 +174,7 @@ final class PackageController extends AbstractController
                 $ProductStockDTO->setTotal($const->getPrice()->getTotal());
 
                 /** Получаем идентификаторы констант продукции  */
-                $CurrentProduct = $CurrentProductIdentifier
+                $CurrentProductIdentifierResult = $CurrentProductIdentifier
                     ->forEvent($const->getProduct())
                     ->forOffer($const->getOffer())
                     ->forVariation($const->getVariation())
@@ -181,20 +182,20 @@ final class PackageController extends AbstractController
                     ->find();
 
                 $ProductStockDTO
-                    ->setProduct($CurrentProduct->getProduct())
-                    ->setOffer($CurrentProduct->getOfferConst())
-                    ->setVariation($CurrentProduct->getVariationConst())
-                    ->setModification($CurrentProduct->getModificationConst());
+                    ->setProduct($CurrentProductIdentifierResult->getProduct())
+                    ->setOffer($CurrentProductIdentifierResult->getOfferConst())
+                    ->setVariation($CurrentProductIdentifierResult->getVariationConst())
+                    ->setModification($CurrentProductIdentifierResult->getModificationConst());
 
                 /** Проверяем наличие продукции с учетом резерва на любом складе */
                 if($productStocksTotalAccess && class_exists(BaksDevProductsStocksBundle::class))
                 {
                     // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
                     $isAccess = $productStocksTotalAccess
-                        ->product($CurrentProduct->getProduct())
-                        ->offer($CurrentProduct->getOfferConst())
-                        ->variation($CurrentProduct->getVariationConst())
-                        ->modification($CurrentProduct->getModificationConst())
+                        ->product($CurrentProductIdentifierResult->getProduct())
+                        ->offer($CurrentProductIdentifierResult->getOfferConst())
+                        ->variation($CurrentProductIdentifierResult->getVariationConst())
+                        ->modification($CurrentProductIdentifierResult->getModificationConst())
                         ->get();
 
                     if($isAccess <= 0)
@@ -210,10 +211,10 @@ final class PackageController extends AbstractController
                 {
                     /* Параметры упаковки товара */
                     $parameter = $packageOrderProducts
-                        ->product($CurrentProduct->getProduct())
-                        ->offerConst($CurrentProduct->getOfferConst())
-                        ->variationConst($CurrentProduct->getVariationConst())
-                        ->modificationConst($CurrentProduct->getModificationConst())
+                        ->product($CurrentProductIdentifierResult->getProduct())
+                        ->offerConst($CurrentProductIdentifierResult->getOfferConst())
+                        ->variationConst($CurrentProductIdentifierResult->getVariationConst())
+                        ->modificationConst($CurrentProductIdentifierResult->getModificationConst())
                         ->find();
 
                     if(empty($parameter['size']) || empty($parameter['weight']))

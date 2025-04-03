@@ -109,6 +109,7 @@ class AddController extends AbstractController
                             'offer' => $AddProductBasketDTO->getOffer(),
                             'variation' => $AddProductBasketDTO->getVariation(),
                             'modification' => $AddProductBasketDTO->getModification(),
+
                         ]
                     ),
                 ]

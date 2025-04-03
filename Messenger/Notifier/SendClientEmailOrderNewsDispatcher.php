@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Messenger\Notifier;
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Type\Field\InputField;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
@@ -76,9 +77,10 @@ final readonly class SendClientEmailOrderNewsDispatcher
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository
+            ->find($message->getEvent());
 
-        if($OrderEvent === false)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
             return;
         }

@@ -77,7 +77,7 @@ class DeleteController extends AbstractController
             return $this->ErrorResponse($translator);
         }
 
-        $AppCache = $cache->init('orders-basket');
+        $AppCache = $cache->init('orders-order-basket');
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 

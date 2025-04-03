@@ -27,12 +27,14 @@ namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -71,10 +73,16 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository->find($message->getEvent());
+        $OrderEvent = $this->orderEventRepository
+            ->find($message->getEvent());
 
-        if($OrderEvent === false)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
+            $this->logger->critical(
+                'products-sign: Не найдено событие OrderEvent',
+                [self::class.':'.__LINE__, var_export($message, true)]
+            );
+
             return;
         }
 
@@ -107,6 +115,22 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 ->forVariation($product->getVariation())
                 ->forModification($product->getModification())
                 ->find();
+
+            if(false === ($CurrentProductIdentifier instanceof CurrentProductIdentifierResult))
+            {
+                $this->logger->critical(
+                    'products-sign: Продукт не найден',
+                    [
+                        'product' => (string) $product->getProduct(),
+                        'offer' => (string) $product->getOffer(),
+                        'variation' => (string) $product->getVariation(),
+                        'modification' => (string) $product->getModification(),
+                        self::class.':'.__LINE__
+                    ]
+                );
+
+                continue;
+            }
 
             /** Снимаем резерв отмененного заказа */
 

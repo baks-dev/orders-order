@@ -23,30 +23,27 @@
 document.querySelectorAll('.img-product').forEach((el) => el.addEventListener('click', () => document.getElementById('img-product').style.backgroundImage = el.style.backgroundImage));
 
 /* Счетчик  */
-document.getElementById('plus').addEventListener('click', (event) =>
+document.getElementById("plus").addEventListener("click", () =>
 {
 
-    let form = event.target.closest('form');
-
-    let price_total = document.getElementById(form.name + '_price_total');
+    let price_total = document.getElementById("order_product_form_price_total");
     let result = price_total.value * 1;
     let max = price_total.dataset.max * 1;
 
     if(result < max)
     {
-        document.getElementById(form.name + '_price_total').value = result + 1;
+        document.getElementById("order_product_form_price_total").value = result + 1;
     }
 
 });
 
 document.getElementById('minus').addEventListener('click', () =>
 {
-    let form = event.target.closest('form');
 
-    let price_total = document.getElementById(form.name + '_price_total');
+    let price_total = document.getElementById("order_product_form_price_total");
     let result = price_total.value * 1;
     if(result > 1)
     {
-        document.getElementById(form.name + '_price_total').value = result - 1;
+        document.getElementById("order_product_form_price_total").value = result - 1;
     }
 });

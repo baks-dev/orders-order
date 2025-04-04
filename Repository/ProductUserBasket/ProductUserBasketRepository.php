@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -63,29 +63,134 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use InvalidArgumentException;
 
 final class ProductUserBasketRepository implements ProductUserBasketInterface
 {
+    private ProductEventUid|false $event = false;
+
+    private ProductOfferUid|false $offer = false;
+
+    private ProductVariationUid|false $variation = false;
+
+    private ProductModificationUid|false $modification = false;
+
     public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
-    public function fetchProductBasketAssociative(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer = null,
-        ?ProductVariationUid $variation = null,
-        ?ProductModificationUid $modification = null,
-    ): bool|array
+    public function forEvent(ProductEvent|ProductEventUid|string $event): self
+    {
+        if(empty($event))
+        {
+            $this->event = false;
+            return $this;
+        }
+
+        if(is_string($event))
+        {
+            $event = new ProductEventUid($event);
+        }
+
+        if($event instanceof ProductEvent)
+        {
+            $event = $event->getId();
+        }
+
+        $this->event = $event;
+
+        return $this;
+    }
+
+    public function forOffer(ProductOffer|ProductOfferUid|string|null|false $offer): self
+    {
+        if(empty($offer))
+        {
+            $this->offer = false;
+            return $this;
+        }
+
+        if(is_string($offer))
+        {
+            $offer = new ProductOfferUid($offer);
+        }
+
+        if($offer instanceof ProductOffer)
+        {
+            $offer = $offer->getId();
+        }
+
+        $this->offer = $offer;
+
+        return $this;
+    }
+
+    public function forVariation(ProductVariation|ProductVariationUid|string|null|false $variation): self
+    {
+
+        if(empty($variation))
+        {
+            $this->variation = false;
+            return $this;
+        }
+
+        if(is_string($variation))
+        {
+            $variation = new ProductVariationUid($variation);
+        }
+
+        if($variation instanceof ProductVariation)
+        {
+            $variation = $variation->getId();
+        }
+
+        $this->variation = $variation;
+
+        return $this;
+    }
+
+    public function forModification(ProductModification|ProductModificationUid|string|null|false $modification): self
+    {
+        if(empty($modification))
+        {
+            $this->modification = false;
+            return $this;
+        }
+
+        if(is_string($modification))
+        {
+            $modification = new ProductModificationUid($modification);
+        }
+
+        if($modification instanceof ProductModification)
+        {
+            $modification = $modification->getId();
+        }
+
+        $this->modification = $modification;
+
+        return $this;
+    }
+
+    private function builder(): DBALQueryBuilder
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
+        if(false === ($this->event instanceof ProductEventUid))
+        {
+            throw new InvalidArgumentException('Invalid Argument Exception');
+        }
 
         $dbal
             ->addSelect('product_event.id AS event')
             ->addSelect('product_event.main AS id')
             ->from(ProductEvent::class, 'product_event')
             ->where('product_event.id = :event')
-            ->setParameter('event', $event, ProductEventUid::TYPE);
+            ->setParameter(
+                key: 'event',
+                value: $this->event,
+                type: ProductEventUid::TYPE
+            );
 
         $dbal
             ->addSelect('product_active.active_from AS product_active_from')
@@ -157,13 +262,17 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.event = product_event.id '.($offer ? ' AND product_offer.id = :product_offer' : '').' '
+                'product_offer.event = product_event.id '.($this->offer ? ' AND product_offer.id = :product_offer' : '').' '
             )
             ->addGroupBy('product_offer.article');
 
-        if($offer)
+        if($this->offer)
         {
-            $dbal->setParameter('product_offer', $offer, ProductOfferUid::TYPE);
+            $dbal->setParameter(
+                key: 'product_offer',
+                value: $this->offer,
+                type: ProductOfferUid::TYPE
+            );
         }
 
         /** Цена торгового предложения */
@@ -218,12 +327,16 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_offer',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.offer = product_offer.id'.($variation ? ' AND product_variation.id = :variation' : '').' '
+                'product_variation.offer = product_offer.id'.($this->variation ? ' AND product_variation.id = :variation' : '').' '
             );
 
-        if($variation)
+        if($this->variation)
         {
-            $dbal->setParameter('variation', $variation, ProductVariationUid::TYPE);
+            $dbal->setParameter(
+                key: 'variation',
+                value: $this->variation,
+                type: ProductVariationUid::TYPE
+            );
         }
 
         /** Цена множественного варианта */
@@ -274,12 +387,16 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.variation = product_variation.id'.($modification ? ' AND product_modification.id = :modification' : '').' '
+                'product_modification.variation = product_variation.id'.($this->modification ? ' AND product_modification.id = :modification' : '').' '
             );
 
-        if($modification)
+        if($this->modification)
         {
-            $dbal->setParameter('modification', $modification, ProductModificationUid::TYPE);
+            $dbal->setParameter(
+                key: 'modification',
+                value: $this->modification,
+                type: ProductModificationUid::TYPE
+            );
         }
 
         /** Цена модификации множественного варианта */
@@ -378,10 +495,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_offer',
             ProductPhoto::class,
             'product_photo',
-            '
-	
-			product_photo.event = product_event.id AND product_photo.root = true
-			'
+            'product_photo.event = product_event.id AND product_photo.root = true'
         );
 
 
@@ -572,7 +686,12 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'category_trans.event = category.event AND category_trans.local = :local'
         );
 
-        $dbal->addSelect('category_info.url AS category_url');
+        $dbal
+            ->addSelect('category_info.minimal AS category_minimal')
+            ->addSelect('category_info.input AS category_input')
+            ->addSelect('category_info.threshold AS category_threshold')
+            ->addSelect('category_info.url AS category_url');
+
         $dbal->leftJoin(
             'category',
             CategoryProductInfo::class,
@@ -640,6 +759,29 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 
         $dbal->allGroupByExclude();
+
+        return $dbal;
+    }
+
+    public function findAll(): ProductUserBasketResult|false
+    {
+        return $this->builder()->fetchHydrate(ProductUserBasketResult::class);
+    }
+
+    /** @depricete */
+    public function fetchProductBasketAssociative(
+        ProductEventUid $event,
+        ?ProductOfferUid $offer = null,
+        ?ProductVariationUid $variation = null,
+        ?ProductModificationUid $modification = null,
+    ): bool|array
+    {
+        $dbal = $this
+            ->forEvent($event)
+            ->forOffer($offer)
+            ->forVariation($variation)
+            ->forModification($modification)
+            ->builder();
 
         // Не кешируем результат для актуальной проверки наличия
         return $dbal->fetchAssociative();

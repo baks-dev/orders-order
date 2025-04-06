@@ -24,7 +24,7 @@
                 {{ order.payment_name }} | {{ order.delivery_name }}
             </span>
 
-                        {% if order.order_status == constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusCompleted::STATUS') %}
+                        {% if order.order_status == 'completed' %}
                             {{ include (_self|replace({ "products.html.twig" : "docs.html.twig" }), { 'order_id': order.order_id }, with_context = false) }}
                         {% endif %}
 

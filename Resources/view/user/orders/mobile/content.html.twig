@@ -7,13 +7,13 @@
         {# ССЫЛКЫ НА ЗАКАЗЫ #}
         <div class="d-flex align-items-center gap-2 mb-2">
 
-            <a href="{{ path('orders-order:user.orders', { status: constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusNew::STATUS') } ) }}"
+            <a href="{{ path('orders-order:user.orders', { status: 'new' } ) }}"
                class="btn border fw-bold text-secondary btn-alt rounded-5">
                 Активные заказы
             </a>
 
-            <a href="{{ path('orders-order:user.orders', { status: constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusCompleted::STATUS')} ) }}"
-               class="btn border fw-bold text-secondary btn-alt rounded-5 {{ status == constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusCompleted::STATUS') ? 'active' }}">
+            <a href="{{ path('orders-order:user.orders', { status: 'completed' } ) }}"
+               class="btn border fw-bold text-secondary btn-alt rounded-5 {{ status == 'completed' ? 'active' }}">
                 Завершенные заказы
             </a>
 
@@ -31,11 +31,11 @@
 
                 <h2 class="fs-18 mb-0 text-uppercase fw-bold mb-2">
 
-                    {% if status == constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusNew::STATUS') %}
+                    {% if status == 'new' %}
                         Активных заказов нет
                     {% endif %}
 
-                    {% if status == constant('BaksDev\\Orders\\Order\\Type\\Status\\OrderStatus\\OrderStatusCompleted::STATUS') %}
+                    {% if status == 'completed' %}
                         Завершенных заказов нет
                     {% endif %}
 

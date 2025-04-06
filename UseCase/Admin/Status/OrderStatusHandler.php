@@ -35,7 +35,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusMarketplace;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderStatusHandler extends AbstractHandler

@@ -30,8 +30,8 @@ use BaksDev\DeliveryTransport\BaksDevDeliveryTransportBundle;
 use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
@@ -57,6 +57,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+
+//use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -100,7 +102,7 @@ final class PackageController extends AbstractController
         /**
          * Делаем проверку, что заказ не отменен автоматически
          */
-        if($PackageOrderDTO->getStatus()->equals(OrderStatus\OrderStatusCanceled::class))
+        if($PackageOrderDTO->getStatus()->equals(OrderStatusCanceled::class))
         {
             return new JsonResponse(
                 [

@@ -32,7 +32,7 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;

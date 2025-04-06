@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 
 final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatusInterface
 {

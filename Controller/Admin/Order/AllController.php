@@ -31,7 +31,7 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;

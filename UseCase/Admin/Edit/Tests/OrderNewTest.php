@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,18 +33,16 @@ use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
-
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\Price\NewOrderPriceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field\OrderDeliveryFieldDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\OrderUserDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\Field\OrderPaymentFieldDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\OrderPaymentDTO;
-use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
-use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
-use BaksDev\Orders\Order\UseCase\Admin\New\Products\Price\NewOrderPriceDTO;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
@@ -57,7 +55,6 @@ use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -107,9 +104,7 @@ final class OrderNewTest extends KernelTestCase
         //$OrderDTO = new EditOrderDTO();
         $OrderDTO = new NewOrderDTO();
 
-        //$status = new OrderStatus(new OrderStatus\OrderStatusNew());
-        //$OrderDTO->setStatus($status);
-        self::assertTrue($OrderDTO->getStatus()->equals(OrderStatus\OrderStatusNew::class));
+        self::assertTrue($OrderDTO->getStatus()->equals(OrderStatusNew::class));
 
         $OrderDTO->setProfile($UserProfileUid = new  UserProfileUid());
         self::assertSame($UserProfileUid, $OrderDTO->getProfile());

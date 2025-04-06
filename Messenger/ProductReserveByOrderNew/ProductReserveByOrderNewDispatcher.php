@@ -29,11 +29,13 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -48,6 +50,7 @@ final readonly class ProductReserveByOrderNewDispatcher
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private OrderEventInterface $orderEventRepository,
+        private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -58,7 +61,6 @@ final readonly class ProductReserveByOrderNewDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                OrderStatusNew::STATUS,
                 self::class
             ]);
 
@@ -93,10 +95,28 @@ final readonly class ProductReserveByOrderNewDispatcher
             return;
         }
 
+
+        /** Получаем активное событие заказа в случае если статус заказа изменился */
+        if(empty($OrderEvent->getOrderNumber()))
+        {
+            $OrderEvent = $this->CurrentOrderEvent
+                ->forOrder($message->getId())
+                ->find();
+
+            if(false === ($OrderEvent instanceof OrderEvent))
+            {
+                $this->logger->critical(
+                    'orders-order: Не найдено событие OrderEvent',
+                    [self::class.':'.__LINE__, var_export($message, true)]
+                );
+
+                return;
+            }
+        }
+
         $this->logger->info(
-            '{number}: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
+            sprintf('%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)', $OrderEvent->getOrderNumber()),
             [
-                'number' => $OrderEvent->getOrderNumber(),
                 'status' => OrderStatusNew::STATUS,
                 'deduplicator' => $Deduplicator->getKey()
             ]

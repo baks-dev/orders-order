@@ -29,8 +29,9 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
@@ -52,7 +53,8 @@ final readonly class ProductsReserveByOrderCancelDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
-        private OrderEventInterface $orderEventRepository,
+        private OrderEventInterface $OrderEventRepository,
+        private CurrentOrderEventInterface $CurrentOrderEvent,
         private CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
@@ -64,7 +66,6 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                OrderStatusCanceled::STATUS,
                 self::class
             ]);
 
@@ -73,7 +74,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository
+        $OrderEvent = $this->OrderEventRepository
             ->find($message->getEvent());
 
         if(false === ($OrderEvent instanceof OrderEvent))
@@ -92,10 +93,30 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
+        /** Получаем активное событие заказа в случае если статус заказа изменился */
+        if(empty($OrderEvent->getOrderNumber()))
+        {
+            $OrderEvent = $this->CurrentOrderEvent
+                ->forOrder($message->getId())
+                ->find();
+
+            if(false === ($OrderEvent instanceof OrderEvent))
+            {
+                $this->logger->critical(
+                    'orders-order: Не найдено событие OrderEvent',
+                    [self::class.':'.__LINE__, var_export($message, true)]
+                );
+
+                return;
+            }
+        }
+
         $this->logger->info(
-            '#{number}: Снимаем общий резерв продукции в карточке при отмене заказа (см. products-product.log)',
+            sprintf(
+                '%s: Снимаем общий резерв продукции в карточке при отмене заказа (см. products-product.log)',
+                $OrderEvent->getOrderNumber()
+            ),
             [
-                'number' => $OrderEvent->getOrderNumber(),
                 'status' => OrderStatusCanceled::STATUS,
                 'deduplicator' => $Deduplicator->getKey()
             ]

@@ -32,7 +32,9 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
@@ -59,7 +61,7 @@ final class StatusController extends AbstractController
         //Request $request,
         #[MapEntity] Order $Order,
         CurrentOrderEventInterface $currentOrderEvent,
-        OrderStatus\Collection\OrderStatusCollection $orderStatusCollection,
+        OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish,
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
@@ -157,7 +159,7 @@ final class StatusController extends AbstractController
 
         $isExistsCompleted = $existOrderEventByStatus->isExists(
             $Order->getId(),
-            new OrderStatus(OrderStatus\OrderStatusCompleted::class)
+            new OrderStatus(OrderStatusCompleted::class)
         );
 
         if($isExistsCompleted)
@@ -184,7 +186,7 @@ final class StatusController extends AbstractController
             {
                 $isExists = $existOrderEventByStatus->isExists(
                     $Order->getId(),
-                    new OrderStatus(OrderStatus\OrderStatusExtradition::class)
+                    new OrderStatus(OrderStatusExtradition::class)
                 );
 
                 if($isExists === false)
@@ -202,7 +204,7 @@ final class StatusController extends AbstractController
             }
 
             /** Изменить статус на Статус Extradition «Готов к выдаче» можно только через склад */
-            if(true === $OrderStatusDTO->getStatus()->equals(OrderStatus\OrderStatusExtradition::class))
+            if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusExtradition::class))
             {
                 return new JsonResponse(
                     [

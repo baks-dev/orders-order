@@ -32,7 +32,7 @@ use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterDTO;
 use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;

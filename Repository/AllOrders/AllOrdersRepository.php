@@ -44,7 +44,10 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
@@ -136,7 +139,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     order_invariable.usr = :user AND 
                     
                 '.
-                ($this->status?->equals(OrderStatus\OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
+                ($this->status?->equals(OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
             )
             ->setParameter(
                 'user',
@@ -431,7 +434,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
 
-        if(!$this->status?->equals(OrderStatus\OrderStatusNew::class) && class_exists(ProductStock::class))
+        if(!$this->status?->equals(OrderStatusNew::class) && class_exists(ProductStock::class))
         {
             $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
@@ -651,8 +654,8 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         if(
             is_null($this->status) ||
-            $this->status->equals(OrderStatus\OrderStatusCompleted::class) ||
-            $this->status->equals(OrderStatus\OrderStatusMarketplace::class)
+            $this->status->equals(OrderStatusCompleted::class) ||
+            $this->status->equals(OrderStatusMarketplace::class)
         )
         {
             $dbal->orderBy('orders_modify.mod_date', 'DESC');

@@ -31,12 +31,6 @@ use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileCho
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCanceled;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusExtradition;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusNew;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusPackage;
 use BaksDev\Payment\BaksDevPaymentBundle;
 use BaksDev\Payment\Repository\FieldByPaymentChoice\FieldByPaymentChoiceRepository;
 use BaksDev\Payment\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceRepository;
@@ -69,17 +63,17 @@ return static function(ContainerConfigurator $container) {
     );
 
 
-    /** @see https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type */
-
-    $services->alias(OrderStatusInterface::class.' $orderStatusCanceled', OrderStatusCanceled::class);
-    $services->alias(OrderStatusInterface::class.' $orderStatusCompleted', OrderStatusCompleted::class);
-
-    $services->alias(OrderStatusInterface::class.' $orderStatusExtradition', OrderStatusExtradition::class);
-    $services->alias(OrderStatusInterface::class.' $orderStatusPackage', OrderStatusPackage::class);
-    $services->alias(OrderStatusInterface::class.' $orderStatusNew', OrderStatusNew::class);
-
-
-    $services->alias(OrderStatusInterface::class, OrderStatusNew::class);
+    //    /** @see https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type */
+    //
+    //    $services->alias(OrderStatusInterface::class.' $orderStatusCanceled', OrderStatusCanceled::class);
+    //    $services->alias(OrderStatusInterface::class.' $orderStatusCompleted', OrderStatusCompleted::class);
+    //
+    //    $services->alias(OrderStatusInterface::class.' $orderStatusExtradition', OrderStatusExtradition::class);
+    //    $services->alias(OrderStatusInterface::class.' $orderStatusPackage', OrderStatusPackage::class);
+    //    $services->alias(OrderStatusInterface::class.' $orderStatusNew', OrderStatusNew::class);
+    //
+    //
+    //    $services->alias(OrderStatusInterface::class, OrderStatusNew::class);
 
     if(class_exists(BaksDevDeliveryBundle::class))
     {

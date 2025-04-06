@@ -25,14 +25,18 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder;
 
+use App\Orders\Type\OrderStatus\OrderStatusPhone;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewMessage;
 use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -78,14 +82,28 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
         $OrderEvent = $this->OrderEventRepository
             ->find($message->getLast());
 
-        if($OrderEvent === false)
+        if(false === ($OrderEvent instanceof OrderEvent))
         {
             return;
         }
 
+        /**
+         * Изменение в заказе допустимо только в случае статусов:
+         * - Статус New «Новый»
+         * - Unpaid «В ожидании оплаты»
+         */
+        if(
+            false === $OrderEvent->isStatusEquals(OrderStatusNew::class) ||
+            false === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class) ||
+            false === $OrderEvent->isStatusEquals(OrderStatusPhone::class)
+        )
+        {
+            return;
+        }
+
+
         $LastOrderDTO = new EditOrderDTO();
         $OrderEvent->getDto($LastOrderDTO);
-
 
         /**
          * Получаем активное событие
@@ -95,7 +113,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
             ->forOrder($message->getId())
             ->find();
 
-        if($CurrentOrderEvent === false)
+        if(false === ($CurrentOrderEvent instanceof OrderEvent))
         {
             return;
         }
@@ -150,6 +168,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                 );
             }
         }
-    }
 
+        $Deduplicator->save();
+    }
 }

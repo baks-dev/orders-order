@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Status\Tests;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCollection;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\Type\Status\OrderStatusType;
 use BaksDev\Wildberries\Orders\Type\WildberriesStatus\Status\Collection\WildberriesStatusInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

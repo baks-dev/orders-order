@@ -24,7 +24,6 @@
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Orders\Order\Entity\Const\OrderConst;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
@@ -34,6 +33,7 @@ use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
@@ -115,7 +115,7 @@ class OrderEvent extends EntityEvent
         $this->id = new OrderEventUid();
         $this->modify = new OrderModify($this);
         $this->created = new DateTimeImmutable();
-        $this->status = new OrderStatus(new OrderStatus\OrderStatusNew());
+        $this->status = new OrderStatus(OrderStatusNew::class);
     }
 
     public function __clone()

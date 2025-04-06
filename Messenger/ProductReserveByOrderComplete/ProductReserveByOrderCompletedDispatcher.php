@@ -29,10 +29,12 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -46,7 +48,8 @@ final readonly class ProductReserveByOrderCompletedDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
-        private OrderEventInterface $orderEventRepository,
+        private OrderEventInterface $OrderEventRepository,
+        private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -58,7 +61,6 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                OrderStatusCompleted::STATUS,
                 self::class
             ]);
 
@@ -67,7 +69,7 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             return;
         }
 
-        $OrderEvent = $this->orderEventRepository
+        $OrderEvent = $this->OrderEventRepository
             ->find($message->getEvent());
 
         if(false === ($OrderEvent instanceof OrderEvent))
@@ -86,12 +88,32 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             return;
         }
 
+        /** Получаем активное событие заказа в случае если статус заказа изменился */
+        if(empty($OrderEvent->getOrderNumber()))
+        {
+            $OrderEvent = $this->CurrentOrderEvent
+                ->forOrder($message->getId())
+                ->find();
+
+            if(false === ($OrderEvent instanceof OrderEvent))
+            {
+                $this->logger->critical(
+                    'orders-order: Не найдено событие OrderEvent',
+                    [self::class.':'.__LINE__, var_export($message, true)]
+                );
+
+                return;
+            }
+        }
+
         $this->logger->info(
-            '#{number}: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
+            sprintf(
+                '#%s: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
+                $OrderEvent->getOrderNumber()
+            ),
             [
-                'number' => $OrderEvent->getOrderNumber(),
-                'status' => OrderStatusCompleted::STATUS,
-                'deduplicator' => $Deduplicator->getKey()
+                self::class.':'.__LINE__,
+                'deduplicator' => $Deduplicator->getKey(),
             ]
         );
 

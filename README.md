@@ -1,6 +1,6 @@
 # BaksDev Order
 
-[![Version](https://img.shields.io/badge/version-7.2.46-blue)](https://github.com/baks-dev/orders-order/releases)
+[![Version](https://img.shields.io/badge/version-7.2.47-blue)](https://github.com/baks-dev/orders-order/releases)
 ![php 8.4+](https://img.shields.io/badge/php-min%208.4-red.svg)
 [![packagist](https://img.shields.io/badge/packagist-green)](https://packagist.org/packages/baks-dev/orders-order)
 
@@ -45,7 +45,7 @@ baks.order.status'
 
 namespace App\Orders\OrderStatus;
 
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.order.status')]

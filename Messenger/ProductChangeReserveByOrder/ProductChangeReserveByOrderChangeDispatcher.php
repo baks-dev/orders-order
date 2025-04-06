@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder;
 
-use App\Orders\Type\OrderStatus\OrderStatusPhone;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -36,6 +35,7 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
@@ -153,7 +153,8 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $lastProduct->getVariation(),
                         $lastProduct->getModification(),
                         $lastProduct->getPrice()->getTotal()
-                    )
+                    ),
+                    transport: 'products-product'
                 );
 
                 $this->messageDispatch->dispatch(

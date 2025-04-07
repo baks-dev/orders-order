@@ -71,7 +71,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
 
         /** Новый заказ не имеет предыдущего события!!! */
-        if(false === ($message->getLast() instanceof OrderEventUid))
+        if(false !== ($message->getLast() instanceof OrderEventUid))
         {
             return;
         }

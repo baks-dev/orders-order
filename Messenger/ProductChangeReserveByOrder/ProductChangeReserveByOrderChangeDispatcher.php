@@ -153,8 +153,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $lastProduct->getVariation(),
                         $lastProduct->getModification(),
                         $lastProduct->getPrice()->getTotal()
-                    ),
-                    transport: 'products-product'
+                    )
                 );
 
                 $this->messageDispatch->dispatch(
@@ -164,8 +163,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $currentProduct->getVariation(),
                         $currentProduct->getModification(),
                         $currentProduct->getPrice()->getTotal()
-                    ),
-                    transport: 'products-product'
+                    )
                 );
             }
         }

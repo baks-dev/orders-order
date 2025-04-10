@@ -233,6 +233,9 @@ function total()
 {
     let result_total = 0;
     let currency = null;
+
+    // Кол-во единиц товара
+    let total_count_sum = 0;
     document.querySelectorAll(".total").forEach(function(total)
     {
         let total_value = total.value * 1;
@@ -250,8 +253,16 @@ function total()
             }
 
             result_total = result_total + result_total_value;
+
+            // увеличить кол-во единиц товара
+            total_count_sum += total_value;
         }
     });
+
+    // Изменить общее кол-во единиц товаров на странице корзины
+    let total_count_result = document.querySelector(".total-count");
+    total_count_result.innerText = total_count_sum;
+
 
     result_total = result_total / 100;
 
@@ -297,7 +308,6 @@ function total()
 
     return true;
 }
-
 document.querySelectorAll(".delete-product").forEach(function(btn)
 {
     btn.addEventListener("click", function(event)

@@ -47,6 +47,12 @@ final class OrderProductsRepository implements OrderProductsInterface
 
     public function order(Order|OrderUid|string $order): self
     {
+        if(empty($order))
+        {
+            $this->order = false;
+            return $this;
+        }
+
         if($order instanceof Order)
         {
             $order = $order->getId();

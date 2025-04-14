@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -75,6 +75,8 @@ use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use Generator;
+use InvalidArgumentException;
 
 /** @see OrdersDetailByProfileRepositoryTest */
 final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInterface
@@ -88,8 +90,9 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         private readonly PaginatorInterface $paginator,
     ) {}
 
-
-    /** Заказы переданного профиля */
+    /**
+     * Заказы переданного профиля
+     */
     public function byProfile(UserProfileUid|UserUid|string $profile): self
     {
         if(is_string($profile))
@@ -107,7 +110,9 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         return $this;
     }
 
-    /** Заказы с переданным статусом */
+    /**
+     * Заказы с переданным статусом
+     */
     public function byStatus(OrderStatus $status): self
     {
         $this->status = $status;
@@ -115,7 +120,9 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         return $this;
     }
 
-    /** Метод возвращает пагинатор с информацией об заказе */
+    /**
+     * Метод возвращает пагинатор с информацией об заказе
+     */
     public function findAllWithPaginator(): PaginatorInterface
     {
         $result = $this->builder();
@@ -123,12 +130,13 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         return $this->paginator->fetchAllAssociative($result);
     }
 
-    /** Метод возвращает массив с информацией об заказе */
-    public function findAll(): array|false
+    /** Метод возвращает массив с информацией о заказах */
+    public function findAll(): false|Generator
     {
-        $result = $this->builder()->fetchAllAssociative();
+        //$result = $this->builder()->fetchAllAssociative();
+        //return empty($result) ? false : $result;
 
-        return empty($result) ? false : $result;
+        return $this->builder()->fetchAllGenerator();
     }
 
     /** Билдер запроса */
@@ -137,7 +145,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
 
         if(false === $this->profile)
         {
-            throw new \InvalidArgumentException('Не передан обязательный параметр запроса $profile');
+            throw new InvalidArgumentException('Не передан обязательный параметр запроса $profile');
         }
 
         $dbal = $this->DBALQueryBuilder

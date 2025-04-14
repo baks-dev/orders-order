@@ -256,11 +256,10 @@ final class StatusController extends AbstractController
             ->addData(['profile' => (string) $this->getCurrentProfileUid()])
             ->send('orders');
 
-        if($socket->isError())
+        if($socket && $socket->isError())
         {
             return new JsonResponse($socket->getMessage());
         }
-
 
         return new JsonResponse(
             [

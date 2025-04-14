@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use Generator;
 
 interface OrdersDetailByProfileInterface
 {
@@ -37,7 +38,7 @@ interface OrdersDetailByProfileInterface
     public function byStatus(OrderStatus $status): self;
 
     /** Метод возвращает массив с информацией об заказе */
-    public function findAll(): array|false;
+    public function findAll(): false|Generator;
 
     /** Метод возвращает пагинатор с информацией об заказе */
     public function findAllWithPaginator(): PaginatorInterface;

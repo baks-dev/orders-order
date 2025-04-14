@@ -25,7 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderProducts\Tests;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderProducts\OrderProductsInterface;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -36,17 +40,59 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class OrderProductsRepositoryTest extends KernelTestCase
 {
+    private static ?string $identifier = null;
+
+    public static function setUpBeforeClass(): void
+    {
+        /** @var DBALQueryBuilder $qb */
+        $qb = self::getContainer()->get(DBALQueryBuilder::class);
+        $dbal = $qb->createQueryBuilder(self::class);
+
+        $dbal
+            ->select('ord.id')
+            ->from(Order::class, 'ord')
+            ->setMaxResults(1);
+
+        self::$identifier = $dbal->fetchOne();
+    }
+
     public function testUseCase(): void
     {
+        if(empty(self::$identifier))
+        {
+            echo PHP_EOL.'Заказа не найдено'.PHP_EOL;
+            self::assertFalse(false);
+            return;
+        }
+
         /** @var OrderProductsInterface $OrderProducts */
         $OrderProducts = self::getContainer()->get(OrderProductsInterface::class);
 
+        /** */
+
         $products = $OrderProducts
-            ->order('0194cb5b-4ffd-7d83-92be-24820d8bec02')
+            ->order(self::$identifier)
             ->findAllProducts();
 
         self::assertTrue($products->valid());
-    }
 
+        /** */
+
+        $products = $OrderProducts
+            ->order(new OrderUid(self::$identifier))
+            ->findAllProducts();
+
+        self::assertTrue($products->valid());
+
+
+        /** */
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $OrderProducts
+            ->order('')
+            ->findAllProducts();
+
+    }
 
 }

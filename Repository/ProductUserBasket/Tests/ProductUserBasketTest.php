@@ -25,10 +25,24 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\ProductUserBasket\Tests;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Reference\Currency\Type\Currency;
+use BaksDev\Reference\Money\Type\Money;
+use DateTimeImmutable;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -39,28 +53,160 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class ProductUserBasketTest extends KernelTestCase
 {
+    private static array|null $identifier = null;
+
+    public static function setUpBeforeClass(): void
+    {
+        /** @var DBALQueryBuilder $qb */
+        $qb = self::getContainer()->get(DBALQueryBuilder::class);
+        $dbal = $qb->createQueryBuilder(self::class);
+
+        $dbal
+            ->select('product.event')
+            ->from(Product::class, 'product')
+            ->addSelect('offer.id AS offer')
+            ->leftJoin('product', ProductOffer::class, 'offer', 'offer.event = product.event')
+            ->addSelect('variation.id AS variation')
+            ->leftJoin('offer', ProductVariation::class, 'variation', 'variation.offer = offer.id')
+            ->addSelect('modification.id AS modification')
+            ->leftJoin('variation', ProductModification::class, 'modification', 'modification.variation = variation.id')
+            ->orderBy('RANDOM()')
+            ->setMaxResults(1);
+
+        self::$identifier = $dbal->fetchAssociative();
+    }
+
 
     public function testUseCase(): void
     {
+        if(empty(self::$identifier))
+        {
+            echo PHP_EOL.'Продукция не найдена :'.self::class.PHP_EOL;
+            return;
+        }
+
         /** @var ProductUserBasketInterface $ProductUserBasket */
         $ProductUserBasket = self::getContainer()->get(ProductUserBasketInterface::class);
 
-        $ProductUserBasket
-            ->forEvent('70aab9e3-45e6-7e5c-b5f4-5e0089671da5')
-            ->forOffer('4cc89718-7374-75c5-9106-ceff55c9f0f4')
-            ->forVariation('25a0f020-e6db-7ddf-bdd2-3cb6edaa5e2b')
-            ->forModification('63e93c46-3ee9-736b-95ae-83ac926c3155')
+        /** @var ProductUserBasketResult $ProductUserBasketResult */
+
+        $ProductUserBasketResult = $ProductUserBasket
+            ->forEvent(self::$identifier['event'])
+            ->forOffer(self::$identifier['offer'])
+            ->forVariation(self::$identifier['variation'])
+            ->forModification(self::$identifier['modification'])
             ->findAll();
 
-        if($ProductUserBasket instanceof ProductUserBasketResult)
+        if($ProductUserBasketResult instanceof ProductUserBasketResult)
         {
-            self::assertInstanceOf(ProductUid::class, $ProductUserBasket->getProductId());
-            self::assertInstanceOf(ProductEventUid::class, $ProductUserBasket->getProductEvent());
+
+            self::assertInstanceOf(ProductUid::class, $ProductUserBasketResult->getProductId()); //: ProductUid
+            self::assertInstanceOf(ProductEventUid::class, $ProductUserBasketResult->getProductEvent()); // ProductEventUid
+            self::assertInstanceOf(ProductEventUid::class, $ProductUserBasketResult->getCurrentProductEvent()); // ProductEventUid
+            self::assertInstanceOf(DateTimeImmutable::class, $ProductUserBasketResult->getProductActiveFrom()); // DateTimeImmutable
+
+            self::assertIsString($ProductUserBasketResult->getProductName()); //: string
+            self::assertIsString($ProductUserBasketResult->getProductArticle()); // string
+            self::assertIsString($ProductUserBasketResult->getProductUrl()); // string
+
+
+            // null|string
+
+            if($ProductUserBasketResult->getProductOfferUid())
+            {
+                self::assertInstanceOf(ProductOfferUid::class, $ProductUserBasketResult->getProductOfferUid()); // ProductOfferUid|null
+                self::assertInstanceOf(ProductOfferConst::class, $ProductUserBasketResult->getProductOfferConst()); // ProductOfferConst|null
+                self::assertIsString($ProductUserBasketResult->getProductOfferValue()); // null|string
+                self::assertIsString($ProductUserBasketResult->getProductOfferName());
+            }
+            else
+            {
+                self::assertNull($ProductUserBasketResult->getProductOfferUid()); // ProductOfferUid|null
+                self::assertNull($ProductUserBasketResult->getProductOfferConst()); // ProductOfferConst|null
+                self::assertNull($ProductUserBasketResult->getProductOfferValue()); // null|string
+                self::assertNull($ProductUserBasketResult->getProductOfferName());
+            }
+
+            $ProductUserBasketResult->getProductOfferPostfix() ?
+                self::assertIsString($ProductUserBasketResult->getProductOfferPostfix()) :
+                self::assertNull($ProductUserBasketResult->getProductOfferPostfix()); // null|string
+
+            $ProductUserBasketResult->getProductOfferReference() ?
+                self::assertIsString($ProductUserBasketResult->getProductOfferReference()) :
+                self::assertNull($ProductUserBasketResult->getProductOfferReference()); // null|string
+
+
+            /** ProductVariation */
+            if($ProductUserBasketResult->getProductVariationUid())
+            {
+                self::assertInstanceOf(ProductVariationUid::class, $ProductUserBasketResult->getProductVariationUid()); // ProductVariationUid|null
+                self::assertInstanceOf(ProductVariationConst::class, $ProductUserBasketResult->getProductVariationConst()); // ProductVariationConst|null
+                self::assertIsString($ProductUserBasketResult->getProductVariationValue()); // null|string
+                self::assertIsString($ProductUserBasketResult->getProductVariationName()); // null|string
+            }
+            else
+            {
+                self::assertNull($ProductUserBasketResult->getProductVariationUid()); // ProductVariationUid|null
+                self::assertNull($ProductUserBasketResult->getProductVariationConst()); // ProductVariationConst|null
+                self::assertNull($ProductUserBasketResult->getProductVariationValue()); // null|string
+                self::assertNull($ProductUserBasketResult->getProductVariationName()); // null|string
+            }
+
+            $ProductUserBasketResult->getProductVariationPostfix() ?
+                self::assertIsString($ProductUserBasketResult->getProductVariationPostfix()) :
+                self::assertNull($ProductUserBasketResult->getProductVariationPostfix()); // null|string
+
+            $ProductUserBasketResult->getProductVariationReference() ?
+                self::assertIsString($ProductUserBasketResult->getProductVariationReference()) :
+                self::assertNull($ProductUserBasketResult->getProductVariationReference()); // null|string
+
+
+            if($ProductUserBasketResult->getProductModificationUid())
+
+            {
+                self::assertInstanceOf(ProductVariationUid::class, $ProductUserBasketResult->getProductModificationUid()); // ProductModificationUid|null
+                self::assertInstanceOf(ProductVariationUid::class, $ProductUserBasketResult->getProductModificationConst()); // ProductModificationConst|null
+                self::assertIsString($ProductUserBasketResult->getProductModificationValue()); // null|string
+                self::assertIsString($ProductUserBasketResult->getProductModificationName()); // null|string
+            }
+            else
+            {
+                self::assertNull($ProductUserBasketResult->getProductModificationUid()); // ProductModificationUid|null
+                self::assertNull($ProductUserBasketResult->getProductModificationConst()); // ProductModificationConst|null
+                self::assertNull($ProductUserBasketResult->getProductModificationValue()); // null|string
+                self::assertNull($ProductUserBasketResult->getProductModificationName()); // null|string
+            }
+
+
+            $ProductUserBasketResult->getProductModificationPostfix() ?
+                self::assertIsString($ProductUserBasketResult->getProductModificationPostfix()) :
+                self::assertNull($ProductUserBasketResult->getProductModificationPostfix()); // null|string
+
+            $ProductUserBasketResult->getProductModificationReference() ?
+                self::assertIsString($ProductUserBasketResult->getProductModificationReference()) :
+                self::assertNull($ProductUserBasketResult->getProductModificationReference()); // null|string
+
+
+            self::assertIsString($ProductUserBasketResult->getProductImage()); // string
+            self::assertIsString($ProductUserBasketResult->getProductImageExt()); // string
+            self::assertIsBool($ProductUserBasketResult->getProductImageCdn()); // bool
+
+            self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductPrice()); // Money
+            self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductOldPrice()); // Money
+            self::assertInstanceOf(Currency::class, $ProductUserBasketResult->getProductCurrency()); // Currency
+            self::assertIsInt($ProductUserBasketResult->getProductQuantity()); // int
+
+            self::assertIsString($ProductUserBasketResult->getCategoryName()); // string
+            self::assertIsString($ProductUserBasketResult->getCategoryUrl()); // string
+            self::assertIsInt($ProductUserBasketResult->getCategoryMinimal()); // int
+            self::assertIsInt($ProductUserBasketResult->getCategoryInput()); // int
+            self::assertIsInt($ProductUserBasketResult->getCategoryThreshold()); // int
+            self::assertIsArray($ProductUserBasketResult->getCategorySectionField()); // array
 
             return;
         }
 
-        self::assertFalse($ProductUserBasket);
+        self::assertFalse($ProductUserBasketResult);
     }
 
 }

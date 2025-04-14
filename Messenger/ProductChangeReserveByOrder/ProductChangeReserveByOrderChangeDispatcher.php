@@ -93,9 +93,11 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
          * - Unpaid «В ожидании оплаты»
          */
         if(
-            false === $OrderEvent->isStatusEquals(OrderStatusNew::class) ||
-            false === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class) ||
-            false === $OrderEvent->isStatusEquals(OrderStatusPhone::class)
+            true === (
+                $OrderEvent->isStatusEquals(OrderStatusNew::class) ||
+                $OrderEvent->isStatusEquals(OrderStatusUnpaid::class) ||
+                $OrderEvent->isStatusEquals(OrderStatusPhone::class)
+            )
         )
         {
             return;

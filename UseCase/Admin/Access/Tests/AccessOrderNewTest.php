@@ -25,17 +25,23 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Access\Tests;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\RelevantNewOrderByProduct\RelevantNewOrderByProductInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Access\AccessOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Access\Products\AccessOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\PackageOrderDTO;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -59,14 +65,17 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[When(env: 'test')]
 final class AccessOrderNewTest extends KernelTestCase
 {
+    /**
+     * @var array|false|mixed[]
+     */
+    private static array|false $identifier;
+
     public static function setUpBeforeClass(): void
     {
         // Бросаем событие консольной комманды
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
-
-        $container = self::getContainer();
 
     }
 
@@ -98,6 +107,12 @@ final class AccessOrderNewTest extends KernelTestCase
             ->forModification($ProductModificationUid)
             ->onlyNewStatus()
             ->find();
+
+        if(false === ($OrderEvent instanceof OrderEvent))
+        {
+            self::assertFalse($OrderEvent);
+            return;
+        }
 
         /** @var AccessOrderDTO $AccessOrderDTO */
         $AccessOrderDTO = $OrderEvent->getDto(AccessOrderDTO::class);

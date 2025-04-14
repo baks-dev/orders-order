@@ -29,26 +29,14 @@ use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use DomainException;
 
 final class AccessOrderHandler extends AbstractHandler
 {
     public function handle(AccessOrderDTO $command): string|Order
     {
-        /** Валидация DTO  */
-        $this->validatorCollection->add($command);
-
-        $this->main = new Order();
-        $this->event = new OrderEvent();
-
-        try
-        {
-            $command->getEvent() ? $this->preUpdate($command, true) : $this->prePersist($command);
-        }
-        catch(DomainException $errorUniqid)
-        {
-            return $errorUniqid->getMessage();
-        }
+        $this
+            ->setCommand($command)
+            ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
@@ -56,7 +44,7 @@ final class AccessOrderHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->flush();
+        $this->flush();
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(

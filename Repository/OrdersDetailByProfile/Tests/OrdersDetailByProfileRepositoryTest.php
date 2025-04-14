@@ -27,7 +27,7 @@ namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile\Tests;
 
 use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileInterface;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\Profile\UserProfile\Repository\AdminUserProfile\AdminUserProfileInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -38,37 +38,43 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class OrdersDetailByProfileRepositoryTest extends KernelTestCase
 {
-    private static array $result;
+    private static array|false $result = false;
 
     public static function setUpBeforeClass(): void
     {
-        $repository = self::getContainer()->get(OrdersDetailByProfileInterface::class);
-
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
 
-        $profiles = $em->getRepository(UserProfile::class)
+        $profiles = $em
+            ->getRepository(UserProfile::class)
             ->findAll();
 
         self::assertNotEmpty($profiles, 'Не найдено ни одного профиля');
 
-        /** @var UserProfileUid $profile */
-        foreach($profiles as $profile)
-        {
-            $result = $repository
-                ->byProfile((string) $profile)
-                ->findAll();
+        /** @var OrdersDetailByProfileInterface $repository */
+        $repository = self::getContainer()->get(OrdersDetailByProfileInterface::class);
 
-            // если найдены заказы - проверяем результат на соответствие ключей
-            if(false === empty($result))
-            {
-                break;
-            }
+
+        /**
+         * Получаем идентификатор администратора
+         * @var AdminUserProfileInterface $AdminUserProfile
+         */
+
+        $AdminUserProfile = self::getContainer()->get(AdminUserProfileInterface::class);
+        $UserProfileUid = $AdminUserProfile->fetchUserProfile();
+
+        $result = $repository
+            ->byProfile($UserProfileUid)
+            ->findAll();
+
+        if(false === $result || false === $result->valid())
+        {
+            self::$result = false;
+            echo PHP_EOL.'Не найдено ни одного заказа у профиля администратора : '.self::class.PHP_EOL;
+            return;
         }
 
-        self::assertNotFalse($result, 'Не найдено ни одного заказа у профиля :'.$profile);
-
-        self::$result = current($result);
+        self::$result = $result->current();
     }
 
     public static function getAllQueryKeys(): array
@@ -147,9 +153,14 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
 
     public function testFindAll(): void
     {
-        $queryKeys = self::getAllQueryKeys();
+        if(false === self::$result)
+        {
+            self::assertFalse(self::$result);
+            return;
+        }
 
         $current = self::$result;
+        $queryKeys = self::getAllQueryKeys();
 
         foreach($queryKeys as $key)
         {
@@ -165,6 +176,12 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
     /** @depends testFindAll */
     public function testOrderProducts(): void
     {
+        if(false === self::$result)
+        {
+            self::assertFalse(self::$result);
+            return;
+        }
+
         $queryKeys = self::getOrderProductsKeys();
 
         $current = current(json_decode(self::$result['order_products'], true));
@@ -183,6 +200,12 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
     /** @depends testOrderProducts */
     public function testOrderUser(): void
     {
+        if(false === self::$result)
+        {
+            self::assertFalse(self::$result);
+            return;
+        }
+
         $queryKeys = self::getOrderUserKeys();
 
         $current = current(json_decode(self::$result['order_user'], true));

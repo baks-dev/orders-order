@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -64,9 +64,10 @@ final class NewOrderProductDTO implements OrderProductInterface
         return $this->product;
     }
 
-    public function setProduct(ProductEventUid $product): void
+    public function setProduct(ProductEventUid $product): self
     {
         $this->product = $product;
+        return $this;
     }
 
     /** Торговое предложение */
@@ -75,9 +76,10 @@ final class NewOrderProductDTO implements OrderProductInterface
         return $this->offer;
     }
 
-    public function setOffer(?ProductOfferUid $offer): void
+    public function setOffer(ProductOfferUid|null|false $offer): self
     {
-        $this->offer = $offer;
+        $this->offer = $offer ?: null;
+        return $this;
     }
 
     /** Множественный вариант торгового предложения */
@@ -86,9 +88,10 @@ final class NewOrderProductDTO implements OrderProductInterface
         return $this->variation;
     }
 
-    public function setVariation(?ProductVariationUid $variation): void
+    public function setVariation(ProductVariationUid|null|false $variation): self
     {
-        $this->variation = $variation;
+        $this->variation = $variation ?: null;
+        return $this;
     }
 
     /** Модификация множественного вараинта торгового предложения  */
@@ -97,9 +100,10 @@ final class NewOrderProductDTO implements OrderProductInterface
         return $this->modification;
     }
 
-    public function setModification(?ProductModificationUid $modification): void
+    public function setModification(ProductModificationUid|null|false $modification): self
     {
-        $this->modification = $modification;
+        $this->modification = $modification ?: null;
+        return $this;
     }
 
     /** Стоимость и количество */

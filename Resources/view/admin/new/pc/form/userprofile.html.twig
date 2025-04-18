@@ -19,17 +19,21 @@
 
     <div class="d-flex flex-column gap-3" id='user_profile'>
 
-        <div class="w-100">
-            {{ form_row(form.usr.userProfile.type,
-                { label : 'Тип заказа'|trans ,
-                    placeholder: 'Выберите из списка тип заказа'|trans,
-                    attr: { 'data-select' : 'select2' }
-                }) }}
+        <div class="w-100 d-flex gap-3">
+            <div class="w-100">
+                {{ form_row(form.usr.userProfile.type,
+                    { label : 'Тип заказа'|trans ,
+                        placeholder: 'Выберите из списка тип заказа'|trans,
+                        attr: { 'data-select' : 'select2' }
+                    }) }}
+            </div>
+            <div class="w-100">
+                {{ form_row(form.invariable.number, { label : 'Номер: '|trans }) }}
+            </div>
         </div>
 
 
         {% if form.usr.userProfile.value is defined %}
-
 
 
             {% set section = null %}

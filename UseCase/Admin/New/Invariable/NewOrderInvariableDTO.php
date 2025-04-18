@@ -26,10 +26,8 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\New\Invariable;
 
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
-use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
@@ -44,7 +42,7 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     /**
      * Идентификатор заказа
      */
-    private readonly string $number;
+    private string $number;
 
 
     /**
@@ -65,7 +63,7 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     {
         $this->created = new DateTimeImmutable();
         $this->profile = null;
-
+        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
     }
 
     /**
@@ -105,13 +103,6 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getNumber(): ?string
     {
-        /** Генерируем идентификатор заказа */
-
-        if(false === (new ReflectionProperty(self::class, 'number')->isInitialized($this)))
-        {
-            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
-        }
-
         return $this->number;
     }
 
@@ -126,5 +117,4 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
 
         return $this;
     }
-
 }

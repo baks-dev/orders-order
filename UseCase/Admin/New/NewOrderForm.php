@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New;
 
+use BaksDev\Orders\Order\UseCase\Admin\New\Invariable\NewOrderInvariableForm;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -69,6 +70,8 @@ final class NewOrderForm extends AbstractType
             'allow_add' => true,
             'prototype_name' => '__product__',
         ]);
+
+        $builder->add('invariable', NewOrderInvariableForm::class, ['label' => false]);
 
         $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
 

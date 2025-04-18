@@ -71,7 +71,6 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->id = $id;
         $this->status = new OrderStatus($status);
         $this->modify = new Modify\ModifyDTO();
-
         $this->invariable = new Invariable\StatusOrderInvariableDTO();
     }
 

@@ -58,7 +58,7 @@ final class NewOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private readonly Invariable\NewOrderInvariableDTO $invariable;
+    private Invariable\NewOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     #[Assert\NotBlank]

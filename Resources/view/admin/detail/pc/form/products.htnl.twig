@@ -167,7 +167,6 @@
 
                     <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
 
-
                         <button type="button" class="btn btn-sm minus"
                                 title="Уменьшить количество"
                                 data-id='{{ product.price.total.vars.id }}'
@@ -196,6 +195,7 @@
                         >
                             <span class="h5 text-muted opacity-50">+</span>
                         </button>
+
                     </div>
 
                     {% if isNotEdit %}
@@ -203,7 +203,6 @@
                     {% endif %}
 
                 </td>
-
 
                 <td class="vertical-middle">
 
@@ -226,28 +225,63 @@
 
                 </td>
 
-
                 {# УДАЛИТЬ #}
 
                 <td class="vertical-middle text-end">
 
-
                     {# <a
-                            href='{{ path('orders-order:user.delete', {
+                            href=' #}{# {{ path('orders-order:user.delete', {
                                 product : card.id ,
                                 offer: card.product_offer_uid,
                                 variation: card.product_variation_uid,
                                 modification: card.product_modification_uid
-                            }) }}'
-                            class="btn btn-sm btn-link text-decoration-underline small text-muted delete-product"
-                            data-id='item_{{ product.vars.id }}'
+                            }) }} #}{# #'
+                            class="btn btn-sm btn-link text-decoration-underline small text-muted"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                             class="bi bi-x me-1" viewBox="0 0 16 16">
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
                         </svg>
-                        <span class="small">Удалить</span>
                     </a> #}
+
+
+                    <li class="nav nav-item flex-grow-1 text-end" role="presentation">
+
+                        <div class="dropdown">
+
+                            <button class="btn btn-link dropdown-toggle text-muted d-flex align-items-center"
+                                    type="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                     class="bi bi-list" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                          d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                                </svg>
+                            </button>
+
+                            <ul class="dropdown-menu">
+
+                                <li>
+                                    <a href="{{ path('wildberries-products:admin.barcode.print', {
+                                        product : card.event,
+                                        offer: card.product_offer_uid,
+                                        variation: card.product_variation_uid,
+                                        modification: card.product_modification_uid,
+                                        total: product.price.vars.data.total,
+                                        print: true
+                                    }) }}"
+                                       class="dropdown-item prnt"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#modal"
+                                    >
+                                        Печать этикетки Wildberries
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+
+                    </li>
+
                 </td>
 
             </tr>
@@ -277,9 +311,9 @@
                 </td>
                 </tr>
             {% else %}
-    <tr>
+                {# <tr>
         <td colspan="4">
-            &nbsp;
+            &nbsp; #}
 
             {% endif %}
 

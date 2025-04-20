@@ -26,6 +26,7 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
@@ -61,6 +62,8 @@ final class DetailController extends AbstractController
         EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
         string $id,
+
+        ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
     ): Response
     {
         /** Получаем активное событие заказа */
@@ -146,6 +149,26 @@ final class DetailController extends AbstractController
             return new JsonResponse($socket->getMessage());
         }
 
+
+        /**
+         * Получаем честные знаки на сырье
+         */
+
+        $MaterialSign = false;
+
+        if($GroupMaterialSignsByOrder)
+        {
+            $MaterialSign = $GroupMaterialSignsByOrder
+                ->forOrder($Order)
+                ->findAll();
+
+            if(false === $MaterialSign || false === $MaterialSign->valid())
+            {
+                $MaterialSign = false;
+            }
+        }
+
+
         return $this->render(
             [
                 'id' => $id,
@@ -154,6 +177,9 @@ final class DetailController extends AbstractController
                 'history' => $History,
                 'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
                 'statuses' => $collection,
+
+                'materials_sign' => $MaterialSign,
+                'products_sign' => false
             ]
         );
     }

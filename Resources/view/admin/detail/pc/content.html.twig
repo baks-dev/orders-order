@@ -6,6 +6,8 @@
     </button>
 </div>
 
+{# @var material GroupMaterialSignsByOrderResult #}
+
 {% if order %}
 
     {{ form_start(form, { attr: { class: 'offcanvas-body w-100 p-0' } }) }}
@@ -108,6 +110,83 @@
                                 Приходный ордер
                             </a>
                         </li>
+
+                        {% if materials_sign %}
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li><h6 class="dropdown-header">Честный знак</h6></li>
+
+                            {% for material in materials_sign %}
+
+                                {% set parameters = {
+                                    article: material.getMaterialArticle,
+                                    order: order.order_id,
+                                    material: material.getMaterialId,
+                                    offer: material.getMaterialOfferConst,
+                                    variation: material.getMaterialVariationConst,
+                                    modification: material.getMaterialModificationConst
+                                } %}
+
+                                <li>
+                                    <div class="dropdown-item">
+                                        <div class="d-flex gap-3 align-items-center small">
+                                            <div>
+
+                                                {{ material.getCounter }} шт. &nbsp;
+
+                                                {{ material.getMaterialName }}
+
+                                                {# Значение множественного варианта ТП #}
+                                                {{ material.getMaterialVariationValue|call_twig_func(material.getMaterialVariationReference~'_render') ~
+                                                material.getMaterialModificationValue|call_twig_func(material.getMaterialModificationReference~'_render') }}
+
+                                                {# Значение торгового предложения #}
+                                                {{ material.getMaterialOfferValue|call_twig_func(material.getMaterialOfferReference~'_render') }}
+
+                                            </div>
+
+                                            <div class="d-flex gap-3 align-items-center ">
+                                                <a class="text-muted" href="#">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                         fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
+                                                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                                                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+                                                    </svg>
+                                                </a>
+
+                                                <a class="text-muted"
+                                                   href="{{ path('materials-sign:document.pdf.orders', parameters) }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                         fill="currentColor" class="bi bi-filetype-pdf"
+                                                         viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd"
+                                                              d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                                                    </svg>
+                                                </a>
+
+                                                <a class="text-muted"
+                                                   href="{{ path('materials-sign:admin.txt.orders', parameters) }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                         fill="currentColor" class="bi bi-filetype-txt"
+                                                         viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd"
+                                                              d="M14 4.5V14a2 2 0 0 1-2 2h-2v-1h2a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.928 15.849v-3.337h1.136v-.662H0v.662h1.134v3.337zm4.689-3.999h-.894L4.9 13.289h-.035l-.832-1.439h-.932l1.228 1.983-1.24 2.016h.862l.853-1.415h.035l.85 1.415h.907l-1.253-1.992zm1.93.662v3.337h-.794v-3.337H6.619v-.662h3.064v.662H8.546Z"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </li>
+
+                            {% endfor %}
+
+
+                        {% endif %}
 
                         {# {% if constant('BaksDev\\Products\\Sign\\BaksDevProductsSignBundle::NAMESPACE') is defined %} #}
 
@@ -226,12 +305,9 @@
 
             <div class="tab-pane fade " id="pills-delivery" role="tabpanel" tabindex="0">
 
-
                 {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
 
-
                 {% set address = order.delivery_geocode_address %}
-
 
                 {% if address is null %}
                     {% for delivery_field in form.usr.delivery.field %}
@@ -240,25 +316,6 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
-
-                {# {% if address %}
-				<a target="_blank" href="https://yandex.ru/maps/?text={{ address }}&z=18">Показать на карте</a>
-
-
-				{% if order.delivery_geocode_longitude and order.delivery_geocode_latitude %}
-
-					<iframe class="lazy w-100" title="Адрес доставки" style="height: 350px;"
-							src="https://yandex.ru/maps/?pt={{ order.delivery_geocode_longitude }},{{ order.delivery_geocode_latitude }}&z=18&l=map" height="200">
-					</iframe>
-
-				{% else %}
-					<iframe class="lazy w-100" title="Адрес доставки" style="height: 350px;"
-							src="https://yandex.ru/maps/?text={{ address }}&z=18" height="200">
-					</iframe>
-				{% endif %}
-
-
-			{% endif %} #}
 
             </div>
 

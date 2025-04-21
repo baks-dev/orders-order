@@ -260,22 +260,27 @@
 
                             <ul class="dropdown-menu">
 
-                                <li>
-                                    <a href="{{ path('wildberries-products:admin.barcode.print', {
-                                        product : card.event,
-                                        offer: card.product_offer_uid,
-                                        variation: card.product_variation_uid,
-                                        modification: card.product_modification_uid,
-                                        total: product.price.vars.data.total,
-                                        print: true
-                                    }) }}"
-                                       class="dropdown-item prnt"
-                                       data-bs-toggle="modal"
-                                       data-bs-target="#modal"
-                                    >
-                                        Печать этикетки Wildberries
-                                    </a>
-                                </li>
+
+                                {% if constant('\BaksDev\Wildberries\Products\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
+
+                                    <li>
+                                        <a href="{{ path('wildberries-products:admin.barcode.print', {
+                                            product : card.event,
+                                            offer: card.product_offer_uid,
+                                            variation: card.product_variation_uid,
+                                            modification: card.product_modification_uid,
+                                            total: product.price.vars.data.total,
+                                            print: true
+                                        }) }}"
+                                           class="dropdown-item prnt"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#modal"
+                                        >
+                                            Печать этикетки Wildberries
+                                        </a>
+                                    </li>
+
+                                {% endif %}
 
                             </ul>
                         </div>
@@ -290,30 +295,31 @@
             {% if product.price.price is defined %}
                 {% if is_granted('ROLE_ORDERS_DISCOUNT_15') %}
                     <tr>
-                    <td colspan="4">
-                    <span class="badge text-bg-danger">Скидка до 15%</span>
+    <td colspan="4">
+    <span class="badge text-bg-danger">Скидка до 15%</span>
                 {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
                     <tr>
-                    <td colspan="4">
-                    <span class="badge text-bg-danger">Скидка до 10%</span>
+    <td colspan="4">
+    <span class="badge text-bg-danger">Скидка до 10%</span>
                 {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
                     <tr>
-                    <td colspan="4">
-                    <span class="badge text-bg-danger">Скидка до 5%</span>
+    <td colspan="4">
+    <span class="badge text-bg-danger">Скидка до 5%</span>
                 {% else %}
                     <tr>
-                    <td colspan="4">
-                    <span class="badge text-bg-danger">Скидка до 20%</span>
+                        <td colspan="4">
+                            <span class="badge text-bg-danger">Скидка до 20%</span>
                 {% endif %}
 
-                &nbsp;<small> мин. стомиость: </small>
-                &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
-                </td>
+                            &nbsp;<small> мин. стомиость: </small>
+                            &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+                        </td>
                 </tr>
             {% else %}
-                {# <tr>
+
+    <tr>
         <td colspan="4">
-            &nbsp; #}
+            &nbsp;
 
             {% endif %}
 

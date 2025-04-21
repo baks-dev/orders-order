@@ -193,10 +193,6 @@
                         {% endif %}
 
 
-
-
-                        {{ product.g }}
-
                         {% if products_sign %}
 
                             <li>
@@ -206,7 +202,7 @@
                             <li><h6 class="dropdown-header">Честный знак</h6></li>
 
 
-                            {% for product in product_sign %}
+                            {% for product in products_sign %}
 
                                 {% set parameters = {
                                     article: product.productArticle,
@@ -226,7 +222,7 @@
 
                                                 {{ product.getCounter }} шт. &nbsp;
 
-                                                {{ product.getMaterialName }}
+                                                {{ product.productName }}
 
                                                 {# Значение множественного варианта ТП #}
                                                 {{ product.productVariationValue|call_twig_func(product.productVariationReference~'_render') ~

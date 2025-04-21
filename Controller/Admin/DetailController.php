@@ -38,6 +38,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,8 @@ final class DetailController extends AbstractController
         string $id,
 
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
+        ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
+
     ): Response
     {
         /** Получаем активное событие заказа */
@@ -168,6 +171,19 @@ final class DetailController extends AbstractController
             }
         }
 
+        $ProductSign = false;
+
+        if($GroupProductSignsByOrder)
+        {
+            $ProductSign = $GroupProductSignsByOrder
+                ->forOrder($Order)
+                ->findAll();
+
+            if(false === $ProductSign || false === $ProductSign->valid())
+            {
+                $ProductSign = false;
+            }
+        }
 
         return $this->render(
             [
@@ -179,7 +195,7 @@ final class DetailController extends AbstractController
                 'statuses' => $collection,
 
                 'materials_sign' => $MaterialSign,
-                'products_sign' => false
+                'products_sign' => $ProductSign
             ]
         );
     }

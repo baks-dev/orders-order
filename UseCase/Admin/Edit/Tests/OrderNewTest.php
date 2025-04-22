@@ -64,7 +64,10 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/** @group orders-order */
+/**
+ * @group orders-order
+ * @group orders-order-repository
+ */
 #[When(env: 'test')]
 final class OrderNewTest extends KernelTestCase
 {
@@ -255,8 +258,6 @@ final class OrderNewTest extends KernelTestCase
         $OrderHandler = self::getContainer()->get(NewOrderHandler::class);
         $handle = $OrderHandler->handle($OrderDTO);
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
-
-
     }
 
 }

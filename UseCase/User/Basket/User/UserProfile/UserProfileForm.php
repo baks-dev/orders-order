@@ -105,7 +105,7 @@ final class UserProfileForm extends AbstractType
                 $data->resetValue();
                 $form->remove('value');
 
-                if($fields)
+                if(false === is_null($fields))
                 {
                     /** @var FieldValueFormDTO $field */
                     foreach($fields as $field)

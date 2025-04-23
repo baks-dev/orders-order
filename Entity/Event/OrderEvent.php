@@ -66,13 +66,13 @@ class OrderEvent extends EntityEvent
 
     /** Товары в заказе */
     #[Assert\Count(min: 1)]
-    #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private Collection $product;
 
     /**
      * Постоянная величина
      */
-    #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private ?OrderInvariable $invariable = null;
 
     /** Дата заказа */
@@ -98,7 +98,7 @@ class OrderEvent extends EntityEvent
     private OrderModify $modify;
 
     /** Пользователь (Клиент) */
-    #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private OrderUser $usr;
 
     /** Комментарий к заказу */

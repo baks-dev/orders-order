@@ -39,7 +39,7 @@ final class ProductsReportForm extends AbstractType
         $builder->add('from', DateType::class, [
             'widget' => 'single_text',
             'html5' => false,
-            'attr' => ['class' => 'w-100'],
+            'attr' => ['class' => 'js-datepicker'],
             'required' => false,
             'format' => 'dd.MM.yyyy',
             'input' => 'datetime_immutable',
@@ -49,7 +49,7 @@ final class ProductsReportForm extends AbstractType
         $builder->add('to', DateType::class, [
             'widget' => 'single_text',
             'html5' => false,
-            'attr' => ['class' => 'w-100'],
+            'attr' => ['class' => 'js-datepicker'],
             'required' => false,
             'format' => 'dd.MM.yyyy',
             'input' => 'datetime_immutable',

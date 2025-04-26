@@ -23,43 +23,32 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber;
+namespace BaksDev\Orders\Order\Forms\OrdersReport;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
-use Doctrine\DBAL\Types\Types;
+use DateTimeImmutable;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
+final class OrdersReportDTO
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
-
     /**
-     * Метод возвращает текущее активное событие заказа по его номеру
+     * Дата, за которую будет получен отчет
      */
-    public function find(int|string $number): OrderEvent|false
+    #[Assert\NotBlank]
+    private DateTimeImmutable $date;
+
+    public function __construct()
     {
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
-
-        $orm
-            ->from(OrderInvariable::class, 'orders')
-            ->where('orders.number = :order')
-            ->setParameter(
-                key: 'order',
-                value: (string) $number,
-                type: Types::STRING
-            );
-
-        $orm
-            ->select('event')
-            ->join(
-                OrderEvent::class,
-                'event',
-                'WITH',
-                'event.id = orders.event'
-            );
-
-        return $orm->getOneOrNullResult() ?: false;
+        $this->date = new DateTimeImmutable();
     }
 
+    public function getDate(): DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function setDate(DateTimeImmutable $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
 }

@@ -23,40 +23,30 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderEvent;
+namespace BaksDev\Orders\Order\Repository\AllOrdersReport\Tests;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
+use DateTimeImmutable;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-final readonly class OrderEventRepository implements OrderEventInterface
+/**
+ * @group orders-order
+ * @group orders-order-repository
+ * @depends BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest::class
+ */
+#[When(env: 'test')]
+final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
-
-    /**
-     * Метод возвращает кешируемое событие по идентификатору
-     */
-    public function find(OrderEventUid|string $event): OrderEvent|false
+    public function testFind(): void
     {
-        if(is_string($event))
-        {
-            $event = new OrderEventUid($event);
-        }
+        /** @var AllOrdersReportInterface $allOrdersReportRepository */
+        $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+        $result = $allProductsOrdersReportRepository
+            ->date(new DateTimeImmutable())
+            ->findAll();
 
-        $orm
-            ->select('event')
-            ->from(OrderEvent::class, 'event')
-            ->where('event.id = :event')
-            ->setParameter(
-                key: 'event',
-                value: $event,
-                type: OrderEventUid::TYPE
-            );
-
-        return $orm
-            ->enableCache('orders-order', '1 day')
-            ->getOneOrNullResult() ?: false;
+        self::assertNotEmpty($result);
     }
 }

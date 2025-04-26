@@ -1,0 +1,52 @@
+{% trans_default_domain('orders-order.admin') %}
+
+<div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+    {{ form_start(form) }}
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+        <div class="modal-header align-items-center">
+
+            <h5 class="modal-title">
+                {# Заголовок модального окна #}
+                {{ 'Скачать отчет о заказах за сутки'|trans }}:
+            </h5>
+
+            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" title="Close">
+                <span class="svg-icon svg-icon-2x"></span>
+            </div>
+        </div>
+
+
+        <div class="modal-footer border-0 justify-content-between">
+
+            <div class="flex-grow-1">
+                <div class="input-group">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 width="16" height="16"
+                                 fill="currentColor"
+                                 class="bi bi-calendar3"
+                                 viewBox="0 0 16 16">
+                                <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"></path>
+                                <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
+                            </svg>
+                        </span>
+                    {{ form_widget(form.date, { attr: { style: 'max-width: 110px;' } }) }}
+                </div>
+            </div>
+
+            <div class="d-flex gap-3">
+                {# Отмена #}
+
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
+
+                {# Сохранить #}
+                {{ form_widget(form.orders_report, { label: 'btn.save'|trans({}, 'core.btn')}) }}
+
+            </div>
+        </div>
+
+    </div>
+    {{ form_end(form) }}
+</div>

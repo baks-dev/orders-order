@@ -94,7 +94,7 @@ class OrderEvent extends EntityEvent
 
 
     /** Модификатор */
-    #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private OrderModify $modify;
 
     /** Пользователь (Клиент) */

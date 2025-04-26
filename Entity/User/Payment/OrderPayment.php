@@ -55,7 +55,7 @@ class OrderPayment extends EntityEvent
     private PaymentUid $payment;
 
     /** Пользовательские поля */
-    #[ORM\OneToMany(targetEntity: Field\OrderPaymentField::class, mappedBy: 'payment', cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: Field\OrderPaymentField::class, mappedBy: 'payment', cascade: ['all'], fetch: 'EAGER')]
     private Collection $field;
 
 

@@ -23,40 +23,13 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderEvent;
+namespace BaksDev\Orders\Order\Repository\AllOrdersReport;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use DateTimeImmutable;
 
-final readonly class OrderEventRepository implements OrderEventInterface
+interface AllOrdersReportInterface
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
+    public function date(DateTimeImmutable $date): self;
 
-    /**
-     * Метод возвращает кешируемое событие по идентификатору
-     */
-    public function find(OrderEventUid|string $event): OrderEvent|false
-    {
-        if(is_string($event))
-        {
-            $event = new OrderEventUid($event);
-        }
-
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
-
-        $orm
-            ->select('event')
-            ->from(OrderEvent::class, 'event')
-            ->where('event.id = :event')
-            ->setParameter(
-                key: 'event',
-                value: $event,
-                type: OrderEventUid::TYPE
-            );
-
-        return $orm
-            ->enableCache('orders-order', '1 day')
-            ->getOneOrNullResult() ?: false;
-    }
+    public function findAll(): array|false;
 }

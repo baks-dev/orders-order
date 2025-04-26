@@ -67,7 +67,7 @@ class OrderDelivery extends EntityEvent
     private DeliveryEventUid $event;
 
     /** Пользовательские поля */
-    #[ORM\OneToMany(targetEntity: Field\OrderDeliveryField::class, mappedBy: 'delivery', cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: Field\OrderDeliveryField::class, mappedBy: 'delivery', cascade: ['all'], fetch: 'EAGER')]
     private Collection $field;
 
     /** Координаты адреса доставки */
@@ -86,7 +86,7 @@ class OrderDelivery extends EntityEvent
     private ?DateTimeImmutable $deliveryDate = null;
 
     /** Стоимость покупки */
-    #[ORM\OneToOne(targetEntity: Price\OrderDeliveryPrice::class, mappedBy: 'delivery', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: Price\OrderDeliveryPrice::class, mappedBy: 'delivery', cascade: ['all'], fetch: 'EAGER')]
     private ?Price\OrderDeliveryPrice $price = null;
 
     public function __construct(OrderUser $usr)

@@ -212,7 +212,6 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
             throw new InvalidArgumentException('Invalid Argument Product');
         }
 
-
         $this->ORMQueryBuilder->clear();
 
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
@@ -230,9 +229,9 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                 'event.id = ord.event AND event.status = :status',
             )
             ->setParameter(
-                'status',
-                $this->status,
-                OrderStatus::TYPE
+                key: 'status',
+                value: $this->status,
+                type: OrderStatus::TYPE
             );
 
         $orm
@@ -251,9 +250,9 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                 'delivery.usr = usr.id AND delivery.delivery = :delivery',
             )
             ->setParameter(
-                'delivery',
-                $this->delivery,
-                DeliveryUid::TYPE
+                key: 'delivery',
+                value: $this->delivery,
+                type: DeliveryUid::TYPE
             );
 
 
@@ -271,9 +270,9 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                 '
             )
             ->setParameter(
-                'product',
-                $this->product,
-                ProductEventUid::TYPE
+                key: 'product',
+                value: $this->product,
+                type: ProductEventUid::TYPE
             );
 
 
@@ -294,9 +293,9 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                 ');
         }
 
-        false === $this->offer ?: $orm->setParameter('offer', $this->offer, ProductOfferUid::TYPE);
-        false === $this->variation ?: $orm->setParameter('variation', $this->variation, ProductVariationUid::TYPE);
-        false === $this->modification ?: $orm->setParameter('modification', $this->modification, ProductModificationUid::TYPE);
+        false === $this->offer ?: $orm->setParameter(key: 'offer', value: $this->offer, type: ProductOfferUid::TYPE);
+        false === $this->variation ?: $orm->setParameter(key: 'variation', value: $this->variation, type: ProductVariationUid::TYPE);
+        false === $this->modification ?: $orm->setParameter(key: 'modification', value: $this->modification, type: ProductModificationUid::TYPE);
 
 
         $orm->orderBy('delivery.deliveryDate');

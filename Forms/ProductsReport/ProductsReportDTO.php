@@ -23,43 +23,42 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber;
+namespace BaksDev\Orders\Order\Forms\ProductsReport;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
-use Doctrine\DBAL\Types\Types;
+use DateTimeImmutable;
 
-final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
+final class ProductsReportDTO
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
+    private ?DateTimeImmutable $from = null;
+
+    private ?DateTimeImmutable $to = null;
 
     /**
-     * Метод возвращает текущее активное событие заказа по его номеру
+     * From
      */
-    public function find(int|string $number): OrderEvent|false
+    public function getFrom(): DateTimeImmutable
     {
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
-
-        $orm
-            ->from(OrderInvariable::class, 'orders')
-            ->where('orders.number = :order')
-            ->setParameter(
-                key: 'order',
-                value: (string) $number,
-                type: Types::STRING
-            );
-
-        $orm
-            ->select('event')
-            ->join(
-                OrderEvent::class,
-                'event',
-                'WITH',
-                'event.id = orders.event'
-            );
-
-        return $orm->getOneOrNullResult() ?: false;
+        return $this->from ?: new DateTimeImmutable('now');
     }
 
+    public function setFrom(DateTimeImmutable $from): self
+    {
+        $this->from = $from;
+        return $this;
+    }
+
+    /**
+     * To
+     */
+    public function getTo(): DateTimeImmutable
+    {
+        return $this->to ?: new DateTimeImmutable('now');
+    }
+
+    public function setTo(DateTimeImmutable $to): self
+    {
+        $this->to = $to;
+
+        return $this;
+    }
 }

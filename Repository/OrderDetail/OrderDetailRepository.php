@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -542,9 +542,6 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
 
-
-
-
         if(class_exists(BaksDevProductsStocksBundle::class))
         {
             $dbal->leftJoin(
@@ -589,15 +586,21 @@ final class OrderDetailRepository implements OrderDetailInterface
         return $dbal->fetchAssociative() ?: null;
     }
 
+    /** Метод возвращает корень агрегата заказа по идентификатору */
     public function getDetailOrder(OrderUid $order): mixed
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-        $orm->select('orders');
-        $orm->from(Order::class, 'orders');
-        $orm->where('orders.id = :order');
-        $orm->setParameter('order', $order, OrderUid::TYPE);
+        $orm
+            ->select('orders')
+            ->from(Order::class, 'orders')
+            ->where('orders.id = :order')
+            ->setParameter(
+                key: 'order',
+                value: $order,
+                type: OrderUid::TYPE
+            );
 
-        return $orm->enableCache('orders-order', 86400)->getOneOrNullResult();
+        return $orm->getOneOrNullResult();
     }
 }

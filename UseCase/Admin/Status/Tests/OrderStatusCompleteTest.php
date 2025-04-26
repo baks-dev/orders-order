@@ -23,40 +23,32 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderEvent;
+namespace BaksDev\Orders\Order\UseCase\Admin\Status\Tests;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-final readonly class OrderEventRepository implements OrderEventInterface
+/**
+ * @group orders-order
+ * @group orders-order-repository
+ * @depends BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest::class
+ */
+#[When(env: 'test')]
+final class OrderStatusCompleteTest extends KernelTestCase
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
-
-    /**
-     * Метод возвращает кешируемое событие по идентификатору
-     */
-    public function find(OrderEventUid|string $event): OrderEvent|false
+    public static function testUseCase(): void
     {
-        if(is_string($event))
-        {
-            $event = new OrderEventUid($event);
-        }
+        $orderStatusDTO = new OrderStatusDTO(OrderStatus\Collection\OrderStatusCompleted::STATUS, new OrderEventUid());
 
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+        /** @var OrderStatusHandler $statusHandler */
+        $statusHandler = self::getContainer()->get(OrderStatusHandler::class);
+        $handle = $statusHandler->handle($orderStatusDTO);
 
-        $orm
-            ->select('event')
-            ->from(OrderEvent::class, 'event')
-            ->where('event.id = :event')
-            ->setParameter(
-                key: 'event',
-                value: $event,
-                type: OrderEventUid::TYPE
-            );
-
-        return $orm
-            ->enableCache('orders-order', '1 day')
-            ->getOneOrNullResult() ?: false;
+        self::assertTrue(($handle instanceof Order), $handle.': Ошибка OrderStatus');
     }
 }

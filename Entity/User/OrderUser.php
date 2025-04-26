@@ -60,11 +60,11 @@ class OrderUser extends EntityEvent
     private UserProfileEventUid $profile;
 
     /** Способ оплаты */
-    #[ORM\OneToOne(targetEntity: OrderPayment::class, mappedBy: 'usr', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderPayment::class, mappedBy: 'usr', cascade: ['all'], fetch: 'EAGER')]
     private OrderPayment $payment;
 
     /** Способ доставки */
-    #[ORM\OneToOne(targetEntity: OrderDelivery::class, mappedBy: 'usr', cascade: ['all'])]
+    #[ORM\OneToOne(targetEntity: OrderDelivery::class, mappedBy: 'usr', cascade: ['all'], fetch: 'EAGER')]
     private OrderDelivery $delivery;
 
     public function __construct(OrderEvent $event)

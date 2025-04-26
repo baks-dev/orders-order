@@ -105,21 +105,18 @@ final class UserProfileForm extends AbstractType
                 $data->resetValue();
                 $form->remove('value');
 
-                if(false === is_null($fields))
+                /** @var FieldValueFormDTO $field */
+                foreach($fields as $field)
                 {
-                    /** @var FieldValueFormDTO $field */
-                    foreach($fields as $field)
-                    {
-                        //$field = end($field);
+                    //$field = end($field);
 
-                        /** Обязательные поля для заполнения */
+                    /** Обязательные поля для заполнения */
 
-                        $value = new Value\ValueDTO();
-                        $value->setField($field->getField());
-                        $value->updSection($field);
-                        $data->addValue($value);
+                    $value = new Value\ValueDTO();
+                    $value->setField($field->getField());
+                    $value->updSection($field);
+                    $data->addValue($value);
 
-                    }
                 }
 
                 $form->add('value', CollectionType::class, [

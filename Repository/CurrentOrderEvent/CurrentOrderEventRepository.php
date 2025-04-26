@@ -64,9 +64,9 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
             ->from(Order::class, 'orders')
             ->where('orders.id = :order')
             ->setParameter(
-                'order',
-                $this->order,
-                OrderUid::TYPE
+                key: 'order',
+                value: $this->order,
+                type: OrderUid::TYPE
             );
 
 

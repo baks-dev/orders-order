@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\UpdateAccessOrderProduct;
 
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
@@ -32,7 +33,10 @@ use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 
 final readonly class UpdateAccessOrderProductRepository implements UpdateAccessOrderProductInterface
 {
-    public function __construct(private DBALQueryBuilder $DBALQueryBuilder) {}
+    public function __construct(
+        private DBALQueryBuilder $DBALQueryBuilder,
+        private AppCacheInterface $cache
+    ) {}
 
     /**
      * Метод добавляет единицу продукции в заказ готовых к сборке
@@ -52,6 +56,11 @@ final readonly class UpdateAccessOrderProductRepository implements UpdateAccessO
             )
             ->set('access', 'access + 1');
 
-        return (int) $dbal->executeStatement();
+        $count = (int) $dbal->executeStatement();
+
+        $this->cache->init('manufacture-part')->clear();
+        $this->cache->init('orders-order')->clear();
+
+        return $count;
     }
 }

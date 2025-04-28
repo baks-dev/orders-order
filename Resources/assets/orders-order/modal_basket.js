@@ -112,7 +112,7 @@ function orderModalSum(result)
     result_product_sum = result_product_sum / 100;
     result_product_sum = new Intl.NumberFormat($locale, {
         style: 'currency',
-        currency: product_summ.dataset.currency,
+        currency : product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
         maximumFractionDigits: 0
     }).format(result_product_sum);
     product_summ.innerText = result_product_sum;

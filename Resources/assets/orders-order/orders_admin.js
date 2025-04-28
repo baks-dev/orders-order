@@ -282,7 +282,7 @@ function orderSum(result, id)
 
         result_product_sum = new Intl.NumberFormat($locale, {
             style: 'currency',
-            currency: product_total.dataset.currency,
+            currency : product_total.dataset.currency === "RUR" ? "RUB" : product_total.dataset.currency,
             maximumFractionDigits: 2
         }).format(result_product_sum);
 
@@ -334,7 +334,7 @@ function total()
 
         const total_value = total.value * 1;
         //let price = total.dataset.price * 1;
-        currency = total.dataset.currency;
+        currency = total.dataset.currency === "RUR" ? "RUB" : total.dataset.currency;
         const discount = total.dataset.discount * 1;
 
         if(total_value)

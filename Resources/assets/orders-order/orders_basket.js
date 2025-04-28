@@ -222,7 +222,7 @@ function orderSum(result, id)
         result_product_sum = result_product_sum / 100;
         result_product_sum = new Intl.NumberFormat($locale, {
             style : "currency",
-            currency : product_summ.dataset.currency,
+            currency : product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
             maximumFractionDigits : 0,
         }).format(result_product_sum);
         product_summ.innerText = result_product_sum;
@@ -240,7 +240,7 @@ function total()
     {
         let total_value = total.value * 1;
         let price = total.dataset.price * 1;
-        currency = total.dataset.currency;
+        currency = total.dataset.currency === "RUR" ? "RUB" : total.dataset.currency;
         let discount = total.dataset.discount * 1;
 
         if(total_value)

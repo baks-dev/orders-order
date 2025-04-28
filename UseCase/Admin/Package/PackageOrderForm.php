@@ -100,11 +100,10 @@ final class PackageOrderForm extends AbstractType
                 {
                     $address = $this->geocodeAddress->fetchGeocodeAddressAssociative($Delivery->getLatitude(), $Delivery->getLongitude());
 
-                    if($address)
+                    if($address && isset($address['address']))
                     {
                         $Delivery->setAddress($address['address']);
                     }
-
                 }
             },
         );

@@ -27,6 +27,7 @@ use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderForm;
@@ -95,6 +96,10 @@ class BasketController extends AbstractController
             /** @var OrderProductDTO $product */
             foreach($this->products as $product)
             {
+                /**
+                 * @todo @note !!!
+                 * @deprecated Обновить на ProductUserBasketResult
+                 */
                 $ProductDetail = $userBasket->fetchProductBasketAssociative(
                     $product->getProduct(),
                     $product->getOffer(),
@@ -134,9 +139,19 @@ class BasketController extends AbstractController
 
                 $product->setCard($ProductDetail);
 
+
+                /** @var ProductUserBasketResult $ProductUserBasketResult */
+                $ProductUserBasketResult = $userBasket
+                    ->forEvent($product->getProduct())
+                    ->forOffer($product->getOffer())
+                    ->forVariation($product->getVariation())
+                    ->forModification($product->getModification())
+                    ->findAll();
+
                 $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'], true));
-                $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
+                $OrderPriceDTO->setPrice($ProductUserBasketResult->getProductPrice());
+                $OrderPriceDTO->setCurrency($ProductUserBasketResult->getProductCurrency());
+
             }
 
             $OrderDTO->setProduct($this->products);

@@ -40,11 +40,11 @@ final readonly class AllOrdersReportResult
         private int $order_price,
         private int $total,
         private int $money,
-        private int $profit,
+        private ?int $profit,
 
-        private string $product_name,
-        private string $product_article,
-        private int $product_price,
+        private ?string $product_name,
+        private ?string $product_article,
+        private ?int $product_price,
 
         private ?string $product_offer_value,
         private ?string $product_offer_reference,
@@ -98,12 +98,12 @@ final readonly class AllOrdersReportResult
         return new Money($this->profit, true);
     }
 
-    public function getProductName(): string
+    public function getProductName(): ?string
     {
         return $this->product_name;
     }
 
-    public function getProductArticle(): string
+    public function getProductArticle(): ?string
     {
         return $this->product_article;
     }

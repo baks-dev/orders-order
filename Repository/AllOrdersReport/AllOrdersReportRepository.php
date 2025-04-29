@@ -175,7 +175,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "delivery_event.id = delivery_event.id AND delivery_trans.local = :local"
             );
 
-        $dbal->leftJoin(
+        $dbal->join(
             "orders_product",
             ProductEvent::class,
             "product_event",

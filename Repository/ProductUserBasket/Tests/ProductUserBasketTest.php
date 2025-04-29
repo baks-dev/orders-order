@@ -38,6 +38,8 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
@@ -164,8 +166,8 @@ class ProductUserBasketTest extends KernelTestCase
             if($ProductUserBasketResult->getProductModificationUid())
 
             {
-                self::assertInstanceOf(ProductVariationUid::class, $ProductUserBasketResult->getProductModificationUid()); // ProductModificationUid|null
-                self::assertInstanceOf(ProductVariationUid::class, $ProductUserBasketResult->getProductModificationConst()); // ProductModificationConst|null
+                self::assertInstanceOf(ProductModificationUid::class, $ProductUserBasketResult->getProductModificationUid()); // ProductModificationUid|null
+                self::assertInstanceOf(ProductModificationConst::class, $ProductUserBasketResult->getProductModificationConst()); // ProductModificationConst|null
                 self::assertIsString($ProductUserBasketResult->getProductModificationValue()); // null|string
                 self::assertIsString($ProductUserBasketResult->getProductModificationName()); // null|string
             }

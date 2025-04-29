@@ -41,7 +41,6 @@ use JsonException;
 
 final readonly class ProductUserBasketResult
 {
-
     public function __construct(
 
         private string $id,
@@ -74,15 +73,14 @@ final readonly class ProductUserBasketResult
         private ?string $product_modification_reference,
         private ?string $product_modification_name,
 
-
-        private string $product_image,
-        private string $product_image_ext,
-        private bool $product_image_cdn,
-
-        private string $product_price,
-        private string $product_old_price,
+        private int $product_price,
+        private ?int $product_old_price,
         private string $product_currency,
         private int $product_quantity,
+
+        private ?string $product_image,
+        private ?string $product_image_ext,
+        private ?bool $product_image_cdn,
 
         private string $category_name,
         private string $category_url,
@@ -274,19 +272,19 @@ final readonly class ProductUserBasketResult
      * ProductImage
      */
 
-    public function getProductImage(): string
+    public function getProductImage(): ?string
     {
         return $this->product_image;
     }
 
-    public function getProductImageExt(): string
+    public function getProductImageExt(): ?string
     {
         return $this->product_image_ext;
     }
 
     public function getProductImageCdn(): bool
     {
-        return $this->product_image_cdn;
+        return $this->product_image_cdn === true;
     }
 
     /**

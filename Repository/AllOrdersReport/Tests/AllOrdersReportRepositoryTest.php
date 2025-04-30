@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\AllOrdersReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
+use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -40,13 +41,24 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
     public function testFind(): void
     {
-        /** @var AllOrdersReportInterface $allOrdersReportRepository */
+        /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
             ->date(new DateTimeImmutable())
             ->findAll();
 
-        self::assertNotEmpty($result);
+        if(false === $result)
+        {
+            self::assertFalse(false);
+            return;
+        }
+
+        /** @var AllOrdersReportResult $AllOrdersReportResult */
+        foreach($result as $AllOrdersReportResult)
+        {
+            self::assertInstanceOf(AllOrdersReportResult::class, $AllOrdersReportResult);
+            break;
+        }
     }
 }

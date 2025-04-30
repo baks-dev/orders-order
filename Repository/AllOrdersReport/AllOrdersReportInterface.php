@@ -26,10 +26,18 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\AllOrdersReport;
 
 use DateTimeImmutable;
+use Generator;
 
 interface AllOrdersReportInterface
 {
     public function date(DateTimeImmutable $date): self;
 
-    public function findAll(): array|false;
+    /**
+     * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
+     * @return Generator{int, AllOrdersReportResult}|false
+     */
+    public function findAll(): Generator|false;
+
+    public function toString(): array|false;
+
 }

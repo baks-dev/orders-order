@@ -52,6 +52,7 @@ use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use InvalidArgumentException;
 
 final class AllOrdersReportRepository implements AllOrdersReportInterface
@@ -65,14 +66,13 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         return $this;
     }
 
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-    ) {}
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
+     * @return Generator{int, AllOrdersReportResult}|false
      */
-    public function findAll(): array|false
+    public function findAll(): Generator|false
     {
         if(false === ($this->date instanceof DateTimeImmutable))
         {
@@ -85,15 +85,6 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 
         $dbal->from(Order::class, "orders");
 
-        $dbal
-            ->select("orders_invariable.number AS number")
-            ->join(
-                "orders",
-                OrderInvariable::class,
-                "orders_invariable",
-                "orders_invariable.main = orders.id"
-            );
-
         $dbal->join(
             'orders',
             OrderEvent::class,
@@ -103,6 +94,29 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                     orders_event.status = 'completed'
                 "
         );
+
+        $dbal
+            ->addSelect("orders_modify.mod_date AS mod_date")
+            ->join(
+                "orders",
+                OrderModify::class,
+                "orders_modify",
+                "orders_modify.event = orders.event AND DATE(orders_modify.mod_date) = :date"
+            )
+            ->setParameter(
+                key: "date",
+                value: $this->date,
+                type: Types::DATE_IMMUTABLE
+            );
+
+        $dbal
+            ->select("orders_invariable.number AS number")
+            ->join(
+                "orders",
+                OrderInvariable::class,
+                "orders_invariable",
+                "orders_invariable.main = orders.id"
+            );
 
         $dbal->join(
             "orders",
@@ -122,19 +136,6 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_price.product = orders_product.id"
             );
 
-        $dbal
-            ->addSelect("orders_modify.mod_date AS mod_date")
-            ->join(
-                "orders",
-                OrderModify::class,
-                "orders_modify",
-                "orders_modify.event = orders.event AND DATE(orders_modify.mod_date) = :date"
-            )
-            ->setParameter(
-                key: "date",
-                value: $this->date,
-                type: Types::DATE_IMMUTABLE
-            );
 
         $dbal->leftJoin(
             "orders",
@@ -328,6 +329,13 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->addOrderBy("orders_modify.mod_date");
 
         $result = $dbal->fetchAllHydrate(AllOrdersReportResult::class);
+
+        return $result->valid() ? $result : false;
+    }
+
+    public function toString(): array|false
+    {
+        $result = $this->findAll();
 
         return $result->valid() ? iterator_to_array($result) : false;
     }

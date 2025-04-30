@@ -110,7 +110,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             );
 
         $dbal
-            ->select("orders_invariable.number AS number")
+            ->addSelect("orders_invariable.number AS number")
             ->join(
                 "orders",
                 OrderInvariable::class,

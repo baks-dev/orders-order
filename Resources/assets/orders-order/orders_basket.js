@@ -313,8 +313,29 @@ document.querySelectorAll(".delete-product").forEach(function(btn)
     btn.addEventListener("click", function(event)
     {
         event.preventDefault();
+
+        const itemId = btn.dataset.id;
+        const item = document.getElementById(itemId);
+
+        if(item)
+        {
+            item.classList.add("fade-delete");
+
+            setTimeout(function()
+            {
+                item.remove();
+
+                const remainingItems = document.querySelectorAll(".delete-product");
+                if(remainingItems.length === 0)
+                {
+                    location.reload();
+                }
+
+                total();
+            }, 500);
+        }
         submitLink(btn.href, btn.dataset.id);
-        setTimeout(total, 1e3);
+        // setTimeout(total, 1e3);
     });
 });
 

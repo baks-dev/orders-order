@@ -38,6 +38,6 @@ interface AllOrdersReportInterface
      */
     public function findAll(): Generator|false;
 
-    public function toString(): array|false;
+    public function toArray(): array|false;
 
 }

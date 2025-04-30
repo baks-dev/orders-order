@@ -72,7 +72,7 @@ final class ReportOrdersController extends AbstractController
                 ->date($ordersReportDTO->getDate())
                 ->findAll();
 
-            if(false === $result)
+            if(false === $result || false === $result->valid())
             {
                 $this->addFlash(
                     'Отчет о заказах',

@@ -333,10 +333,15 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         return $result->valid() ? $result : false;
     }
 
-    public function toString(): array|false
+    public function toArray(): array|false
     {
         $result = $this->findAll();
 
-        return $result->valid() ? iterator_to_array($result) : false;
+        if(false === $result || false === $result->valid())
+        {
+            return false;
+        }
+
+        return iterator_to_array($result);
     }
 }

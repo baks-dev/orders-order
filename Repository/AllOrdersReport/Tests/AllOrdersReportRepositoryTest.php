@@ -27,6 +27,8 @@ namespace BaksDev\Orders\Order\Repository\AllOrdersReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
+use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewTest;
+use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -39,6 +41,12 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        ProductsProductNewTest::setUpBeforeClass();
+        new ProductsProductNewTest()->testUseCase();
+    }
+
     public function testFind(): void
     {
         /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */
@@ -58,6 +66,35 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         foreach($result as $AllOrdersReportResult)
         {
             self::assertInstanceOf(AllOrdersReportResult::class, $AllOrdersReportResult);
+
+            self::assertInstanceOf(DateTimeImmutable::class, $AllOrdersReportResult->getDate()); //: DateTimeImmutable
+            self::assertIsString($AllOrdersReportResult->getNumber()); //: string
+            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getProductPrice()); //: Money;
+
+            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getOrderPrice()); //: Money;
+            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getMoney()); //: Money;
+            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getProfit()); //: Money;
+
+            self::assertIsInt($AllOrdersReportResult->getTotal());
+
+            self::assertTrue((is_string($AllOrdersReportResult->getProductName()) || is_null($AllOrdersReportResult->getProductName())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductArticle()) || is_null($AllOrdersReportResult->getProductArticle())));
+
+            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferValue()) || is_null($AllOrdersReportResult->getProductOfferValue())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferPostfix()) || is_null($AllOrdersReportResult->getProductOfferPostfix())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferReference()) || is_null($AllOrdersReportResult->getProductOfferReference())));
+
+            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationValue()) || is_null($AllOrdersReportResult->getProductVariationValue())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationPostfix()) || is_null($AllOrdersReportResult->getProductVariationPostfix())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationReference()) || is_null($AllOrdersReportResult->getProductVariationReference())));
+
+            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationValue()) || is_null($AllOrdersReportResult->getProductModificationValue())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationPostfix()) || is_null($AllOrdersReportResult->getProductModificationPostfix())));
+            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationReference()) || is_null($AllOrdersReportResult->getProductModificationReference())));
+
+            self::assertTrue((is_string($AllOrdersReportResult->getDeliveryName()) || is_null($AllOrdersReportResult->getDeliveryName())));
+            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getDeliveryPrice());
+
             break;
         }
     }

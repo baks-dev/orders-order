@@ -72,7 +72,7 @@ final class ReportProductsController extends AbstractController
                 ->from($productsReportDTO->getFrom())
                 ->findAll();
 
-            if(false === $result)
+            if(false === $result || false === $result->valid())
             {
                 $this->addFlash(
                     'Отчет о заказах',

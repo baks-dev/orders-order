@@ -265,7 +265,9 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             ->addOrderBy("product_variation.value")
             ->addOrderBy("product_modification.value");
 
-        return $dbal->fetchAllHydrate(AllProductsOrdersReportResult::class);
+        $result = $dbal->fetchAllHydrate(AllProductsOrdersReportResult::class);
+
+        return $result->valid() ? $result : false;
 
     }
 

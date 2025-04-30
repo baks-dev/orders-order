@@ -17,6 +17,7 @@ baks-dev/centrifugo \
 baks-dev/orders-order \
 baks-dev/products-stocks \
 baks-dev/delivery \
+phpoffice/phpspreadsheet\
 ```
 
 ## Cервер Centrifugo

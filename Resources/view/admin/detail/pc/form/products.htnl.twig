@@ -43,7 +43,7 @@
                                         postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
                                     }) }}"
                                     class="icon rounded-4 mb-2 bg-contain p-1"
-                                    style="width: 75px; height: 75px; background-image: url('{{ image_path }}')"
+                                    style="width: 60px; height: 60px; background-image: url('{{ image_path }}')"
                                     target="_blank"
                             ></a>
 
@@ -136,7 +136,8 @@
 
 
                                 {{ form_widget(product.price.price, { attr: {
-                                    class: 'w-75 form-control-sm rounded-3 price',
+                                    class: 'form-control-sm rounded-3 price',
+                                    style: 'width: 75px;',
                                     disabled: false
                                 } }) }}
 
@@ -182,7 +183,7 @@
                             label: false,
                             attr: {
                                 class : 'form-control-sm mx-1 rounded-3 total',
-                                style: 'width: 60px;',
+                                style: 'width: 50px;',
                                 'data-price' : ''~product.price.vars.data.price.value*100,
                                 'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
                                 'data-currency' : product.price.vars.data.currency|upper

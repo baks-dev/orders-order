@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -143,6 +144,21 @@ class OrderEvent extends EntityEvent
         $this->orders = $order instanceof Order ? $order->getId() : $order;
     }
 
+    public function isInvariable(): bool
+    {
+        return $this->invariable instanceof OrderInvariable;
+    }
+
+    public function setInvariable(OrderInvariable|false $invariable): self
+    {
+        if($invariable instanceof OrderInvariable)
+        {
+            $this->invariable = $invariable;
+        }
+
+        return $this;
+    }
+
 
     /**
      * @deprecated  используйте метод isStatusEquals
@@ -163,9 +179,15 @@ class OrderEvent extends EntityEvent
         return $this->usr->getDelivery()->getDeliveryType()->equals($delivery);
     }
 
+
     public function getOrderNumber(): ?string
     {
         return $this->invariable?->getNumber();
+    }
+
+    public function getOrderUser(): ?UserUid
+    {
+        return $this->invariable?->getUsr();
     }
 
     public function getOrderProfile(): ?UserProfileUid

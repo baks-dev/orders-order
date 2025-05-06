@@ -27,14 +27,19 @@ namespace BaksDev\Orders\Order\Repository\OrderEvent;
 
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Repository\OrderInvariable\OrderInvariableInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 
 final readonly class OrderEventRepository implements OrderEventInterface
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
+    public function __construct(
+        private ORMQueryBuilder $ORMQueryBuilder,
+        private OrderInvariableInterface $OrderInvariableRepository,
+    ) {}
 
     /**
-     * Метод возвращает кешируемое событие по идентификатору
+     * Метод возвращает событие по идентификатору
      */
     public function find(OrderEventUid|string $event): OrderEvent|false
     {
@@ -55,8 +60,27 @@ final readonly class OrderEventRepository implements OrderEventInterface
                 type: OrderEventUid::TYPE
             );
 
-        return $orm
-            ->enableCache('orders-order', '1 day')
-            ->getOneOrNullResult() ?: false;
+
+        /** @var OrderEvent $OrderEvent */
+        $OrderEvent = $orm->getOneOrNullResult();
+
+        /** Получаем активное состояние OrderInvariable если не определено */
+
+        if(($OrderEvent instanceof OrderEvent) && false === $OrderEvent->isInvariable())
+        {
+            $OrderInvariable = $this->OrderInvariableRepository
+                ->forOrder($OrderEvent->getMain())
+                ->find();
+
+            if(false === ($OrderInvariable instanceof OrderInvariable))
+            {
+                return false;
+            }
+
+            $OrderEvent->setInvariable($OrderInvariable);
+
+        }
+
+        return $OrderEvent ?: false;
     }
 }

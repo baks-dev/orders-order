@@ -447,25 +447,17 @@
     {% endfor %}
 
 
-    {% set discount = false %}
-
-
-    {% if order.order_profile_discount %}
-        {% set discount = total_summ_product - (total_summ_product / 100 * order.order_profile_discount) %}
-    {% endif %}
-
-
     <div class="w-100 d-flex justify-content-between align-items-center bg-light p-3 gap-3">
 
         <div class="w-100">
             <span class="small">Товаров на сумму: &nbsp;
-                <span id='total_product_sum'>{{ discount ?  money(discount) : money(total_summ_product) }}</span>
+                <span id='total_product_sum'>{{ money(total_summ_product, total_summ_currency) }}</span>
             </span>
 
             <div class="d-flex align-items-stretch">
                 <span class="small me-3 pt-1">Итого:</span>
                 <span id='total_all_sum'
-                      class="fw-bolder mb-0 h3">{{ discount ?  money(discount) : money(total_summ_product) }}</span>
+                      class="fw-bolder mb-0 h3">{{ money(total_summ_product, total_summ_currency) }}</span>
             </div>
         </div>
 

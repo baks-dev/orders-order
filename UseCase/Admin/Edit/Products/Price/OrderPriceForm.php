@@ -47,6 +47,7 @@ final class OrderPriceForm extends AbstractType
     {
         $this->discount = match (true)
         {
+            $this->security->isGranted('ROLE_ADMIN') => 100,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_20') => 20,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
             $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
@@ -78,9 +79,16 @@ final class OrderPriceForm extends AbstractType
                             return;
                         }
 
+
                         $productPrice = new Money($card['product_price'], true);
                         $percent = $productPrice->percent($this->discount);
                         $min = $productPrice->sub($percent);
+
+
+                        if($this->security->isGranted('ROLE_ADMIN'))
+                        {
+                            $min = new Money(1);
+                        }
 
 
                         $form->add(

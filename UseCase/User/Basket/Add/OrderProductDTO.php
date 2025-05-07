@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\User\Basket\Add;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -58,7 +59,7 @@ final class OrderProductDTO implements OrderProductInterface
 
 
     /** Карточка товара */
-    private array $card;
+    private ProductUserBasketResult|array $card;
 
 
     public function __construct()
@@ -152,12 +153,12 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Карточка товара */
 
-    public function getCard(): array
+    public function getCard(): ProductUserBasketResult|array
     {
         return $this->card;
     }
 
-    public function setCard(array $card): void
+    public function setCard(ProductUserBasketResult|array $card): void
     {
         $this->card = $card;
     }

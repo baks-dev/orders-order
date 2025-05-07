@@ -32,8 +32,6 @@ use BaksDev\Orders\Order\UseCase\User\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\User\Basket\OrderHandler;
-use BaksDev\Reference\Currency\Type\Currency;
-use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,8 +43,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 #[AsController]
 class BasketController extends AbstractController
 {
-    // Корзина пользователя
-
+    /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
     #[Route('/basket', name: 'user.basket')]
@@ -68,8 +65,7 @@ class BasketController extends AbstractController
             $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
         }
 
-        // Получаем корзину
-
+        /** Получаем корзину */
         if(!$AppCache->hasItem($key))
         {
             return $this->render(['form' => null]);
@@ -87,7 +83,6 @@ class BasketController extends AbstractController
         /** Присваиваем пользователя */
         $OrderUserDTO = $OrderDTO->getUsr();
 
-
         $OrderUserDTO->setUsr($this->getUsr()?->getId() ?: new UserUid());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
@@ -96,18 +91,15 @@ class BasketController extends AbstractController
             /** @var OrderProductDTO $product */
             foreach($this->products as $product)
             {
-                /**
-                 * @todo @note !!!
-                 * @deprecated Обновить на ProductUserBasketResult
-                 */
-                $ProductDetail = $userBasket->fetchProductBasketAssociative(
-                    $product->getProduct(),
-                    $product->getOffer(),
-                    $product->getVariation(),
-                    $product->getModification()
-                );
+                /** @var ProductUserBasketResult|false $ProductUserBasketResult */
+                $ProductDetail = $userBasket
+                    ->forEvent($product->getProduct())
+                    ->forOffer($product->getOffer())
+                    ->forVariation($product->getVariation())
+                    ->forModification($product->getModification())
+                    ->findAll();
 
-                if(!$ProductDetail)
+                if(false === $ProductDetail)
                 {
                     /**
                      * Удаляем из корзины, если карточка товара не найдена
@@ -139,8 +131,7 @@ class BasketController extends AbstractController
 
                 $product->setCard($ProductDetail);
 
-
-                /** @var ProductUserBasketResult $ProductUserBasketResult */
+                /** @var ProductUserBasketResult|false $ProductUserBasketResult */
                 $ProductUserBasketResult = $userBasket
                     ->forEvent($product->getProduct())
                     ->forOffer($product->getOffer())
@@ -162,8 +153,13 @@ class BasketController extends AbstractController
         $handleForm = $this->createForm(OrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);
 
-        // Форма форма корзины
-        $form = $this->createForm(OrderForm::class, $OrderDTO, ['action' => $this->generateUrl('orders-order:user.basket')]);
+        // Форма корзины
+        $form = $this->createForm(
+            type: OrderForm::class,
+            data: $OrderDTO,
+            options: [
+                'action' => $this->generateUrl('orders-order:user.basket')
+            ]);
 
         if(null === $request->headers->get('X-Requested-With'))
         {
@@ -173,7 +169,6 @@ class BasketController extends AbstractController
         if($form->isSubmitted() && $form->isValid())
         {
             $this->refreshTokenForm($form);
-
 
             /** Делаем проверку геоданных */
             $OrderDeliveryDTO = $OrderUserDTO->getDelivery();
@@ -195,14 +190,15 @@ class BasketController extends AbstractController
             /**
              * Проверяем, что продукция в наличии в карточке
              */
-
             foreach($OrderDTO->getProduct() as $product)
             {
+
+                /** @var ProductUserBasketResult|array $ProductDetail */
                 $ProductDetail = $product->getCard();
 
                 if(
-                    $ProductDetail['event'] !== $ProductDetail['current_event'] ||
-                    $product->getPrice()->getTotal() > $ProductDetail['product_quantity']
+                    false === $ProductDetail->getProductEvent()->equals($ProductDetail->getCurrentProductEvent()) ||
+                    $product->getPrice()->getTotal() > $ProductDetail->getProductQuantity()
                 )
                 {
 
@@ -239,15 +235,14 @@ class BasketController extends AbstractController
                     );
 
                     // Редирект на страницу товара
-
-                    $postfix = ($ProductDetail['product_modification_postfix'] ?: $ProductDetail['product_variation_postfix'] ?: $ProductDetail['product_offer_postfix'] ?: null);
+                    $postfix = (string) ($ProductDetail->getProductModificationPostfix() ?: $ProductDetail->getProductVariationPostfix() ?: $ProductDetail->getProductOfferPostfix() ?: null);
 
                     return $this->redirectToRoute('products-product:user.detail', [
-                        'category' => $ProductDetail['category_url'],
-                        'url' => $ProductDetail['product_url'],
-                        'offer' => $ProductDetail['product_offer_value'],
-                        'variation' => $ProductDetail['product_variation_value'],
-                        'modification' => $ProductDetail['product_modification_value'],
+                        'category' => (string) $ProductDetail->getCategoryUrl(),
+                        'url' => (string) $ProductDetail->getProductUrl(),
+                        'offer' => (string) $ProductDetail->getProductOfferValue(),
+                        'variation' => (string) $ProductDetail->getProductVariationValue(),
+                        'modification' => (string) $ProductDetail->getProductModificationValue(),
                         'postfix' => $postfix ? str_replace('/', '-', $postfix) : null
 
                     ]);
@@ -267,15 +262,10 @@ class BasketController extends AbstractController
             }
 
             $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);
-
         }
-
 
         return $this->render([
             'form' => $form->createView(),
         ]);
     }
-
-
-    public function remove(): void {}
 }

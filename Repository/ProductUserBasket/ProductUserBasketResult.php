@@ -25,8 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\ProductUserBasket;
 
+use BaksDev\Products\Product\Repository\RepositoryResultInterface;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -38,11 +40,13 @@ use BaksDev\Reference\Money\Type\Money;
 use DateMalformedStringException;
 use DateTimeImmutable;
 use JsonException;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
-final readonly class ProductUserBasketResult
+/** @see ProductUserBasketRepository */
+#[Exclude]
+final readonly class ProductUserBasketResult implements RepositoryResultInterface
 {
     public function __construct(
-
         private string $id,
         private string $event,
 
@@ -89,6 +93,10 @@ final readonly class ProductUserBasketResult
         private int $category_threshold,
 
         private string $category_section_field,
+
+        private string|null $product_invariable_id,
+
+        private int|null $profile_discount = null,
 
     ) {}
 
@@ -292,12 +300,32 @@ final readonly class ProductUserBasketResult
      */
     public function getProductPrice(): Money
     {
-        return new Money($this->product_price, true);
+        // без применения скидки в профиле пользователя
+        if(is_null($this->profile_discount))
+        {
+            return new Money($this->product_price, true);
+        }
+
+        // применяем скидку пользователя из профиля
+        $price = new Money($this->product_price, true);
+        $price->applyPercent($this->profile_discount);
+
+        return $price;
     }
 
     public function getProductOldPrice(): Money
     {
-        return new Money($this->product_old_price, true);
+        // без применения скидки в профиле пользователя
+        if(is_null($this->profile_discount))
+        {
+            return new Money($this->product_old_price, true);
+        }
+
+        // применяем скидку пользователя из профиля
+        $price = new Money($this->product_old_price, true);
+        $price->applyPercent($this->profile_discount);
+
+        return $price;
     }
 
 
@@ -310,7 +338,6 @@ final readonly class ProductUserBasketResult
     {
         return $this->product_quantity;
     }
-
 
     /**
      * Category
@@ -360,5 +387,35 @@ final readonly class ProductUserBasketResult
     public function getCategorySectionField(): array
     {
         return json_decode($this->category_section_field, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public function getProductInvariableId(): ?ProductInvariableUid
+    {
+        if(is_null($this->product_invariable_id))
+        {
+            return null;
+        }
+
+        return new ProductInvariableUid($this->product_invariable_id);
+    }
+
+    public function getProfileDiscount(): ?int
+    {
+        return $this->profile_discount;
+    }
+
+    /** Возвращает разницу между старой и новой ценами в процентах */
+    public function getDiscountPercent(): int|null
+    {
+        $price = $this->getProductPrice()->getValue();
+        $oldPrice = $this->getProductOldPrice()->getValue();
+
+        $discountPercent = null;
+        if($oldPrice > $price)
+        {
+            $discountPercent = (int) (($oldPrice - $price) / $oldPrice * 100);
+        }
+
+        return $discountPercent;
     }
 }

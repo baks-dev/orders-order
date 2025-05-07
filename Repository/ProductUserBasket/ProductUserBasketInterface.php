@@ -45,7 +45,7 @@ interface ProductUserBasketInterface
 
     public function findAll(): ProductUserBasketResult|false;
 
-    /** @depricate */
+    /** @deprecated */
     public function fetchProductBasketAssociative(
         ProductEventUid $event,
         ?ProductOfferUid $offer = null,

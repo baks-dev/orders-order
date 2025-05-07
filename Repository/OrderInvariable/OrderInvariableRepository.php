@@ -83,6 +83,6 @@ final class OrderInvariableRepository implements OrderInvariableInterface
                 type: OrderUid::TYPE
             );
 
-        return $orm->getQuery()->getResult() ?: false;
+        return $orm->getQuery()->getOneOrNullResult() ?? false;
     }
 }

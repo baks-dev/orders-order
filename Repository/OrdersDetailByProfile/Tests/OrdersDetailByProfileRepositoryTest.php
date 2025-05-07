@@ -54,14 +54,19 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         /** @var OrdersDetailByProfileInterface $repository */
         $repository = self::getContainer()->get(OrdersDetailByProfileInterface::class);
 
-
         /**
          * Получаем идентификатор администратора
          * @var AdminUserProfileInterface $AdminUserProfile
          */
-
         $AdminUserProfile = self::getContainer()->get(AdminUserProfileInterface::class);
         $UserProfileUid = $AdminUserProfile->fetchUserProfile();
+
+        if(is_null($UserProfileUid))
+        {
+            self::$result = false;
+            echo PHP_EOL.'Не найден профиль администратора : '.self::class.PHP_EOL;
+            return;
+        }
 
         $result = $repository
             ->byProfile($UserProfileUid)

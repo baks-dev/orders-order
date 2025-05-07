@@ -57,12 +57,18 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQu
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
+use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
 use InvalidArgumentException;
 
 final class ProductUserBasketRepository implements ProductUserBasketInterface
@@ -75,7 +81,10 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
     private ProductModificationUid|false $modification = false;
 
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
+    ) {}
 
     public function forEvent(ProductEvent|ProductEventUid|string $event): self
     {
@@ -219,7 +228,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product.id = product_event.main'
             );
 
-
         $dbal
             ->addSelect('product_trans.name AS product_name')
             ->leftJoin(
@@ -239,8 +247,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_price.event = product_event.id'
             );
 
-        /* ProductInfo */
-
+        /** ProductInfo */
         $dbal
             ->addSelect('product_info.url AS product_url')
             ->leftJoin(
@@ -252,7 +259,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 
         /** Торговое предложение */
-
         $dbal
             ->addSelect('product_offer.id as product_offer_uid')
             ->addSelect('product_offer.const as product_offer_const')
@@ -294,7 +300,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'category_offer.id = product_offer.category_offer'
             );
 
-
         /** Получаем название торгового предложения */
         $dbal
             ->addSelect('category_offer_trans.name as product_offer_name')
@@ -317,7 +322,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         /**
          * Множественные варианты торгового предложения
          */
-
         $dbal
             ->addSelect('product_variation.id as product_variation_uid')
             ->addSelect('product_variation.const as product_variation_const')
@@ -377,7 +381,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 
         /** Модификация множественного варианта торгового предложения */
-
         $dbal
             ->addSelect('product_modification.id as product_modification_uid')
             ->addSelect('product_modification.const as product_modification_const')
@@ -437,7 +440,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 
         /** Артикул продукта */
-
         $dbal->addSelect('
             COALESCE(
                 product_modification.article, 
@@ -450,8 +452,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         /** ФОТО  */
 
-        /* Фото модификаций */
-
+        /** Фото модификаций */
         $dbal->leftJoin(
             'product_modification',
             ProductModificationImage::class,
@@ -462,8 +463,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         );
 
 
-        /* Фото вариантов */
-
+        /** Фото вариантов */
         $dbal->leftJoin(
             'product_offer',
             ProductVariationImage::class,
@@ -475,8 +475,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         );
 
 
-        /* Фот оторговых предложений */
-
+        /** Фото торговых предложений */
         $dbal->leftJoin(
             'product_offer',
             ProductOfferImage::class,
@@ -489,15 +488,13 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 		'
         );
 
-        /* Фото продукта */
-
+        /** Фото продукта */
         $dbal->leftJoin(
             'product_offer',
             ProductPhoto::class,
             'product_photo',
             'product_photo.event = product_event.id AND product_photo.root = true'
         );
-
 
         $dbal
             ->addGroupBy('product_modification_image.ext')
@@ -568,8 +565,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 
         /** Стоимость продукта */
-
-
         $dbal->addSelect(
             "
 			CASE
@@ -590,8 +585,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 		"
         );
 
-        /* Предыдущая стоимость продукта */
-
+        /** Предыдущая стоимость продукта */
         $dbal->addSelect("
 			COALESCE(
                 NULLIF(product_modification_price.old, 0),
@@ -602,9 +596,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ) AS product_old_price
 		");
 
-
         /** Валюта продукта */
-
         $dbal->addSelect(
             "
 			CASE
@@ -624,7 +616,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         );
 
         /** Наличие продукта */
-
         $dbal->addSelect(
             "
 			CASE
@@ -752,11 +743,66 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 					'field_trans', category_section_field_trans.name,
 					'field_value', product_property.value
 				)
-			
 		)
 			AS category_section_field"
         );
 
+        /**
+         * Product Invariable
+         */
+        $dbal
+            ->addSelect('product_invariable.id AS product_invariable_id')
+            ->leftJoin(
+                'product_modification',
+                ProductInvariable::class,
+                'product_invariable',
+                '
+                    product_invariable.product = product.id AND 
+                    (
+                        (product_offer.const IS NOT NULL AND product_invariable.offer = product_offer.const) OR 
+                        (product_offer.const IS NULL AND product_invariable.offer IS NULL)
+                    )
+                    AND
+                    (
+                        (product_variation.const IS NOT NULL AND product_invariable.variation = product_variation.const) OR 
+                        (product_variation.const IS NULL AND product_invariable.variation IS NULL)
+                    )
+                   AND
+                   (
+                        (product_modification.const IS NOT NULL AND product_invariable.modification = product_modification.const) OR 
+                        (product_modification.const IS NULL AND product_invariable.modification IS NULL)
+                   )
+            ');
+
+        /** Персональная скидка из профиля авторизованного пользователя */
+        if(true === $this->userProfileTokenStorage->isUser())
+        {
+            $profile = $this->userProfileTokenStorage->getProfileCurrent();
+
+            if($profile instanceof UserProfileUid)
+            {
+                $dbal
+                    ->addSelect('profile_info.discount AS profile_discount')
+                    ->leftJoin(
+                        'product',
+                        UserProfileInfo::class,
+                        'profile_info',
+                        '
+                        profile_info.profile = :profile AND 
+                        profile_info.status = :profile_status'
+                    )
+                    ->setParameter(
+                        key: 'profile',
+                        value: $profile,
+                        type: UserProfileUid::TYPE)
+                    /** Активный статус профиля */
+                    ->setParameter(
+                        key: 'profile_status',
+                        value: UserProfileStatusActive::class,
+                        type: UserProfileStatus::TYPE
+                    );
+            }
+        }
 
         $dbal->allGroupByExclude();
 
@@ -768,7 +814,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         return $this->builder()->fetchHydrate(ProductUserBasketResult::class);
     }
 
-    /** @depricete */
+    /** @deprecated */
     public function fetchProductBasketAssociative(
         ProductEventUid $event,
         ?ProductOfferUid $offer = null,
@@ -785,7 +831,5 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         // Не кешируем результат для актуальной проверки наличия
         return $dbal->fetchAssociative();
-
     }
-
 }

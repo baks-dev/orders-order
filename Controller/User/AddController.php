@@ -188,12 +188,12 @@ class AddController extends AbstractController
             );
         }
 
-        $ProductDetail = $productDetail->fetchProductBasketAssociative(
-            $AddProductBasketDTO->getProduct(),
-            $AddProductBasketDTO->getOffer(),
-            $AddProductBasketDTO->getVariation(),
-            $AddProductBasketDTO->getModification()
-        );
+        $ProductDetail = $productDetail
+            ->forEvent($AddProductBasketDTO->getProduct())
+            ->forOffer($AddProductBasketDTO->getOffer())
+            ->forVariation($AddProductBasketDTO->getVariation())
+            ->forModification($AddProductBasketDTO->getModification())
+            ->findAll();
 
         return $this->render([
             'form' => $form->createView(),

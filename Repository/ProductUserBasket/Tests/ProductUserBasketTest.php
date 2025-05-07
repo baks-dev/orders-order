@@ -43,11 +43,8 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Collections\Order;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-
 
 /**
  * @group orders-order
@@ -111,7 +108,6 @@ class ProductUserBasketTest extends KernelTestCase
             self::assertIsString($ProductUserBasketResult->getProductArticle()); // string
             self::assertIsString($ProductUserBasketResult->getProductUrl()); // string
 
-
             // null|string
 
             if($ProductUserBasketResult->getProductOfferUid())
@@ -129,11 +125,11 @@ class ProductUserBasketTest extends KernelTestCase
                 self::assertNull($ProductUserBasketResult->getProductOfferName());
             }
 
-            $ProductUserBasketResult->getProductOfferPostfix() ?
+            is_string($ProductUserBasketResult->getProductOfferPostfix()) ?
                 self::assertIsString($ProductUserBasketResult->getProductOfferPostfix()) :
                 self::assertNull($ProductUserBasketResult->getProductOfferPostfix()); // null|string
 
-            $ProductUserBasketResult->getProductOfferReference() ?
+            is_string($ProductUserBasketResult->getProductOfferReference()) ?
                 self::assertIsString($ProductUserBasketResult->getProductOfferReference()) :
                 self::assertNull($ProductUserBasketResult->getProductOfferReference()); // null|string
 
@@ -154,11 +150,12 @@ class ProductUserBasketTest extends KernelTestCase
                 self::assertNull($ProductUserBasketResult->getProductVariationName()); // null|string
             }
 
-            $ProductUserBasketResult->getProductVariationPostfix() ?
+            is_string($ProductUserBasketResult->getProductVariationPostfix()) ?
                 self::assertIsString($ProductUserBasketResult->getProductVariationPostfix()) :
                 self::assertNull($ProductUserBasketResult->getProductVariationPostfix()); // null|string
 
-            $ProductUserBasketResult->getProductVariationReference() ?
+
+            is_string($ProductUserBasketResult->getProductVariationReference()) ?
                 self::assertIsString($ProductUserBasketResult->getProductVariationReference()) :
                 self::assertNull($ProductUserBasketResult->getProductVariationReference()); // null|string
 
@@ -180,11 +177,11 @@ class ProductUserBasketTest extends KernelTestCase
             }
 
 
-            $ProductUserBasketResult->getProductModificationPostfix() ?
+            is_string($ProductUserBasketResult->getProductModificationPostfix()) ?
                 self::assertIsString($ProductUserBasketResult->getProductModificationPostfix()) :
                 self::assertNull($ProductUserBasketResult->getProductModificationPostfix()); // null|string
 
-            $ProductUserBasketResult->getProductModificationReference() ?
+            is_string($ProductUserBasketResult->getProductModificationReference()) ?
                 self::assertIsString($ProductUserBasketResult->getProductModificationReference()) :
                 self::assertNull($ProductUserBasketResult->getProductModificationReference()); // null|string
 

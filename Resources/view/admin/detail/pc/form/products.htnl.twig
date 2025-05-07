@@ -136,7 +136,7 @@
 
 
                                 {{ form_widget(product.price.price, { attr: {
-                                    class: 'form-control-sm rounded-3 price text-center',
+                                    class: 'form-control-sm rounded-3 price',
                                     style: 'width: 75px;',
                                     disabled: false
                                 } }) }}
@@ -182,7 +182,7 @@
                         {{ form_widget(product.price.total, {
                             label: false,
                             attr: {
-                                class : 'form-control-sm mx-1 rounded-3 total text-center',
+                                class : 'form-control-sm mx-1 rounded-3 total',
                                 style: 'width: 50px;',
                                 'data-price' : ''~product.price.vars.data.price.value*100,
                                 'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
@@ -262,7 +262,7 @@
                             <ul class="dropdown-menu">
 
 
-                                {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
+                                {% if constant('\BaksDev\Wildberries\Products\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
 
                                     <li>
                                         <a href="{{ path('wildberries-products:admin.barcode.print', {
@@ -294,7 +294,15 @@
 
 
             {% if product.price.price is defined %}
-                {% if is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+
+
+
+
+    {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
+    <td colspan="4">
+    <span class="badge text-bg-danger">Скидка до 20%</span>
+
+    {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
                     <tr>
     <td colspan="4">
     <span class="badge text-bg-danger">Скидка до 15%</span>
@@ -306,13 +314,15 @@
                     <tr>
     <td colspan="4">
     <span class="badge text-bg-danger">Скидка до 5%</span>
-                {% else %}
+
+
+    {% else %}
                     <tr>
                         <td colspan="4">
-                            <span class="badge text-bg-danger">Скидка до 20%</span>
+        <span class="badge text-bg-danger">Скидка до 100%</span>
                 {% endif %}
 
-                            &nbsp;<small> мин. стомиость: </small>
+        &nbsp;<small> мин. стоимость: </small>
                             &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
                         </td>
                 </tr>

@@ -102,6 +102,11 @@ final class UserProfileForm extends AbstractType
 
                 $fields = $data->getType() ? $this->fieldValue->get($data->getType()) : [];
 
+                if(empty($fields))
+                {
+                    return;
+                }
+
                 $data->resetValue();
                 $form->remove('value');
 

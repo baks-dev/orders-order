@@ -486,6 +486,7 @@ async function submitRegionForm(forms, id)
         method : forms.method,
         cache : "no-cache",
         credentials : "same-origin",
+        headers : {"X-Requested-With" : "XMLHttpRequest"},
         redirect : "follow",
         referrerPolicy : "no-referrer",
         body : data,
@@ -522,6 +523,16 @@ async function submitRegionForm(forms, id)
                 return true;
 
             });
+
+            let delivery_call = document.querySelector("#" + forms.name + "_usr_delivery_field_0_value_call");
+
+            if(delivery_call)
+            {
+                new NiceSelect(delivery_call, {searchable : true});
+            }
+
+
+
 
             //limitZJzxDhmvtC = 100;
             //

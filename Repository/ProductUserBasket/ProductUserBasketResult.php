@@ -298,8 +298,13 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
     /**
      * ProductPrice
      */
-    public function getProductPrice(): Money
+    public function getProductPrice(): Money|false
     {
+        if(empty($this->product_price))
+        {
+            return false;
+        }
+
         $price = new Money($this->product_price, true);
 
         // применяем скидку пользователя из профиля
@@ -311,8 +316,13 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
         return $price;
     }
 
-    public function getProductOldPrice(): Money
+    public function getProductOldPrice(): Money|false
     {
+        if(empty($this->product_old_price))
+        {
+            return false;
+        }
+
         $price = new Money($this->product_old_price, true);
 
         // применяем скидку пользователя из профиля
@@ -407,6 +417,7 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
         $oldPrice = $this->getProductOldPrice()->getValue();
 
         $discountPercent = null;
+
         if($oldPrice > $price)
         {
             $discountPercent = (int) (($oldPrice - $price) / $oldPrice * 100);

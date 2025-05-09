@@ -50,6 +50,10 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
+use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Generator;
@@ -323,6 +327,25 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "product_trans",
                 "product_trans.event = product_event.id AND product_trans.local = :local"
             );
+
+
+        /**
+         * Применяем настройки стоимости магазина
+         */
+
+        if($dbal->isProjectProfile())
+        {
+            $dbal
+                ->bindProjectProfile()
+                ->addSelect('project_profile_info.discount AS project_discount')
+                ->leftJoin(
+                    'product',
+                    UserProfileInfo::class,
+                    'project_profile_info',
+                    'project_profile_info.profile = :project_profile'
+                );
+        }
+
 
         $dbal
             ->orderBy("delivery_trans.name")

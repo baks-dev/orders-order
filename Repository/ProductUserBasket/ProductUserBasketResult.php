@@ -96,7 +96,7 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
 
         private string|null $product_invariable_id,
 
-        private int|null $profile_discount = null,
+        private string|null $profile_discount = null,
 
     ) {}
 
@@ -300,30 +300,26 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
      */
     public function getProductPrice(): Money
     {
-        // без применения скидки в профиле пользователя
-        if(is_null($this->profile_discount))
-        {
-            return new Money($this->product_price, true);
-        }
+        $price = new Money($this->product_price, true);
 
         // применяем скидку пользователя из профиля
-        $price = new Money($this->product_price, true);
-        $price->applyPercent($this->profile_discount);
+        if(false === empty($this->profile_discount))
+        {
+            $price->applyString($this->profile_discount);
+        }
 
         return $price;
     }
 
     public function getProductOldPrice(): Money
     {
-        // без применения скидки в профиле пользователя
-        if(is_null($this->profile_discount))
-        {
-            return new Money($this->product_old_price, true);
-        }
+        $price = new Money($this->product_old_price, true);
 
         // применяем скидку пользователя из профиля
-        $price = new Money($this->product_old_price, true);
-        $price->applyPercent($this->profile_discount);
+        if(false === empty($this->profile_discount))
+        {
+            $price->applyString($this->profile_discount);
+        }
 
         return $price;
     }

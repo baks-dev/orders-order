@@ -61,6 +61,8 @@ final readonly class AllOrdersReportResult
         private ?string $delivery_name,
         private ?int $delivery_price,
 
+        private ?string $project_discount = null
+
     ) {}
 
     public function getDate(): DateTimeImmutable
@@ -75,7 +77,17 @@ final readonly class AllOrdersReportResult
 
     public function getProductPrice(): Money
     {
-        return new Money($this->product_price, true);
+        $price = new Money($this->product_price, true);
+
+        /**
+         * Применяем настройки цены профиля проекта к стоимости товара
+         */
+        if(false === empty($this->project_discount))
+        {
+            $price->applyString($this->project_discount);
+        }
+
+        return $price;
     }
 
     public function getOrderPrice(): Money

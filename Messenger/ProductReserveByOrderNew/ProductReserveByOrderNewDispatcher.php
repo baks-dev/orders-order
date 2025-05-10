@@ -136,8 +136,7 @@ final readonly class ProductReserveByOrderNewDispatcher
                     $product->getVariation(),
                     $product->getModification(),
                     $product->getPrice()->getTotal()
-                ),
-                transport: 'products-product'
+                )
             );
         }
 

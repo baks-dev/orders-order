@@ -112,13 +112,13 @@
 
                     {% if app.user is null %}
                         <div class="small">
-                            <a href="{{ path('auth-email:user.login') }}"
+                            <a href="{{ path('auth-email:public.login') }}"
                                class="btn btn-link btn-sm h-25 lh-1 text-decoration-none modal-link w-75"
                                data-bs-toggle="modal"
                                data-bs-target="#modal"
                                style="width: 150px;"
-                               title="{{ 'user.link.breadcrumb.page'|trans({}, 'user.login') }}"
-                               aria-label="{{ 'user.link.breadcrumb.page'|trans({}, 'user.login') }}"
+                               title="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
+                               aria-label="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
                             >
                                 Авторизация
                             </a>

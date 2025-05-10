@@ -148,15 +148,15 @@
 
                 {% if app.user is null %}
 
-                    <a href="{{ path('auth-email:user.login') }}"
+                    <a href="{{ path('auth-email:public.login') }}"
                        class="btn btn-link lh-1 text-decoration-none modal-link disabled text-start"
                        data-bs-toggle="modal"
                        data-bs-target="#modal"
 
-                       title="{{ 'user.link.breadcrumb.page'|trans({}, 'user.login') }}"
-                       aria-label="{{ 'user.link.breadcrumb.page'|trans({}, 'user.login') }}"
+                       title="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
+                       aria-label="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
                     >
-                        {{ 'user.page'|trans({}, 'user.login') }}
+                        {{ 'user.page'|trans({}, 'public.login') }}
                     </a>
 
                 {% endif %}

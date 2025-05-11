@@ -34,7 +34,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class TruncateController extends AbstractController
 {
     /** Очистить корзину пользователя от всех товаров. */
-    #[Route('/basket/truncate', name: 'user.truncate')]
+    #[Route('/basket/truncate', name: 'public.truncate')]
     public function index(Request $request, AppCacheInterface $cache): Response
     {
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
@@ -43,6 +43,6 @@ class TruncateController extends AbstractController
 
         $this->addFlash('success', 'user.basket.success.truncate', 'user.order');
 
-        return $this->redirectToRoute('orders-order:user.basket');
+        return $this->redirectToRoute('orders-order:public.basket');
     }
 }

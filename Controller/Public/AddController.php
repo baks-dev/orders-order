@@ -51,7 +51,7 @@ class AddController extends AbstractController
      * Добавить продукт в корзину
      */
 
-    #[Route('/basket/add/', name: 'user.add')]
+    #[Route('/basket/add/', name: 'public.add')]
     public function index(
         Request $request,
         AppCacheInterface $cache,
@@ -103,7 +103,7 @@ class AddController extends AbstractController
                 $AddProductBasketDTO,
                 [
                     'action' => $this->generateUrl(
-                        'orders-order:user.add',
+                        'orders-order:public.add',
                         [
                             'product' => $AddProductBasketDTO->getProduct(),
                             'offer' => $AddProductBasketDTO->getOffer(),
@@ -156,7 +156,7 @@ class AddController extends AbstractController
                         'type' => 'success',
                         'header' => $Event->getOption(),
                         'message' => 'Товар уже добавлен в корзину',
-                        'href' => $this->generateUrl('orders-order:user.basket'),
+                        'href' => $this->generateUrl('orders-order:public.basket'),
                         'name' => 'перейти в корзину',
                         'status' => 400,
                     ],
@@ -180,7 +180,7 @@ class AddController extends AbstractController
                     'type' => 'success',
                     'header' => $Event->getOption(),
                     'message' => 'Товар успешно добавлен.',
-                    'href' => $this->generateUrl('orders-order:user.basket'),
+                    'href' => $this->generateUrl('orders-order:public.basket'),
                     'name' => 'перейти в корзину',
                     'status' => 200,
                 ],

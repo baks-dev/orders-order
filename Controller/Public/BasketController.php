@@ -46,7 +46,7 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
-    #[Route('/basket', name: 'user.basket')]
+    #[Route('/basket', name: 'public.basket')]
     public function index(
         Request $request,
         ProductUserBasketInterface $userBasket,
@@ -158,7 +158,7 @@ class BasketController extends AbstractController
             type: OrderForm::class,
             data: $OrderDTO,
             options: [
-                'action' => $this->generateUrl('orders-order:user.basket')
+                'action' => $this->generateUrl('orders-order:public.basket')
             ]);
 
         if(null === $request->headers->get('X-Requested-With'))
@@ -237,7 +237,7 @@ class BasketController extends AbstractController
                     // Редирект на страницу товара
                     $postfix = (string) ($ProductDetail->getProductModificationPostfix() ?: $ProductDetail->getProductVariationPostfix() ?: $ProductDetail->getProductOfferPostfix() ?: null);
 
-                    return $this->redirectToRoute('products-product:user.detail', [
+                    return $this->redirectToRoute('products-product:public.detail', [
                         'category' => (string) $ProductDetail->getCategoryUrl(),
                         'url' => (string) $ProductDetail->getProductUrl(),
                         'offer' => (string) $ProductDetail->getProductOfferValue(),
@@ -258,7 +258,7 @@ class BasketController extends AbstractController
                 // Удаляем кеш
                 $AppCache->delete($key);
 
-                return $this->redirectToRoute('orders-order:user.success', ['id' => $Order->getId()]);
+                return $this->redirectToRoute('orders-order:public.success', ['id' => $Order->getId()]);
             }
 
             $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);

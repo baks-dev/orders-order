@@ -47,7 +47,7 @@ class DeleteController extends AbstractController
     private ?ArrayCollection $products = null;
 
     // Удаляет товар из корзины
-    #[Route('/basket/delete', name: 'user.delete')]
+    #[Route('/basket/delete', name: 'public.delete')]
     public function index(
         Request $request,
         ProductEventBasketInterface $productEvent,
@@ -59,8 +59,6 @@ class DeleteController extends AbstractController
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
     ): Response
     {
-
-
         if(
             (!empty($modification) && (empty($offer) || empty($variation)))
             || (!empty($variation) && empty($offer))
@@ -129,7 +127,7 @@ class DeleteController extends AbstractController
                     'user.order'
                 );
 
-                return $this->redirectToRoute('orders-order:user.basket', status: 200);
+                return $this->redirectToRoute('orders-order:public.basket', status: 200);
             }
 
             return new JsonResponse(

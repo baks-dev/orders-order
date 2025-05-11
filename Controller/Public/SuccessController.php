@@ -36,7 +36,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class SuccessController extends AbstractController
 {
     /* Детальная информация о заказе */
-    #[Route('/basket/success/{id}', name: 'user.success')]
+    #[Route('/basket/success/{id}', name: 'public.success')]
     public function index(
         #[MapEntity] Order $Order,
         OrderDetailInterface $orderDetail,

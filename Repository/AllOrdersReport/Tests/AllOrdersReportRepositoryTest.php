@@ -27,7 +27,7 @@ namespace BaksDev\Orders\Order\Repository\AllOrdersReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
-use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewTest;
+use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewAdminUseCaseTest;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -43,8 +43,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
     {
-        ProductsProductNewTest::setUpBeforeClass();
-        new ProductsProductNewTest()->testUseCase();
+        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
+        new ProductsProductNewAdminUseCaseTest()->testUseCase();
     }
 
     public function testFind(): void

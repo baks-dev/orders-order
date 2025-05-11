@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\AllProductsOrdersReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllProductsOrdersReport\AllProductsOrdersReportInterface;
-use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewTest;
+use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewAdminUseCaseTest;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -41,8 +41,8 @@ final class AllProductsOrdersReportRepositoryTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
     {
-        ProductsProductNewTest::setUpBeforeClass();
-        new ProductsProductNewTest()->testUseCase();
+        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
+        new ProductsProductNewAdminUseCaseTest()->testUseCase();
     }
 
     public function testFind(): void

@@ -72,6 +72,7 @@ use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
 use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -93,16 +94,16 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
     /**
      * Заказы переданного профиля
      */
-    public function byProfile(UserProfileUid|UserUid|string $profile): self
+    public function forProfile(UserProfile|UserProfileUid|string $profile): self
     {
         if(is_string($profile))
         {
             $profile = new UserProfileUid($profile);
         }
 
-        if($profile instanceof UserUid)
+        if($profile instanceof UserProfile)
         {
-            $profile = new UserProfileUid((string) $profile);
+            $profile = $profile->getId();
         }
 
         $this->profile = $profile;
@@ -113,7 +114,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
     /**
      * Заказы с переданным статусом
      */
-    public function byStatus(OrderStatus $status): self
+    public function forStatus(OrderStatus $status): self
     {
         $this->status = $status;
 
@@ -130,12 +131,11 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         return $this->paginator->fetchAllAssociative($result);
     }
 
-    /** Метод возвращает массив с информацией о заказах */
+    /**
+     * Метод возвращает генератор с информацией о заказах
+     */
     public function findAll(): false|Generator
     {
-        //$result = $this->builder()->fetchAllAssociative();
-        //return empty($result) ? false : $result;
-
         return $this->builder()->fetchAllGenerator();
     }
 
@@ -175,7 +175,11 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                     'event',
                     'event.id = orders.event AND event.status = :status'
                 )
-                ->setParameter('status', $this->status, OrderStatus::TYPE);
+                ->setParameter(
+                    key: 'status',
+                    value: $this->status,
+                    type: OrderStatus::TYPE
+                );
         }
         else
         {
@@ -190,8 +194,6 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         }
 
         $dbal
-            //            ->addSelect('order_user.usr AS order_user_id')
-            //            ->addSelect('order_user.profile AS order_user_profile_event')
             ->leftJoin(
                 'orders',
                 OrderUser::class,
@@ -207,7 +209,11 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'user_profile_event',
                 'user_profile_event.id = order_user.profile AND user_profile_event.profile = :profile'
             )
-            ->setParameter('profile', $this->profile, UserProfileUid::TYPE);
+            ->setParameter(
+                key: 'profile',
+                value: $this->profile,
+                type: UserProfileUid::TYPE
+            );
 
         /** Оплата */
         $dbal

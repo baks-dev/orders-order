@@ -69,7 +69,7 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         }
 
         $result = $repository
-            ->byProfile($UserProfileUid)
+            ->forProfile($UserProfileUid)
             ->findAll();
 
         if(false === $result || false === $result->valid())

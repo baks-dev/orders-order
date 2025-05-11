@@ -21,27 +21,28 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile;
+namespace BaksDev\Orders\Order\Controller\Public;
 
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
-use Generator;
+use BaksDev\Core\Cache\AppCacheInterface;
+use BaksDev\Core\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Attribute\Route;
 
-interface OrdersDetailByProfileInterface
+#[AsController]
+class TruncateController extends AbstractController
 {
-    /** Заказы переданного профиля */
-    public function forProfile(UserProfile|UserProfileUid|string $profile): self;
+    /** Очистить корзину пользователя от всех товаров. */
+    #[Route('/basket/truncate', name: 'user.truncate')]
+    public function index(Request $request, AppCacheInterface $cache): Response
+    {
+        $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
+        $AppCache = $cache->init('orders-order-basket');
+        $AppCache->delete($key);
 
-    /** Заказы с переданным статусом */
-    public function forStatus(OrderStatus $status): self;
+        $this->addFlash('success', 'user.basket.success.truncate', 'user.order');
 
-    /** Метод возвращает массив с информацией об заказе */
-    public function findAll(): false|Generator;
-
-    /** Метод возвращает пагинатор с информацией об заказе */
-    public function findAllWithPaginator(): PaginatorInterface;
-
+        return $this->redirectToRoute('orders-order:user.basket');
+    }
 }

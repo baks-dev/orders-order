@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,27 +21,30 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\User\UserAccount\Status;
 
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
-use Generator;
+use BaksDev\Auth\Email\Entity\Status\AccountStatusInterface;
+use BaksDev\Auth\Email\Type\EmailStatus\EmailStatus;
+use BaksDev\Auth\Email\Type\EmailStatus\Status\EmailStatusNew;
+use Symfony\Component\Validator\Constraints as Assert;
 
-interface OrdersDetailByProfileInterface
+final class UserAccountStatusDTO implements AccountStatusInterface
 {
-    /** Заказы переданного профиля */
-    public function forProfile(UserProfile|UserProfileUid|string $profile): self;
+    #[Assert\NotBlank]
+    private readonly EmailStatus $status;
 
-    /** Заказы с переданным статусом */
-    public function forStatus(OrderStatus $status): self;
 
-    /** Метод возвращает массив с информацией об заказе */
-    public function findAll(): false|Generator;
+    public function __construct()
+    {
+        $this->status = new EmailStatus(EmailStatusNew::class);
+    }
 
-    /** Метод возвращает пагинатор с информацией об заказе */
-    public function findAllWithPaginator(): PaginatorInterface;
+    /**
+     * @return EmailStatus
+     */
+    public function getStatus(): EmailStatus
+    {
+        return $this->status;
+    }
 
 }

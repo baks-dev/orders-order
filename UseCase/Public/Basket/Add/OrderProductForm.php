@@ -21,27 +21,27 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile;
+declare(strict_types=1);
 
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
-use Generator;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add;
 
-interface OrdersDetailByProfileInterface
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+final class OrderProductForm extends AbstractType
 {
-    /** Заказы переданного профиля */
-    public function forProfile(UserProfile|UserProfileUid|string $profile): self;
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('price', Price\OrderPriceForm::class);
+    }
 
-    /** Заказы с переданным статусом */
-    public function forStatus(OrderStatus $status): self;
-
-    /** Метод возвращает массив с информацией об заказе */
-    public function findAll(): false|Generator;
-
-    /** Метод возвращает пагинатор с информацией об заказе */
-    public function findAllWithPaginator(): PaginatorInterface;
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => OrderProductDTO::class,
+            'attr' => ['class' => 'order-basket']
+        ]);
+    }
 
 }

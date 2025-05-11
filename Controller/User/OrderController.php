@@ -37,6 +37,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[RoleSecurity('ROLE_USER')]
 class OrderController extends AbstractController
 {
+    /**
+     * Список заказов пользователя
+     */
     #[Route('/orders/{status}/{page<\d+>}', name: 'user.orders')]
     public function index(
         OrdersDetailByProfileInterface $ordersDetailByProfileRepository,
@@ -52,7 +55,8 @@ class OrderController extends AbstractController
         }
 
         /**
-         * Проверка соответствия переданного статуса системным статусам. Если передан несуществующий статус ->
+         * Проверка соответствия переданного статуса системным статусам.
+         * Если передан несуществующий статус ->
          * @throws InvalidArgumentException
          */
         foreach(OrderStatus::cases() as $case)
@@ -65,8 +69,8 @@ class OrderController extends AbstractController
         }
 
         $ordersPaginator = $ordersDetailByProfileRepository
-            ->byStatus($status)
-            ->byProfile($profile)
+            ->forStatus($status)
+            ->forProfile($profile)
             ->findAllWithPaginator();
 
         return $this->render([

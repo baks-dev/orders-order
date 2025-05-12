@@ -11,13 +11,14 @@
 
     <tbody>
 
-    {% for product in form.product %}
+    {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
 
         {% set card = product.vars.data.card %}
 
-        {% if card %}
+
 
             <tr id='item_{{ product.vars.id }}'>
+
                 <td rowspan="2">
 
                     <div class="row">
@@ -80,8 +81,8 @@
 
 
                             {# {% if date() < card.product_active_from|date_modify("+1 month") %}
-                                <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
-                            {% endif %} #}
+                                    <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
+                                {% endif %} #}
 
 
 
@@ -176,8 +177,8 @@
                         </button>
 
                         {# <input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
-						   title="Количество"
-						   style="width: 50px;"> #}
+                               title="Количество"
+                               style="width: 50px;"> #}
 
                         {{ form_widget(product.price.total, {
                             label: false,
@@ -231,18 +232,18 @@
                 <td class="vertical-middle text-end">
 
                     {# <a
-                            href=' #}{# {{ path('orders-order:public.delete', {
-                                product : card.id ,
-                                offer: card.product_offer_uid,
-                                variation: card.product_variation_uid,
-                                modification: card.product_modification_uid
-                            }) }} #}{# #'
-                            class="btn btn-sm btn-link text-decoration-underline small text-muted"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-                        </svg>
-                    </a> #}
+                                href=' #}{# {{ path('orders-order:public.delete', {
+                                    product : card.id ,
+                                    offer: card.product_offer_uid,
+                                    variation: card.product_variation_uid,
+                                    modification: card.product_modification_uid
+                                }) }} #}{# #'
+                                class="btn btn-sm btn-link text-decoration-underline small text-muted"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                            </svg>
+                        </a> #}
 
 
                     <li class="nav nav-item flex-grow-1 text-end" role="presentation">
@@ -293,50 +294,53 @@
             </tr>
 
 
-            {% if product.price.price is defined %}
-
-
+    {% if product.price.price is defined %}
 
 
     {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
-    <td colspan="4">
-    <span class="badge text-bg-danger">Скидка до 20%</span>
-
-    {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
-                    <tr>
-    <td colspan="4">
-    <span class="badge text-bg-danger">Скидка до 15%</span>
-                {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
-                    <tr>
-    <td colspan="4">
-    <span class="badge text-bg-danger">Скидка до 10%</span>
-                {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
-                    <tr>
-    <td colspan="4">
-    <span class="badge text-bg-danger">Скидка до 5%</span>
-
-
-    {% else %}
-                    <tr>
-                        <td colspan="4">
-        <span class="badge text-bg-danger">Скидка до 100%</span>
-                {% endif %}
-
-        &nbsp;<small> мин. стоимость: </small>
-                            &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
-                        </td>
-                </tr>
-            {% else %}
-
     <tr>
         <td colspan="4">
-            &nbsp;
+            <span class="badge text-bg-danger">Скидка до 20%</span>
 
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+    <tr>
+        <td colspan="4">
+            <span class="badge text-bg-danger">Скидка до 15%</span>
+
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
+    <tr>
+        <td colspan="4">
+            <span class="badge text-bg-danger">Скидка до 10%</span>
+
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+    <tr>
+        <td colspan="4">
+            <span class="badge text-bg-danger">Скидка до 5%</span>
+
+
+            {% else %}
+    <tr>
+        <td colspan="4">
+            <span class="badge text-bg-danger">Скидка до 100%</span>
             {% endif %}
 
 
+            {# Закрывает тег таблицы #}
+            &nbsp; <small> мин. стоимость: </small>
+            &nbsp; {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+        </td>
+
         {% endif %}
-    {% endfor %}
+
+            {% else %}
+
+    <tr>
+        <td colspan="4">&nbsp;
+
+        {% endif %}
+
+
+            {% endfor %}
 
     </tbody>
 </table>

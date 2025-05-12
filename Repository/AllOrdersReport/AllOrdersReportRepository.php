@@ -333,7 +333,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
          * Применяем настройки стоимости магазина
          */
 
-        if($dbal->isProjectProfile())
+        if($dbal->isNotProjectProfile())
         {
             $dbal
                 ->bindProjectProfile()

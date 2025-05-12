@@ -50,7 +50,7 @@ class SuccessController extends AbstractController
 
         if($diff->d > 1 || $diff->i > 1 || $diff->m > 1)
         {
-            return $this->redirectToRoute('core:user.homepage');
+            return $this->redirectToRoute('core:public.homepage');
         }
 
         return $this->render([

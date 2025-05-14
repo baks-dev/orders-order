@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -143,14 +143,14 @@ final class OrderProductForm extends AbstractType
                 }
 
 
-                $this->AddProductQuantity
-                    ->forEvent($OrderProductDTO->getProduct())
-                    ->forOffer($OrderProductDTO->getOffer())
-                    ->forVariation($OrderProductDTO->getVariation())
-                    ->forModification($OrderProductDTO->getModification())
-                    ->addQuantity(false)
-                    ->addReserve($total)
-                    ->update();
+                //                $this->AddProductQuantity
+                //                    ->forEvent($OrderProductDTO->getProduct())
+                //                    ->forOffer($OrderProductDTO->getOffer())
+                //                    ->forVariation($OrderProductDTO->getVariation())
+                //                    ->forModification($OrderProductDTO->getModification())
+                //                    ->addQuantity(false)
+                //                    ->addReserve($total)
+                //                    ->update();
 
                 return;
             }
@@ -164,14 +164,14 @@ final class OrderProductForm extends AbstractType
                 $total = $this->total - $this->newTotal;
 
                 /** Снимаем резерв в карточке */
-                $this->SubProductQuantity
-                    ->forEvent($OrderProductDTO->getProduct())
-                    ->forOffer($OrderProductDTO->getOffer())
-                    ->forVariation($OrderProductDTO->getVariation())
-                    ->forModification($OrderProductDTO->getModification())
-                    ->subQuantity(false)
-                    ->subReserve($total)
-                    ->update();
+                //                $this->SubProductQuantity
+                //                    ->forEvent($OrderProductDTO->getProduct())
+                //                    ->forOffer($OrderProductDTO->getOffer())
+                //                    ->forVariation($OrderProductDTO->getVariation())
+                //                    ->forModification($OrderProductDTO->getModification())
+                //                    ->subQuantity(false)
+                //                    ->subReserve($total)
+                //                    ->update();
             }
         });
 

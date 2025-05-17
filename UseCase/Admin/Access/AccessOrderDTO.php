@@ -45,6 +45,9 @@ final class AccessOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ArrayCollection $product;
 
+    /** Комментарий к заказу */
+    private ?string $comment = null;
+
     public function __construct()
     {
         $this->product = new ArrayCollection();
@@ -79,5 +82,31 @@ final class AccessOrderDTO implements OrderEventInterface
     public function getStatus(): OrderStatus
     {
         return $this->status;
+    }
+
+    /** Комментарий к заказу */
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function addComment(?string $comment): self
+    {
+        if(empty($comment))
+        {
+            return $this;
+        }
+
+        $this->comment .= ($this->comment ? ', ' : '').$comment;
+
+        return $this;
     }
 }

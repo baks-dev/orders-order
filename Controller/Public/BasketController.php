@@ -25,6 +25,7 @@ namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
@@ -32,6 +33,7 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,34 +48,40 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
-    #[Route('/basket', name: 'public.basket')]
+    #[Route('/basket/{share}', name: 'public.basket')]
     public function index(
         Request $request,
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
         AppCacheInterface $cache,
+        string|null $share = null,
     ): Response
     {
-
         $AppCache = $cache->init('orders-order-basket');
+
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
 
-        $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
+        if(false === is_null($share))
+        {
+            $key = $share;
+        }
+
+        $expires = 60 * 60; // Время кеширования 60 * 60 = 1 час
 
         if($this->getUsr())
         {
-            $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
+            $expires = 60 * 60 * 24; // Время кеширования 60 * 60 * 24 = 24 часа
         }
 
         /** Получаем корзину */
-        if(!$AppCache->hasItem($key))
+        if(true !== $AppCache->hasItem($key))
         {
             return $this->render(['form' => null]);
         }
 
         $this->products = ($AppCache->getItem($key))->get();
 
-        if(null === $this->products)
+        if(empty($this->products))
         {
             $this->products = new ArrayCollection();
         }
@@ -103,6 +111,7 @@ class BasketController extends AbstractController
                 {
                     /**
                      * Удаляем из корзины, если карточка товара не найдена
+                     *
                      * @var OrderProductDTO $element
                      */
 
@@ -158,7 +167,7 @@ class BasketController extends AbstractController
             type: OrderForm::class,
             data: $OrderDTO,
             options: [
-                'action' => $this->generateUrl('orders-order:public.basket')
+                'action' => $this->generateUrl('orders-order:public.basket'),
             ]);
 
         if(null === $request->headers->get('X-Requested-With'))
@@ -201,9 +210,9 @@ class BasketController extends AbstractController
                     $product->getPrice()->getTotal() > $ProductDetail->getProductQuantity()
                 )
                 {
-
                     /**
                      * Удаляем из корзины продукцию
+                     *
                      * @var OrderProductDTO $element
                      */
                     $predicat = static function($key, OrderProductDTO $element) use ($product) {
@@ -227,10 +236,10 @@ class BasketController extends AbstractController
                     }
 
                     $this->addFlash(
-                        'danger',
-                        sprintf(
+                        type: 'danger',
+                        message: sprintf(
                             'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                            $ProductDetail['product_name']
+                            $ProductDetail['product_name'],
                         ),
                     );
 
@@ -243,7 +252,7 @@ class BasketController extends AbstractController
                         'offer' => (string) $ProductDetail->getProductOfferValue(),
                         'variation' => (string) $ProductDetail->getProductVariationValue(),
                         'modification' => (string) $ProductDetail->getProductModificationValue(),
-                        'postfix' => $postfix ? str_replace('/', '-', $postfix) : null
+                        'postfix' => $postfix ? str_replace('/', '-', $postfix) : null,
 
                     ]);
                 }
@@ -253,12 +262,19 @@ class BasketController extends AbstractController
 
             if($Order instanceof Order)
             {
-                $this->addFlash('success', 'user.order.new.success', 'user.order');
+                $this->addFlash(
+                    'success',
+                    'user.order.new.success',
+                    'user.order',
+                );
 
                 // Удаляем кеш
                 $AppCache->delete($key);
 
-                return $this->redirectToRoute('orders-order:public.success', ['id' => $Order->getId()]);
+                return $this->redirectToRoute(
+                    route: 'orders-order:public.success',
+                    parameters: ['id' => $Order->getId()],
+                );
             }
 
             $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);
@@ -266,6 +282,7 @@ class BasketController extends AbstractController
 
         return $this->render([
             'form' => $form->createView(),
+            'share' => $key,
         ]);
     }
 }

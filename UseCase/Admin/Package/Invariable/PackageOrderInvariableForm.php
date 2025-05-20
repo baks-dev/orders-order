@@ -33,8 +33,11 @@ use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileChoice\UserProfileChoiceInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -61,6 +64,25 @@ final class PackageOrderInvariableForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        /**
+         * Идентификатор пользователя
+         */
+
+        $builder->add('usr', HiddenType::class);
+
+        $builder->get('usr')->addModelTransformer(
+            new CallbackTransformer(
+                function(?UserUid $user) {
+                    return $user instanceof UserUid ? $user->getValue() : $user;
+                },
+                function(?string $user) {
+                    return $user ? new UserUid($user) : null;
+                },
+            ),
+        );
+
+
         /**
          * Все профили пользователя
          */

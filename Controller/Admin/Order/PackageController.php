@@ -169,6 +169,13 @@ final class PackageController extends AbstractController
             $OrderEvent->getDto($PackageProductStockDTO);
             $PackageProductStockDTO->setProduct(new ArrayCollection());
 
+            //$PackageOrderInvariableDTO
+
+            $PackageProductStockDTO->getInvariable()
+                ->setUsr($PackageOrderDTO->getInvariable()->getUsr())
+                ->setProfile($PackageOrderDTO->getInvariable()->getProfile());
+
+
             /* Трансформируем идентификаторы продукта в константы */
             foreach($PackageOrderDTO->getProduct() as $const)
             {

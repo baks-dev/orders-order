@@ -134,21 +134,26 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderInvariable::class,
                 'order_invariable',
+
+                /**
+                 * TODO: Добавить фильтр !!!
+                 * AND '.($this->status?->equals(OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
+                 */
+
                 '
                     order_invariable.main = orders.id AND 
-                    (order_invariable.usr IS NULL OR order_invariable.usr = :user) AND 
-                '.
-                ($this->status?->equals(OrderStatusNew::class) ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' order_invariable.profile = :profile')
+                    (order_invariable.usr IS NULL OR order_invariable.usr = :user)
+                '
             )
             ->setParameter(
-                'user',
-                $this->UserProfileTokenStorage->getUser(),
-                UserUid::TYPE
+                key: 'user',
+                value: $this->UserProfileTokenStorage->getUser(),
+                type: UserUid::TYPE,
             )
             ->setParameter(
-                'profile',
-                $this->UserProfileTokenStorage->getProfile(),
-                UserProfileUid::TYPE
+                key: 'profile',
+                value: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
             );
 
 

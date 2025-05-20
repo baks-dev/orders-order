@@ -55,7 +55,7 @@ final class PackageOrderInvariableDTO implements OrderInvariableInterface
      */
     public function getUsr(): ?UserUid
     {
-        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
+        if(false === (new ReflectionProperty(self::class, 'usr')->isInitialized($this)))
         {
             return null;
         }
@@ -65,15 +65,17 @@ final class PackageOrderInvariableDTO implements OrderInvariableInterface
 
     public function setUsr(?UserUid $usr): self
     {
+        if(true === (new ReflectionProperty(self::class, 'usr')->isInitialized($this)))
+        {
+            return $this;
+        }
+
         if(is_null($usr))
         {
             return $this;
         }
 
-        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
-        {
-            $this->usr = $usr;
-        }
+        $this->usr = $usr;
 
         return $this;
     }

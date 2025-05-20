@@ -42,38 +42,23 @@ final readonly class ProductReserveByOrderCompleteHandler
     public function __construct(
         #[Target('productsProductLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
-        private CurrentProductIdentifierInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductReserveByOrderCompleteMessage $message): void
     {
+
         /**
-         * Всегда пробуем определить активное состояние карточки на случай обновления
+         * В классе текущее событие ищет Current на случай обновления карточки
+         *
+         * @see SubProductQuantityRepository:184
          */
 
-        $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
+        $result = $this
+            ->subProductQuantity
             ->forEvent($message->getEvent())
             ->forOffer($message->getOffer())
             ->forVariation($message->getVariation())
             ->forModification($message->getModification())
-            ->find();
-
-        if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
-        {
-            $this->logger->critical(
-                'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
-                [self::class.':'.__LINE__, var_export($message, true)],
-            );
-
-            return;
-        }
-
-        $result = $this
-            ->subProductQuantity
-            ->forEvent($CurrentProductIdentifierResult->getEvent())
-            ->forOffer($CurrentProductIdentifierResult->getOffer())
-            ->forVariation($CurrentProductIdentifierResult->getVariation())
-            ->forModification($CurrentProductIdentifierResult->getModification())
             ->subReserve($message->getTotal())
             ->subQuantity($message->getTotal())
             ->update();
@@ -88,7 +73,6 @@ final readonly class ProductReserveByOrderCompleteHandler
             return;
         }
 
-
         if($result === 0)
         {
             $this->logger->critical(
@@ -98,6 +82,7 @@ final readonly class ProductReserveByOrderCompleteHandler
 
             return;
         }
+
 
         $this->logger->info(
             sprintf('orders-order: Сняли %s резерва и наличия продукции в карточке при выполненном заказе', $message->getTotal()),

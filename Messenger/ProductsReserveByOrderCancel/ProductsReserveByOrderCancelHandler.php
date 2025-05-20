@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -40,19 +42,45 @@ final readonly class ProductsReserveByOrderCancelHandler
     public function __construct(
         #[Target('productsProductLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
+        private CurrentProductIdentifierInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductsReserveByOrderCancelMessage $message): void
     {
-        $result = $this
-            ->subProductQuantity
+
+
+        /**
+         * Всегда пробуем определить активное состояние карточки на случай обновления
+         */
+
+        $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
             ->forEvent($message->getEvent())
             ->forOffer($message->getOffer())
             ->forVariation($message->getVariation())
             ->forModification($message->getModification())
+            ->find();
+
+        if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
+        {
+            $this->logger->critical(
+                'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+                [var_export($message, true), self::class.':'.__LINE__,],
+            );
+
+            return;
+        }
+
+
+        $result = $this
+            ->subProductQuantity
+            ->forEvent($CurrentProductIdentifierResult->getEvent())
+            ->forOffer($CurrentProductIdentifierResult->getOffer())
+            ->forVariation($CurrentProductIdentifierResult->getVariation())
+            ->forModification($CurrentProductIdentifierResult->getModification())
             ->subReserve($message->getTotal())
             ->subQuantity(false)
             ->update();
+
 
         if($result === 0)
         {

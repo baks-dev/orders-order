@@ -52,8 +52,7 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         private OrderEventInterface $OrderEventRepository,
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
-        private MessageDispatchInterface $messageDispatch,
-        private CurrentProductIdentifierInterface $CurrentProductIdentifier
+        private MessageDispatchInterface $messageDispatch
     ) {}
 
 
@@ -125,26 +124,6 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
-            /** Получаем активные идентификаторы продукции на случай обновления */
-
-            $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
-                ->forEvent($product->getProduct())
-                ->forOffer($product->getOffer())
-                ->forVariation($product->getVariation())
-                ->forModification($product->getModification())
-                ->find();
-
-            if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierInterface))
-            {
-                $this->logger->critical(
-                    'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
-                    [self::class.':'.__LINE__, var_export($product, true)],
-                );
-
-                continue;
-            }
-
-
             /** Снимаем резерв и наличие выполненного заказа */
             $this->messageDispatch->dispatch(
                 new ProductReserveByOrderCompleteMessage(

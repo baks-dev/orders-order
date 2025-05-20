@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderComplete;
 
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -40,16 +42,38 @@ final readonly class ProductReserveByOrderCompleteHandler
     public function __construct(
         #[Target('productsProductLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
+        private CurrentProductIdentifierInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductReserveByOrderCompleteMessage $message): void
     {
-        $result = $this
-            ->subProductQuantity
+        /**
+         * Всегда пробуем определить активное состояние карточки на случай обновления
+         */
+
+        $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
             ->forEvent($message->getEvent())
             ->forOffer($message->getOffer())
             ->forVariation($message->getVariation())
             ->forModification($message->getModification())
+            ->find();
+
+        if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
+        {
+            $this->logger->critical(
+                'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
+                [self::class.':'.__LINE__, var_export($message, true)],
+            );
+
+            return;
+        }
+
+        $result = $this
+            ->subProductQuantity
+            ->forEvent($CurrentProductIdentifierResult->getEvent())
+            ->forOffer($CurrentProductIdentifierResult->getOffer())
+            ->forVariation($CurrentProductIdentifierResult->getVariation())
+            ->forModification($CurrentProductIdentifierResult->getModification())
             ->subReserve($message->getTotal())
             ->subQuantity($message->getTotal())
             ->update();

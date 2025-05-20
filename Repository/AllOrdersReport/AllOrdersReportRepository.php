@@ -177,7 +177,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "delivery_event",
                 DeliveryTrans::class,
                 "delivery_trans",
-                "delivery_event.id = delivery_event.id AND delivery_trans.local = :local"
+                "delivery_trans.event = delivery_event.id AND delivery_trans.local = :local",
             );
 
         $dbal->join(
@@ -272,6 +272,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 				   product_event_price.price
 				) AS product_price
 			");
+
 
         $dbal->addSelect("
                 CASE

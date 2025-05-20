@@ -149,16 +149,6 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
             if($currentProduct instanceof OrderProductDTO)
             {
                 $this->messageDispatch->dispatch(
-                    new ProductsReserveByOrderCancelMessage(
-                        $lastProduct->getProduct(),
-                        $lastProduct->getOffer(),
-                        $lastProduct->getVariation(),
-                        $lastProduct->getModification(),
-                        $lastProduct->getPrice()->getTotal()
-                    )
-                );
-
-                $this->messageDispatch->dispatch(
                     new ProductReserveByOrderNewMessage(
                         $currentProduct->getProduct(),
                         $currentProduct->getOffer(),
@@ -166,6 +156,16 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $currentProduct->getModification(),
                         $currentProduct->getPrice()->getTotal()
                     )
+                );
+
+                $this->messageDispatch->dispatch(
+                    new ProductsReserveByOrderCancelMessage(
+                        $lastProduct->getProduct(),
+                        $lastProduct->getOffer(),
+                        $lastProduct->getVariation(),
+                        $lastProduct->getModification(),
+                        $lastProduct->getPrice()->getTotal(),
+                    ),
                 );
             }
         }

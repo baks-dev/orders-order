@@ -20,19 +20,15 @@
 
             <div class="card-body d-flex justify-content-between small p-2">
 
-
-                <div class="d-flex flex-column justify-content-between gap-1 offcanvas-link"
+                <div class="d-flex flex-column justify-content-between gap-1 offcanvas-link small"
                      data-href='{{ path('orders-order:admin.detail', { id : order.order_id }) }}'
                      data-id='{{ order.order_id }}'
                      style="cursor: help"
                 >
 
                     <div class="small d-flex justify-content-between gap-2 lh-1">
-
                         #{{ order.order_number }}
-
                     </div>
-
 
                     {% set dedline = date(order.modify) %}
                     {% set difference = dedline.diff(date("now")) %}

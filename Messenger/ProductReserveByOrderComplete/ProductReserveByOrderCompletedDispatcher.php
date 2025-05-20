@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -52,6 +53,7 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
+        private CurrentProductIdentifierInterface $CurrentProductIdentifier
     ) {}
 
 
@@ -123,6 +125,26 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
+            /** Получаем активные идентификаторы продукции на случай обновления */
+
+            $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
+                ->forEvent($product->getProduct())
+                ->forOffer($product->getOffer())
+                ->forVariation($product->getVariation())
+                ->forModification($product->getModification())
+                ->find();
+
+            if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierInterface))
+            {
+                $this->logger->critical(
+                    'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
+                    [self::class.':'.__LINE__, var_export($product, true)],
+                );
+
+                continue;
+            }
+
+
             /** Снимаем резерв и наличие выполненного заказа */
             $this->messageDispatch->dispatch(
                 new ProductReserveByOrderCompleteMessage(

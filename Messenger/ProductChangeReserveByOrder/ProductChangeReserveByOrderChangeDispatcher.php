@@ -31,7 +31,6 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewMessage;
 use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
-use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
@@ -50,7 +49,6 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 {
     public function __construct(
         private OrderEventInterface $OrderEventRepository,
-        private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -79,10 +77,10 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
          * Получаем предыдущее событие
          */
 
-        $OrderEvent = $this->OrderEventRepository
+        $OrderEventLast = $this->OrderEventRepository
             ->find($message->getLast());
 
-        if(false === ($OrderEvent instanceof OrderEvent))
+        if(false === ($OrderEventLast instanceof OrderEvent))
         {
             return;
         }
@@ -94,9 +92,9 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
          */
         if(
             true === (
-                $OrderEvent->isStatusEquals(OrderStatusNew::class) ||
-                $OrderEvent->isStatusEquals(OrderStatusUnpaid::class) ||
-                $OrderEvent->isStatusEquals(OrderStatusPhone::class)
+                $OrderEventLast->isStatusEquals(OrderStatusNew::class) ||
+                $OrderEventLast->isStatusEquals(OrderStatusUnpaid::class) ||
+                $OrderEventLast->isStatusEquals(OrderStatusPhone::class)
             )
         )
         {
@@ -105,15 +103,14 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 
 
         $LastOrderDTO = new EditOrderDTO();
-        $OrderEvent->getDto($LastOrderDTO);
+        $OrderEventLast->getDto($LastOrderDTO);
 
         /**
          * Получаем активное событие
          */
 
-        $CurrentOrderEvent = $this->CurrentOrderEvent
-            ->forOrder($message->getId())
-            ->find();
+        $CurrentOrderEvent = $this->OrderEventRepository
+            ->find($message->getEvent());
 
         if(false === ($CurrentOrderEvent instanceof OrderEvent))
         {

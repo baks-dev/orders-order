@@ -27,6 +27,9 @@
 {# {% endblock %} #}
 
 {% set isProducts = baks_basket.counter > 0 ? true : false %}
+{% if is_shared is defined and is_shared %}
+    {% set isProducts = form.product is not empty %}
+{% endif %}
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
@@ -57,5 +60,6 @@
 <script nonce="{{ csp_nonce() }}" src="/assets/users-address/script.min.js?v={{ version }}"></script>
 <script nonce="{{ csp_nonce() }}" async data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}" class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
+<script nonce="{{ csp_nonce() }}" async class='lazy' data-src="/assets/orders-order/share.min.js?v={{ version }}" ></script>
 
 {% endblock %}

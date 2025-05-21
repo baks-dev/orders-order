@@ -14,12 +14,17 @@
                 <h1 class="h4 text-uppercase fw-bolder py-2">Корзина</h1>
 
                 <div class="small">
-				<span class="me-3 pt-3">
-					Позиций в корзине: <span
-                            class="text-primary">{{ baks_basket.counter }} {{ 'num_of_products'|trans({'count': baks_basket.counter}, 'messages') }}</span>
-				</span>
+                    <button class="btn share-btn border-0" id="shareButton" data-shared="{{ share }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-share-fill" viewbox="0 0 16 16">
+                            <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
+                        </svg>
+                    </button>
+                    <span class="me-3 pt-3">
+                        Позиций в корзине: <span
+                                class="text-primary">{{ form.product|length }} {{ 'num_of_products'|trans({'count': form.product|length }, 'messages') }}</span>
+                    </span>
 
-                    {% if isProducts %}
+                    {% if isProducts and is_shared == false %}
 
                         <a href='{{ path('orders-order:public.truncate') }}'
                            class="btn btn-sm btn-outline-light text-dark text-decoration-underline small shadow-sm text-muted rounded-3 pt-0">
@@ -47,11 +52,11 @@
                 {% for product in form.product %}
 
                     {% set card = product.vars.data.card %}
-                    {% set summ = (product.price.vars.data.total * card.product_price) %}
+                    {% set summ = (product.price.vars.data.total * card.productPrice.value) %}
                     {% set total_summ_product = total_summ_product + summ %}
 
 
-                    {% set total_summ_currency = card.product_currency %}
+                    {% set total_summ_currency = card.productCurrency %}
 
                 {% endfor %}
 

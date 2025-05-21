@@ -21,11 +21,12 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
@@ -33,7 +34,6 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 #[AsController]
 class BasketController extends AbstractController
@@ -48,13 +49,13 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
-    #[Route('/basket/{share}', name: 'public.basket')]
+    #[Route('/basket', name: 'public.basket')]
     public function index(
         Request $request,
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
         AppCacheInterface $cache,
-        string|null $share = null,
+        #[MapQueryParameter] string|null $share = null,
     ): Response
     {
         $AppCache = $cache->init('orders-order-basket');
@@ -283,6 +284,7 @@ class BasketController extends AbstractController
         return $this->render([
             'form' => $form->createView(),
             'share' => $key,
+            'is_shared' => empty($share) === false,
         ]);
     }
 }

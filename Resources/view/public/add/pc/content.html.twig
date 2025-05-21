@@ -1,6 +1,6 @@
 {% trans_default_domain 'user.order' %}
 
-{% set arr_property = card.category_section_field|json_decode %}
+{% set arr_property = card.categorySectionField %}
 
 <div class="modal-dialog modal-dialog-centered" style="max-width: 700px;">
 
@@ -11,16 +11,16 @@
             <div class='d-flex gap-3'>
                 <h5 class='lh-1'>
 
-                    {{ card.product_name }}
+                    {{ card.productName }}
 
                     {# Значение торгового предложения #}
-                    {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
+                    {{ card.productOfferValue|call_twig_func(card.productOfferReference) }}
 
                     {# Значение множественного варианта ТП #}
-                    {{ card.product_variation_value|call_twig_func(card.product_variation_reference) }}
+                    {{ card.productVariationValue|call_twig_func(card.productVariationReference) }}
 
                     {# Значение модификации множественного варианта ТП #}
-                    {{ card.product_modification_value|call_twig_func(card.product_modification_reference) }}
+                    {{ card.productModificationValue|call_twig_func(card.productModificationReference) }}
 
                     {# Свойства, учавствующие в названии #}
                     {% for name_property in arr_property | filter(props => props.field_name == true) %}
@@ -48,14 +48,14 @@
             <div class="d-flex justify-content-between gap-3 align-items-center w-100">
 
 
-                {% set img_path = card.product_image_cdn == true ? CDN_HOST : '' %}
-                {% set product_image_ext = card.product_image_cdn == true ? 'small.'~card.product_image_ext : card.product_image_ext %}
+                {% set img_path = card.productImageCdn == true ? CDN_HOST : '' %}
+                {% set product_image_ext = card.productImageCdn == true ? 'small.'~card.productImageExt : card.productImageExt %}
 
 
                 {# ФОТО ПРОДУКТА  #}
                 <div>
                     <div class="icon rounded-4 mb-2 bg-contain p-1"
-                         style="width: 75px; height: 75px; background-image: url('{{ card.product_image ? img_path ~ card.product_image ~ product_image_ext : '/assets/img/blank.svg' }}');"
+                         style="width: 75px; height: 75px; background-image: url('{{ card.productImage ? img_path ~ card.productImage ~ product_image_ext : '/assets/img/blank.svg' }}');"
                     ></div>
                 </div>
 
@@ -63,16 +63,16 @@
                 <div class='w-25'>
 
 
-                    {% set discount_price = user_profile_discount(card.product_price) %}
+                    {% set discount_price = user_profile_discount(card.productPrice) %}
 
                     {% if discount_price %}
                         <small class="small text-danger text-decoration-line-through lh-1">
-                            {{ money(card.product_price, card.product_currency) }}
+                            {{ money(card.productPrice, card.product_currency) }}
                         </small>
                         {{ money(discount_price, card.product_currency) }}
                     {% else %}
                         <div class='small text-muted'>Стоимость</div>
-                        {{ money(card.product_price, card.product_currency) }}
+                        {{ money(card.productPrice, card.productCurrency) }}
                     {% endif %}
 
 
@@ -87,7 +87,7 @@
                     </button>
 
 
-                    {% set default_count = card.product_quantity < 4 ? card.product_quantity : 4 %}
+                    {% set default_count = card.productQuantity < 4 ? card.productQuantity : 4 %}
 
 
                     {{ form_widget(form.price.total, {
@@ -95,10 +95,10 @@
                         attr: {
                             class : 'form-control-lg mx-1 rounded-3 total',
                             style: 'width: 60px;',
-                            'data-price' : ''~card.product_price,
+                            'data-price' : ''~card.productPrice,
                             'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
-                            'data-currency' : card.product_currency|upper,
-                            'data-max' : card.product_quantity,
+                            'data-currency' : card.productCurrency|upper,
+                            'data-max' : card.productQuantity,
                             value : default_count
                         } } ) }}
 
@@ -114,7 +114,7 @@
 
 
                 <div class='w-25'>
-                    {% set summ = (default_count * card.product_price) %}
+                    {% set summ = (default_count * card.productPrice.getValue) %}
                     {% set discount = user_profile_discount(summ) %}
 
                     <div class='small text-muted text-nowrap'>
@@ -125,11 +125,11 @@
                     </div>
 
                     <div id='summ_{{ form.price.total.vars.id }}'
-                         data-price='{{ card.product_price }}'
+                         data-price='{{ card.productPrice }}'
                          data-discount='{{ baks_profile.profile_discount is defined ? baks_profile.profile_discount }}'
-                         data-currency='{{ card.product_currency|upper }}'
+                         data-currency='{{ card.productCurrency|upper }}'
                     >
-                        {{ discount ? money(discount, card.product_currency) : money(summ, card.product_currency) }}
+                        {{ discount ? money(discount, card.productCurrency) : money(summ, card.productCurrency) }}
                         {# {{ card.product_currency|upper|currency_symbol(app.request.locale) }} #}
                     </div>
                 </div>

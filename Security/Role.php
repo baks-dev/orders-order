@@ -37,7 +37,7 @@ final class Role implements RoleInterface, MenuAdminInterface
 {
     public const string ROLE = 'ROLE_ORDERS';
 
-    public const string KEY = '';
+    public const string KEY = 'fNrKRmshNR';
 
     public function getRole(): string
     {
@@ -52,6 +52,14 @@ final class Role implements RoleInterface, MenuAdminInterface
     public function getPath(): string
     {
         return 'orders-order:admin.index';
+    }
+
+    /**
+     * Метод возвращает ключ раздела (для меню телеграм)
+     */
+    public function getPathKey(): string
+    {
+        return self::KEY;
     }
 
     /** Метод возвращает секцию, в которую помещается ссылка на раздел */

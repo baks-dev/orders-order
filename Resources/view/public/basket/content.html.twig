@@ -1,6 +1,9 @@
 <style></style>
 
 {% set isProducts = baks_basket.counter > 0 ? true : false %}
+{% if is_shared %}
+    {% set isProducts = form.product is not empty %}
+{% endif %}
 
 {{ include(_self|replace({ "content.html.twig" : baks_settings.device~"/content.html.twig" })) }}
 

@@ -6,10 +6,10 @@
     {# Обложка  #}
     {% set image_path = '/assets/img/blank.svg' %}
 
-    {% if card.product_image_ext is defined and card.product_image_ext is not null %}
-        {% set img_host = card.product_image_cdn == true  ? CDN_HOST : '' %}
-        {% set img_dir = card.product_image %}
-        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.product_image_ext %}
+    {% if card.productImageExt is defined and card.productImageExt is not null %}
+        {% set img_host = card.productImageCdn == true  ? CDN_HOST : '' %}
+        {% set img_dir = card.productImage %}
+        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.productImageExt %}
         {% set image_path = img_host ~ img_dir ~ img_file %}
     {% endif %}
 
@@ -17,10 +17,10 @@
     <div class="me-3">
 
         <a href="{{ path('products-product:public.detail', {
-            url : card.product_url ,
-            offer: card.product_offer_value,
-            variation: card.product_variation_value,
-            modification: card.product_modification_value
+            url : card.productUrl ,
+            offer: card.productOfferValue,
+            variation: card.productVariationValue,
+            modification: card.productModificationValue
         }) }}" class="icon rounded-4 mb-2 lazy bg-contain p-1"
            data-bg="{{ image_path }}"
            style="width: 75px; height: 75px;"
@@ -83,23 +83,25 @@
 
                 </div>
 
-                {# УДАЛИТЬ #}
-                <a
-                        href='{{ path('orders-order:public.delete', {
-                            product : card.event ,
-                            offer: card.product_offer_uid,
-                            variation: card.product_variation_uid,
-                            modification: card.product_modification_uid
-                        }) }}'
-                        class="btn btn-sm btn-link text-decoration-underline small text-muted delete-product"
-                        data-id='item_{{ product.vars.id }}'
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                         class="bi bi-x me-1" viewBox="0 0 16 16">
-                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                    </svg>
-                    <span class="small">Удалить</span>
-                </a>
+                {% if is_shared == false %}
+                    {# УДАЛИТЬ #}
+                    <a
+                            href='{{ path('orders-order:public.delete', {
+                                product : card.event ,
+                                offer: card.product_offer_uid,
+                                variation: card.product_variation_uid,
+                                modification: card.product_modification_uid
+                            }) }}'
+                            class="btn btn-sm btn-link text-decoration-underline small text-muted delete-product"
+                            data-id='item_{{ product.vars.id }}'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-x me-1" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                        </svg>
+                        <span class="small">Удалить</span>
+                    </a>
+                {% endif %}
 
             </div>
 

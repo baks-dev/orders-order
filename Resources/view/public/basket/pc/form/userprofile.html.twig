@@ -20,7 +20,7 @@
 
     {% set section = null %}
 
-    {% for value in form.usr.userProfile.value %}
+    {% for value in form.usr.userProfile.vars.value %}
 
         {% if section != value.vars.data.section %}
             {% set section = value.vars.data.section %}

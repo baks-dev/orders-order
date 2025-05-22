@@ -27,7 +27,10 @@ use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/** @group orders-order-controller */
+/**
+ * @group orders-order
+ * @group orders-order-controller
+ */
 #[When(env: 'test')]
 final class BasketPublicControllerTest extends WebTestCase
 {

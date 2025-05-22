@@ -39,9 +39,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 #[AsController]
 class BasketController extends AbstractController
@@ -49,7 +49,7 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
-    #[Route('/basket', name: 'public.basket')]
+    #[Route('/basket', name: 'public.basket', priority: -100)]
     public function index(
         Request $request,
         ProductUserBasketInterface $userBasket,

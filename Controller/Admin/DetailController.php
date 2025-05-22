@@ -112,7 +112,7 @@ final class DetailController extends AbstractController
             )
             ->handleRequest($request);
 
-        if($form->isSubmitted() && false === $form->isValid())
+        if(false === $request->isXmlHttpRequest() && $form->isSubmitted() && false === $form->isValid())
         {
             return $this->redirectToReferer();
         }

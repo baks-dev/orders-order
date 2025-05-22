@@ -268,7 +268,7 @@ function total()
 
     result_product_sum = new Intl.NumberFormat($locale, {
         style : "currency",
-        currency : currency,
+        currency : currency ? currency : "RUB",
         maximumFractionDigits : 0,
     }).format(result_total);
 
@@ -295,7 +295,7 @@ function total()
 
     result_all_sum = new Intl.NumberFormat($locale, {
         style : "currency",
-        currency : currency,
+        currency : currency ? currency : "RUB",
         maximumFractionDigits : 0,
     }).format(result_total);
 

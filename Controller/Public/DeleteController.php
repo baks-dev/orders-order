@@ -60,7 +60,8 @@ class DeleteController extends AbstractController
     ): Response
     {
         if(
-            (!empty($modification) && (empty($offer) || empty($variation)))
+            empty($product)
+            || (!empty($modification) && (empty($offer) || empty($variation)))
             || (!empty($variation) && empty($offer))
         )
         {

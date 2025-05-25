@@ -91,13 +91,6 @@ final class AccessOrderDTO implements OrderEventInterface
         return $this->comment;
     }
 
-    public function setComment(?string $comment): self
-    {
-        $this->comment = $comment;
-
-        return $this;
-    }
-
     public function addComment(?string $comment): self
     {
         if(empty($comment))

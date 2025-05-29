@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -112,8 +112,8 @@ final class OrderDeliveryForm extends AbstractType
                 },
                 function($gps) {
                     return new GpsLatitude($gps);
-                }
-            )
+                },
+            ),
         );
 
         /* GPS долгота:*/
@@ -127,8 +127,8 @@ final class OrderDeliveryForm extends AbstractType
                 },
                 function($gps) {
                     return new GpsLongitude($gps);
-                }
-            )
+                },
+            ),
         );
 
 
@@ -160,7 +160,7 @@ final class OrderDeliveryForm extends AbstractType
         $builder->add(
             'price',
             Price\OrderDeliveryPriceForm::class,
-            ['label' => false]
+            ['label' => false],
         );
 
 
@@ -173,171 +173,180 @@ final class OrderDeliveryForm extends AbstractType
                 $form = $event->getForm();
 
 
-                if($options['user_profile_type'])
+                //if($options['user_profile_type'])
+                //{
+
+                /**
+                 * Присваиваем по умолчанию способы доставки соответствующие профилю
+                 */
+
+                /** Если выбрана доставка Ozon */
+                if(class_exists(BaksDevOzonOrdersBundle::class))
                 {
-
-                    /**
-                     * Присваиваем по умолчанию способы доставки соответствующие профилю
-                     */
-
-                    /** Если выбрана доставка Ozon */
-                    if(class_exists(BaksDevOzonOrdersBundle::class))
+                    $TypeProfileOzon = match (true)
                     {
-                        $TypeProfileOzon = match (true)
-                        {
-                            TypeProfileFbsOzon::equals($options['user_profile_type']) => TypeDeliveryFbsOzon::TYPE,
-                            TypeProfileDbsOzon::equals($options['user_profile_type']) => TypeDeliveryDbsOzon::TYPE,
-                            default => false,
-                        };
+                        TypeProfileFbsOzon::equals($options['user_profile_type']) => TypeDeliveryFbsOzon::TYPE,
+                        TypeProfileDbsOzon::equals($options['user_profile_type']) => TypeDeliveryDbsOzon::TYPE,
+                        default => false,
+                    };
 
-                        if($TypeProfileOzon)
-                        {
-                            $data->setDelivery(new DeliveryUid($TypeProfileOzon));
-                        }
+                    if($TypeProfileOzon)
+                    {
+                        $data->setDelivery(new DeliveryUid($TypeProfileOzon));
                     }
+                }
 
-                    /** Если выбрана доставка Yandex Market */
-                    if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+                /** Если выбрана доставка Yandex Market */
+                if(class_exists(BaksDevYandexMarketOrdersBundle::class))
+                {
+                    $TypeDeliveryYaMarket = match (true)
                     {
-                        $TypeDeliveryYaMarket = match (true)
-                        {
-                            TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypeDeliveryFbsYandexMarket::TYPE,
-                            TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypeDeliveryDbsYaMarket::TYPE,
-                            default => false,
-                        };
+                        TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypeDeliveryFbsYandexMarket::TYPE,
+                        TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypeDeliveryDbsYaMarket::TYPE,
+                        default => false,
+                    };
 
-                        if($TypeDeliveryYaMarket)
-                        {
-                            $data->setDelivery(new DeliveryUid($TypeDeliveryYaMarket));
-                        }
+                    if($TypeDeliveryYaMarket)
+                    {
+                        $data->setDelivery(new DeliveryUid($TypeDeliveryYaMarket));
                     }
+                }
 
-                    /** Если выбрана доставка Magamarket */
-                    if(class_exists(BaksDevMegamarketOrdersBundle::class))
+                /** Если выбрана доставка Magamarket */
+                if(class_exists(BaksDevMegamarketOrdersBundle::class))
+                {
+                    $TypeDeliveryMegamarket = match (true)
                     {
-                        $TypeDeliveryMegamarket = match (true)
-                        {
-                            TypeProfileFbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryFbsMegamarket::TYPE,
-                            TypeProfileDbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryDbsMegamarket::TYPE,
-                            default => false,
-                        };
+                        TypeProfileFbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryFbsMegamarket::TYPE,
+                        TypeProfileDbsMegamarket::equals($options['user_profile_type']) => TypeDeliveryDbsMegamarket::TYPE,
+                        default => false,
+                    };
 
-                        if($TypeDeliveryMegamarket)
-                        {
-                            $data->setDelivery(new DeliveryUid($TypeDeliveryMegamarket));
-                        }
+                    if($TypeDeliveryMegamarket)
+                    {
+                        $data->setDelivery(new DeliveryUid($TypeDeliveryMegamarket));
                     }
+                }
 
 
-                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
-                    $deliveryChoice = iterator_to_array($deliveryChoice);
+                /**
+                 * Если в параметре $options['user_profile_type'] передан NULL
+                 * в массиве должен появится публичный способ доставки, например Самовывоз
+                 */
+                $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
 
-                    /** @var DeliveryUid $currentDelivery */
-                    $currentDelivery = current($deliveryChoice);
+                /** @var DeliveryUid $currentDelivery */
+                $currentDelivery = current($deliveryChoice);
 
-                    $deliveryHelp = $currentDelivery ? $currentDelivery->getOption() : '';
-                    $deliveryChecked = $currentDelivery;
+                if(false === ($currentDelivery instanceof DeliveryUid))
+                {
+                    return;
+                }
 
-                    /** @var DeliveryUid $Delivery */
-                    $Delivery = $data->getDelivery();
 
-                    if($Delivery)
+                $deliveryHelp = $currentDelivery ? $currentDelivery->getOption() : '';
+                $deliveryChecked = $currentDelivery;
+
+                /** @var DeliveryUid $Delivery */
+                $Delivery = $data->getDelivery();
+
+                if($Delivery)
+                {
+                    $deliveryCheckedFilter = array_filter($deliveryChoice, static function($v) use ($Delivery) {
+                        return $v->equals($Delivery);
+                    }, ARRAY_FILTER_USE_BOTH);
+
+
+                    if($deliveryCheckedFilter)
                     {
-                        $deliveryCheckedFilter = array_filter($deliveryChoice, static function($v) use ($Delivery) {
-                            return $v->equals($Delivery);
-                        }, ARRAY_FILTER_USE_BOTH);
+                        /** @var DeliveryUid $deliveryChecked */
+                        $deliveryChecked = current($deliveryCheckedFilter);
 
+                        /* Присваиваем способу доставки - событие (для расчета стоимости)  */
+                        $data->setEvent($deliveryChecked->getEvent());
 
-                        if($deliveryCheckedFilter)
-                        {
-                            /** @var DeliveryUid $deliveryChecked */
-                            $deliveryChecked = current($deliveryCheckedFilter);
-
-                            /* Присваиваем способу доставки - событие (для расчета стоимости)  */
-                            $data->setEvent($deliveryChecked->getEvent());
-
-                            $deliveryHelp = $deliveryChecked?->getOption();
-                        }
+                        $deliveryHelp = $deliveryChecked?->getOption();
                     }
+                }
 
-                    $form
-                        ->add('delivery', ChoiceType::class, [
-                            'choices' => $deliveryChoice,
-                            'choice_value' => function(?DeliveryUid $delivery) {
-                                return $delivery?->getValue();
-                            },
+                $form
+                    ->add('delivery', ChoiceType::class, [
+                        'choices' => $deliveryChoice,
+                        'choice_value' => function(?DeliveryUid $delivery) {
+                            return $delivery?->getValue();
+                        },
 
-                            'choice_label' => function(DeliveryUid $delivery) {
-                                return $delivery->getAttr();
-                            },
+                        'choice_label' => function(DeliveryUid $delivery) {
+                            return $delivery->getAttr();
+                        },
 
-                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
-                                return [
-                                    'checked' => ($choice->equals($deliveryChecked)),
-                                    'data-price' => $choice->getPrice()?->getValue(),
-                                    'data-excess' => $choice->getExcess()?->getValue(),
-                                    'data-currency' => $choice->getCurrency(),
-                                ];
-                            },
+                        'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
+                            return [
+                                'checked' => ($choice->equals($deliveryChecked)),
+                                'data-price' => $choice->getPrice()?->getValue(),
+                                'data-excess' => $choice->getExcess()?->getValue(),
+                                'data-currency' => $choice->getCurrency(),
+                            ];
+                        },
 
-                            'attr' => ['class' => 'd-flex gap-3'],
-                            'help' => $deliveryHelp,
-                            'label' => false,
-                            'expanded' => true,
-                            'multiple' => false,
-                            'required' => true,
-                        ]);
+                        'attr' => ['class' => 'd-flex gap-3'],
+                        'help' => $deliveryHelp,
+                        'label' => false,
+                        'expanded' => true,
+                        'multiple' => false,
+                        'required' => true,
+                    ]);
 
-                    /** Получаем пользовательские поля */
-                    if($deliveryChecked)
+                /** Получаем пользовательские поля */
+                if($deliveryChecked)
+                {
+                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+                    $values = $data->getField();
+
+                    if($values)
                     {
-                        $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-                        $values = $data->getField();
-
-                        if($values)
+                        /** @var Field\OrderDeliveryFieldDTO $value */
+                        foreach($values as $key => $value)
                         {
-                            /** @var Field\OrderDeliveryFieldDTO $value */
-                            foreach($values as $key => $value)
+                            if(!isset($fields[$key]))
                             {
-                                if(!isset($fields[$key]))
-                                {
-                                    $values->removeElement($value);
-                                }
+                                $values->removeElement($value);
+                            }
 
-                                if(isset($fields[$key]))
-                                {
-                                    $value->setField($fields[$key]);
-                                    unset($fields[$key]);
-                                }
+                            if(isset($fields[$key]))
+                            {
+                                $value->setField($fields[$key]);
+                                unset($fields[$key]);
                             }
                         }
-
-                        if($fields)
-                        {
-                            foreach($fields as $field)
-                            {
-                                $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-                                $OrderDeliveryFieldDTO->setField($field);
-                                $data->addField($OrderDeliveryFieldDTO);
-                            }
-                        }
-
-
-                        /* Коллекция продукции */
-                        $form->add('field', CollectionType::class, [
-                            'entry_type' => Field\OrderDeliveryFieldForm::class,
-                            'entry_options' => ['label' => false],
-                            'label' => false,
-                            'by_reference' => false,
-                            'allow_delete' => true,
-                            'allow_add' => true,
-                            'prototype_name' => '__delivery_field__',
-                        ]);
-
                     }
+
+                    if($fields)
+                    {
+                        foreach($fields as $field)
+                        {
+                            $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+                            $OrderDeliveryFieldDTO->setField($field);
+                            $data->addField($OrderDeliveryFieldDTO);
+                        }
+                    }
+
+
+                    /* Коллекция продукции */
+                    $form->add('field', CollectionType::class, [
+                        'entry_type' => Field\OrderDeliveryFieldForm::class,
+                        'entry_options' => ['label' => false],
+                        'label' => false,
+                        'by_reference' => false,
+                        'allow_delete' => true,
+                        'allow_add' => true,
+                        'prototype_name' => '__delivery_field__',
+                    ]);
 
                 }
-            }
+
+                //}
+            },
         );
 
 

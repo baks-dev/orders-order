@@ -63,8 +63,8 @@ final class OrderDeliveryForm extends AbstractType
                 },
                 function($delivery) {
                     return new DeliveryUid($delivery);
-                }
-            )
+                },
+            ),
         );
 
 
@@ -77,8 +77,8 @@ final class OrderDeliveryForm extends AbstractType
                 },
                 function($gps) {
                     return new GpsLatitude($gps);
-                }
-            )
+                },
+            ),
         );
 
         /* GPS долгота:*/
@@ -92,8 +92,8 @@ final class OrderDeliveryForm extends AbstractType
                 },
                 function($gps) {
                     return new GpsLongitude($gps);
-                }
-            )
+                },
+            ),
         );
 
         /**
@@ -110,7 +110,7 @@ final class OrderDeliveryForm extends AbstractType
         $builder->add(
             'price',
             Price\OrderDeliveryPriceForm::class,
-            ['label' => false]
+            ['label' => false],
         );
 
 
@@ -130,135 +130,139 @@ final class OrderDeliveryForm extends AbstractType
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) use ($options) {
 
-                if($options['user_profile_type'])
+
+                $data = $event->getData();
+                $form = $event->getForm();
+
+                /**
+                 * Если в параметре $options['user_profile_type'] передан NULL
+                 * в массиве должен появится публичный способ доставки, например Самовывоз
+                 */
+                $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+
+                /** @var DeliveryUid $currentDelivery */
+                $currentDelivery = current($deliveryChoice);
+
+                if(false === ($currentDelivery instanceof DeliveryUid))
                 {
-                    $data = $event->getData();
-                    $form = $event->getForm();
+                    return;
+                }
 
-                    $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+                $deliveryHelp = $currentDelivery->getOption();
+                $deliveryChecked = $currentDelivery;
 
-                    /** @var DeliveryUid $currentDelivery */
-                    $currentDelivery = current($deliveryChoice);
 
-                    if(!$currentDelivery)
+                /** @var DeliveryUid $Delivery */
+                $Delivery = $data->getDelivery();
+
+
+                if($Delivery)
+                {
+                    $deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
+                        return $v->equals($Delivery);
+                    }, ARRAY_FILTER_USE_BOTH);
+
+
+                    if($deliveryCheckedFilter)
                     {
-                        return;
+                        /** @var DeliveryUid $deliveryChecked */
+                        $deliveryChecked = current($deliveryCheckedFilter);
+
+                        /* Присваиваем способу доставки - событие  (для расчета стоимости)  */
+                        $data->setEvent($deliveryChecked->getEvent());
+                        $deliveryHelp = $deliveryChecked?->getOption();
                     }
-
-                    $deliveryHelp = $currentDelivery->getOption();
-                    $deliveryChecked = $currentDelivery;
+                }
 
 
-                    /** @var DeliveryUid $Delivery */
-                    $Delivery = $data->getDelivery();
+                $form
+                    ->add('delivery', ChoiceType::class, [
+                        'choices' => $deliveryChoice,
+                        'choice_value' => function(?DeliveryUid $delivery) {
+                            return $delivery?->getValue();
+                        },
+
+                        'choice_label' => function(DeliveryUid $delivery) {
+                            return $delivery->getAttr();
+                        },
+
+                        'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
+                            return [
+                                'checked' => ($choice->equals($deliveryChecked)),
+                                'data-price' => $choice->getPrice()?->getValue(),
+                                'data-excess' => $choice->getExcess()?->getValue(),
+                                'data-currency' => $choice->getCurrency(),
+                            ];
+                        },
+
+                        'attr' => ['class' => 'd-flex gap-3'],
+                        'help' => $deliveryHelp,
+                        'label' => false,
+                        'expanded' => true,
+                        'multiple' => false,
+                        'required' => true,
+                    ]);
 
 
-                    if($Delivery)
+                // Condition is always 'true' because '$deliveryChecked' is evaluated at this point
+                $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
+
+
+                /** Получаем пользовательские поля */
+                if($fields)
+                {
+                    /** @var ArrayCollection $dataFields */
+                    $dataFields = $data->getField();
+
+                    $data->setField(new ArrayCollection());
+
+
+                    $setField = new ArrayCollection();
+
+                    /** @var DeliveryFieldUid $field */
+                    foreach($fields as $field)
                     {
-                        $deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
-                            return $v->equals($Delivery);
-                        }, ARRAY_FILTER_USE_BOTH);
+                        $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+                        $OrderDeliveryFieldDTO->setField($field);
 
 
-                        if($deliveryCheckedFilter)
+                        /**
+                         * Находим заполненное значение в коллекции и присваиваем
+                         *
+                         * @var Field\OrderDeliveryFieldDTO $element
+                         */
+                        $dataFieldFilter = $dataFields->filter(function(Field\OrderDeliveryFieldDTO $element) use (
+                            $field
+                        ) {
+                            return $field->equals($element->getField());
+                        });
+
+                        if(!$dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
                         {
-                            /** @var DeliveryUid $deliveryChecked */
-                            $deliveryChecked = current($deliveryCheckedFilter);
-
-                            /* Присваиваем способу доставки - событие  (для расчета стоимости)  */
-                            $data->setEvent($deliveryChecked->getEvent());
-                            $deliveryHelp = $deliveryChecked?->getOption();
-                        }
-                    }
-
-
-                    $form
-                        ->add('delivery', ChoiceType::class, [
-                            'choices' => $deliveryChoice,
-                            'choice_value' => function(?DeliveryUid $delivery) {
-                                return $delivery?->getValue();
-                            },
-
-                            'choice_label' => function(DeliveryUid $delivery) {
-                                return $delivery->getAttr();
-                            },
-
-                            'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
-                                return [
-                                    'checked' => ($choice->equals($deliveryChecked)),
-                                    'data-price' => $choice->getPrice()?->getValue(),
-                                    'data-excess' => $choice->getExcess()?->getValue(),
-                                    'data-currency' => $choice->getCurrency(),
-                                ];
-                            },
-
-                            'attr' => ['class' => 'd-flex gap-3'],
-                            'help' => $deliveryHelp,
-                            'label' => false,
-                            'expanded' => true,
-                            'multiple' => false,
-                            'required' => true,
-                        ]);
-
-
-                    // Condition is always 'true' because '$deliveryChecked' is evaluated at this point
-                    $fields = $this->deliveryFields->fetchDeliveryFields($deliveryChecked);
-
-
-                    /** Получаем пользовательские поля */
-                    if($fields)
-                    {
-                        /** @var ArrayCollection $dataFields */
-                        $dataFields = $data->getField();
-
-                        $data->setField(new ArrayCollection());
-
-
-                        $setField = new ArrayCollection();
-
-                        /** @var DeliveryFieldUid $field */
-                        foreach($fields as $field)
-                        {
-                            $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
-                            $OrderDeliveryFieldDTO->setField($field);
-
-
-                            /**
-                             * Находим заполненное значение в коллекции и присваиваем
-                             * @var Field\OrderDeliveryFieldDTO $element
-                             */
-                            $dataFieldFilter = $dataFields->filter(function(Field\OrderDeliveryFieldDTO $element) use (
-                                $field
-                            ) {
-                                return $field->equals($element->getField());
-                            });
-
-                            if(!$dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
-                            {
-                                $OrderDeliveryFieldDTO->setValue($dataFieldFilter->current()->getValue());
-                            }
-
-                            $setField->add($OrderDeliveryFieldDTO);
+                            $OrderDeliveryFieldDTO->setValue($dataFieldFilter->current()->getValue());
                         }
 
-                        $data->setField($setField);
-
-
-                        /* Коллекция продукции */
-                        $form->add('field', CollectionType::class, [
-                            'entry_type' => Field\OrderDeliveryFieldForm::class,
-                            'entry_options' => ['label' => false],
-                            'label' => false,
-                            'by_reference' => false,
-                            'allow_delete' => true,
-                            'allow_add' => true,
-                            'prototype_name' => '__delivery_field__',
-                        ]);
-
+                        $setField->add($OrderDeliveryFieldDTO);
                     }
+
+                    $data->setField($setField);
+
+
+                    /* Коллекция продукции */
+                    $form->add('field', CollectionType::class, [
+                        'entry_type' => Field\OrderDeliveryFieldForm::class,
+                        'entry_options' => ['label' => false],
+                        'label' => false,
+                        'by_reference' => false,
+                        'allow_delete' => true,
+                        'allow_add' => true,
+                        'prototype_name' => '__delivery_field__',
+                    ]);
 
                 }
-            }
+
+
+            },
         );
 
     }

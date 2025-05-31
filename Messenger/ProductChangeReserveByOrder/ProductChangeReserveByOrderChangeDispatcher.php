@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
@@ -33,15 +34,13 @@ use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrde
 use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Обновляем резерв в карточке при изменении количества в заказе
+ *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[AsMessageHandler(priority: 999)]
@@ -59,7 +58,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 $message,
-                self::class
+                self::class,
             ]);
 
         if($Deduplicator->isExecuted())
@@ -84,23 +83,6 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
         {
             return;
         }
-
-        /**
-         * Изменение в заказе допустимо только в случае статусов:
-         * - Статус New «Новый»
-         * - Unpaid «В ожидании оплаты»
-         */
-        if(
-            true === (
-                $OrderEventLast->isStatusEquals(OrderStatusNew::class) ||
-                $OrderEventLast->isStatusEquals(OrderStatusUnpaid::class) ||
-                $OrderEventLast->isStatusEquals(OrderStatusPhone::class)
-            )
-        )
-        {
-            return;
-        }
-
 
         $LastOrderDTO = new EditOrderDTO();
         $OrderEventLast->getDto($LastOrderDTO);
@@ -132,11 +114,11 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                 function(OrderProductDTO $currentProduct) use ($lastProduct) {
                     return
                         $currentProduct->getProduct()->equals($lastProduct->getProduct())
-                        && ((is_null($currentProduct->getOffer()) === true && is_null($lastProduct->getOffer()) === true) || $currentProduct->getOffer()->equals($lastProduct->getOffer()))
-                        && ((is_null($currentProduct->getVariation()) === true && is_null($lastProduct->getVariation()) === true) || $currentProduct->getVariation()->equals($lastProduct->getVariation()))
-                        && ((is_null($currentProduct->getModification()) === true && is_null($lastProduct->getModification()) === true) || $currentProduct->getModification()->equals($lastProduct->getModification()))
+                        && ((is_null($currentProduct->getOffer()) === true && is_null($lastProduct->getOffer()) === true) || $currentProduct->getOffer()?->equals($lastProduct->getOffer()))
+                        && ((is_null($currentProduct->getVariation()) === true && is_null($lastProduct->getVariation()) === true) || $currentProduct->getVariation()?->equals($lastProduct->getVariation()))
+                        && ((is_null($currentProduct->getModification()) === true && is_null($lastProduct->getModification()) === true) || $currentProduct->getModification()?->equals($lastProduct->getModification()))
                         && $currentProduct->getPrice()->getTotal() !== $lastProduct->getPrice()->getTotal();
-                }
+                },
             );
 
             $currentProduct = $matching->current();
@@ -145,16 +127,23 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 
             if($currentProduct instanceof OrderProductDTO)
             {
+                /**
+                 * Добавляем новый резерв с ВЫСОКИМ приоритетом
+                 */
                 $this->messageDispatch->dispatch(
                     new ProductReserveByOrderNewMessage(
                         $currentProduct->getProduct(),
                         $currentProduct->getOffer(),
                         $currentProduct->getVariation(),
                         $currentProduct->getModification(),
-                        $currentProduct->getPrice()->getTotal()
-                    )
+                        $currentProduct->getPrice()->getTotal(),
+                    ),
+                    transport: 'products-product',
                 );
 
+                /**
+                 * Снимаем предыдущий резерв как отложенное сообщение с НИЗКИМ приоритетом
+                 */
                 $this->messageDispatch->dispatch(
                     new ProductsReserveByOrderCancelMessage(
                         $lastProduct->getProduct(),
@@ -163,6 +152,8 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         $lastProduct->getModification(),
                         $lastProduct->getPrice()->getTotal(),
                     ),
+                    stamps: [new MessageDelay('5 seconds')],
+                    transport: 'products-product-low',
                 );
             }
         }

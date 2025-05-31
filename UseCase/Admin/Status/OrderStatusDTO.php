@@ -63,6 +63,11 @@ final class OrderStatusDTO implements OrderEventInterface
 
     private Invariable\StatusOrderInvariableDTO $invariable;
 
+
+    /** Комментарий к заказу */
+    private ?string $comment = null;
+
+
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
         OrderEventUid $id
@@ -108,4 +113,22 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->invariable;
     }
 
+    /** Комментарий к заказу */
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function addComment(?string $comment): self
+    {
+        if(empty($comment))
+        {
+            return $this;
+        }
+
+        $this->comment .= ($this->comment ? ', ' : '').$comment;
+
+        return $this;
+    }
 }

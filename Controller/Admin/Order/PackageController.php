@@ -111,7 +111,7 @@ final class PackageController extends AbstractController
                     'message' => 'Заказ был отменен',
                     'status' => 500,
                 ],
-                500
+                500,
             );
         }
 
@@ -133,7 +133,7 @@ final class PackageController extends AbstractController
                     'message' => 'Заказ уже отправлен на склад',
                     'status' => 500,
                 ],
-                500
+                500,
             );
         }
 
@@ -146,7 +146,7 @@ final class PackageController extends AbstractController
             ->createForm(
                 type: PackageOrderForm::class,
                 data: $PackageOrderDTO,
-                options: ['action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()])]
+                options: ['action' => $this->generateUrl('orders-order:admin.order.package', ['id' => $Order->getId()])],
             )
             ->handleRequest($request);
 
@@ -201,15 +201,21 @@ final class PackageController extends AbstractController
                 {
                     // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
                     $isAccess = $productStocksTotalAccess
-                        ->product($CurrentProductIdentifierResult->getProduct())
-                        ->offer($CurrentProductIdentifierResult->getOfferConst())
-                        ->variation($CurrentProductIdentifierResult->getVariationConst())
-                        ->modification($CurrentProductIdentifierResult->getModificationConst())
+                        ->forProfile($PackageOrderDTO->getInvariable()->getProfile())
+                        ->forProduct($CurrentProductIdentifierResult->getProduct())
+                        ->forOfferConst($CurrentProductIdentifierResult->getOfferConst())
+                        ->forVariationConst($CurrentProductIdentifierResult->getVariationConst())
+                        ->forModificationConst($CurrentProductIdentifierResult->getModificationConst())
                         ->get();
 
                     if($isAccess <= 0)
                     {
-                        $this->addFlash('danger', 'danger.update', 'orders-order.admin');
+                        $this->addFlash(
+                            'danger',
+                            'danger.update',
+                            'orders-order.admin',
+                            'Недостаточное количество на складе',
+                        );
                         return $this->redirectToReferer();
                     }
                 }
@@ -355,7 +361,7 @@ final class PackageController extends AbstractController
                     'message' => 'Статус успешно обновлен',
                     'status' => 200,
                 ],
-                200
+                200,
             );
         }
 
@@ -371,7 +377,7 @@ final class PackageController extends AbstractController
                 'message' => sprintf('Ошибка %s при обновлении заказа', $code),
                 'status' => 500,
             ],
-            500
+            500,
         );
     }
 }

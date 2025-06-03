@@ -173,8 +173,14 @@ final class OrderDeliveryForm extends AbstractType
                 $form = $event->getForm();
 
 
-                //if($options['user_profile_type'])
-                //{
+                /**
+                 * @note здесь возможна ошибка
+                 * На примере Triangle - при выборе способа доставки в пределах МКАД и указать адрес, поле value доставки пустое
+                 */
+                if(empty($options['user_profile_type']))
+                {
+                    return;
+                }
 
                 /**
                  * Присваиваем по умолчанию способы доставки соответствующие профилю
@@ -345,7 +351,6 @@ final class OrderDeliveryForm extends AbstractType
 
                 }
 
-                //}
             },
         );
 

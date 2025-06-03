@@ -23,9 +23,8 @@
 document.querySelectorAll('.img-product').forEach((el) => el.addEventListener('click', () => document.getElementById('img-product').style.backgroundImage = el.style.backgroundImage));
 
 /* Счетчик  */
-document.getElementById("plus").addEventListener("click", () =>
+document.getElementById("plus")?.addEventListener("click", () =>
 {
-
     let price_total = document.getElementById("order_product_form_price_total");
     let result = price_total.value * 1;
     let max = price_total.dataset.max * 1;
@@ -37,7 +36,7 @@ document.getElementById("plus").addEventListener("click", () =>
 
 });
 
-document.getElementById('minus').addEventListener('click', () =>
+document.getElementById("minus")?.addEventListener("click", () =>
 {
 
     let price_total = document.getElementById("order_product_form_price_total");

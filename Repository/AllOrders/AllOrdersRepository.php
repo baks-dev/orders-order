@@ -636,11 +636,11 @@ final class AllOrdersRepository implements AllOrdersInterface
 
             $dbal
                 ->createSearchQueryBuilder($this->search)
-                ->addSearchEqualUid('orders.id')
-                ->addSearchEqualUid('orders.event')
+                //->addSearchEqualUid('orders.id')
+                //->addSearchEqualUid('orders.event')
                 ->addSearchLike('order_invariable.number')
-                ->addSearchLike('user_profile_value.value')
-                ->addSearchLike('delivery_trans.name')
+                //->addSearchLike('user_profile_value.value')
+                //->addSearchLike('delivery_trans.name')
                 ->addSearchLike('product_info.article')
                 ->addSearchLike('product_variation.article')
                 ->addSearchLike('product_modification.article')

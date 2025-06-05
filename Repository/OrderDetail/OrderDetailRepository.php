@@ -76,13 +76,55 @@ use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 
 final class OrderDetailRepository implements OrderDetailInterface
 {
+    private OrderUid|false $order = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly ORMQueryBuilder $ORMQueryBuilder,
     ) {}
 
-    public function fetchDetailOrderAssociative(OrderUid $order): ?array
+    /**
+     * Фильтр по заказу
+     */
+    public function onOrder(OrderUid $order): self
     {
+        $this->order = $order;
+        return $this;
+    }
+
+    /**
+     * Метод возвращает Result с информацией об заказе
+     */
+    public function find(): OrderDetailResult|false
+    {
+        $builder = $this->builder();
+
+        return $builder->fetchHydrate(OrderDetailResult::class);
+    }
+
+    /**
+     * @deprecated
+     * Метод возвращает Result с информацией об заказе
+     */
+    public function fetchDetailOrderAssociative(OrderUid $order): array|null
+    {
+        $this->onOrder($order);
+
+        $builder = $this->builder();
+
+        return $builder->fetchAssociative() ?: null;
+    }
+
+    public function builder(): DBALQueryBuilder
+    {
+
+        if(false === ($this->order instanceof OrderUid))
+        {
+            throw new \InvalidArgumentException(sprintf(
+                'Некорректной тип для параметра запроса $this->order: %s. Ожидаемый тип %s',
+                var_export($this->order, true), OrderUid::class
+            ));
+        }
 
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -94,7 +136,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->addSelect('orders.number AS order_number')
             ->from(Order::class, 'orders')
             ->where('orders.id = :order')
-            ->setParameter('order', $order, OrderUid::TYPE);
+            ->setParameter('order', $this->order, OrderUid::TYPE);
 
         $dbal
             ->addSelect('event.status AS order_status')
@@ -583,7 +625,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->allGroupByExclude();
 
-        return $dbal->fetchAssociative() ?: null;
+        return $dbal;
     }
 
     /** Метод возвращает корень агрегата заказа по идентификатору */

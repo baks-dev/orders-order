@@ -639,7 +639,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 //->addSearchEqualUid('orders.id')
                 //->addSearchEqualUid('orders.event')
                 ->addSearchLike('order_invariable.number')
-                //->addSearchLike('user_profile_value.value')
+                ->addSearchLike('user_profile_value.value')
                 //->addSearchLike('delivery_trans.name')
                 ->addSearchLike('product_info.article')
                 ->addSearchLike('product_variation.article')

@@ -30,36 +30,36 @@ use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 #[Exclude]
-final readonly class AllOrdersReportResult
+final class AllOrdersReportResult
 {
     public function __construct(
 
-        private string $number,
-        private string $mod_date,
+        private readonly string $number,
+        private readonly string $mod_date,
 
-        private int $order_price,
-        private int $total,
-        private int $money,
-        private ?int $profit,
+        private readonly int $order_price,
+        private readonly int $total,
+        private readonly int $money,
+        private readonly ?int $profit,
 
-        private ?string $product_name,
-        private ?string $product_article,
-        private ?int $product_price,
+        private readonly ?string $product_name,
+        private readonly ?string $product_article,
+        private readonly ?int $product_price,
 
-        private ?string $product_offer_value,
-        private ?string $product_offer_reference,
-        private ?string $product_offer_postfix,
+        private readonly ?string $product_offer_value,
+        private readonly ?string $product_offer_reference,
+        private readonly ?string $product_offer_postfix,
 
-        private ?string $product_variation_value,
-        private ?string $product_variation_reference,
-        private ?string $product_variation_postfix,
+        private readonly ?string $product_variation_value,
+        private readonly ?string $product_variation_reference,
+        private readonly ?string $product_variation_postfix,
 
-        private ?string $product_modification_value,
-        private ?string $product_modification_reference,
-        private ?string $product_modification_postfix,
+        private readonly ?string $product_modification_value,
+        private readonly ?string $product_modification_reference,
+        private readonly ?string $product_modification_postfix,
 
-        private ?string $delivery_name,
-        private ?int $delivery_price,
+        private readonly ?string $delivery_name,
+        private readonly ?int $delivery_price,
 
         private ?string $project_discount = null
 

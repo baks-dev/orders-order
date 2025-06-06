@@ -42,9 +42,9 @@ use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileDbsOzon;
 use BaksDev\Ozon\Orders\Type\ProfileType\TypeProfileFbsOzon;
 use BaksDev\Yandex\Market\Orders\BaksDevYandexMarketOrdersBundle;
 use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryDbsYaMarket;
-use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryFbsYandexMarket;
+use BaksDev\Yandex\Market\Orders\Type\DeliveryType\TypeDeliveryFbsYaMarket;
 use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileDbsYaMarket;
-use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYandexMarket;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYaMarket;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -207,7 +207,7 @@ final class OrderDeliveryForm extends AbstractType
                 {
                     $TypeDeliveryYaMarket = match (true)
                     {
-                        TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypeDeliveryFbsYandexMarket::TYPE,
+                        TypeProfileFbsYaMarket::equals($options['user_profile_type']) => TypeDeliveryFbsYaMarket::TYPE,
                         TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypeDeliveryDbsYaMarket::TYPE,
                         default => false,
                     };

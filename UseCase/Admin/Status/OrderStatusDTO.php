@@ -40,13 +40,6 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\Uuid]
     private OrderEventUid $id;
 
-    //    /**
-    //     * Ответственный
-    //     */
-    //    #[Assert\NotBlank]
-    //    #[Assert\Uuid]
-    //    private UserProfileUid $profile;
-
     /**
      * Статус заказа
      */

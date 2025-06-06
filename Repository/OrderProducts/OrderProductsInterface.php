@@ -34,7 +34,7 @@ interface OrderProductsInterface
     /**
      * Метод возвращает идентификаторы продукции в заказе
      *
-     * @return Generator<OrderProductResultDTO>
+     * @return Generator{OrderProductResultDTO}|false
      */
     public function findAllProducts(): Generator|false;
 }

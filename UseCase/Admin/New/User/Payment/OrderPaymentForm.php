@@ -42,7 +42,7 @@ use BaksDev\Yandex\Market\Orders\BaksDevYandexMarketOrdersBundle;
 use BaksDev\Yandex\Market\Orders\Type\PaymentType\TypePaymentDbsYaMarket;
 use BaksDev\Yandex\Market\Orders\Type\PaymentType\TypePaymentFbsYandex;
 use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileDbsYaMarket;
-use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYandexMarket;
+use BaksDev\Yandex\Market\Orders\Type\ProfileType\TypeProfileFbsYaMarket;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -161,7 +161,7 @@ final class OrderPaymentForm extends AbstractType
                     {
                         $TypeDeliveryYaMarket = match (true)
                         {
-                            TypeProfileFbsYandexMarket::equals($options['user_profile_type']) => TypePaymentFbsYandex::TYPE,
+                            TypeProfileFbsYaMarket::equals($options['user_profile_type']) => TypePaymentFbsYandex::TYPE,
                             TypeProfileDbsYaMarket::equals($options['user_profile_type']) => TypePaymentDbsYaMarket::TYPE,
                             default => false,
                         };

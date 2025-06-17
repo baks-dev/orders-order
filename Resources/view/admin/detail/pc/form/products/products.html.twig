@@ -1,0 +1,336 @@
+<table class="table">
+    <thead>
+    <tr class="small text-muted border-white">
+        <th class="w-75">Наименование</th>
+        <th class="w-50 text-center">Стоимость, шт</th>
+        <th class="w-25 text-center">Количество</th>
+        <th class="w-25">Сумма</th>
+        <th class="w-25"></th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+    {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
+
+    {% set card = product.vars.data.card %}
+
+
+    <tr id='item_{{ product.vars.id }}'>
+
+        <td rowspan="2">
+
+            <div class="row">
+                <div class="col-3">
+
+                    {# Обложка #}
+                    {% set image_path = '/assets/img/blank.svg' %}
+
+                    {% if card.product_image_ext is defined and card.product_image_ext is not null %}
+                        {% set img_host =  card.product_image_cdn == true  ? CDN_HOST : '' %}
+                        {% set img_dir = card.product_image %}
+                        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.product_image_ext %}
+                        {% set image_path = img_host ~ img_dir ~ img_file %}
+                    {% endif %}
+
+                    <a
+                            href="{{ path('products-product:public.detail', {
+                                category : card.category_url ,
+                                url : card.product_url ,
+                                offer: card.product_offer_value,
+                                variation: card.product_variation_value,
+                                modification: card.product_modification_value,
+                                postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
+                            }) }}"
+                            class="icon rounded-4 mb-2 bg-contain p-1"
+                            style="width: 60px; height: 60px; background-image: url('{{ image_path }}')"
+                            target="_blank"
+                    ></a>
+
+                </div>
+
+                <div class="col-8 align-self-center">
+
+                    <a href="{{ path('products-product:public.detail', {
+                        category : card.category_url ,
+                        url : card.product_url ,
+                        offer: card.product_offer_value,
+                        variation: card.product_variation_value,
+                        modification: card.product_modification_value,
+                        postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
+
+                    }) }}"
+                       class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
+                       target="_blank"
+                       style="width: 250px;"
+                    >
+
+                        {{ card.product_name }} <br>
+
+                        {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                        card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+                        {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+                        {{ card.product_offer_postfix }}
+                        {{ card.product_variation_postfix }}
+                        {{ card.product_modification_postfix }}
+
+                    </a>
+
+                    <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
+                         data-copy="{{ card.product_article }}">
+
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
+                             height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
+                            <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
+                        </svg>
+                        {{ card.product_article }}
+                    </div>
+                </div>
+
+                <div class="col position-relative mt-2">
+                    {% if card.product_price is not null and card.product_price != (product.vars.data.price.price.value * 100) %}
+                        <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0 mt-2">
+                            <strike class="small text-muted">
+                                {{ money(card.product_price, card.product_currency) }}
+                            </strike>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </td>
+
+
+        {# Запрет на редактирвоание количества либо стоимости #}
+
+        <td class="vertical-middle text-center">
+            {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
+                <span class="text-danger">Не указана</span>
+            {% else %}
+
+                {% if product.price.price is defined %}
+
+                    {% set isDiscount = card.product_price > (product.vars.data.price.price.value * 100) %}
+
+                    <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+
+                        <button type="button" class="btn btn-sm minus"
+                                title="Уменьшить количество"
+                                data-id='{{ product.price.price.vars.id }}'
+                                data-step='100'
+                        >
+                            <span class="h4 text-muted opacity-50">-</span>
+                        </button>
+
+
+                        {{ form_widget(product.price.price, { attr: {
+                            class: 'form-control-sm rounded-3 price',
+                            style: 'width: 75px;',
+                            disabled: false
+                        } }) }}
+
+
+                        <button type="button" class="btn btn-sm plus"
+                                title="Увеличить количество"
+                                data-id='{{ product.price.price.vars.id }}'
+                                data-step='100'
+                        >
+                            <span class="h5 text-muted opacity-50">+</span>
+                        </button>
+                    </div>
+
+                    {% if isNotEdit %}
+                        {{ money(product.vars.data.price.price, card.product_currency) }}
+                    {% endif %}
+
+
+                {% else %}
+                    {{ money(product.vars.data.price.price, card.product_currency) }}
+                {% endif %}
+
+            {% endif %}
+        </td>
+
+
+        <td class="vertical-middle text-center">
+
+            <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+
+                <button type="button" class="btn btn-sm minus"
+                        title="Уменьшить количество"
+                        data-id='{{ product.price.total.vars.id }}'
+                >
+                    <span class="h4 text-muted opacity-50">-</span>
+                </button>
+
+                {{ form_widget(product.price.total, {
+                    label: false,
+                    attr: {
+                        class : 'form-control-sm mx-1 rounded-3 total',
+                        style: 'width: 50px;',
+                        'data-price' : ''~product.price.vars.data.price.value*100,
+                        'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
+                        'data-currency' : product.price.vars.data.currency|upper,
+                        'data-max' : card.product_quantity
+                    } } ) }}
+
+
+                <button type="button" class="btn btn-sm plus"
+                        title="Увеличить количество"
+                        data-id='{{ product.price.total.vars.id }}'
+                >
+                    <span class="h5 text-muted opacity-50">+</span>
+                </button>
+
+            </div>
+
+            {% if isNotEdit %}
+                {{ product.price.total.vars.data }}
+            {% endif %}
+
+        </td>
+
+        <td class="vertical-middle">
+
+            {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
+
+            {% set discount = user_profile_discount(summ) %}
+
+            <strong id='summ_{{ product.price.total.vars.id }}'
+                    data-price='{{ card.product_price }}'
+                    data-discount='{{ baks_profile.profile_discount is defined ? baks_profile.profile_discount }}'
+                    data-currency='{{ card.product_currency|upper }}'
+            >
+                {{ discount ? money(discount, card.product_currency) : money(summ, card.product_currency) }}
+
+            </strong>
+
+            {% if discount %}
+                <span class="badge bg-danger rounded-2 ms-2">- {{ baks_profile.profile_discount }}%</span>
+            {% endif %}
+
+        </td>
+
+
+        <td class="vertical-middle text-end">
+
+            <li class="nav nav-item flex-grow-1 text-end" role="presentation">
+
+
+                <div class="dropdown">
+
+                    <button class="btn btn-link dropdown-toggle text-muted d-flex align-items-center"
+                            type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                             class="bi bi-list" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                        </svg>
+                    </button>
+
+                    <ul class="dropdown-menu">
+
+
+                        {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
+
+                            <li>
+                                <a href="{{ path('wildberries-products:admin.barcode.print', {
+                                    product : card.event,
+                                    offer: card.product_offer_uid,
+                                    variation: card.product_variation_uid,
+                                    modification: card.product_modification_uid,
+                                    total: product.price.vars.data.total,
+                                    print: true
+                                }) }}"
+                                   class="dropdown-item prnt"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#modal"
+                                >
+                                    Печать этикетки Wildberries
+                                </a>
+                            </li>
+
+                        {% endif %}
+
+                    </ul>
+
+
+                </div>
+
+
+            </li>
+
+        {# УДАЛИТЬ #}
+        </td>
+
+        {% set colspan = 4 %}
+
+        {% if isNotEdit == false %}
+
+            {% set colspan = 5 %}
+
+            <td>
+                <span class="btn btn-sm text-decoration-underline small text-muted delete-product" data-row="{{ product.vars.id }}" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-x me-1" viewBox="0 0 16 16">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                    </svg> Удалить
+                </span>
+            </td>
+
+        {% endif %}
+
+    </tr>
+
+
+    {% if product.price.price is defined %}
+
+
+        {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
+        <tr>
+            <td colspan="{{ colspan }}">
+                <span class="badge text-bg-danger">Скидка до 20%</span>
+
+        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+        <tr>
+            <td colspan="{{ colspan }}">
+                <span class="badge text-bg-danger">Скидка до 15%</span>
+
+        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
+        <tr>
+            <td colspan="{{ colspan }}">
+                <span class="badge text-bg-danger">Скидка до 10%</span>
+
+        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+        <tr>
+            <td colspan="{{ colspan }}">
+                <span class="badge text-bg-danger">Скидка до 5%</span>
+
+        {% else %}
+        <tr>
+            <td colspan="{{ colspan }}">
+                <span class="badge text-bg-danger">Скидка до 100%</span>
+
+        {% endif %}
+
+                {# Закрывает тег таблицы #}
+                <small> мин. стоимость: </small>
+                {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+
+            </td>
+
+    {% else %}
+
+        <tr>
+            <td colspan="{{ colspan }}">&nbsp;</td>
+
+    {% endif %}
+
+        {% endfor %}
+
+        </tbody>
+</table>

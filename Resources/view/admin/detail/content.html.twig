@@ -8,8 +8,21 @@
         class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/offcanvas.min.js?v={{ version }}"
         class="lazy"></script>
+{#<script nonce='{{ csp_nonce() }}' async data-src="/assets/js/script.min.js?v={{ version }}"
+        class="lazy"></script>#}
 
 <script nonce='{{ csp_nonce() }}' class="lazy">
+
+
+    /* вешаем события на модальные ссылки */
+    document.querySelectorAll('[data-bs-toggle="modal"]')
+    .forEach(function(item, i, arr)
+    {
+        modalLink(item);
+    });
+
+
+
     document.querySelectorAll(".dropdown-item").forEach(item =>
     {
 

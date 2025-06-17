@@ -6,6 +6,31 @@
     </button>
 </div>
 
+{% set product_prototype = form.product.vars.prototype %}
+
+{% set price_price_widget = form_widget(product_prototype.price.price, { attr: {
+        class: 'form-control-sm rounded-3 price',
+        style: 'width: 75px;',
+        min: '__product_min_price__',
+        disabled: false,
+        value: '__product_price__'
+    } }) %}
+
+
+{% set price_total_widget = form_widget(product_prototype.price.total, {
+        label: false,
+        attr: {
+            class : 'form-control-sm mx-1 rounded-3 total',
+            style: 'width: 50px;',
+            'data-price' :   '__product_price__',
+            'data-discount' : '__product_discount__',
+            'data-currency' : '__product_currency__',
+            'data-max' : '__product_total_max__',
+            'value' : '__product_total__'
+        } } )
+%}
+
+
 {# @var material \BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderResult #}
 
 {# @var product \BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderResult #}
@@ -14,7 +39,6 @@
 {% if order %}
 
     {{ form_start(form, { attr: { class: 'offcanvas-body w-100 p-0' } }) }}
-    {# <div class="offcanvas-body pt-0 px-5"> #}
 
     <div class='px-3 mb-3'>
 
@@ -156,13 +180,6 @@
                                             </div>
 
                                             <div class="d-flex gap-3 align-items-center ">
-                                                {# <a class="text-muted" href="#">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                         fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
-                                                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
-                                                    </svg>
-                                                </a> #}
 
                                                 <a class="text-muted"
                                                    href="{{ path('materials-sign:document.pdf.orders', parameters) }}">
@@ -240,13 +257,6 @@
                                             </div>
 
                                             <div class="d-flex gap-3 align-items-center ">
-                                                {# <a class="text-muted" href="#">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                         fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
-                                                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
-                                                    </svg>
-                                                </a> #}
 
                                                 <a class="text-muted"
                                                    href="{{ path('products-sign:document.pdf.orders', parameters) }}">
@@ -345,10 +355,43 @@
                         </div>
                     </div>
 
-                    <div class="border rounded-4 p-2">
-                        {{ include(_self|replace({ "content.html.twig": "form/products.html.twig" })) }}
+                    {% set isNotEdit =
+                        order.order_status == 'package' or
+                        order.order_status == 'extradition' or
+                        order.order_status == 'delivery' or
+                        order.order_status == 'completed' %}
+
+                    <div class="border rounded-4 p-2" id="order-product-list" data-prototype='{{ include(_self|replace({ "content.html.twig": "form/products/product.prototype.html.twig" })) }}'>
+                        {{ include(_self|replace({ "content.html.twig": "form/products/products.html.twig" })) }}
                     </div>
+
+                    {% if isNotEdit == false %}
+                    <a href="{{ path('orders-order:admin.order.add') }}"
+                       class="btn btn-primary modal-link"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal"
+                       title="Добавить в заказ"
+                    >
+
+                    <span class="svg-icon svg-icon-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"  transform="rotate(-90 11 18)" fill="currentColor"></rect>
+                            <rect x="6"
+                                  y="11"
+                                  width="12"
+                                  height="2"
+                                  rx="1"
+                                  fill="currentColor"
+                            ></rect>
+                        </svg>
+                    </span>
+                        Добавить в заказ
+
+                    </a>
+
+                    {% endif %}
                 </div>
+
 
                 {{ form_widget(form.comment, {  attr: { placeholder : 'Комментарий к заказу'} }) }}
 
@@ -359,8 +402,8 @@
                 {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
             </div>
 
-            {# ОПЛАТА И ДОСТАВКА #}
 
+            {# ОПЛАТА И ДОСТАВКА #}
 
             <div class="tab-pane fade " id="pills-delivery" role="tabpanel" tabindex="0">
 
@@ -438,7 +481,6 @@
         {% set card = product.vars.data.card %}
 
         {% if card %}
-            {# {% set summ = (product.price.vars.data.total * card.product_price) %} #}
             {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
             {% set total_summ_product = total_summ_product + summ %}
             {% set total_summ_currency = card.product_currency %}
@@ -478,10 +520,6 @@
 
 
         <div class="w-50 d-flex gap-3 align-items-end justify-content-end">
-
-            {# <div class='w-25'>
-            {{ form_widget(form.status) }}
-        </div> #}
 
             <button type="button"
                     class="btn btn-light border text-secondary"

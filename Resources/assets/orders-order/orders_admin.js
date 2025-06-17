@@ -32,7 +32,6 @@ basketLang = {
     }
 }
 
-
 function addOrder(event)
 {
     let forms = this.closest('form');
@@ -391,16 +390,42 @@ function total()
 
 }
 
-
-document.querySelectorAll('.delete-product').forEach(function(btn)
+document.querySelectorAll(".delete-product").forEach(function($button)
 {
-    btn.addEventListener('click', function(event)
+    $button.addEventListener("click", function($e)
     {
-        event.preventDefault();
-        submitLink(btn.href, btn.dataset.id);
-    });
+        $e.preventDefault();
+
+        let $row = $e.currentTarget.getAttribute("data-row");
+
+        deleteElement($row);
+    }
+    );
 });
 
+function deleteElement($row)
+{
+    let $elemCount = document.querySelectorAll(".delete-product").length;
+    if($elemCount < 2)
+    {
+        /* TOAST */
+        let header = "Редактирование заказа";
+
+        $errorFormHandler = "{ \"type\":\"danger\" , " +
+            "\"header\":\"" + header + "\"  , " +
+            "\"message\" : \"В заказе должен быть хотя бы один продукт\" }";
+
+        createToast(JSON.parse($errorFormHandler));
+        
+        return;
+    }
+
+    document.getElementById($row).remove();
+    document.getElementById('item_' + $row).nextSibling.remove();
+    document.getElementById('item_' + $row).remove();
+
+    total();
+}
 
 function success(id)
 {
@@ -412,7 +437,6 @@ document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(fun
 {
     userProfileType.addEventListener('change', function(event)
     {
-
         let forms = this.closest('form');
         submitOrderForm(forms);
         return false;

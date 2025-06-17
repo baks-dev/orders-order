@@ -45,6 +45,7 @@ final class OrderPriceForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
         $this->discount = match (true)
         {
             $this->security->isGranted('ROLE_ADMIN') => 100,
@@ -55,7 +56,34 @@ final class OrderPriceForm extends AbstractType
             default => false,
         };
 
+        $min = new Money(1);
+
+
+        $builder->add('price',
+            MoneyType::class,
+            [
+                'attr' => ['min' => $min],
+                'required' => true,
+                'currency' => false,
+                'auto_initialize' => false,
+                'disabled' => $this->discount === false,
+            ]);
+
+
+        $builder->get('price')->addModelTransformer(
+            new CallbackTransformer(
+                function($price) {
+                    return $price instanceof Money ? $price->getValue() : $price;
+                },
+                function($price) {
+                    return new Money($price);
+                },
+            ),
+        );
+
+
         $builder->add('total', TextType::class);
+
 
         if($this->discount)
         {
@@ -90,7 +118,6 @@ final class OrderPriceForm extends AbstractType
                             $min = new Money(1);
                         }
 
-
                         $form->add(
                             $builder
                                 ->create(
@@ -101,8 +128,7 @@ final class OrderPriceForm extends AbstractType
                                         'required' => true,
                                         'currency' => false,
                                         'auto_initialize' => false,
-                                        //'constraints' => [new Range(min: $min->getValue())]
-                                    ]
+                                    ],
                                 )
                                 ->addModelTransformer(
                                     new CallbackTransformer(
@@ -111,13 +137,13 @@ final class OrderPriceForm extends AbstractType
                                         },
                                         function($price) {
                                             return new Money($price);
-                                        }
-                                    )
+                                        },
+                                    ),
                                 )
-                                ->getForm()
+                                ->getForm(),
                         );
                     }
-                }
+                },
             );
         }
     }

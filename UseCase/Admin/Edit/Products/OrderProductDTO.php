@@ -57,7 +57,7 @@ final class OrderProductDTO implements OrderProductInterface
 
 
     /** Карточка товара */
-    private array $card;
+    private array|null $card = null;
 
 
     public function __construct()
@@ -74,8 +74,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setProduct(ProductEventUid $product): void
+    public function setProduct(ProductEventUid|string $product): void
     {
+        if(true === is_string($product))
+        {
+            $product = new ProductEventUid($product);
+        }
+
         $this->product = $product;
     }
 
@@ -88,8 +93,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setOffer(?ProductOfferUid $offer): void
+    public function setOffer(ProductOfferUid|string|null $offer): void
     {
+        if(true === is_string($offer))
+        {
+            $offer = empty($offer) ? null : new ProductOfferUid($offer);
+        }
+
         $this->offer = $offer;
     }
 
@@ -102,8 +112,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setVariation(?ProductVariationUid $variation): void
+    public function setVariation(ProductVariationUid|string|null $variation): void
     {
+        if(true === is_string($variation))
+        {
+            $variation = empty($variation) ? null : new ProductVariationUid($variation);
+        }
+
         $this->variation = $variation;
     }
 
@@ -116,8 +131,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setModification(?ProductModificationUid $modification): void
+    public function setModification(ProductModificationUid|string|null $modification): void
     {
+        if(true === is_string($modification))
+        {
+            $modification = empty($modification) ? null : new ProductModificationUid($modification);
+        }
+
         $this->modification = $modification;
     }
 

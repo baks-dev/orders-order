@@ -42,6 +42,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
 
 final class OrderDeliveryForm extends AbstractType
 {
@@ -109,14 +112,14 @@ final class OrderDeliveryForm extends AbstractType
 
         $builder->add(
             'price',
-            Price\OrderDeliveryPriceForm::class,
+            OrderDeliveryPriceForm::class,
             ['label' => false],
         );
 
 
         /* Коллекция пользовательских свойств */
         $builder->add('field', CollectionType::class, [
-            'entry_type' => Field\OrderDeliveryFieldForm::class,
+            'entry_type' => OrderDeliveryFieldForm::class,
             'entry_options' => ['label' => false],
             'label' => false,
             'by_reference' => false,
@@ -222,16 +225,16 @@ final class OrderDeliveryForm extends AbstractType
                     /** @var DeliveryFieldUid $field */
                     foreach($fields as $field)
                     {
-                        $OrderDeliveryFieldDTO = new Field\OrderDeliveryFieldDTO();
+                        $OrderDeliveryFieldDTO = new OrderDeliveryFieldDTO();
                         $OrderDeliveryFieldDTO->setField($field);
 
 
                         /**
                          * Находим заполненное значение в коллекции и присваиваем
                          *
-                         * @var Field\OrderDeliveryFieldDTO $element
+                         * @var OrderDeliveryFieldDTO $element
                          */
-                        $dataFieldFilter = $dataFields->filter(function(Field\OrderDeliveryFieldDTO $element) use (
+                        $dataFieldFilter = $dataFields->filter(function(OrderDeliveryFieldDTO $element) use (
                             $field
                         ) {
                             return $field->equals($element->getField());
@@ -250,7 +253,7 @@ final class OrderDeliveryForm extends AbstractType
 
                     /* Коллекция продукции */
                     $form->add('field', CollectionType::class, [
-                        'entry_type' => Field\OrderDeliveryFieldForm::class,
+                        'entry_type' => OrderDeliveryFieldForm::class,
                         'entry_options' => ['label' => false],
                         'label' => false,
                         'by_reference' => false,

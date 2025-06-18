@@ -31,6 +31,7 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 
 final class OrderProductDTO implements OrderProductInterface
 {
@@ -53,7 +54,7 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
     #[Assert\Valid]
-    private Price\OrderPriceDTO $price;
+    private OrderPriceDTO $price;
 
 
     /** Карточка товара */
@@ -62,7 +63,7 @@ final class OrderProductDTO implements OrderProductInterface
 
     public function __construct()
     {
-        $this->price = new Price\OrderPriceDTO();
+        $this->price = new OrderPriceDTO();
     }
 
 
@@ -144,12 +145,12 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
 
-    public function getPrice(): Price\OrderPriceDTO
+    public function getPrice(): OrderPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(Price\OrderPriceDTO $price): void
+    public function setPrice(OrderPriceDTO $price): void
     {
         $this->price = $price;
     }

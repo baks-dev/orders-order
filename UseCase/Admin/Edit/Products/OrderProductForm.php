@@ -35,6 +35,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceForm;
 
 final class OrderProductForm extends AbstractType
 {
@@ -53,7 +54,7 @@ final class OrderProductForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('price', Price\OrderPriceForm::class);
+        $builder->add('price', OrderPriceForm::class);
 
         $builder->add('product', HiddenType::class);
         $builder->add('offer', HiddenType::class);

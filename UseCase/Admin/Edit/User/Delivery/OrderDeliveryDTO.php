@@ -34,6 +34,8 @@ use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
 
 final class OrderDeliveryDTO implements OrderDeliveryInterface
 {
@@ -68,13 +70,13 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
     /** Стоимость доставки заказа */
     #[Assert\Valid]
-    private Price\OrderDeliveryPriceDTO $price;
+    private OrderDeliveryPriceDTO $price;
 
 
     public function __construct()
     {
         $this->field = new ArrayCollection();
-        $this->price = new Price\OrderDeliveryPriceDTO();
+        $this->price = new OrderDeliveryPriceDTO();
 
         $now = (new DateTimeImmutable())->setTime(0, 0, 0);
         $this->deliveryDate = $now->add(new DateInterval('P1D'));
@@ -113,7 +115,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         $this->field = $field;
     }
 
-    public function addField(Field\OrderDeliveryFieldDTO $field): void
+    public function addField(OrderDeliveryFieldDTO $field): void
     {
         if(!$this->field->contains($field))
         {
@@ -121,7 +123,7 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         }
     }
 
-    public function removeField(Field\OrderDeliveryFieldDTO $field): void
+    public function removeField(OrderDeliveryFieldDTO $field): void
     {
         $this->field->removeElement($field);
     }
@@ -178,12 +180,12 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
     /**
      * Price
      */
-    public function getPrice(): Price\OrderDeliveryPriceDTO
+    public function getPrice(): OrderDeliveryPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(Price\OrderDeliveryPriceDTO $price): self
+    public function setPrice(OrderDeliveryPriceDTO $price): self
     {
         $this->price = $price;
         return $this;

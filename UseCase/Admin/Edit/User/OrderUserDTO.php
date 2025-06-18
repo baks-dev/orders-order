@@ -29,6 +29,8 @@ use BaksDev\Orders\Order\Entity\User\OrderUserInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryDTO;
 
 final class OrderUserDTO implements OrderUserInterface
 {
@@ -47,17 +49,17 @@ final class OrderUserDTO implements OrderUserInterface
 
     /** Способ оплаты */
     #[Assert\Valid]
-    private Payment\OrderPaymentDTO $payment;
+    private OrderPaymentDTO $payment;
 
     /** Способ доставки */
     #[Assert\Valid]
-    private Delivery\OrderDeliveryDTO $delivery;
+    private OrderDeliveryDTO $delivery;
 
 
     public function __construct()
     {
-        $this->payment = new Payment\OrderPaymentDTO();
-        $this->delivery = new Delivery\OrderDeliveryDTO();
+        $this->payment = new OrderPaymentDTO();
+        $this->delivery = new OrderDeliveryDTO();
     }
 
 
@@ -92,13 +94,13 @@ final class OrderUserDTO implements OrderUserInterface
 
     /** Способ оплаты */
 
-    public function getPayment(): Payment\OrderPaymentDTO
+    public function getPayment(): OrderPaymentDTO
     {
         return $this->payment;
     }
 
 
-    public function setPayment(Payment\OrderPaymentDTO $payment): void
+    public function setPayment(OrderPaymentDTO $payment): void
     {
         $this->payment = $payment;
     }
@@ -106,13 +108,13 @@ final class OrderUserDTO implements OrderUserInterface
 
     /** Способ доставки */
 
-    public function getDelivery(): Delivery\OrderDeliveryDTO
+    public function getDelivery(): OrderDeliveryDTO
     {
         return $this->delivery;
     }
 
 
-    public function setDelivery(Delivery\OrderDeliveryDTO $delivery): void
+    public function setDelivery(OrderDeliveryDTO $delivery): void
     {
         $this->delivery = $delivery;
     }

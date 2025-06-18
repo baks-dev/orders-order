@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\User\Payment\OrderPaymentInterface;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 
 final class OrderPaymentDTO implements OrderPaymentInterface
 {
@@ -77,7 +78,7 @@ final class OrderPaymentDTO implements OrderPaymentInterface
     }
 
 
-    public function addField(Field\OrderPaymentFieldDTO $field): void
+    public function addField(OrderPaymentFieldDTO $field): void
     {
         if(!$this->field->contains($field))
         {
@@ -86,7 +87,7 @@ final class OrderPaymentDTO implements OrderPaymentInterface
     }
 
 
-    public function removeField(Field\OrderPaymentFieldDTO $field): void
+    public function removeField(OrderPaymentFieldDTO $field): void
     {
         $this->field->removeElement($field);
     }

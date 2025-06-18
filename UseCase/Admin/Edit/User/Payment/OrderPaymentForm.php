@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment;
 
 use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldForm;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -39,6 +40,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 
 final class OrderPaymentForm extends AbstractType
 {
@@ -54,7 +56,7 @@ final class OrderPaymentForm extends AbstractType
 
         /* Коллекция пользовательских свойств */
         $builder->add('field', CollectionType::class, [
-            'entry_type' => Field\OrderPaymentFieldForm::class,
+            'entry_type' => OrderPaymentFieldForm::class,
             'entry_options' => ['label' => false],
             'label' => false,
             'by_reference' => false,
@@ -149,15 +151,15 @@ final class OrderPaymentForm extends AbstractType
 
                         foreach($fields as $field)
                         {
-                            $OrderPaymentFieldDTO = new Field\OrderPaymentFieldDTO();
+                            $OrderPaymentFieldDTO = new OrderPaymentFieldDTO();
                             $OrderPaymentFieldDTO->setField($field);
 
                             /**
                              * Находим заполненное значение в коллекции и присваиваем
                              *
-                             * @var Field\OrderPaymentFieldDTO $element
+                             * @var OrderPaymentFieldDTO $element
                              */
-                            $dataFieldFilter = $dataFields->filter(function(Field\OrderPaymentFieldDTO $element) use (
+                            $dataFieldFilter = $dataFields->filter(function(OrderPaymentFieldDTO $element) use (
                                 $field
                             ) {
                                 return $field->equals($element->getField());
@@ -177,7 +179,7 @@ final class OrderPaymentForm extends AbstractType
 
                         /* Коллекция продукции */
                         $form->add('field', CollectionType::class, [
-                            'entry_type' => Field\OrderPaymentFieldForm::class,
+                            'entry_type' => OrderPaymentFieldForm::class,
                             'entry_options' => ['label' => false],
                             'label' => false,
                             'by_reference' => false,

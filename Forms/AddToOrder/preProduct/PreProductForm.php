@@ -36,7 +36,6 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use BaksDev\Reference\Money\Twig\MoneyExtension;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
@@ -255,20 +254,27 @@ class PreProductForm extends AbstractType
                     return $product->getAttr();
                 },
                 'choice_attr' => function(?ProductEventUid $product) {
-                    return $product ? [
+                    if($product === null)
+                    {
+                        return [];
+                    }
+
+                    $current = $product->getParams() === null ? null : current($product->getParams());
+
+                    return [
                         'data-filter' => ' ['.$product->getOption().']',
                         'data-max' => $product->getOption(),
                         'data-name' => $product->getAttr(),
-                        'data-product-url' => $product->getParams() === null ? null : $product->getParams()[0]['product_url'],
-                        'data-product-price' => $product->getParams() === null ? null : $product->getParams()[0]['product_price'],
-                        'data-product-currency' => $product->getParams() === null ? null : $product->getParams()[0]['product_currency'],
-                            'data-image-path' => $product->getParams() === null ? null : $this->ImagePathExtension->imagePath(
-                            $product->getParams()[0]['product_image'],
-                            $product->getParams()[0]['product_image_ext'],
-                            $product->getParams()[0]['product_image_cdn'],
+                        'data-product-url' => $current === null ? null : $current['product_url'],
+                        'data-product-price' => $current === null ? null : $current['product_price'],
+                        'data-product-currency' => $current === null ? null : $current['product_currency'],
+                            'data-image-path' => $current === null ? null : $this->ImagePathExtension->imagePath(
+                            $current['product_image'],
+                            $current['product_image_ext'],
+                            $current['product_image_cdn'],
                         ),
-                        'data-category-url' => $product->getParams() === null ? null : $product->getParams()[0]['category_url'],
-                    ] : [];
+                        'data-category-url' => $current === null ? null : $current['category_url'],
+                    ];
                 },
                 'label' => false,
             ]
@@ -309,22 +315,29 @@ class PreProductForm extends AbstractType
                         return trim($offer->getAttr());
                     },
                     'choice_attr' => function(?ProductOfferUid $offer) {
-                        return $offer ? [
+                        if($offer === null)
+                        {
+                            return [];
+                        }
+
+                        $current = $offer->getParams() === null ? null : current($offer->getParams());
+
+                        return [
                             'data-filter' => ' ['.$offer->getOption().']',
                             'data-max' => $offer->getOption(),
                             'data-name' => $offer->getAttr(),
-                            'data-product-price' => $offer->getParams() === null ? null : $offer->getParams()[0]['product_price'],
-                            'data-product-currency' => $offer->getParams() === null ? null : $offer->getParams()[0]['product_currency'],
-                            'data-product-article' => $offer->getParams() === null ? null : $offer->getParams()[0]['product_article'],
+                            'data-product-price' => $current === null ? null : $current['product_price'],
+                            'data-product-currency' => $current === null ? null : $current['product_currency'],
+                            'data-product-article' => $current === null ? null : $current['product_article'],
                             'data-offer-reference' => $offer->getCharacteristic() === null ? null : $offer->getCharacteristic(),
-                            'data-offer-value' => $offer->getParams() === null ? null : $offer->getParams()[0]['product_offer_value'],
-                            'data-offer-postfix' => $offer->getParams() === null ? null : $offer->getParams()[0]['product_offer_postfix'],
-                            'data-image-path' => $offer->getParams() === null || $offer->getParams()[0]['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
-                                $offer->getParams()[0]['product_image'],
-                                $offer->getParams()[0]['product_image_ext'],
-                                $offer->getParams()[0]['product_image_cdn'],
+                            'data-offer-value' => $current === null ? null : $current['product_offer_value'],
+                            'data-offer-postfix' => $current === null ? null : $current['product_offer_postfix'],
+                            'data-image-path' => $current === null || $current['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
+                                $current['product_image'],
+                                $current['product_image_ext'],
+                                $current['product_image_cdn'],
                             ),
-                        ] : [];
+                        ];
                     },
 
                     'translation_domain' => $CurrentProductOfferUid->getCharacteristic(),
@@ -366,22 +379,29 @@ class PreProductForm extends AbstractType
                         return trim($variation->getAttr());
                     },
                     'choice_attr' => function(?ProductVariationUid $variation) {
-                        return $variation ? [
+                        if($variation === null)
+                        {
+                            return [];
+                        }
+
+                        $current = $variation->getParams() === null ? null : current($variation->getParams());
+
+                        return [
                             'data-filter' => ' ['.$variation->getOption().']',
                             'data-max' => $variation->getOption(),
                             'data-name' => $variation->getAttr(),
-                            'data-product-price' => $variation->getParams() === null ? null : $variation->getParams()[0]['product_price'],
-                            'data-product-currency' => $variation->getParams() === null ? null : $variation->getParams()[0]['product_currency'],
-                            'data-product-article' => $variation->getParams() === null ? null : $variation->getParams()[0]['product_article'],
+                            'data-product-price' => $current === null ? null : $current['product_price'],
+                            'data-product-currency' => $current === null ? null : $current['product_currency'],
+                            'data-product-article' => $current === null ? null : $current['product_article'],
                             'data-variation-reference' => $variation->getCharacteristic() === null ? null : $variation->getCharacteristic(),
-                            'data-variation-value' => $variation->getParams() === null ? null : $variation->getParams()[0]['product_variation_value'],
-                            'data-variation-postfix' => $variation->getParams() === null ? null : $variation->getParams()[0]['product_variation_postfix'],
-                            'data-image-path' => $variation->getParams() === null || $variation->getParams()[0]['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
-                                $variation->getParams()[0]['product_image'],
-                                $variation->getParams()[0]['product_image_ext'],
-                                $variation->getParams()[0]['product_image_cdn'],
+                            'data-variation-value' => $current === null ? null : $current['product_variation_value'],
+                            'data-variation-postfix' => $current === null ? null : $current['product_variation_postfix'],
+                            'data-image-path' => $current === null || $current['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
+                                $current['product_image'],
+                                $current['product_image_ext'],
+                                $current['product_image_cdn'],
                             )
-                        ] : [];
+                        ];
                     },
                     'translation_domain' => $CurrentProductVariationUid->getCharacteristic(),
                     'label' => $CurrentProductVariationUid->getProperty(),
@@ -425,23 +445,30 @@ class PreProductForm extends AbstractType
                         return trim($modification->getAttr());
                     },
                     'choice_attr' => function(?ProductModificationUid $modification) {
-                        return $modification ? [
+                        if($modification === null)
+                        {
+                            return [];
+                        }
+
+                        $current = $modification->getParams() === null ? null : current($modification->getParams());
+
+                        return [
                             'data-filter' => ' ['.$modification->getOption().']',
                             'data-max' => $modification->getOption(),
                             'data-name' => $modification->getAttr(),
-                            'data-product-image' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_image'],
-                            'data-product-price' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_price'],
-                            'data-product-currency' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_currency'],
-                            'data-product-article' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_article'],
+                            'data-product-image' => $current === null ? null : $current['product_image'],
+                            'data-product-price' => $current === null ? null : $current['product_price'],
+                            'data-product-currency' => $current === null ? null : $current['product_currency'],
+                            'data-product-article' => $current === null ? null : $current['product_article'],
                             'data-modification-reference' => $modification->getCharacteristic() === null ? null : $modification->getCharacteristic(),
-                            'data-modification-value' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_modification_value'],
-                            'data-modification-postfix' => $modification->getParams() === null ? null : $modification->getParams()[0]['product_modification_postfix'],
-                            'data-image-path' => $modification->getParams() === null || $modification->getParams()[0]['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
-                                $modification->getParams()[0]['product_image'],
-                                $modification->getParams()[0]['product_image_ext'],
-                                $modification->getParams()[0]['product_image_cdn'],
+                            'data-modification-value' => $current === null ? null : $current['product_modification_value'],
+                            'data-modification-postfix' => $current === null ? null : $current['product_modification_postfix'],
+                            'data-image-path' => $current === null || $current['product_image_ext'] === null ? null : $this->ImagePathExtension->imagePath(
+                                $current['product_image'],
+                                $current['product_image_ext'],
+                                $current['product_image_cdn'],
                             ),
-                        ] : [];
+                        ];
                     },
                     'translation_domain' => $CurrentProductModificationUid->getCharacteristic(),
                     'label' => $CurrentProductModificationUid->getProperty(),

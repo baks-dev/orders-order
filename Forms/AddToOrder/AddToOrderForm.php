@@ -29,12 +29,13 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use BaksDev\Orders\Order\Forms\AddToOrder\preProduct\PreProductForm;
 
 final class AddToOrderForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('preProduct', preProduct\PreProductForm::class, ['label' => false]);
+        $builder->add('preProduct', PreProductForm::class, ['label' => false]);
 
         $builder->add(
             'order_add',

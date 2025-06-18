@@ -689,6 +689,8 @@ async function submitAddToOrderForm(forms)
     document.getElementById(elementFormName + "_product_" + elementCount + "_variation").setAttribute("value", variation);
     document.getElementById(elementFormName + "_product_" + elementCount + "_modification").setAttribute("value", modification);
 
+    total();
+
     /** Уменьшаем число продукции */
     document.querySelectorAll(".minus").forEach(function(btn)
     {

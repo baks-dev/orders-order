@@ -25,24 +25,26 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Forms\AddToOrder;
 
+use BaksDev\Orders\Order\Forms\AddToOrder\preProduct\PreProductDTO;
+
 final class AddToOrderDTO
 {
-    private preProduct\PreProductDTO $preProduct;
+    private PreProductDTO $preProduct;
 
     public function __construct()
     {
-        $this->preProduct = new preProduct\PreProductDTO();
+        $this->preProduct = new PreProductDTO();
     }
 
     /**
      * PreProduct
      */
-    public function getPreProduct(): preProduct\PreProductDTO
+    public function getPreProduct(): PreProductDTO
     {
         return $this->preProduct;
     }
 
-    public function setPreProduct(preProduct\PreProductDTO $preProduct): self
+    public function setPreProduct(PreProductDTO $preProduct): self
     {
         $this->preProduct = $preProduct;
         return $this;

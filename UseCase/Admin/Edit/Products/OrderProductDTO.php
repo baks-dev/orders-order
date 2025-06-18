@@ -78,7 +78,7 @@ final class OrderProductDTO implements OrderProductInterface
     {
         if(true === is_string($product))
         {
-            $product = new ProductEventUid($product);
+            $product = empty($product) ? null : new ProductEventUid($product);
         }
 
         $this->product = $product;

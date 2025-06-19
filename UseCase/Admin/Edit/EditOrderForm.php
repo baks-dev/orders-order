@@ -32,6 +32,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserForm;
 
 final class EditOrderForm extends AbstractType
 {
@@ -39,7 +41,7 @@ final class EditOrderForm extends AbstractType
     {
         /* Коллекция продукции */
         $builder->add('product', CollectionType::class, [
-            'entry_type' => Products\OrderProductForm::class,
+            'entry_type' => OrderProductForm::class,
             'entry_options' => ['label' => false],
             'label' => false,
             'by_reference' => false,
@@ -48,7 +50,7 @@ final class EditOrderForm extends AbstractType
             'prototype_name' => '__product__',
         ]);
 
-        $builder->add('usr', User\OrderUserForm::class, ['label' => false]);
+        $builder->add('usr', OrderUserForm::class, ['label' => false]);
 
         $builder->add('comment', TextareaType::class, ['required' => false]);
 

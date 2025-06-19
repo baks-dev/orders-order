@@ -112,11 +112,13 @@ final class DetailController extends AbstractController
             )
             ->handleRequest($request);
 
+
         if(false === $request->isXmlHttpRequest() && $form->isSubmitted() && false === $form->isValid())
         {
             return $this->redirectToReferer();
         }
 
+        
         if($form->isSubmitted() && $form->isValid())
         {
             $this->refreshTokenForm($form);

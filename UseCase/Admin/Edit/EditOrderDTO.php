@@ -31,6 +31,9 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
 
 /** @see OrderEvent */
 final class EditOrderDTO implements OrderEventInterface
@@ -49,7 +52,7 @@ final class EditOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\EditOrderInvariableDTO $invariable;
+    private EditOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     private OrderStatus $status;
@@ -60,7 +63,7 @@ final class EditOrderDTO implements OrderEventInterface
 
     /** Пользователь */
     #[Assert\Valid]
-    private ?User\OrderUserDTO $usr;
+    private ?OrderUserDTO $usr;
 
     /** Ответственный */
     private ?UserProfileUid $profile = null;
@@ -77,8 +80,8 @@ final class EditOrderDTO implements OrderEventInterface
         }
 
         $this->product = new ArrayCollection();
-        $this->usr = new User\OrderUserDTO();
-        $this->invariable = new Invariable\EditOrderInvariableDTO();
+        $this->usr = new OrderUserDTO();
+        $this->invariable = new EditOrderInvariableDTO();
 
     }
 
@@ -109,7 +112,7 @@ final class EditOrderDTO implements OrderEventInterface
         $this->product = $product;
     }
 
-    public function addProduct(Products\OrderProductDTO $product): void
+    public function addProduct(OrderProductDTO $product): void
     {
         if(!$this->product->contains($product))
         {
@@ -118,7 +121,7 @@ final class EditOrderDTO implements OrderEventInterface
     }
 
 
-    public function removeProduct(Products\OrderProductDTO $product): void
+    public function removeProduct(OrderProductDTO $product): void
     {
         $this->product->removeElement($product);
     }
@@ -128,13 +131,13 @@ final class EditOrderDTO implements OrderEventInterface
      * Пользователь
      */
 
-    public function getUsr(): ?User\OrderUserDTO
+    public function getUsr(): ?OrderUserDTO
     {
         return $this->usr;
     }
 
 
-    public function setUsr(?User\OrderUserDTO $users): void
+    public function setUsr(?OrderUserDTO $users): void
     {
         $this->usr = $users;
     }
@@ -191,7 +194,7 @@ final class EditOrderDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\EditOrderInvariableDTO
+    public function getInvariable(): EditOrderInvariableDTO
     {
         return $this->invariable;
     }

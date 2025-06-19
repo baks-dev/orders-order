@@ -28,12 +28,14 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceForm;
 
 final class OrderProductForm extends AbstractType
 {
@@ -52,8 +54,12 @@ final class OrderProductForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('price', Price\OrderPriceForm::class);
+        $builder->add('price', OrderPriceForm::class);
 
+        $builder->add('product', HiddenType::class);
+        $builder->add('offer', HiddenType::class);
+        $builder->add('variation', HiddenType::class);
+        $builder->add('modification', HiddenType::class);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
 
@@ -80,8 +86,10 @@ final class OrderProductForm extends AbstractType
             }
         });
 
-
         $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event): void {
+
+            /** TODO Фиксить проблемы (ломается добавление в заказ из-за getCard) */
+            return;
 
             if($this->total === false || $this->newTotal === false)
             {

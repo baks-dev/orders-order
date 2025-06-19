@@ -102,12 +102,85 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 
         $CurrentOrderDTO = new EditOrderDTO();
         $CurrentOrderEvent->getDto($CurrentOrderDTO);
+        
+        // Пройдемся по новой коллекции
+        
+        /** @var EditOrderDTO() $currentProduct */
+        foreach($CurrentOrderDTO->getProduct() as $currentProduct)
+        {
+            // Проверим, не был ли добавлен новый товар в заказ
+            $matchingCurrentAll = $LastOrderDTO->getProduct()->filter
+            (
+                function(OrderProductDTO $lastProduct) use ($currentProduct) {
+                    return
+                        $lastProduct->getProduct()->equals($currentProduct->getProduct())
+                        && ((is_null($lastProduct->getOffer()) === true && is_null($currentProduct->getOffer()) === true) || $lastProduct->getOffer()?->equals($currentProduct->getOffer()))
+                        && ((is_null($lastProduct->getVariation()) === true && is_null($currentProduct->getVariation()) === true) || $lastProduct->getVariation()?->equals($currentProduct->getVariation()))
+                        && ((is_null($lastProduct->getModification()) === true && is_null($currentProduct->getModification()) === true) || $lastProduct->getModification()?->equals($currentProduct->getModification()));
+                }
+            );
 
-        // Пройдемся по первой коллекции
+            if($matchingCurrentAll->count() === 0)
+            {
+                /**
+                 * Добавляем новый резерв для нового товара с ВЫСОКИМ приоритетом
+                 */
+                $this->messageDispatch->dispatch(
+                    new ProductReserveByOrderNewMessage(
+                        $currentProduct->getProduct(),
+                        $currentProduct->getOffer(),
+                        $currentProduct->getVariation(),
+                        $currentProduct->getModification(),
+                        $currentProduct->getPrice()->getTotal(),
+                    ),
+                    transport: 'products-product',
+                );
+
+                $Deduplicator->save();
+
+            }
+        }
+
+
+        // Пройдемся по предыдущей коллекции
 
         /** @var OrderProductDTO $lastProduct */
         foreach($LastOrderDTO->getProduct() as $lastProduct)
         {
+            // Проверим, не был ли удален товар из заказа
+            $matchingAll = $CurrentOrderDTO->getProduct()->filter
+            (
+                function(OrderProductDTO $currentProduct) use ($lastProduct) {
+                    return
+                        $currentProduct->getProduct()->equals($lastProduct->getProduct())
+                        && ((is_null($currentProduct->getOffer()) === true && is_null($lastProduct->getOffer()) === true) || $currentProduct->getOffer()?->equals($lastProduct->getOffer()))
+                        && ((is_null($currentProduct->getVariation()) === true && is_null($lastProduct->getVariation()) === true) || $currentProduct->getVariation()?->equals($lastProduct->getVariation()))
+                        && ((is_null($currentProduct->getModification()) === true && is_null($lastProduct->getModification()) === true) || $currentProduct->getModification()?->equals($lastProduct->getModification()));
+                }
+            );
+
+            if($matchingAll->count() === 0)
+            {
+                /**
+                 * Снимаем предыдущий резерв c удаленных как отложенное сообщение с НИЗКИМ приоритетом
+                 */
+                $this->messageDispatch->dispatch(
+                    new ProductsReserveByOrderCancelMessage(
+                        $lastProduct->getProduct(),
+                        $lastProduct->getOffer(),
+                        $lastProduct->getVariation(),
+                        $lastProduct->getModification(),
+                        $lastProduct->getPrice()->getTotal(),
+                    ),
+                    transport: 'products-product-low',
+                );
+
+                $Deduplicator->save();
+
+                /** Если продукт был удален - нет смысла проводить другие проверки */
+                continue;
+            }
+
             // Найдем в второй коллекции DTO с совпадающими event, offer, variation, modification
             $matching = $CurrentOrderDTO->getProduct()->filter
             (

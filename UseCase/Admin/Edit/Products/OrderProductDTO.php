@@ -31,6 +31,7 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 
 final class OrderProductDTO implements OrderProductInterface
 {
@@ -53,16 +54,16 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
     #[Assert\Valid]
-    private Price\OrderPriceDTO $price;
+    private OrderPriceDTO $price;
 
 
     /** Карточка товара */
-    private array $card;
+    private array|null $card = null;
 
 
     public function __construct()
     {
-        $this->price = new Price\OrderPriceDTO();
+        $this->price = new OrderPriceDTO();
     }
 
 
@@ -74,8 +75,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setProduct(ProductEventUid $product): void
+    public function setProduct(ProductEventUid|string $product): void
     {
+        if(true === is_string($product))
+        {
+            $product = empty($product) ? null : new ProductEventUid($product);
+        }
+
         $this->product = $product;
     }
 
@@ -88,8 +94,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setOffer(?ProductOfferUid $offer): void
+    public function setOffer(ProductOfferUid|string|null $offer): void
     {
+        if(true === is_string($offer))
+        {
+            $offer = empty($offer) ? null : new ProductOfferUid($offer);
+        }
+
         $this->offer = $offer;
     }
 
@@ -102,8 +113,13 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setVariation(?ProductVariationUid $variation): void
+    public function setVariation(ProductVariationUid|string|null $variation): void
     {
+        if(true === is_string($variation))
+        {
+            $variation = empty($variation) ? null : new ProductVariationUid($variation);
+        }
+
         $this->variation = $variation;
     }
 
@@ -116,20 +132,25 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setModification(?ProductModificationUid $modification): void
+    public function setModification(ProductModificationUid|string|null $modification): void
     {
+        if(true === is_string($modification))
+        {
+            $modification = empty($modification) ? null : new ProductModificationUid($modification);
+        }
+
         $this->modification = $modification;
     }
 
 
     /** Стоимость и количество */
 
-    public function getPrice(): Price\OrderPriceDTO
+    public function getPrice(): OrderPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(Price\OrderPriceDTO $price): void
+    public function setPrice(OrderPriceDTO $price): void
     {
         $this->price = $price;
     }

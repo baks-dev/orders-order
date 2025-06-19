@@ -31,6 +31,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryForm;
 
 final class OrderUserForm extends AbstractType
 {
@@ -39,9 +41,9 @@ final class OrderUserForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
+        $builder->add('payment', OrderPaymentForm::class, ['label' => false,]);
 
-        $builder->add('delivery', Delivery\OrderDeliveryForm::class, ['label' => false,]);
+        $builder->add('delivery', OrderDeliveryForm::class, ['label' => false,]);
 
 
         $builder->addEventListener(
@@ -61,7 +63,7 @@ final class OrderUserForm extends AbstractType
                     {
                         $form->add(
                             'payment',
-                            Payment\OrderPaymentForm::class,
+                            OrderPaymentForm::class,
                             [
                                 'label' => false,
                                 'user_profile_type' => $userProfileType,
@@ -70,7 +72,7 @@ final class OrderUserForm extends AbstractType
 
                         $form->add(
                             'delivery',
-                            Delivery\OrderDeliveryForm::class,
+                            OrderDeliveryForm::class,
                             [
                                 'label' => false,
                                 'user_profile_type' => $userProfileType,

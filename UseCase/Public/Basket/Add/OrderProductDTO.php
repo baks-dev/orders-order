@@ -68,19 +68,19 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    /** Идентификтаор продукта */
-
-    public function getUid(): ProductUid
-    {
-        return $this->uid;
-    }
-
-
-    public function setUid(ProductUid $uid): void
-    {
-        $this->uid = $uid;
-    }
-
+    //    /** Идентификтаор продукта */
+    //
+    //    public function getUid(): ProductUid
+    //    {
+    //        return $this->uid;
+    //    }
+    //
+    //
+    //    public function setUid(ProductUid $uid): void
+    //    {
+    //        $this->uid = $uid;
+    //    }
+    //
 
     /** Событие продукта */
 
@@ -124,7 +124,7 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    /** Модификация множественного враинта торгового предложения  */
+    /** Модификация множественного варианта торгового предложения  */
 
     public function getModification(): ?ProductModificationUid
     {

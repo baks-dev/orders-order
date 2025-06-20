@@ -120,7 +120,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                 }
             );
 
-            if($matchingCurrentAll->count() === 0)
+            if(true === $matchingCurrentAll->isEmpty())
             {
                 /**
                  * Добавляем новый резерв для нового товара с ВЫСОКИМ приоритетом
@@ -159,7 +159,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                 }
             );
 
-            if($matchingAll->count() === 0)
+            if($matchingAll->isEmpty())
             {
                 /**
                  * Снимаем предыдущий резерв c удаленных как отложенное сообщение с НИЗКИМ приоритетом

@@ -87,7 +87,7 @@
 
     </td>
 
-    <td class="vertical-middle" colspan="2">
+    <td class="vertical-middle">
 
             <strong id="summ_{{ product_prototype.price.total.vars.id }}"
                     data-price="__product_price__"
@@ -101,10 +101,54 @@
 
     </td>
 
-    
+
     {# УДАЛИТЬ #}
 
-    <td>
+    <td class="vertical-middle text-end">
+
+        <li class="nav nav-item flex-grow-1 text-end" role="presentation">
+
+
+            <div class="dropdown">
+
+                <button class="btn btn-link dropdown-toggle text-muted d-flex align-items-center"
+                        type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                         class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                </button>
+
+                <ul class="dropdown-menu">
+
+                    <li>
+
+                        <button
+                                type="button"
+                                class="dropdown-item delete-product"
+                                data-row="{{ product_prototype.vars.id }}"
+                        >
+                            Удалить из заказа
+                        </button>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+        </li>
+
+
+    </td>
+
+
+    {# УДАЛИТЬ #}
+
+    {# <td>
 
         <span class="btn btn-sm text-decoration-underline small text-muted delete-product" data-row="{{ product_prototype.vars.id }}">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x me-1" viewBox="0 0 16 16">
@@ -112,13 +156,13 @@
             </svg> Удалить
         </span>
 
-    </td>
+    </td> #}
 
 </tr>
 
 
 <tr>
-        <td colspan="5">
+    <td colspan="4">
             <span class="badge text-bg-danger">Скидка до __product_discount__%</span>
             &nbsp;
             {# Закрывает тег таблицы #}

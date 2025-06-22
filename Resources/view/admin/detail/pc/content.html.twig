@@ -342,6 +342,7 @@
                 {% endif %}
 
                 {# ПРОДУКЦИЯ  #}
+
                 <div class="d-flex flex-column gap-3 my-3">
 
                     <div class="d-flex justify-content-between align-items-center">
@@ -355,6 +356,7 @@
                         </div>
                     </div>
 
+                    {# Запрет на изменение заказа (стоимости, количество и пр.)  #}
                     {% set isNotEdit =
                         order.order_status == 'package' or
                         order.order_status == 'extradition' or
@@ -366,30 +368,35 @@
                     </div>
 
                     {% if isNotEdit == false %}
-                    <a href="{{ path('orders-order:admin.order.add') }}"
-                       class="btn btn-primary modal-link"
-                       data-bs-toggle="modal"
-                       data-bs-target="#modal"
-                       title="Добавить в заказ"
-                    >
 
-                    <span class="svg-icon svg-icon-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"  transform="rotate(-90 11 18)" fill="currentColor"></rect>
-                            <rect x="6"
-                                  y="11"
-                                  width="12"
-                                  height="2"
-                                  rx="1"
-                                  fill="currentColor"
-                            ></rect>
-                        </svg>
-                    </span>
-                        Добавить в заказ
+                        <a href="{{ path('orders-order:admin.order.add') }}"
+                           class="btn btn-primary modal-link"
+                           data-bs-toggle="modal"
+                           data-bs-target="#modal"
+                           title="Добавить в заказ"
+                        >
 
-                    </a>
+                            <span class="svg-icon svg-icon-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none">
+                                    <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"
+                                          transform="rotate(-90 11 18)" fill="currentColor"></rect>
+                                    <rect x="6"
+                                          y="11"
+                                          width="12"
+                                          height="2"
+                                          rx="1"
+                                          fill="currentColor"
+                                    ></rect>
+                                </svg>
+                            </span>
+
+                            Добавить в заказ
+
+                        </a>
 
                     {% endif %}
+
                 </div>
 
 

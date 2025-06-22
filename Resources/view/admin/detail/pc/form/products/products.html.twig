@@ -246,6 +246,7 @@
                                     total: product.price.vars.data.total,
                                     print: true
                                 }) }}"
+
                                    class="dropdown-item prnt"
                                    data-bs-toggle="modal"
                                    data-bs-target="#modal"
@@ -256,33 +257,34 @@
 
                         {% endif %}
 
-                    </ul>
 
+                        {% if isNotEdit == false %}
+
+                            <li>
+
+                                <button
+                                        type="button"
+                                        class="dropdown-item delete-product"
+                                        data-row="{{ product.vars.id }}"
+                                >
+                                    Удалить из заказа
+                                </button>
+
+                            </li>
+
+                        {% endif %}
+
+                    </ul>
 
                 </div>
 
 
             </li>
 
-        {# УДАЛИТЬ #}
+            {# УДАЛИТЬ #}
         </td>
 
         {% set colspan = 4 %}
-
-        {% if isNotEdit == false %}
-
-            {% set colspan = 5 %}
-
-            <td>
-                <span class="btn btn-sm text-decoration-underline small text-muted delete-product" data-row="{{ product.vars.id }}" type="button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                         class="bi bi-x me-1" viewBox="0 0 16 16">
-                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                    </svg> Удалить
-                </span>
-            </td>
-
-        {% endif %}
 
     </tr>
 
@@ -290,47 +292,47 @@
     {% if product.price.price is defined %}
 
 
-        {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
-        <tr>
-            <td colspan="{{ colspan }}">
-                <span class="badge text-bg-danger">Скидка до 20%</span>
+    {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
+    <tr>
+        <td colspan="{{ colspan }}">
+            <span class="badge text-bg-danger">Скидка до 20%</span>
 
-        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
-        <tr>
-            <td colspan="{{ colspan }}">
-                <span class="badge text-bg-danger">Скидка до 15%</span>
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+    <tr>
+        <td colspan="{{ colspan }}">
+            <span class="badge text-bg-danger">Скидка до 15%</span>
 
-        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
-        <tr>
-            <td colspan="{{ colspan }}">
-                <span class="badge text-bg-danger">Скидка до 10%</span>
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
+    <tr>
+        <td colspan="{{ colspan }}">
+            <span class="badge text-bg-danger">Скидка до 10%</span>
 
-        {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
-        <tr>
-            <td colspan="{{ colspan }}">
-                <span class="badge text-bg-danger">Скидка до 5%</span>
+            {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+    <tr>
+        <td colspan="{{ colspan }}">
+            <span class="badge text-bg-danger">Скидка до 5%</span>
+
+            {% else %}
+    <tr>
+        <td colspan="{{ colspan }}">
+            <span class="badge text-bg-danger">Скидка до 100%</span>
+
+            {% endif %}
+
+            {# Закрывает тег таблицы #}
+            <small class="ms-3"> мин. стоимость: </small>
+            {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+
+        </td>
 
         {% else %}
-        <tr>
-            <td colspan="{{ colspan }}">
-                <span class="badge text-bg-danger">Скидка до 100%</span>
+
+    <tr>
+        <td colspan="{{ colspan }}">&nbsp;</td>
 
         {% endif %}
 
-                {# Закрывает тег таблицы #}
-                <small> мин. стоимость: </small>
-                {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
-
-            </td>
-
-    {% else %}
-
-        <tr>
-            <td colspan="{{ colspan }}">&nbsp;</td>
-
-    {% endif %}
-
         {% endfor %}
 
-        </tbody>
+    </tbody>
 </table>

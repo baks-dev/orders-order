@@ -1,16 +1,16 @@
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -567,7 +567,7 @@ async function submitAddToOrderForm(forms)
     let productUrl = productOption.getAttribute("data-product-url");
     let productFullUrl = "/catalog/" + categoryUrl + "/" + productUrl;
 
-    let productName = productOption.getAttribute("data-name") + "<br>";
+    let productName = productOption.getAttribute("data-name");
     let productArticle = productOption.getAttribute("data-product-article");
     let productPrice = productOption.getAttribute("data-product-price");
     let productCurrency = productOption.getAttribute("data-product-currency");
@@ -581,7 +581,7 @@ async function submitAddToOrderForm(forms)
     {
         let offerReference = offerOption.getAttribute("data-offer-reference");
         productFullUrl += "/" + offerValue;
-        productName += " " + offerReference + ": " + offerValue + "";
+        productName += "<br><small class='text-muted text-capitalize'>" + offerReference + ":</small> " + offerValue;
         productArticle = offerOption.getAttribute("data-product-article");
         productPrice = offerOption.getAttribute("data-product-price");
         productCurrency = offerOption.getAttribute("data-product-currency");
@@ -594,7 +594,7 @@ async function submitAddToOrderForm(forms)
     {
         let variationReference = variationOption.getAttribute("data-variation-reference");
         productFullUrl += "/" + variationValue;
-        productName += "<br> " + variationReference + ": " + variationValue;
+        productName += "<br><small class='text-muted text-capitalize'>" + variationReference + ":</small> " + variationValue;
         productArticle = variationOption.getAttribute("data-product-article");
         productPrice = variationOption.getAttribute("data-product-price");
         productCurrency = variationOption.getAttribute("data-product-currency");
@@ -607,7 +607,8 @@ async function submitAddToOrderForm(forms)
     {
         let modificationReference = modificationOption.getAttribute("data-modification-reference");
         productFullUrl += "/" + modificationValue;
-        productName += "<br> " + modificationReference + ": " + modificationValue;
+        productName += "<br><small class='text-muted text-capitalize'>" + modificationReference + ":</small> " + modificationValue;
+
         productArticle = modificationOption.getAttribute("data-product-article");
         productPrice = modificationOption.getAttribute("data-product-price");
         productCurrency = modificationOption.getAttribute("data-product-currency");
@@ -646,7 +647,7 @@ async function submitAddToOrderForm(forms)
         productName += " " + modificationPostfix;
     }
 
-    let $productMinPrice = productPrice - productPrice * discount / 100;
+    let $productMinPrice = productPrice - (productPrice * discount / 100);
 
     prototype = prototype.replaceAll("__product_name__", productName);
 

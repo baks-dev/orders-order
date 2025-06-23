@@ -1,5 +1,6 @@
 new: 'Новые'
 package: 'Упаковка'
+phone: 'Не дозвонились'
 completed: 'Выполнен'
 canceled: 'Отменен'
 extradition: 'Собран'

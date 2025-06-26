@@ -50,7 +50,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Users\Profile\UserProfile\Entity\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
@@ -74,6 +76,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
+     *
      * @return Generator{int, AllOrdersReportResult}|false
      */
     public function findAll(): Generator|false
@@ -96,7 +99,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
-                "
+                ",
         );
 
         $dbal
@@ -105,12 +108,12 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders",
                 OrderModify::class,
                 "orders_modify",
-                "orders_modify.event = orders.event AND DATE(orders_modify.mod_date) = :date"
+                "orders_modify.event = orders.event AND DATE(orders_modify.mod_date) = :date",
             )
             ->setParameter(
                 key: "date",
                 value: $this->date,
-                type: Types::DATE_IMMUTABLE
+                type: Types::DATE_IMMUTABLE,
             );
 
         $dbal
@@ -119,14 +122,14 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders",
                 OrderInvariable::class,
                 "orders_invariable",
-                "orders_invariable.main = orders.id"
+                "orders_invariable.main = orders.id",
             );
 
         $dbal->join(
             "orders",
             OrderProduct::class,
             "orders_product",
-            "orders_product.event = orders.event"
+            "orders_product.event = orders.event",
         );
 
         $dbal
@@ -137,7 +140,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_product",
                 OrderPrice::class,
                 "orders_price",
-                "orders_price.product = orders_product.id"
+                "orders_price.product = orders_product.id",
             );
 
 
@@ -145,14 +148,14 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "orders",
             OrderUser::class,
             "orders_user",
-            "orders_user.event = orders.event"
+            "orders_user.event = orders.event",
         );
 
         $dbal->leftJoin(
             "orders_user",
             OrderDelivery::class,
             "orders_delivery",
-            "orders_delivery.usr = orders_user.id"
+            "orders_delivery.usr = orders_user.id",
         );
 
         $dbal
@@ -161,14 +164,14 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_delivery",
                 OrderDeliveryPrice::class,
                 "orders_delivery_price",
-                "orders_delivery_price.delivery =  orders_delivery.id"
+                "orders_delivery_price.delivery =  orders_delivery.id",
             );
 
         $dbal->leftJoin(
             "orders_delivery",
             DeliveryEvent::class,
             "delivery_event",
-            "delivery_event.id = orders_delivery.event"
+            "delivery_event.id = orders_delivery.event",
         );
 
         $dbal
@@ -184,14 +187,14 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "orders_product",
             ProductEvent::class,
             "product_event",
-            "product_event.id = orders_product.product"
+            "product_event.id = orders_product.product",
         );
 
         $dbal->leftJoin(
             "orders_product",
             ProductInfo::class,
             "product_info",
-            "product_info.product = product_event.main"
+            "product_info.product = product_event.main",
         );
 
         $dbal
@@ -201,7 +204,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_product",
                 ProductOffer::class,
                 "product_offer",
-                "product_offer.id = orders_product.offer"
+                "product_offer.id = orders_product.offer",
             );
 
         /** Получаем тип торгового предложения */
@@ -211,7 +214,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 'product_offer',
                 CategoryProductOffers::class,
                 'category_offer',
-                'category_offer.id = product_offer.category_offer'
+                'category_offer.id = product_offer.category_offer',
             );
 
         $dbal
@@ -221,7 +224,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_product",
                 ProductVariation::class,
                 "product_variation",
-                "product_variation.id = orders_product.variation"
+                "product_variation.id = orders_product.variation",
             );
 
         /** Получаем тип множественного варианта */
@@ -231,7 +234,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 'product_variation',
                 CategoryProductVariation::class,
                 'category_offer_variation',
-                'category_offer_variation.id = product_variation.category_variation'
+                'category_offer_variation.id = product_variation.category_variation',
             );
 
 
@@ -242,7 +245,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_product",
                 ProductModification::class,
                 "product_modification",
-                "product_modification.id = orders_product.modification"
+                "product_modification.id = orders_product.modification",
             );
 
         /** Получаем тип модификации */
@@ -252,7 +255,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 'product_modification',
                 CategoryProductModification::class,
                 'category_offer_modification',
-                'category_offer_modification.id = product_modification.category_modification'
+                'category_offer_modification.id = product_modification.category_modification',
             );
 
         $dbal->addSelect('
@@ -296,28 +299,28 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "orders_product",
             ProductPrice::class,
             "product_event_price",
-            "product_event_price.event = orders_product.product"
+            "product_event_price.event = orders_product.product",
         );
 
         $dbal->leftJoin(
             "product_offer",
             ProductOfferPrice::class,
             "product_offer_price",
-            "product_offer_price.offer = product_offer.id"
+            "product_offer_price.offer = product_offer.id",
         );
 
         $dbal->leftJoin(
             "product_variation",
             ProductVariationPrice::class,
             "product_variation_price",
-            "product_variation_price.variation = product_variation.id"
+            "product_variation_price.variation = product_variation.id",
         );
 
         $dbal->leftJoin(
             "product_modification",
             ProductModificationPrice::class,
             "product_modification_price",
-            "product_modification_price.modification = product_modification.id"
+            "product_modification_price.modification = product_modification.id",
         );
 
         $dbal
@@ -326,27 +329,56 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders_product",
                 ProductTrans::class,
                 "product_trans",
-                "product_trans.event = product_event.id AND product_trans.local = :local"
+                "product_trans.event = product_event.id AND product_trans.local = :local",
             );
 
 
-        /**
-         * Применяем настройки стоимости магазина
-         */
 
-        if($dbal->isNotProjectProfile())
+        /**
+         * Поиск скидки по текущему авторизованному пользователю
+         */
+        if(true === $dbal->bindCurrentProfile())
         {
             $dbal
-                ->bindProjectProfile()
-                ->addSelect('project_profile_info.discount AS project_discount')
-                ->leftJoin(
+                ->join(
                     'product',
-                    UserProfileInfo::class,
-                    'project_profile_info',
-                    'project_profile_info.profile = :project_profile'
+                    UserProfile::class,
+                    'current_profile',
+                    'current_profile.id = :'.$dbal::CURRENT_PROFILE_KEY,
+                );
+
+            $dbal
+                ->addSelect('current_profile_discount.value AS profile_discount')
+                ->leftJoin(
+                    'current_profile',
+                    UserProfileDiscount::class,
+                    'current_profile_discount',
+                    'current_profile_discount.event = current_profile.event',
                 );
         }
 
+        /**
+         * Поиск скидки по текущему авторизованному пользователю
+         */
+        if(true === $dbal->bindProjectProfile())
+        {
+            $dbal
+                ->join(
+                    'product',
+                    UserProfile::class,
+                    'project_profile',
+                    'project_profile.id = :'.$dbal::PROJECT_PROFILE_KEY,
+                );
+
+            $dbal
+                ->addSelect('project_profile_discount.value AS project_discount')
+                ->leftJoin(
+                    'project_profile',
+                    UserProfileDiscount::class,
+                    'project_profile_discount',
+                    'project_profile_discount.event = project_profile.event',
+                );
+        }
 
         $dbal
             ->orderBy("delivery_trans.name")

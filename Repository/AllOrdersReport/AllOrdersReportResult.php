@@ -61,6 +61,7 @@ final class AllOrdersReportResult
         private readonly ?string $delivery_name,
         private readonly ?int $delivery_price,
 
+        private ?string $profile_discount = null,
         private ?string $project_discount = null
 
     ) {}
@@ -85,6 +86,14 @@ final class AllOrdersReportResult
         if(false === empty($this->project_discount))
         {
             $price->applyString($this->project_discount);
+        }
+
+        /**
+         * Применяем настройки цены профиля пользователя к стоимости товара
+         */
+        if(false === empty($this->profile_discount))
+        {
+            $price->applyString($this->profile_discount);
         }
 
         return $price;

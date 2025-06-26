@@ -76,7 +76,6 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
-     *
      * @return Generator{int, AllOrdersReportResult}|false
      */
     public function findAll(): Generator|false
@@ -99,7 +98,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
-                ",
+                "
         );
 
         $dbal
@@ -333,18 +332,17 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             );
 
 
-
-        /**
-         * Поиск скидки по текущему авторизованному пользователю
-         */
+        /** Персональная скидка из профиля авторизованного пользователя */
         if(true === $dbal->bindCurrentProfile())
         {
+
             $dbal
                 ->join(
-                    'product',
+                    'orders',
                     UserProfile::class,
                     'current_profile',
-                    'current_profile.id = :'.$dbal::CURRENT_PROFILE_KEY,
+                    '
+                        current_profile.id = :'.$dbal::CURRENT_PROFILE_KEY,
                 );
 
             $dbal
@@ -353,21 +351,23 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                     'current_profile',
                     UserProfileDiscount::class,
                     'current_profile_discount',
-                    'current_profile_discount.event = current_profile.event',
+                    '
+                        current_profile_discount.event = current_profile.event
+                        ',
                 );
         }
 
-        /**
-         * Поиск скидки по текущему авторизованному пользователю
-         */
+        /** Общая скидка (наценка) из профиля магазина */
         if(true === $dbal->bindProjectProfile())
         {
+
             $dbal
                 ->join(
-                    'product',
+                    'orders',
                     UserProfile::class,
                     'project_profile',
-                    'project_profile.id = :'.$dbal::PROJECT_PROFILE_KEY,
+                    '
+                        project_profile.id = :'.$dbal::PROJECT_PROFILE_KEY,
                 );
 
             $dbal
@@ -376,9 +376,11 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                     'project_profile',
                     UserProfileDiscount::class,
                     'project_profile_discount',
-                    'project_profile_discount.event = project_profile.event',
+                    '
+                        project_profile_discount.event = project_profile.event',
                 );
         }
+
 
         $dbal
             ->orderBy("delivery_trans.name")

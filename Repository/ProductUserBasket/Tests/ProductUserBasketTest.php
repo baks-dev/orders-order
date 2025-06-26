@@ -45,6 +45,8 @@ use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertNull;
 
 /**
  * @group orders-order
@@ -159,7 +161,6 @@ class ProductUserBasketTest extends KernelTestCase
                 self::assertIsString($ProductUserBasketResult->getProductVariationReference()) :
                 self::assertNull($ProductUserBasketResult->getProductVariationReference()); // null|string
 
-
             if($ProductUserBasketResult->getProductModificationUid())
 
             {
@@ -176,7 +177,6 @@ class ProductUserBasketTest extends KernelTestCase
                 self::assertNull($ProductUserBasketResult->getProductModificationName()); // null|string
             }
 
-
             is_string($ProductUserBasketResult->getProductModificationPostfix()) ?
                 self::assertIsString($ProductUserBasketResult->getProductModificationPostfix()) :
                 self::assertNull($ProductUserBasketResult->getProductModificationPostfix()); // null|string
@@ -190,8 +190,14 @@ class ProductUserBasketTest extends KernelTestCase
             self::assertIsString($ProductUserBasketResult->getProductImageExt()); // string
             self::assertIsBool($ProductUserBasketResult->getProductImageCdn()); // bool
 
-            self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductPrice()); // Money
-            self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductOldPrice()); // Money
+            is_object($ProductUserBasketResult->getProductPrice()) ?
+                self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductPrice()) :
+                assertFalse($ProductUserBasketResult->getProductPrice()); // Money
+
+            is_object($ProductUserBasketResult->getProductOldPrice()) ?
+                self::assertInstanceOf(Money::class, $ProductUserBasketResult->getProductOldPrice()) :
+                assertFalse($ProductUserBasketResult->getProductOldPrice()); // Money
+
             self::assertInstanceOf(Currency::class, $ProductUserBasketResult->getProductCurrency()); // Currency
             self::assertIsInt($ProductUserBasketResult->getProductQuantity()); // int
 

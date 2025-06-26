@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\ProductUserBasket;
 
-use BaksDev\Products\Product\Repository\RepositoryResultInterface;
+use BaksDev\Products\Product\Repository\ProductPriceResultInterface;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
@@ -44,7 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 /** @see ProductUserBasketRepository */
 #[Exclude]
-final readonly class ProductUserBasketResult implements RepositoryResultInterface
+final readonly class ProductUserBasketResult implements ProductPriceResultInterface
 {
     public function __construct(
         private string $id,
@@ -97,7 +97,7 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
         private string|null $product_invariable_id,
 
         private string|null $profile_discount = null,
-
+        private string|null $project_discount = null,
     ) {}
 
     /**
@@ -307,7 +307,13 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
 
         $price = new Money($this->product_price, true);
 
-        // применяем скидку пользователя из профиля
+        /** Скидка магазина */
+        if(false === empty($this->project_discount))
+        {
+            $price->applyString($this->project_discount);
+        }
+
+        /** Скидка пользователя */
         if(false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);
@@ -325,7 +331,13 @@ final readonly class ProductUserBasketResult implements RepositoryResultInterfac
 
         $price = new Money($this->product_old_price, true);
 
-        // применяем скидку пользователя из профиля
+        /** Скидка магазина */
+        if(false === empty($this->project_discount))
+        {
+            $price->applyString($this->project_discount);
+        }
+
+        /** Скидка пользователя */
         if(false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);

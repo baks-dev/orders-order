@@ -50,7 +50,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Users\Profile\UserProfile\Entity\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
@@ -330,20 +332,52 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             );
 
 
-        /**
-         * Применяем настройки стоимости магазина
-         */
-
-        if($dbal->isNotProjectProfile())
+        /** Персональная скидка из профиля авторизованного пользователя */
+        if(true === $dbal->bindCurrentProfile())
         {
+
             $dbal
-                ->bindProjectProfile()
-                ->addSelect('project_profile_info.discount AS project_discount')
+                ->join(
+                    'orders',
+                    UserProfile::class,
+                    'current_profile',
+                    '
+                        current_profile.id = :'.$dbal::CURRENT_PROFILE_KEY
+                );
+
+            $dbal
+                ->addSelect('current_profile_discount.value AS profile_discount')
                 ->leftJoin(
-                    'product',
-                    UserProfileInfo::class,
-                    'project_profile_info',
-                    'project_profile_info.profile = :project_profile'
+                    'current_profile',
+                    UserProfileDiscount::class,
+                    'current_profile_discount',
+                    '
+                        current_profile_discount.event = current_profile.event
+                        '
+                );
+        }
+
+        /** Общая скидка (наценка) из профиля магазина */
+        if(true === $dbal->bindProjectProfile())
+        {
+
+            $dbal
+                ->join(
+                    'orders',
+                    UserProfile::class,
+                    'project_profile',
+                    '
+                        project_profile.id = :'.$dbal::PROJECT_PROFILE_KEY
+                );
+
+            $dbal
+                ->addSelect('project_profile_discount.value AS project_discount')
+                ->leftJoin(
+                    'project_profile',
+                    UserProfileDiscount::class,
+                    'project_profile_discount',
+                    '
+                        project_profile_discount.event = project_profile.event'
                 );
         }
 

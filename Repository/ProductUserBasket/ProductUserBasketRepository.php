@@ -64,11 +64,8 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
-use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
+use BaksDev\Users\Profile\UserProfile\Entity\Discount\UserProfileDiscount;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use InvalidArgumentException;
 
 final class ProductUserBasketRepository implements ProductUserBasketInterface
@@ -83,7 +80,6 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
     ) {}
 
     public function forEvent(ProductEvent|ProductEventUid|string $event): self
@@ -775,33 +771,52 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ');
 
         /** Персональная скидка из профиля авторизованного пользователя */
-        if(true === $this->userProfileTokenStorage->isUser())
+        if(true === $dbal->bindCurrentProfile())
         {
-            $profile = $this->userProfileTokenStorage->getProfileCurrent();
 
-            if($profile instanceof UserProfileUid)
-            {
-                $dbal
-                    ->addSelect('profile_info.discount AS profile_discount')
-                    ->leftJoin(
-                        'product',
-                        UserProfileInfo::class,
-                        'profile_info',
+            $dbal
+                ->join(
+                    'product',
+                    UserProfile::class,
+                    'current_profile',
+                    '
+                        current_profile.id = :'.$dbal::CURRENT_PROFILE_KEY
+                );
+
+            $dbal
+                ->addSelect('current_profile_discount.value AS profile_discount')
+                ->leftJoin(
+                    'current_profile',
+                    UserProfileDiscount::class,
+                    'current_profile_discount',
+                    '
+                        current_profile_discount.event = current_profile.event
                         '
-                        profile_info.profile = :profile AND 
-                        profile_info.status = :profile_status'
-                    )
-                    ->setParameter(
-                        key: 'profile',
-                        value: $profile,
-                        type: UserProfileUid::TYPE)
-                    /** Активный статус профиля */
-                    ->setParameter(
-                        key: 'profile_status',
-                        value: UserProfileStatusActive::class,
-                        type: UserProfileStatus::TYPE
-                    );
-            }
+                );
+        }
+
+        /** Общая скидка (наценка) из профиля магазина */
+        if(true === $dbal->bindProjectProfile())
+        {
+
+            $dbal
+                ->join(
+                    'product',
+                    UserProfile::class,
+                    'project_profile',
+                    '
+                        project_profile.id = :'.$dbal::PROJECT_PROFILE_KEY
+                );
+
+            $dbal
+                ->addSelect('project_profile_discount.value AS project_discount')
+                ->leftJoin(
+                    'project_profile',
+                    UserProfileDiscount::class,
+                    'project_profile_discount',
+                    '
+                        project_profile_discount.event = project_profile.event'
+                );
         }
 
         $dbal->allGroupByExclude();

@@ -64,7 +64,7 @@ class OrderInvariable extends EntityReadonly
      * Идентификатор заказа
      * TODO: unique: true, nullable: false
      */
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::STRING, unique: true, nullable: true)]
     private ?string $number = null;
 
     /**

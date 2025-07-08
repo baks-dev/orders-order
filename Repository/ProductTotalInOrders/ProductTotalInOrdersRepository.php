@@ -28,7 +28,6 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
@@ -42,6 +41,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Doctrine\DBAL\ArrayParameterType;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
@@ -66,6 +66,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
     public function onProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;
+
         return $this;
     }
 
@@ -78,6 +79,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         }
 
         $this->product = $product;
+
         return $this;
     }
 
@@ -91,6 +93,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         }
 
         $this->offerConst = $offerConst;
+
         return $this;
     }
 
@@ -104,6 +107,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         }
 
         $this->variationConst = $variationConst;
+
         return $this;
     }
 
@@ -117,29 +121,25 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         }
 
         $this->modificationConst = $modificationConst;
+
         return $this;
     }
 
     /**
      * Возвращает количество продуктов, у которых есть заказы в статусах: new, phone, unpaid
      */
-    public function findTotal(): int|false
+    public function findTotal(): int
     {
         $builder = $this->builder();
 
-        $result = $builder->fetchAssociative();
+        $result = $builder->fetchOne();
 
-        if(false === $result)
+        if(true === empty($result))
         {
-            return false;
+            return 0;
         }
 
-        if(false === isset($result['order_products_total']))
-        {
-            return false;
-        }
-
-        return $result['order_products_total'];
+        return $result;
     }
 
     private function builder(): DBALQueryBuilder
@@ -156,7 +156,11 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         $dbal
             ->from(Product::class, 'product')
             ->where('product.id = :product')
-            ->setParameter('product', $this->product, ProductUid::TYPE);
+            ->setParameter(
+                key: 'product',
+                value: $this->product,
+                type: ProductUid::TYPE,
+            );
 
 
         /** Все события продукта */
@@ -181,9 +185,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                         AND product_offer.const = :offerConst',
                 )
                 ->setParameter(
-                    'offerConst',
-                    $this->offerConst,
-                    ProductOfferConst::TYPE
+                    key: 'offerConst',
+                    value: $this->offerConst,
+                    type: ProductOfferConst::TYPE,
                 );
         }
         else
@@ -193,7 +197,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     'product',
                     ProductOffer::class,
                     'product_offer',
-                    'product_offer.event = product_event.id'
+                    'product_offer.event = product_event.id',
                 );
         }
 
@@ -211,9 +215,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                             AND product_variation.const = :variationConst',
                 )
                 ->setParameter(
-                    'variationConst',
-                    $this->variationConst,
-                    ProductVariationConst::TYPE
+                    key: 'variationConst',
+                    value: $this->variationConst,
+                    type: ProductVariationConst::TYPE,
                 );
         }
         else
@@ -223,7 +227,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     'product_offer',
                     ProductVariation::class,
                     'product_variation',
-                    'product_variation.offer = product_offer.id'
+                    'product_variation.offer = product_offer.id',
                 );
         }
 
@@ -240,9 +244,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                         AND product_modification.const = :modificationConst',
                 )
                 ->setParameter(
-                    'modificationConst',
-                    $this->modificationConst,
-                    ProductModificationConst::TYPE
+                    key: 'modificationConst',
+                    value: $this->modificationConst,
+                    type: ProductModificationConst::TYPE,
                 );
         }
         else
@@ -252,52 +256,79 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     'product_variation',
                     ProductModification::class,
                     'product_modification',
-                    'product_modification.variation = product_variation.id'
+                    'product_modification.variation = product_variation.id',
                 );
         }
 
-        /**
-         * Order
-         */
 
         /** Все заказы по событию продукта и идентификаторам offer, variation, modification */
+
         $dbal
             ->join(
                 'product_modification',
                 OrderProduct::class,
                 'order_product',
                 '
-                    order_product.product = product_event.id 
+                    order_product.product = product_event.id  
+                    
                     AND 
-                    (
-                        (order_product.offer = product_offer.id AND order_product.variation = product_variation.id AND order_product.modification = product_modification.id) 
+                    
+                        (CASE 
+                            WHEN product_offer.id IS NOT NULL 
+                            THEN order_product.offer = product_offer.id
+                            ELSE order_product.offer IS NULL
+                        END) 
+                    
+                    AND
+                    
+                        (CASE 
+                            WHEN product_variation.id IS NOT NULL 
+                            THEN order_product.variation = product_variation.id
+                            ELSE order_product.variation IS NULL
+                        END) 
                         
-                        OR
-                        (order_product.offer = product_offer.id AND order_product.variation = product_variation.id AND product_modification.id IS NULL)
-                        
-                        OR
-                        (order_product.offer = product_offer.id AND product_variation.id IS NULL AND product_modification.id IS NULL)
-                        
-                        OR
-                        (product_offer.id IS NULL AND product_variation.id IS NULL AND product_modification.id IS NULL)
-                    )
-                '
+                    AND
+                    
+                        (CASE 
+                            WHEN product_modification.id IS NOT NULL 
+                            THEN order_product.modification = product_variation.id
+                            ELSE order_product.modification IS NULL
+                        END) 
+                ',
             );
 
+        /**
+         *(
+         * (order_product.offer = product_offer.id AND order_product.variation = product_variation.id AND order_product.modification = product_modification.id)
+         *
+         * OR
+         *
+         * (order_product.offer = product_offer.id AND order_product.variation = product_variation.id AND product_modification.id IS NULL)
+         *
+         * OR
+         *
+         * (order_product.offer = product_offer.id AND product_variation.id IS NULL AND product_modification.id IS NULL)
+         *
+         * OR
+         *
+         * (product_offer.id IS NULL AND product_variation.id IS NULL AND product_modification.id IS NULL)
+         * )
+         */
+
         /** Количество продуктов в заказах */
+
         $dbal
             ->addSelect('SUM(order_product_price.total) AS order_products_total')
             ->leftJoin(
                 'order_product',
                 OrderPrice::class,
                 'order_product_price',
-                'order_product_price.product = order_product.id'
+                'order_product_price.product = order_product.id',
             );
 
         /** Профиль (склад, магазин) */
         if($this->profile instanceof UserProfileUid)
         {
-
             $dbal
                 ->join(
                     'order_product',
@@ -310,9 +341,13 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                             order_invariable.profile IS NULL 
                             OR order_invariable.profile = :profile
                         )
-                    '
+                    ',
                 )
-                ->setParameter(key: 'profile', value: $this->profile, type: UserProfileUid::TYPE);
+                ->setParameter(
+                    key: 'profile',
+                    value: $this->profile,
+                    type: UserProfileUid::TYPE,
+                );
         }
         else
         {
@@ -324,29 +359,32 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     '
                         order_invariable.event = order_product.event
                         AND order_invariable.profile IS NULL
-                    '
+                    ',
                 );
         }
 
         /** Статусы заказа */
+
         $dbal
             ->join(
                 'order_invariable',
                 OrderEvent::class,
                 'order_event',
                 '
-                    order_event.id = order_invariable.event 
-                    AND
-                    (
-                        order_event.status = :new
-                        OR order_event.status = :phone 
-                        OR order_event.status = :unpaid 
-                    )
-                '
+                    order_event.id = order_invariable.event AND 
+                    order_event.status IN (:status)
+                ',
             )
-            ->setParameter('new', OrderStatusNew::STATUS, OrderStatus::TYPE)
-            ->setParameter('phone', OrderStatusPhone::STATUS, OrderStatus::TYPE)
-            ->setParameter('unpaid', OrderStatusUnpaid::STATUS, OrderStatus::TYPE);
+            ->setParameter(
+                key: 'status',
+                value: [
+                    OrderStatusNew::STATUS,
+                    OrderStatusPhone::STATUS,
+                    OrderStatusUnpaid::STATUS,
+                ],
+                type: ArrayParameterType::STRING,
+            );
+
 
         $dbal->allGroupByExclude();
 

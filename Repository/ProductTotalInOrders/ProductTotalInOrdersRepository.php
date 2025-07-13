@@ -84,9 +84,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
     }
 
     /** Уникальная константа Offer */
-    public function onOfferConst(ProductOfferConst|null $offerConst): self
+    public function onOfferConst(ProductOfferConst|null|false $offerConst): self
     {
-        if(is_null($offerConst))
+        if(empty($offerConst))
         {
             $this->offerConst = false;
             return $this;
@@ -98,9 +98,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
     }
 
     /** Уникальная константа Variation */
-    public function onVariationConst(ProductVariationConst|null $variationConst): self
+    public function onVariationConst(ProductVariationConst|null|false $variationConst): self
     {
-        if(is_null($variationConst))
+        if(empty($variationConst))
         {
             $this->variationConst = false;
             return $this;
@@ -112,9 +112,9 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
     }
 
     /** Уникальная константа Modification */
-    public function onModificationConst(ProductModificationConst|null $modificationConst): self
+    public function onModificationConst(ProductModificationConst|null|false $modificationConst): self
     {
-        if(is_null($modificationConst))
+        if(empty($modificationConst))
         {
             $this->modificationConst = false;
             return $this;
@@ -172,7 +172,10 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                 'product_event.main = product.id',
             );
 
-        /** Offer */
+        /**
+         * Offer
+         */
+
         if($this->offerConst instanceof ProductOfferConst)
         {
             $dbal
@@ -201,7 +204,10 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                 );
         }
 
-        /** Variation */
+        /**
+         * Variation
+         */
+
         if($this->variationConst instanceof ProductVariationConst)
         {
 
@@ -231,7 +237,10 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                 );
         }
 
-        /** Modification */
+        /**
+         * Modification
+         */
+
         if($this->modificationConst instanceof ProductModificationConst)
         {
             $dbal

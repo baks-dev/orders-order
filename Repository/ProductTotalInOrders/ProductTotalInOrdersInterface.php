@@ -39,16 +39,16 @@ interface ProductTotalInOrdersInterface
     public function onProduct(Product|ProductUid $product): self;
 
     /** Уникальная константа Offer */
-    public function onOfferConst(ProductOfferConst|null $offerConst): self;
+    public function onOfferConst(ProductOfferConst|null|false $offerConst): self;
 
     /** Уникальная константа Variation */
-    public function onVariationConst(ProductVariationConst|null $variationConst): self;
+    public function onVariationConst(ProductVariationConst|null|false $variationConst): self;
 
     /** Уникальная константа Modification */
-    public function onModificationConst(ProductModificationConst|null $modificationConst): self;
+    public function onModificationConst(ProductModificationConst|null|false $modificationConst): self;
 
     /**
      * Возвращает количество продуктов, у которых есть заказы в статусах: new, phone, unpaid
      */
-    public function findTotal(): int|false;
+    public function findTotal(): int;
 }

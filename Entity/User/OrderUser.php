@@ -55,7 +55,7 @@ class OrderUser extends EntityEvent
     #[ORM\Column(type: UserUid::TYPE)]
     private UserUid $usr;
 
-    /** Идентификатор События!! профиля пользователя */
+    /** Идентификатор События!! профиля клиента */
     #[ORM\Column(type: UserProfileEventUid::TYPE)]
     private UserProfileEventUid $profile;
 
@@ -116,5 +116,10 @@ class OrderUser extends EntityEvent
     public function getDelivery(): OrderDelivery
     {
         return $this->delivery;
+    }
+
+    public function getClientProfile(): UserProfileEventUid
+    {
+        return $this->profile;
     }
 }

@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
@@ -229,4 +230,11 @@ class OrderEvent extends EntityEvent
     {
         return $this->usr->getDelivery();
     }
+
+    /** Идентификатор события профиля клиента */
+    public function getClientProfile(): UserProfileEventUid
+    {
+        return $this->usr->getClientProfile();
+    }
+
 }

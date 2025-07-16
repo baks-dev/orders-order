@@ -69,10 +69,11 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
-use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
-use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
-use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
+use InvalidArgumentException;
 
 final class OrderDetailRepository implements OrderDetailInterface
 {
@@ -120,7 +121,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         if(false === ($this->order instanceof OrderUid))
         {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Некорректной тип для параметра запроса $this->order: %s. Ожидаемый тип %s',
                 var_export($this->order, true), OrderUid::class
             ));

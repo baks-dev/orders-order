@@ -50,8 +50,8 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
-use BaksDev\Users\Profile\UserProfile\Entity\Discount\UserProfileDiscount;
-use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;

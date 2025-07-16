@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\UserProfile\Value;
 
 use BaksDev\Users\Profile\TypeProfile\Type\Section\Field\Id\TypeProfileSectionFieldUid;
 use BaksDev\Users\Profile\TypeProfile\Type\Section\Id\TypeProfileSectionUid;
-use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValueInterface;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValueInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\FieldValueForm\FieldValueFormDTO;
 use Symfony\Component\Validator\Constraints as Assert;
 

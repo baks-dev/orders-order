@@ -69,11 +69,11 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
-use BaksDev\Users\Profile\UserProfile\Entity\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
-use BaksDev\Users\Profile\UserProfile\Entity\Info\UserProfileInfo;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Entity\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Generator;

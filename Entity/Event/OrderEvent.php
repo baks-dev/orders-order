@@ -27,6 +27,7 @@ use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
@@ -102,6 +103,10 @@ class OrderEvent extends EntityEvent
     /** Пользователь (Клиент) */
     #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private OrderUser $usr;
+
+    /** Флаг о печати */
+    #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    private OrderPrint $printed;
 
     /** Комментарий к заказу */
     #[ORM\Column(type: Types::TEXT, nullable: true)]

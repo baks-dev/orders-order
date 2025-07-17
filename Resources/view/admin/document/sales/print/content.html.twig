@@ -1,16 +1,5 @@
 {# ПЕЧАТЬ #}
 
-{#<style>#}
-{#    @media print {#}
-{#        .d-print-block {#}
-{#            font-size: 40px;#}
-{#            overflow: visible !important;#}
-{#            height: auto !important;#}
-{#            page-break-inside: auto;#}
-{#        }#}
-{#    }#}
-{#</style>#}
-
 {% for order in orders %}
 
 {% set organization = 'Интернет магазин ' ~ app.request.server.get('HOST') %}
@@ -228,6 +217,8 @@
 
     </div>
 
-    <div class="" style="page-break-before:always; position: absolute;">&nbsp;</div>
+    {% if loop.last == false %}
+        <div style="page-break-before:always;">&nbsp;</div>
+    {% endif %}
 
     {% endfor %}

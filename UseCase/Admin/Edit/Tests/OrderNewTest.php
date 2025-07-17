@@ -44,6 +44,7 @@ use BaksDev\Orders\Order\UseCase\Admin\New\User\OrderUserDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\Field\OrderPaymentFieldDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\OrderPaymentDTO;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
+use BaksDev\Payment\Type\Id\Choice\TypePaymentCache;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -66,6 +67,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @group orders-order
+ * @group orders-order-usecase
+ * @group orders-order-controller
  * @group orders-order-repository
  */
 #[When(env: 'test')]
@@ -233,7 +236,7 @@ final class OrderNewTest extends KernelTestCase
         $OrderPaymentDTO = new OrderPaymentDTO();
         $OrderUserDTO->setPayment($OrderPaymentDTO);
 
-        $payment = new PaymentUid();
+        $payment = new PaymentUid(TypePaymentCache::TYPE);
         $OrderPaymentDTO->setPayment($payment);
         self::assertSame($payment, $OrderPaymentDTO->getPayment());
 

@@ -32,6 +32,7 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
@@ -150,6 +151,14 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'event.id = orders.event'
             );
 
+        $dbal
+            ->addSelect('order_print.printed as printed')
+            ->leftJoin(
+                'event',
+                OrderPrint::class,
+                'order_print',
+                'order_print.event = orders.id'
+            );
 
         $dbal->leftJoin(
             'orders',
@@ -484,6 +493,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'delivery_event.id = order_delivery.event'
         );
 
+
         $dbal
             ->addSelect('delivery_trans.name AS delivery_name')
             ->leftJoin(
@@ -515,7 +525,6 @@ final class OrderDetailRepository implements OrderDetailInterface
             'delivery_geocode',
             'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
         );
-
 
         /* Профиль пользователя */
 

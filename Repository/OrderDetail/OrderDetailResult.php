@@ -26,46 +26,51 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\User\OrderUserUid;
+use BaksDev\Payment\Type\Id\PaymentUid;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 /** @see OrderDetailRepository */
 #[Exclude]
-class OrderDetailResult
+final readonly class OrderDetailResult
 {
-
     public function __construct(
         private string $order_id,
         private string $order_event,
         private string $order_number,
         private string $order_status,
         private string $order_data,
-        private string|null $order_comment,
+        private ?string $order_comment,
         private string $payment_id,
         private string $payment_name,
         private string $order_products,
-        private int|null $order_delivery_price,
-        private string|null $order_delivery_currency,
+        private ?int $order_delivery_price,
+        private ?string $order_delivery_currency,
         private string $delivery_name,
         private int $delivery_price,
-        private string|null $delivery_geocode_longitude,
-        private string|null $delivery_geocode_latitude,
-        private string|null $delivery_geocode_address,
-        private string|null $order_profile_discount,
+        private ?string $delivery_geocode_longitude,
+        private ?string $delivery_geocode_latitude,
+        private ?string $delivery_geocode_address,
+        private ?string $order_profile_discount,
         private string $order_profile,
         private string $profile_avatar_name,
-        private string|null $profile_avatar_ext,
-        private string|null $profile_avatar_cdn,
+        private ?string $profile_avatar_ext,
+        private ?string $profile_avatar_cdn,
         private string $order_user,
+        private ?bool $printed,
     ) {}
 
-    public function getOrderId(): string
+    public function getOrderId(): OrderUid
     {
-        return $this->order_id;
+        return new OrderUid($this->order_id);
     }
 
-    public function getOrderEvent(): string
+    public function getOrderEvent(): OrderEventUid
     {
-        return $this->order_event;
+        return new OrderEventUid($this->order_event);
     }
 
     public function getOrderNumber(): string
@@ -88,9 +93,9 @@ class OrderDetailResult
         return $this->order_comment;
     }
 
-    public function getPaymentId(): string
+    public function getPaymentId(): PaymentUid
     {
-        return $this->payment_id;
+        return new PaymentUid($this->payment_id);
     }
 
     public function getPaymentName(): string
@@ -162,7 +167,7 @@ class OrderDetailResult
 
     public function getOrderProfile(): string
     {
-        return $this->order_profile;
+        return new $this->order_profile;
     }
 
     public function getProfileAvatarName(): string
@@ -185,4 +190,8 @@ class OrderDetailResult
         return $this->order_user;
     }
 
+    public function isPrinted(): bool
+    {
+        return $this->printed === true;
+    }
 }

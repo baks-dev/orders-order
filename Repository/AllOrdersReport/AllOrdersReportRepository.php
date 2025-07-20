@@ -76,7 +76,8 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
-     * @return Generator{int, AllOrdersReportResult}|false
+     *
+     * @return Generator<int, AllOrdersReportResult>|false
      */
     public function findAll(): Generator|false
     {

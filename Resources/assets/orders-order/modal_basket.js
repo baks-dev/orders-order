@@ -20,9 +20,17 @@
  *  THE SOFTWARE.
  */
 
-basket = document.querySelector('#modal');  //getElementById('modal');
+basket = document.querySelector('#modal');
 
 modal_form = null;
+clicked_button = null; /** Сохраняем ссылку на нажатую кнопку */
+
+/** Отслеживаем клики по кнопкам "Добавить в корзину" */
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.add-basket')) {
+        clicked_button = event.target.closest('.add-basket');
+    }
+});
 
 basket.addEventListener('shown.bs.modal', function(event)
 {
@@ -36,7 +44,35 @@ basket.addEventListener('shown.bs.modal', function(event)
             return false;
         }
 
-        let input = basket.querySelector('#' + modal_form.name + '_price_total'); //basket.getElementById('order_product_form_price_total');
+        /** Обработчик для кнопки "В корзину" в модальном окне */
+        const submitButton = basket.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.addEventListener('click', function(event) {
+                /** Заменяем кнопку в карточке товара на ссылку на корзину */
+                setTimeout(function() {
+                    if (clicked_button && clicked_button.parentNode) {
+                        const basketLink = document.createElement('a');
+                        basketLink.href = '/basket';
+                        basketLink.className = 'btn btn-success d-flex align-items-center';
+                        basketLink.title = 'Перейти в корзину';
+                        basketLink.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart-check-fill" viewBox="0 0 16 16">
+                                <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-1.646-7.646-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708"/>
+                            </svg>
+                        `;
+
+                        try {
+                            clicked_button.parentNode.replaceChild(basketLink, clicked_button);
+                            clicked_button = null;
+                        } catch (error) {
+
+                        }
+                    }
+                }, 1000);
+            });
+        }
+
+        let input = basket.querySelector('#' + modal_form.name + '_price_total');
 
         if(input)
         {
@@ -118,4 +154,3 @@ function orderModalSum(result)
     product_summ.innerText = result_product_sum;
 
 }
-

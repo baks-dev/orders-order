@@ -58,12 +58,33 @@ final class ProductInBasketExtension extends AbstractExtension
     }
 
     public function call(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer,
-        ?ProductVariationUid $variation,
-        ?ProductModificationUid $modification
+        ProductEventUid|string $event,
+        ProductOfferUid|string|null $offer = null,
+        ProductVariationUid|string|null $variation = null,
+        ProductModificationUid|string|null $modification = null
     ): bool
     {
+        // Преобразуем строковые значения в объекты типов
+        if(is_string($event))
+        {
+            $event = new ProductEventUid($event);
+        }
+
+        if(is_string($offer))
+        {
+            $offer = new ProductOfferUid($offer);
+        }
+
+        if(is_string($variation))
+        {
+            $variation = new ProductVariationUid($variation);
+        }
+
+        if(is_string($modification))
+        {
+            $modification = new ProductModificationUid($modification);
+        }
+
         $request = $this->requestStack->getCurrentRequest();
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
         $cache = $this->cache->init('orders-order-basket');

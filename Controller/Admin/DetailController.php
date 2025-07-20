@@ -103,6 +103,10 @@ final class DetailController extends AbstractController
             $product->setCard($ProductDetail);
         }
 
+        // Динамическая форма корзины (необходима для динамического изменения полей в форме)
+        $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
+        $handleForm->handleRequest($request);
+
         // форма заказа
         $form = $this
             ->createForm(
@@ -118,7 +122,7 @@ final class DetailController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        
+
         if($form->isSubmitted() && $form->isValid())
         {
             $this->refreshTokenForm($form);

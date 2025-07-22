@@ -300,7 +300,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     
                         (CASE 
                             WHEN product_modification.id IS NOT NULL 
-                            THEN order_product.modification = product_variation.id
+                            THEN order_product.modification = product_modification.id
                             ELSE order_product.modification IS NULL
                         END) 
                 ',

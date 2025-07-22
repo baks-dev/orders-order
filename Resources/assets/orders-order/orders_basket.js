@@ -280,7 +280,7 @@ function total()
 
     // Изменить общее кол-во единиц товаров на странице корзины
     let total_count_result = document.querySelector(".total-count");
-    total_count_result.innerText = total_count_sum;
+    total_count_result ? total_count_result.innerText = total_count_sum : false;
 
 
     result_total = result_total / 100;

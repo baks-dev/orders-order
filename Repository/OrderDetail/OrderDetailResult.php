@@ -45,13 +45,16 @@ final readonly class OrderDetailResult
         private string $payment_id,
         private string $payment_name,
         private string $order_products,
+
         private ?int $order_delivery_price,
         private ?string $order_delivery_currency,
         private string $delivery_name,
         private int $delivery_price,
+
         private ?string $delivery_geocode_longitude,
         private ?string $delivery_geocode_latitude,
         private ?string $delivery_geocode_address,
+
         private ?string $order_profile_discount,
         private string $order_profile,
         private string $profile_avatar_name,

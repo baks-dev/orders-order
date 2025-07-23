@@ -35,6 +35,8 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
 #[Exclude]
 final readonly class OrderDetailResult
 {
+    private string $qrcode;
+
     public function __construct(
         private string $order_id,
         private string $order_event,
@@ -194,5 +196,20 @@ final readonly class OrderDetailResult
     public function isPrinted(): bool
     {
         return $this->printed === true;
+    }
+
+    public function setQrCode(string $qrcode): self
+    {
+        $qrcode = strip_tags($qrcode, ['path']);
+        $qrcode = trim($qrcode);
+
+        $this->qrcode = $qrcode;
+
+        return $this;
+    }
+
+    public function getQrcode(): string
+    {
+        return $this->qrcode;
     }
 }

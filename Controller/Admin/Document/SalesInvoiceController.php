@@ -25,22 +25,27 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Controller\Admin\Document;
 
+use BaksDev\Barcode\Writer\BarcodeFormat;
+use BaksDev\Barcode\Writer\BarcodeType;
+use BaksDev\Barcode\Writer\BarcodeWrite;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceDTO;
+use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceForm;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceOrderDTO;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintHandler;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
 use chillerlan\QRCode\QRCode;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceForm;
 
 
 #[AsController]
@@ -55,6 +60,8 @@ final class SalesInvoiceController extends AbstractController
         Request $request,
         OrderDetailInterface $OrderDetail,
         OrderEventPrintHandler $OrderEventPrintHandler,
+        UserProfileByIdInterface $UserProfileByIdRepository,
+        BarcodeWrite $BarcodeWrite,
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
     ): Response
     {
@@ -87,8 +94,32 @@ final class SalesInvoiceController extends AbstractController
                     continue;
                 }
 
-                $orders[] = $OrderInfo;
+
+                /** Генерируем QR-код для заказа */
                 $data = sprintf('%s', $salesInvoiceOrderDTO->getOrder());
+                $BarcodeWrite
+                    ->text($data)
+                    ->type(BarcodeType::QRCode)
+                    ->format(BarcodeFormat::SVG)
+                    ->generate();
+
+                if(false === $BarcodeWrite)
+                {
+                    /**
+                     * Проверить права на исполнение
+                     * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Writer/Generate
+                     * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Reader/Decode
+                     * */
+                    throw new RuntimeException('Barcode write error');
+                }
+
+                $render = $BarcodeWrite->render();
+                $BarcodeWrite->remove();
+
+                $OrderInfo->setQrCode($render);
+
+                $orders[] = $OrderInfo;
+
 
                 if(false === $OrderInfo->isPrinted())
                 {
@@ -108,7 +139,7 @@ final class SalesInvoiceController extends AbstractController
 
         return $this->render([
             'orders' => $orders,
-            'qrcode' => (new QRCode())->render($data),
+            'profile' => $UserProfileByIdRepository->find(),
         ]);
     }
 }

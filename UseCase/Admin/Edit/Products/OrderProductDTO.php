@@ -164,7 +164,7 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Карточка товара */
 
-    public function getCard(): array
+    public function getCard(): ?array
     {
         return $this->card;
     }

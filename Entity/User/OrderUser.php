@@ -118,6 +118,11 @@ class OrderUser extends EntityEvent
         return $this->delivery;
     }
 
+    public function getPayment(): OrderPayment
+    {
+        return $this->payment;
+    }
+
     public function getClientProfile(): UserProfileEventUid
     {
         return $this->profile;

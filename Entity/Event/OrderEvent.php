@@ -185,6 +185,10 @@ class OrderEvent extends EntityEvent
         return $this->usr->getDelivery()->getDeliveryType()->equals($delivery);
     }
 
+    public function isPaymentTypeEquals(mixed $payment): bool
+    {
+        return $this->usr->getPayment()->getPayment()->equals($payment);
+    }
 
     public function getOrderNumber(): ?string
     {

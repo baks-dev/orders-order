@@ -87,6 +87,10 @@ class OrderPayment extends EntityEvent
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
+    public function getPayment(): PaymentUid
+    {
+        return $this->payment;
+    }
 
     public function setEntity($dto): mixed
     {

@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Controller\Admin\Document;
 use BaksDev\Barcode\Writer\BarcodeFormat;
 use BaksDev\Barcode\Writer\BarcodeType;
 use BaksDev\Barcode\Writer\BarcodeWrite;
+use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -42,6 +43,7 @@ use chillerlan\QRCode\QRCode;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -57,12 +59,13 @@ final class SalesInvoiceController extends AbstractController
      */
     #[Route('/admin/order/document/sales', name: 'admin.document.sales', methods: ['GET', 'POST'])]
     public function sales(
+        #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         OrderDetailInterface $OrderDetail,
         OrderEventPrintHandler $OrderEventPrintHandler,
         UserProfileByIdInterface $UserProfileByIdRepository,
         BarcodeWrite $BarcodeWrite,
-        #[Target('ordersOrderLogger')] LoggerInterface $logger,
+        CentrifugoPublishInterface $publish,
     ): Response
     {
         $salesInvoiceFormDTO = new SalesInvoiceDTO();
@@ -134,6 +137,18 @@ final class SalesInvoiceController extends AbstractController
                         );
                     }
                 }
+
+                // Отправляем сокет для скрытия заказа у других менеджеров
+                $socket = $publish
+                    ->addData(['order' => (string) $OrderInfo->getOrderId()])
+                    ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+                    ->send('orders');
+
+                if($socket && $socket->isError())
+                {
+                    return new JsonResponse($socket->getMessage());
+                }
+
             }
         }
 

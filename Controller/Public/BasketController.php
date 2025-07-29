@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
@@ -34,8 +35,12 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
+use BaksDev\Users\Address\Services\GeocodeDistance;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -55,9 +60,23 @@ class BasketController extends AbstractController
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
         AppCacheInterface $cache,
+        GeocodeDistance $GeocodeDistance,
+        UserProfileByRegionInterface $UserProfileByRegionRepository,
+
         #[MapQueryParameter] string|null $share = null,
+
+        #[Autowire(env: 'PROJECT_USER')]
+        string|null $projectUser = null,
+
+        #[Autowire(env: 'PROJECT_PROFILE')]
+        string|null $projectProfile = null,
+
+        #[Autowire(env: 'PROJECT_REGION')]
+        string|null $projectRegion = null,
+
     ): Response
     {
+
         $AppCache = $cache->init('orders-order-basket');
 
         $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
@@ -89,13 +108,12 @@ class BasketController extends AbstractController
 
         $OrderDTO = new OrderDTO();
 
-        /** Присваиваем пользователя */
+        /** Присваиваем пользователя (клиента) */
         $OrderUserDTO = $OrderDTO->getUsr();
-
         $OrderUserDTO->setUsr($this->getUsr()?->getId() ?: new UserUid());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
-        if(!$this->products->isEmpty())
+        if(false === $this->products->isEmpty())
         {
             /** @var OrderProductDTO $product */
             foreach($this->products as $product)
@@ -158,7 +176,6 @@ class BasketController extends AbstractController
             $OrderDTO->setProduct($this->products);
         }
 
-
         // Динамическая форма корзины
         $handleForm = $this->createForm(OrderForm::class, $OrderDTO);
         $handleForm->handleRequest($request);
@@ -171,6 +188,7 @@ class BasketController extends AbstractController
                 'action' => $this->generateUrl('orders-order:public.basket'),
             ]);
 
+
         if(null === $request->headers->get('X-Requested-With'))
         {
             $form->handleRequest($request);
@@ -178,7 +196,7 @@ class BasketController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $this->refreshTokenForm($form);
+            //$this->refreshTokenForm($form);
 
             /** Делаем проверку геоданных */
             $OrderDeliveryDTO = $OrderUserDTO->getDelivery();
@@ -198,11 +216,45 @@ class BasketController extends AbstractController
             }
 
             /**
+             * Определяем ближайший к клиенту склад для упаковки заказа
+             * без учета региональности
+             */
+
+            $OrderInvariable = $OrderDTO->getInvariable();
+            $OrderInvariable->setUsr($projectUser);
+
+            $profiles = $UserProfileByRegionRepository->findAll();
+
+            if(true === $profiles->valid())
+            {
+                $warehouse = null;
+
+                foreach($profiles as $profile)
+                {
+                    $distance = $GeocodeDistance
+                        ->fromLatitude($profile->getLatitude())
+                        ->fromLongitude($profile->getLongitude())
+                        ->toLatitude($Latitude)
+                        ->toLongitude($Longitude)
+                        ->getDistanceRound();
+
+                    $warehouse[$distance] = $profile->getId();
+                }
+
+                /** Если имеется склады, выбираем ближайший к клиенту */
+                if(false === is_null($warehouse))
+                {
+                    $minDistance = min(array_keys($warehouse));
+                    $OrderInvariable->setProfile($warehouse[$minDistance]);
+                }
+            }
+
+            /**
              * Проверяем, что продукция в наличии в карточке
              */
+
             foreach($OrderDTO->getProduct() as $product)
             {
-
                 /** @var ProductUserBasketResult|array $ProductDetail */
                 $ProductDetail = $product->getCard();
 
@@ -213,7 +265,6 @@ class BasketController extends AbstractController
                 {
                     /**
                      * Удаляем из корзины продукцию
-                     *
                      * @var OrderProductDTO $element
                      */
                     $predicat = static function($key, OrderProductDTO $element) use ($product) {
@@ -258,6 +309,7 @@ class BasketController extends AbstractController
                     ]);
                 }
             }
+
 
             $Order = $handler->handle($OrderDTO);
 

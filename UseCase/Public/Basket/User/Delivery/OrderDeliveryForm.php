@@ -30,6 +30,8 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -46,7 +48,9 @@ final class OrderDeliveryForm extends AbstractType
 {
     public function __construct(
         private readonly DeliveryByProfileChoiceInterface $deliveryChoice,
-        private readonly FieldByDeliveryChoiceInterface $deliveryFields
+        private readonly FieldByDeliveryChoiceInterface $deliveryFields,
+        private readonly UserProfileByRegionInterface $UserProfileByRegionRepository,
+
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -122,8 +126,23 @@ final class OrderDeliveryForm extends AbstractType
             function(FormEvent $event) use ($options) {
 
 
+                /** @var OrderDeliveryDTO $data */
                 $data = $event->getData();
                 $form = $event->getForm();
+
+
+                /** Получаем список профилей региона и присваиваем геоданные по умолчанию */
+                $profiles = $this->UserProfileByRegionRepository
+                    ->onlyCurrentRegion()
+                    ->findAll();
+
+                if(true === $profiles->valid())
+                {
+                    /** @var UserProfileByRegionResult $profile */
+                    $profile = $profiles->current();
+                    $data->setLatitude($profile->getLatitude());
+                    $data->setLongitude($profile->getLongitude());
+                }
 
                 /**
                  * Если в параметре $options['user_profile_type'] передан NULL

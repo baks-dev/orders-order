@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
+use BaksDev\Orders\Order\UseCase\Public\Basket\Invariable\OrderInvariableForm;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -48,7 +49,6 @@ final class OrderForm extends AbstractType
             'allow_add' => true,
             'prototype_name' => '__product__',
         ]);
-
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,

@@ -30,7 +30,7 @@ use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see OrderInvariable */
+/** @see OrderInvariableDTO */
 final class NewOrderInvariableDTO implements OrderInvariableInterface
 {
     /**

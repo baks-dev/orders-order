@@ -41,7 +41,7 @@ final class OrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private readonly Invariable\OrderInvariable $invariable;
+    private readonly Invariable\OrderInvariableDTO $invariable;
 
     /** Коллекция продукции в заказе */
     #[Assert\Valid]
@@ -59,7 +59,7 @@ final class OrderDTO implements OrderEventInterface
     {
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
-        $this->invariable = new Invariable\OrderInvariable();
+        $this->invariable = new Invariable\OrderInvariableDTO();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -75,7 +75,7 @@ final class OrderDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\OrderInvariable
+    public function getInvariable(): Invariable\OrderInvariableDTO
     {
         return $this->invariable;
     }

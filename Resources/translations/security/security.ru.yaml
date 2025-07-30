@@ -59,6 +59,11 @@ ROLE_ORDERS_STATUS_PACKAGE:
   name: 'Упаковка'
   desc: ''
 
+ROLE_ORDERS_STATUS_PHONE:
+  name: 'Не дозвонились'
+  desc: ''
+
+
 ROLE_ORDERS_STATUS_EXTRADITION:
   name: 'Сборка'
   desc: ''

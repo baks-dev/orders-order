@@ -64,16 +64,14 @@ class BasketController extends AbstractController
         UserProfileByRegionInterface $UserProfileByRegionRepository,
 
         #[MapQueryParameter] string|null $share = null,
-
-        #[Autowire(env: 'PROJECT_USER')]
-        string|null $projectUser = null,
+        #[Autowire(env: 'PROJECT_USER')] string|null $projectUser = null,
+        #[Autowire(env: 'HOST')] string|null $HOST = null,
 
     ): Response
     {
 
         $AppCache = $cache->init('orders-order-basket');
-
-        $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
+        $key = md5($HOST.$request->getClientIp().$request->headers->get('USER-AGENT'));
 
         if(false === is_null($share))
         {
@@ -95,7 +93,7 @@ class BasketController extends AbstractController
 
         $this->products = ($AppCache->getItem($key))->get();
 
-        if(empty($this->products))
+        if(true === empty($this->products))
         {
             $this->products = new ArrayCollection();
         }
@@ -259,6 +257,7 @@ class BasketController extends AbstractController
                 {
                     /**
                      * Удаляем из корзины продукцию
+                     *
                      * @var OrderProductDTO $element
                      */
                     $predicat = static function($key, OrderProductDTO $element) use ($product) {

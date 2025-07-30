@@ -240,6 +240,7 @@ final class OrderDeliveryForm extends AbstractType
                         'allow_delete' => true,
                         'allow_add' => true,
                         'prototype_name' => '__delivery_field__',
+
                     ]);
 
                 }

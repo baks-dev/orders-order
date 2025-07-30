@@ -92,14 +92,12 @@
 
                 {% endif %}
 
-                {{ form_label(delivery_field.value) }}
-
             </div>
 
-            <div class="w-100">
-                {{ form_widget(delivery_field.field) }}
-                {{ form_widget(delivery_field.value, { attr: { class : 'rounded-4' }}) }}
-            </div>
+        </div>
+
+        <div class="w-100">
+            {{ form_row(delivery_field) }}
         </div>
 
     {% endfor %}

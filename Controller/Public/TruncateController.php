@@ -25,6 +25,7 @@ namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -35,9 +36,13 @@ class TruncateController extends AbstractController
 {
     /** Очистить корзину пользователя от всех товаров. */
     #[Route('/basket/truncate', name: 'public.truncate')]
-    public function index(Request $request, AppCacheInterface $cache): Response
+    public function index(
+        Request $request,
+        AppCacheInterface $cache,
+        #[Autowire(env: 'HOST')] string|null $HOST = null,
+    ): Response
     {
-        $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
+        $key = md5($HOST.$request->getClientIp().$request->headers->get('USER-AGENT'));
         $AppCache = $cache->init('orders-order-basket');
         $AppCache->delete($key);
 

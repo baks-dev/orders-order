@@ -84,6 +84,7 @@ final class OrderDeliveryFieldForm extends AbstractType
                     {
                         $fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
 
+
                         $form->add(
                             'value',
                             $fieldType->form(),

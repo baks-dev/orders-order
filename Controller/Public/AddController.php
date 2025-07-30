@@ -35,6 +35,7 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,6 +62,7 @@ class AddController extends AbstractController
         #[ParamConverter(ProductOfferUid::class)] $offer = null,
         #[ParamConverter(ProductVariationUid::class)] $variation = null,
         #[ParamConverter(ProductModificationUid::class)] $modification = null,
+        #[Autowire(env: 'HOST')] string|null $HOST = null,
     ): Response
     {
 
@@ -121,7 +123,7 @@ class AddController extends AbstractController
             $this->refreshTokenForm($form);
 
             $AppCache = $cache->init('orders-order-basket');
-            $key = md5($request->getClientIp().$request->headers->get('USER-AGENT'));
+            $key = md5($HOST.$request->getClientIp().$request->headers->get('USER-AGENT'));
             $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
 
             if($this->getUsr())

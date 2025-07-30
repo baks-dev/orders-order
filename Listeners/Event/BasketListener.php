@@ -26,23 +26,25 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Listeners\Event;
 
 use BaksDev\Core\Cache\AppCacheInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Twig\Environment;
 
 #[AsEventListener(event: RequestEvent::class, priority: 1)]
-final class BasketListener
+final readonly class BasketListener
 {
     public function __construct(
-        private readonly Environment $twig,
-        private readonly AppCacheInterface $cache
+        private Environment $twig,
+        private AppCacheInterface $cache,
+        #[Autowire(env: 'HOST')] private string|null $HOST = null,
     ) {}
 
     public function onKernelRequest(RequestEvent $event): void
     {
         $AppCache = $this->cache->init('orders-order-basket');
 
-        $key = md5($event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
+        $key = md5($this->HOST.$event->getRequest()->getClientIp().$event->getRequest()->headers->get('USER-AGENT'));
 
         $counter = 0;
 

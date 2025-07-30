@@ -148,7 +148,8 @@ final class OrderDeliveryForm extends AbstractType
                  * Если в параметре $options['user_profile_type'] передан NULL
                  * в массиве должен появится публичный способ доставки, например Самовывоз
                  */
-                $deliveryChoice = $this->deliveryChoice->fetchDeliveryByProfile($options['user_profile_type']);
+                $deliveryChoice = $this->deliveryChoice
+                    ->fetchDeliveryByProfile($options['user_profile_type']);
 
                 /** @var DeliveryUid $currentDelivery */
                 $currentDelivery = current($deliveryChoice);

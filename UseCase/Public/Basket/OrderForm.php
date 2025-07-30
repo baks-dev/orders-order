@@ -58,7 +58,6 @@ final class OrderForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-
                 if(!$data->getProduct()->isEmpty())
                 {
                     $form->add('usr', User\OrderUserForm::class, ['label' => false]);
@@ -72,9 +71,7 @@ final class OrderForm extends AbstractType
                 }
             }
         );
-
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

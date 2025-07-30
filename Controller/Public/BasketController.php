@@ -68,12 +68,6 @@ class BasketController extends AbstractController
         #[Autowire(env: 'PROJECT_USER')]
         string|null $projectUser = null,
 
-        #[Autowire(env: 'PROJECT_PROFILE')]
-        string|null $projectProfile = null,
-
-        #[Autowire(env: 'PROJECT_REGION')]
-        string|null $projectRegion = null,
-
     ): Response
     {
 

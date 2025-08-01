@@ -42,9 +42,9 @@ use Twig\TwigFunction;
 final class ProductInBasketExtension extends AbstractExtension
 {
     public function __construct(
-        #[Autowire(env: 'HOST')] private readonly string|null $HOST = null,
         private readonly AppCacheInterface $cache,
         private readonly RequestStack $requestStack,
+        #[Autowire(env: 'HOST')] private readonly string|null $HOST = null,
     ) {}
 
     public function getFunctions(): array

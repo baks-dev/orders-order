@@ -30,6 +30,7 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Materials\Stocks\BaksDevMaterialsStocksBundle;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
@@ -51,17 +52,23 @@ final class NewController extends AbstractController
         ProductUserBasketInterface $userBasket,
     ): Response
     {
-
         $OrderDTO = new NewOrderDTO();
 
+        /** Присваиваем заказу пользователя, который создал заказ */
+        $OrderDTO->getInvariable()
+            ->setUsr($this->getUsr()?->getId())
+            ->setProfile($this->getProfileUid());
+
         // Форма
-        $form = $this->createForm(NewOrderForm::class, $OrderDTO, [
-            'action' => $this->generateUrl('orders-order:admin.new'),
-        ]);
+        $form = $this
+            ->createForm(
+                type: NewOrderForm::class,
+                data: $OrderDTO,
+                options: ['action' => $this->generateUrl('orders-order:admin.new'),],
+            )
+            ->handleRequest($request);
 
-        $form->handleRequest($request);
         $form->createView();
-
 
         if($form->isSubmitted() && $form->isValid() && $form->has('order_new'))
         {
@@ -74,43 +81,43 @@ final class NewController extends AbstractController
 
             foreach($OrderDTO->getProduct() as $product)
             {
-                $ProductDetail = $userBasket->fetchProductBasketAssociative(
-                    $product->getProduct(),
-                    $product->getOffer(),
-                    $product->getVariation(),
-                    $product->getModification()
-                );
+                $ProductUserBasketResult = $userBasket
+                    ->forEvent($product->getProduct())
+                    ->forOffer($product->getOffer())
+                    ->forVariation($product->getVariation())
+                    ->forModification($product->getModification())
+                    ->find();
 
                 /** Редирект, если продукции не найдено */
-                if(!$ProductDetail)
+                if(false === ($ProductUserBasketResult instanceof ProductUserBasketResult))
                 {
                     return $this->redirectToRoute('orders-order:admin.index');
                 }
 
-
                 /**
-                 * Если бизнаес-модель не производство и на складе нет достаточного количества
+                 * Если бизнес-модель не производство и на складе нет достаточного количества
                  */
                 if(
                     false === class_exists(BaksDevMaterialsStocksBundle::class) &&
-                    $product->getPrice()->getTotal() > $ProductDetail['product_quantity']
+                    $product->getPrice()->getTotal() > $ProductUserBasketResult->getProductQuantity()
                 )
                 {
                     $this->addFlash(
                         'danger',
                         sprintf(
                             'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                            $ProductDetail['product_name']
+                            $ProductUserBasketResult->getProductName(),
                         ),
                     );
 
                     return $this->redirectToRoute('orders-order:admin.index');
                 }
 
-
-                $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice(new Money($ProductDetail['product_price'], true));
-                $OrderPriceDTO->setCurrency(new Currency($ProductDetail['product_currency']));
+                /** Присваиваем стоимость продукта в заказе */
+                $product
+                    ->getPrice()
+                    ->setPrice($ProductUserBasketResult->getProductPrice())
+                    ->setCurrency($ProductUserBasketResult->getProductCurrency());
             }
 
             $handle = $OrderHandler->handle($OrderDTO);
@@ -119,7 +126,7 @@ final class NewController extends AbstractController
                 'page.new',
                 $handle instanceof Order ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                $handle instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle
+                $handle instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
             );
 
             if($handle instanceof Order)

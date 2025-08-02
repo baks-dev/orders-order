@@ -824,7 +824,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         return $dbal;
     }
 
-    public function findAll(): ProductUserBasketResult|false
+    public function find(): ProductUserBasketResult|false
     {
         return $this->builder()->fetchHydrate(ProductUserBasketResult::class);
     }

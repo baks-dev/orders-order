@@ -116,7 +116,7 @@ class BasketController extends AbstractController
                     ->forOffer($product->getOffer())
                     ->forVariation($product->getVariation())
                     ->forModification($product->getModification())
-                    ->findAll();
+                    ->find();
 
                 if(false === $ProductDetail)
                 {
@@ -157,7 +157,7 @@ class BasketController extends AbstractController
                     ->forOffer($product->getOffer())
                     ->forVariation($product->getVariation())
                     ->forModification($product->getModification())
-                    ->findAll();
+                    ->find();
 
                 $OrderPriceDTO = $product->getPrice();
                 $OrderPriceDTO->setPrice($ProductUserBasketResult->getProductPrice());

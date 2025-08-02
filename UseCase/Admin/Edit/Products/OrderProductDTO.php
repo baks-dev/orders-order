@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -59,7 +60,7 @@ final class OrderProductDTO implements OrderProductInterface
 
 
     /** Карточка товара */
-    private array|null $card = null;
+    private ProductUserBasketResult|null $card = null;
 
 
     public function __construct()
@@ -130,7 +131,7 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    /** Модификация множественного враинта торгового предложения  */
+    /** Модификация множественного варианта торгового предложения  */
 
     public function getModification(): ?ProductModificationUid
     {
@@ -164,12 +165,12 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Карточка товара */
 
-    public function getCard(): ?array
+    public function getCard(): ?ProductUserBasketResult
     {
         return $this->card;
     }
 
-    public function setCard(bool|array $card): void
+    public function setCard(bool|ProductUserBasketResult $card): void
     {
         $this->card = $card ?: [];
     }

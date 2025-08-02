@@ -43,7 +43,7 @@ interface ProductUserBasketInterface
 
     public function forModification(ProductModification|ProductModificationUid|string|null|false $modification): self;
 
-    public function findAll(): ProductUserBasketResult|false;
+    public function find(): ProductUserBasketResult|false;
 
     /** @deprecated */
     public function fetchProductBasketAssociative(

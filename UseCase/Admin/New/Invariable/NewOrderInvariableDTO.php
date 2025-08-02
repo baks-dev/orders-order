@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\New\Invariable;
 
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,14 +56,13 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     /**
      * ID профиля заказа
      */
-    #[Assert\IsNull]
-    private readonly null $profile;
-
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private ?UserProfileUid $profile = null;
 
     public function __construct()
     {
         $this->created = new DateTimeImmutable();
-        $this->profile = null;
         $this->number = number_format((microtime(true) * 100), 0, '.', '.');
     }
 
@@ -93,9 +93,15 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     /**
      * Profile
      */
-    public function getProfile(): null
+    public function getProfile(): UserProfileUid
     {
         return $this->profile;
+    }
+
+    public function setProfile(?UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
     }
 
     /**

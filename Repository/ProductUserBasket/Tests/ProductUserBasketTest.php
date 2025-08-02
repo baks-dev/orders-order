@@ -96,7 +96,7 @@ class ProductUserBasketTest extends KernelTestCase
             ->forOffer(self::$identifier['offer'])
             ->forVariation(self::$identifier['variation'])
             ->forModification(self::$identifier['modification'])
-            ->findAll();
+            ->find();
 
         if($ProductUserBasketResult instanceof ProductUserBasketResult)
         {

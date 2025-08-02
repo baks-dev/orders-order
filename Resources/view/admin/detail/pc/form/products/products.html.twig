@@ -14,6 +14,7 @@
 
     {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
 
+    {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
     {% set card = product.vars.data.card %}
 
 
@@ -22,29 +23,23 @@
         <td rowspan="2">
 
             <div class="row">
+
+                {% set product_path = path('products-product:public.detail', {
+                    category : card.categoryUrl ,
+                    url : card.productUrl ,
+                    offer: card.productOfferValue,
+                    variation: card.productVariationValue,
+                    modification: card.productModificationValue,
+                    postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' })
+                }) %}
+
                 <div class="col-3">
 
                     {# Обложка #}
-                    {% set image_path = '/assets/img/blank.svg' %}
-
-                    {% if card.product_image_ext is defined and card.product_image_ext is not null %}
-                        {% set img_host =  card.product_image_cdn == true  ? CDN_HOST : '' %}
-                        {% set img_dir = card.product_image %}
-                        {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ card.product_image_ext %}
-                        {% set image_path = img_host ~ img_dir ~ img_file %}
-                    {% endif %}
-
                     <a
-                            href="{{ path('products-product:public.detail', {
-                                category : card.category_url ,
-                                url : card.product_url ,
-                                offer: card.product_offer_value,
-                                variation: card.product_variation_value,
-                                modification: card.product_modification_value,
-                                postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
-                            }) }}"
+                            href="{{ product_path }}"
                             class="icon rounded-4 mb-2 bg-contain p-1"
-                            style="width: 60px; height: 60px; background-image: url('{{ image_path }}')"
+                            style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
                             target="_blank"
                     ></a>
 
@@ -52,49 +47,42 @@
 
                 <div class="col-8 align-self-center">
 
-                    <a href="{{ path('products-product:public.detail', {
-                        category : card.category_url ,
-                        url : card.product_url ,
-                        offer: card.product_offer_value,
-                        variation: card.product_variation_value,
-                        modification: card.product_modification_value,
-                        postfix: (card.product_modification_postfix ?: card.product_variation_postfix ?: card.product_offer_postfix ?: null )|replace({ '/': '-' })
-
-                    }) }}"
+                    <a href="{{ product_path }}"
                        class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
                        target="_blank"
                        style="width: 250px;"
                     >
 
-                        {{ card.product_name }} <br>
+                        {{ card.productName }} <br>
 
-                        {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
-                        card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+                        {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render') ~
+                        card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
 
-                        {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+                        {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
 
-                        {{ card.product_offer_postfix }}
-                        {{ card.product_variation_postfix }}
-                        {{ card.product_modification_postfix }}
+                        {{ card.productOfferPostfix }}
+                        {{ card.productVariationPostfix }}
+                        {{ card.productModificationPostfix }}
 
                     </a>
 
                     <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
-                         data-copy="{{ card.product_article }}">
+                         data-copy="{{ card.productArticle }}">
 
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
                              height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
                             <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
                         </svg>
-                        {{ card.product_article }}
+                        {{ card.productArticle }}
                     </div>
                 </div>
 
+                {# Выводим бейдж при несоответствии цены продукта и заказа #}
                 <div class="col position-relative mt-2">
-                    {% if card.product_price is not null and card.product_price != (product.vars.data.price.price.value * 100) %}
+                    {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
                         <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0 mt-2">
                             <strike class="small text-muted">
-                                {{ money(card.product_price, card.product_currency) }}
+                                {{ money(card.productPrice, card.productCurrency) }}
                             </strike>
                         </div>
                     {% endif %}
@@ -113,7 +101,7 @@
 
                 {% if product.price.price is defined %}
 
-                    {% set isDiscount = card.product_price > (product.vars.data.price.price.value * 100) %}
+                    {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
 
                     <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
 
@@ -143,12 +131,12 @@
                     </div>
 
                     {% if isNotEdit %}
-                        {{ money(product.vars.data.price.price, card.product_currency) }}
+                        {{ money(product.vars.data.price.price, card.productCurrency) }}
                     {% endif %}
 
 
                 {% else %}
-                    {{ money(product.vars.data.price.price, card.product_currency) }}
+                    {{ money(product.vars.data.price.price, card.productCurrency) }}
                 {% endif %}
 
             {% endif %}
@@ -174,7 +162,7 @@
                         'data-price' : ''~product.price.vars.data.price.value*100,
                         'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
                         'data-currency' : product.price.vars.data.currency|upper,
-                        'data-max' : card.product_quantity
+                        'data-max' : card.productQuantity
                     } } ) }}
 
 
@@ -200,11 +188,11 @@
             {% set discount = user_profile_discount(summ) %}
 
             <strong id='summ_{{ product.price.total.vars.id }}'
-                    data-price='{{ card.product_price }}'
+                    data-price='{{ card.productPrice.value }}'
                     data-discount='{{ baks_profile.profile_discount is defined ? baks_profile.profile_discount }}'
-                    data-currency='{{ card.product_currency|upper }}'
+                    data-currency='{{ card.productCurrency|upper }}'
             >
-                {{ discount ? money(discount, card.product_currency) : money(summ, card.product_currency) }}
+                {{ discount ? money(discount, card.productCurrency) : money(summ, card.productCurrency) }}
 
             </strong>
 
@@ -239,10 +227,10 @@
 
                             <li>
                                 <a href="{{ path('wildberries-products:admin.barcode.print', {
-                                    product : card.event,
-                                    offer: card.product_offer_uid,
-                                    variation: card.product_variation_uid,
-                                    modification: card.product_modification_uid,
+                                    product : card.productEvent,
+                                    offer: card.productOfferUid,
+                                    variation: card.productVariationUid,
+                                    modification: card.productModificationUid,
                                     total: product.price.vars.data.total,
                                     print: true
                                 }) }}"
@@ -321,7 +309,7 @@
 
             {# Закрывает тег таблицы #}
             <small class="ms-3"> мин. стоимость: </small>
-            {{ money(product.price.price.vars.attr.min.value * 100, card.product_currency) }}
+            {{ money(product.price.price.vars.attr.min.value * 100, card.productCurrency) }}
 
         </td>
 

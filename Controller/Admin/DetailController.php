@@ -93,14 +93,14 @@ final class DetailController extends AbstractController
         /** @var OrderProductDTO $product */
         foreach($OrderDTO->getProduct() as $product)
         {
-            $ProductDetail = $userBasket->fetchProductBasketAssociative(
-                $product->getProduct(),
-                $product->getOffer(),
-                $product->getVariation(),
-                $product->getModification()
-            );
+            $ProductUserBasketResult = $userBasket
+                ->forEvent($product->getProduct())
+                ->forOffer($product->getOffer())
+                ->forVariation($product->getVariation())
+                ->forModification($product->getModification())
+                ->find();
 
-            $product->setCard($ProductDetail);
+            $product->setCard($ProductUserBasketResult);
         }
 
         // Динамическая форма корзины (необходима для динамического изменения полей в форме)
@@ -122,7 +122,6 @@ final class DetailController extends AbstractController
             return $this->redirectToReferer();
         }
 
-
         if($form->isSubmitted() && $form->isValid())
         {
             $this->refreshTokenForm($form);
@@ -141,13 +140,12 @@ final class DetailController extends AbstractController
             return $this->redirectToReferer();
         }
 
-
         /** История изменения статусов */
         $History = $orderHistory
             ->order($OrderEvent->getMain())
             ->findAllHistory();
 
-        // Отпарвляем сокет для скрытия заказа у других менеджеров
+        // Отправляем сокет для скрытия заказа у других менеджеров
         $socket = $publish
             ->addData(['order' => (string) $OrderEvent->getMain()])
             ->addData(['profile' => (string) $this->getCurrentProfileUid()])
@@ -157,7 +155,6 @@ final class DetailController extends AbstractController
         {
             return new JsonResponse($socket->getMessage());
         }
-
 
         /**
          * Получаем честные знаки на сырье

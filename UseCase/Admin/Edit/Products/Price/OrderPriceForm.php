@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price;
 
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Reference\Money\Type\Money;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -102,16 +103,19 @@ final class OrderPriceForm extends AbstractType
                         $OrderProductDTO = $form->getParent()?->getData();
                         $card = $OrderProductDTO->getCard();
 
-                        if(!isset($card['product_price']))
+                        if(false === ($card instanceof ProductUserBasketResult))
                         {
                             return;
                         }
 
+                        if(false === ($card->getProductPrice() instanceof Money))
+                        {
+                            return;
+                        }
 
-                        $productPrice = new Money($card['product_price'], true);
+                        $productPrice = $card->getProductPrice();
                         $percent = $productPrice->percent($this->discount);
                         $min = $productPrice->sub($percent);
-
 
                         if($this->security->isGranted('ROLE_ADMIN'))
                         {

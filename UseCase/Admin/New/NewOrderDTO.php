@@ -27,6 +27,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Entity\User as UserEntity;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -73,10 +74,9 @@ final class NewOrderDTO implements OrderEventInterface
     private ?string $comment = null;
 
 
-    public function __construct(/*UserEntity|UserUid $user, UserProfileUid $profile*/)
+    public function __construct()
     {
         $this->invariable = new Invariable\NewOrderInvariableDTO();
-
 
         $this->product = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
@@ -95,8 +95,11 @@ final class NewOrderDTO implements OrderEventInterface
         $this->id = null;
     }
 
-    /** Коллекция продукции в заказе */
-
+    /**
+     * Коллекция продукции в заказе
+     *
+     * @return ArrayCollection<int, NewOrderProductDTO>
+     */
     public function getProduct(): ArrayCollection
     {
         return $this->product;

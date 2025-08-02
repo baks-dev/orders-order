@@ -195,7 +195,7 @@ class AddController extends AbstractController
             ->forOffer($AddProductBasketDTO->getOffer())
             ->forVariation($AddProductBasketDTO->getVariation())
             ->forModification($AddProductBasketDTO->getModification())
-            ->findAll();
+            ->find();
 
         return $this->render([
             'form' => $form->createView(),

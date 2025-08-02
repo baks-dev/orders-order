@@ -45,12 +45,4 @@ interface ProductUserBasketInterface
 
     public function find(): ProductUserBasketResult|false;
 
-    /** @deprecated */
-    public function fetchProductBasketAssociative(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer = null,
-        ?ProductVariationUid $variation = null,
-        ?ProductModificationUid $modification = null,
-    ): bool|array;
-
 }

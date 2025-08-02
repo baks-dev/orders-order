@@ -175,8 +175,9 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         return $this;
     }
 
-    private function builder(): DBALQueryBuilder
+    public function find(): ProductUserBasketResult|false
     {
+
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -821,30 +822,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
         $dbal->allGroupByExclude();
 
-        return $dbal;
+        return $dbal->fetchHydrate(ProductUserBasketResult::class);
     }
 
-    public function find(): ProductUserBasketResult|false
-    {
-        return $this->builder()->fetchHydrate(ProductUserBasketResult::class);
-    }
-
-    /** @deprecated */
-    public function fetchProductBasketAssociative(
-        ProductEventUid $event,
-        ?ProductOfferUid $offer = null,
-        ?ProductVariationUid $variation = null,
-        ?ProductModificationUid $modification = null,
-    ): bool|array
-    {
-        $dbal = $this
-            ->forEvent($event)
-            ->forOffer($offer)
-            ->forVariation($variation)
-            ->forModification($modification)
-            ->builder();
-
-        // Не кешируем результат для актуальной проверки наличия
-        return $dbal->fetchAssociative();
-    }
 }

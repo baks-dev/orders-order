@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\AllProductsOrdersReport;
 
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Generator;
 
@@ -34,9 +36,8 @@ interface AllProductsOrdersReportInterface
 
     public function to(DateTimeImmutable $to): self;
 
+    public function forProfile(UserProfileUid|UserProfile $profile): self;
+
     public function findAll(): Generator|false;
-
-    public function toArray(): array|false;
-
 
 }

@@ -42,6 +42,8 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Generator;
@@ -51,6 +53,11 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
     private DateTimeImmutable $from;
 
     private DateTimeImmutable $to;
+
+    private UserProfileUid|false $profile = false;
+
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+
 
     public function from(DateTimeImmutable $from): self
     {
@@ -66,7 +73,17 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
         return $this;
     }
 
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+    public function forProfile(UserProfileUid|UserProfile $profile): self
+    {
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
 
     /**
      * Метод возвращает информацию о заказах по продуктам
@@ -84,7 +101,17 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             OrderInvariable::class,
             "order_invariable",
             "order_invariable.main = orders.id"
+            .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
         );
+
+        if($this->profile instanceof UserProfileUid)
+        {
+            $dbal->setParameter(
+                key: 'profile',
+                value: $this->profile,
+                type: UserProfileUid::TYPE,
+            );
+        }
 
         $dbal->join(
             "orders",
@@ -93,7 +120,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
-                "
+                ",
         );
 
 
@@ -101,7 +128,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "orders",
             OrderProduct::class,
             "orders_product",
-            "orders_product.event = orders.event"
+            "orders_product.event = orders.event",
         );
 
 
@@ -112,7 +139,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 OrderPrice::class,
                 "orders_price",
-                "orders_price.product = orders_product.id"
+                "orders_price.product = orders_product.id",
             );
 
         $dbal
@@ -124,17 +151,17 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                     orders_modify.event = orders.event AND
                     DATE(orders_modify.mod_date) >= :from AND
                     DATE(orders_modify.mod_date) <= :to
-                "
+                ",
             )
             ->setParameter(
                 key: "from",
                 value: $this->from,
-                type: Types::DATE_IMMUTABLE
+                type: Types::DATE_IMMUTABLE,
             )
             ->setParameter(
                 key: "to",
                 value: $this->to,
-                type: Types::DATE_IMMUTABLE
+                type: Types::DATE_IMMUTABLE,
             );
 
 
@@ -143,14 +170,14 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 ProductEvent::class,
                 "product_event",
-                "product_event.id = orders_product.product"
+                "product_event.id = orders_product.product",
             );
 
         $dbal->leftJoin(
             "orders_product",
             ProductInfo::class,
             "product_info",
-            "product_info.event = product_event.id"
+            "product_info.event = product_event.id",
         );
 
         $dbal
@@ -160,7 +187,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 ProductOffer::class,
                 "product_offer",
-                "product_offer.id = orders_product.offer"
+                "product_offer.id = orders_product.offer",
             );
 
         /** Получаем тип торгового предложения */
@@ -170,7 +197,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 'product_offer',
                 CategoryProductOffers::class,
                 'category_offer',
-                'category_offer.id = product_offer.category_offer'
+                'category_offer.id = product_offer.category_offer',
             );
 
         $dbal
@@ -180,7 +207,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 ProductVariation::class,
                 "product_variation",
-                "product_variation.id = orders_product.variation"
+                "product_variation.id = orders_product.variation",
             );
 
         /** Получаем тип множественного варианта */
@@ -190,7 +217,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 'product_variation',
                 CategoryProductVariation::class,
                 'category_offer_variation',
-                'category_offer_variation.id = product_variation.category_variation'
+                'category_offer_variation.id = product_variation.category_variation',
             );
 
         $dbal
@@ -200,7 +227,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 ProductModification::class,
                 "product_modification",
-                "product_modification.id = orders_product.modification"
+                "product_modification.id = orders_product.modification",
             );
 
         /** Получаем тип модификации */
@@ -210,7 +237,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 'product_modification',
                 CategoryProductModification::class,
                 'category_offer_modification',
-                'category_offer_modification.id = product_modification.category_modification'
+                'category_offer_modification.id = product_modification.category_modification',
             );
 
         $dbal->addSelect('
@@ -228,7 +255,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_product",
                 ProductTrans::class,
                 "product_trans",
-                "product_trans.event = product_event.id AND product_trans.local = :local"
+                "product_trans.event = product_event.id AND product_trans.local = :local",
             );
 
         /**
@@ -261,6 +288,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
         $dbal
             ->orderBy("product_trans.name")
+            ->addOrderBy("SUM(orders_price.total)", 'DESC')
             ->addOrderBy("product_offer.value")
             ->addOrderBy("product_variation.value")
             ->addOrderBy("product_modification.value");
@@ -271,15 +299,4 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
     }
 
-    public function toArray(): array|false
-    {
-        $result = $this->findAll();
-
-        if(false === $result || false === $result->valid())
-        {
-            return false;
-        }
-
-        return iterator_to_array($result);
-    }
 }

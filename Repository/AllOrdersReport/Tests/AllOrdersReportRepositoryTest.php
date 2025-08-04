@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
 use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewAdminUseCaseTest;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -53,7 +54,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
-            ->date(new DateTimeImmutable())
+            ->date(new DateTimeImmutable('0197b0c0-51fc-735d-ada6-0aa53dfff7cd'))
+            ->profile(new UserProfileUid(''))
             ->findAll();
 
         if(false === $result)

@@ -25,12 +25,16 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\AllOrdersReport;
 
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Generator;
 
 interface AllOrdersReportInterface
 {
     public function date(DateTimeImmutable $date): self;
+
+    public function forProfile(UserProfile|UserProfileUid $profile): self;
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату

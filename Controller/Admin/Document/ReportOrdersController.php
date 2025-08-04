@@ -67,7 +67,6 @@ final class ReportOrdersController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            // получаем репозиторием...
             $result = $allOrdersReportRepository
                 ->date($ordersReportDTO->getDate())
                 ->findAll();
@@ -96,15 +95,23 @@ final class ReportOrdersController extends AbstractController
             $sheet
                 ->setCellValue('A1', 'Дата')
                 ->setCellValue('B1', 'Номер заказа')
-                ->setCellValue('C1', 'Наименование')
-                ->setCellValue('D1', 'Артикул товара')
+                ->setCellValue('C1', 'Наименование товара')
+                ->setCellValue('D1', 'Артикул')
                 ->setCellValue('E1', 'Стоимость продукта за единицу')
                 ->setCellValue('F1', 'Стоимость продукта в заказе за единицу')
                 ->setCellValue('G1', 'Количество продукта в заказе')
                 ->setCellValue('H1', 'Сумма')
                 ->setCellValue('I1', 'Разница в цене между продуктом и продуктом в заказе')
                 ->setCellValue('J1', 'Способ доставки')
-                ->setCellValue('K1', 'Стоимость доставки');
+                ->setCellValue('K1', 'Доставка');
+
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
+            $sheet->getColumnDimension('D')->setAutoSize(true);
+
+            $sheet->getColumnDimension('J')->setAutoSize(true);
+            $sheet->getColumnDimension('K')->setAutoSize(true);
 
             $allTotal = 0;
             $allPrice = new Money(0);

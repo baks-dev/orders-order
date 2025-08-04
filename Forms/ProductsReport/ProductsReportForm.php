@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Forms\ProductsReport;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -54,6 +55,11 @@ final class ProductsReportForm extends AbstractType
             'format' => 'dd.MM.yyyy',
             'input' => 'datetime_immutable',
         ]);
+
+
+        /** Отчет по всем регионам */
+        $builder->add('all', CheckboxType::class, ['required' => false]);
+
 
         /* Сохранить ******************************************************/
         $builder->add(

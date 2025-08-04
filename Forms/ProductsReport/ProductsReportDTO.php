@@ -33,6 +33,8 @@ final class ProductsReportDTO
 
     private ?DateTimeImmutable $to = null;
 
+    private bool $all = false;
+
     /**
      * From
      */
@@ -59,6 +61,17 @@ final class ProductsReportDTO
     {
         $this->to = $to;
 
+        return $this;
+    }
+
+    public function isAll(): bool
+    {
+        return $this->all;
+    }
+
+    public function setAll(bool $all): self
+    {
+        $this->all = $all;
         return $this;
     }
 }

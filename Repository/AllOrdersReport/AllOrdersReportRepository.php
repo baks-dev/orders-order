@@ -53,6 +53,7 @@ use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
@@ -65,6 +66,13 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 {
     private DateTimeImmutable|false $date = false;
 
+    private UserProfileUid|false $profile = false;
+
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
+    ) {}
+
     public function date(DateTimeImmutable $date): self
     {
         $this->date = $date;
@@ -72,7 +80,17 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         return $this;
     }
 
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+    public function forProfile(UserProfile|UserProfileUid $profile): self
+    {
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
 
     /**
      * Метод возвращает все необходимые данные для составления отчета по заказам за определенную дату
@@ -99,7 +117,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
-                "
+                ",
         );
 
         $dbal
@@ -122,7 +140,12 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders",
                 OrderInvariable::class,
                 "orders_invariable",
-                "orders_invariable.main = orders.id",
+                "orders_invariable.main = orders.id AND orders_invariable.profile = :profile",
+            )
+            ->setParameter(
+                key: 'profile',
+                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
             );
 
         $dbal->join(

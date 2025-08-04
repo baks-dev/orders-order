@@ -7,7 +7,7 @@
 
             <h5 class="modal-title">
                 {# Заголовок модального окна #}
-                {{ 'Скачать отчет о продукции'|trans }}:
+                {{ 'Скачать отчёт по продажам продукции'|trans }}:
             </h5>
 
             <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" title="Close">
@@ -61,6 +61,26 @@
 
         <div class="modal-footer">
 
+            <div class="flex-grow-1">
+                <div class="d-flex radio-buttons" data-buttons="true">
+                    <label class="btn p-2 border-dotted rounded-3 active">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <span class="h4">
+                                    <div class="form-check px-3 d-flex align-items-center">
+                                        {{ form_widget(form.all, { label: false }) }}
+                                        <span class="h6 mb-0 mt-1">
+                                            {# {{ 'admin.form.label.active'|trans }} #}
+                                            По всем регионам
+                                        </span>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <div class="d-flex gap-3">
                 {# Отмена #}
 
@@ -74,6 +94,7 @@
 			'}) }}
             </div>
         </div>
+
     </div>
     {{ form_end(form) }}
 </div>

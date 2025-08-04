@@ -59,7 +59,7 @@ final class ReportProductsController extends AbstractController
             ->createForm(
                 ProductsReportForm::class,
                 $productsReportDTO,
-                ['action' => $this->generateUrl('orders-order:admin.document.report.products')]
+                ['action' => $this->generateUrl('orders-order:admin.document.report.products')],
             )
             ->handleRequest($request);
 
@@ -67,17 +67,23 @@ final class ReportProductsController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $result = $allProductsOrdersReport
+            $allProductsOrdersReport
                 ->to($productsReportDTO->getTo())
-                ->from($productsReportDTO->getFrom())
-                ->findAll();
+                ->from($productsReportDTO->getFrom());
+
+            if(false === $productsReportDTO->isAll())
+            {
+                $allProductsOrdersReport->forProfile($this->getProfileUid());
+            }
+
+            $result = $allProductsOrdersReport->findAll();
 
             if(false === $result || false === $result->valid())
             {
                 $this->addFlash(
                     'Отчет о заказах',
                     'Отчета за указанный период не найдено',
-                    'orders-order.admin'
+                    'orders-order.admin',
                 );
 
                 return $this->redirectToReferer();
@@ -99,6 +105,9 @@ final class ReportProductsController extends AbstractController
                 ->setCellValue('C1', 'Общее количество за период')
                 ->setCellValue('D1', 'Суммарная стоимость за период');
 
+            $sheet->getColumnDimension('A')->setAutoSize(true);
+            $sheet->getColumnDimension('B')->setAutoSize(true);
+
             $allTotal = 0;
             $allPrice = new Money(0);
             $key = 2;
@@ -112,21 +121,21 @@ final class ReportProductsController extends AbstractController
                 $variation = $call->call(
                     $environment,
                     $data->getProductVariationValue(),
-                    $data->getProductVariationReference().'_render'
+                    $data->getProductVariationReference().'_render',
                 );
                 $name .= $variation ? ' '.trim($variation) : '';
 
                 $modification = $call->call(
                     $environment,
                     $data->getProductModificationValue(),
-                    $data->getProductModificationReference().'_render'
+                    $data->getProductModificationReference().'_render',
                 );
                 $name .= $modification ? ' '.trim($modification) : '';
 
                 $offer = $call->call(
                     $environment,
                     $data->getProductOfferValue(),
-                    $data->getProductOfferReference().'_render'
+                    $data->getProductOfferReference().'_render',
                 );
                 $name .= $modification ? ' '.trim($offer) : '';
 
@@ -166,7 +175,7 @@ final class ReportProductsController extends AbstractController
             $response->headers->set('Content-Type', 'application/vnd.ms-excel');
             $response->headers->set(
                 'Content-Disposition',
-                'attachment;filename="'.str_replace('"', '', $filename).'"'
+                'attachment;filename="'.str_replace('"', '', $filename).'"',
             );
             $response->headers->set('Cache-Control', 'max-age=0');
 

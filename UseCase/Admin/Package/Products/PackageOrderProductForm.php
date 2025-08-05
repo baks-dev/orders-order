@@ -102,9 +102,9 @@ final class PackageOrderProductForm extends AbstractType
                         $ProductUserBasketResult->getProductModificationConst(), //$ProductModificationConst
                     );
 
-                    $product['stock'] = $totalStock;
+                    $ProductUserBasketResult->setStock($totalStock);
 
-                    $data->setCard($product);
+                    $data->setCard($ProductUserBasketResult);
 
                 }
             },

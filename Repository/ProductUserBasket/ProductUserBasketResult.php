@@ -44,60 +44,62 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 /** @see ProductUserBasketRepository */
 #[Exclude]
-final readonly class ProductUserBasketResult implements ProductPriceResultInterface
+final  class ProductUserBasketResult implements ProductPriceResultInterface
 {
+    private int|null $stock = 0;
+
     public function __construct(
-        private string $id,
-        private string $event,
+        private readonly string $id,
+        private readonly string $event,
 
-        private string $product_active_from,
-        private string $current_event,
-        private string $product_name,
-        private string $product_article,
-        private string $product_url,
+        private readonly string $product_active_from,
+        private readonly string $current_event,
+        private readonly string $product_name,
+        private readonly string $product_article,
+        private readonly string $product_url,
 
-        private ?string $product_offer_uid,
-        private ?string $product_offer_const,
-        private ?string $product_offer_value,
-        private ?string $product_offer_postfix,
-        private ?string $product_offer_reference,
-        private ?string $product_offer_name,
+        private readonly ?string $product_offer_uid,
+        private readonly ?string $product_offer_const,
+        private readonly ?string $product_offer_value,
+        private readonly ?string $product_offer_postfix,
+        private readonly ?string $product_offer_reference,
+        private readonly ?string $product_offer_name,
 
-        private ?string $product_variation_uid,
-        private ?string $product_variation_const,
-        private ?string $product_variation_value,
-        private ?string $product_variation_postfix,
-        private ?string $product_variation_reference,
-        private ?string $product_variation_name,
+        private readonly ?string $product_variation_uid,
+        private readonly ?string $product_variation_const,
+        private readonly ?string $product_variation_value,
+        private readonly ?string $product_variation_postfix,
+        private readonly ?string $product_variation_reference,
+        private readonly ?string $product_variation_name,
 
-        private ?string $product_modification_uid,
-        private ?string $product_modification_const,
-        private ?string $product_modification_value,
-        private ?string $product_modification_postfix,
-        private ?string $product_modification_reference,
-        private ?string $product_modification_name,
+        private readonly ?string $product_modification_uid,
+        private readonly ?string $product_modification_const,
+        private readonly ?string $product_modification_value,
+        private readonly ?string $product_modification_postfix,
+        private readonly ?string $product_modification_reference,
+        private readonly ?string $product_modification_name,
 
-        private int $product_price,
-        private ?int $product_old_price,
-        private string $product_currency,
-        private int $product_quantity,
+        private readonly int $product_price,
+        private readonly ?int $product_old_price,
+        private readonly string $product_currency,
+        private readonly int $product_quantity,
 
-        private ?string $product_image,
-        private ?string $product_image_ext,
-        private ?bool $product_image_cdn,
+        private readonly ?string $product_image,
+        private readonly ?string $product_image_ext,
+        private readonly ?bool $product_image_cdn,
 
-        private string $category_name,
-        private string $category_url,
-        private int $category_minimal,
-        private int $category_input,
-        private int $category_threshold,
+        private readonly string $category_name,
+        private readonly string $category_url,
+        private readonly int $category_minimal,
+        private readonly int $category_input,
+        private readonly int $category_threshold,
 
-        private string $category_section_field,
+        private readonly string $category_section_field,
 
-        private string|null $product_invariable_id,
+        private readonly string|null $product_invariable_id,
 
-        private string|null $profile_discount = null,
-        private string|null $project_discount = null,
+        private readonly string|null $profile_discount = null,
+        private readonly string|null $project_discount = null,
     ) {}
 
     /**
@@ -126,6 +128,7 @@ final readonly class ProductUserBasketResult implements ProductPriceResultInterf
 
     /**
      * ProductActiveFrom
+     *
      * @throws DateMalformedStringException
      */
     public function getProductActiveFrom(): DateTimeImmutable
@@ -400,6 +403,7 @@ final readonly class ProductUserBasketResult implements ProductPriceResultInterf
 
     /**
      * CategorySectionField
+     *
      * @throws JsonException
      */
     public function getCategorySectionField(): array
@@ -446,5 +450,16 @@ final readonly class ProductUserBasketResult implements ProductPriceResultInterf
         }
 
         return $discountPercent;
+    }
+
+    public function getStock(): ?int
+    {
+        return $this->stock ? max($this->stock, 0) : 0;
+    }
+
+    public function setStock(?int $stock): self
+    {
+        $this->stock = $stock;
+        return $this;
     }
 }

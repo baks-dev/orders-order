@@ -1,5 +1,6 @@
 {% trans_default_domain 'orders-order.admin' %}
 
+
 {% set disabled = {} %}
 
 
@@ -72,31 +73,31 @@
                 </div>
             </div>
 
+
             {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
                 <div class="d-flex gap-3 align-items-center w-100">
 
+                    {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
                     {% set card = product.vars.data.card %}
-                    {% set card_stock = card.stock is null or card.stock < 0 ? 0 : card.stock %}
-
 
                     {# Обложка  #}
 
                     <div>
                         <div class="icon rounded-4 mb-2 bg-contain p-1"
-                             style="width: 75px; height: 75px; background-image: url('{{ cdn_image_path(card.product_image, card.product_image_ext, card.product_image_cdn, 'min') }}');"
+                             style="width: 75px; height: 75px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}');"
                         ></div>
                     </div>
 
                     <div>
                         <strong>
-                            {{ card.product_name }}
+                            {{ card.productName }}
 
                             {# Значение множественного варианта ТП #}
-                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
-                            card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+                            {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render') ~
+                            card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
 
                             {# Значение торгового предложения #}
-                            {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+                            {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
 
                             {# Свойства, учавствующие в названии #}
                             {# {% for name_property in arr_property | filter(props => props.field_name == true) %}
@@ -115,11 +116,11 @@
                         &nbsp;
 
 
-                        {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.price.total > card_stock %}
+                        {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.price.total > card.stock %}
 
 
-                            {% if card_stock > 0 %}
-                                <span class="text-danger"> В наличии на складе <strong>{{ card_stock }}</strong> шт. </span>
+                            {% if card.stock > 0 %}
+                                <span class="text-danger"> В наличии на складе <strong>{{ card.stock }}</strong> шт. </span>
                             {% else %}
                                 <span class="badge rounded-pill text-bg-danger">Нет в наличии на складе упаковки заказа</span>
                                 {% set disabled = { disabled : true } %}
@@ -149,7 +150,7 @@
                                     <div class="d-flex gap-3 align-items-center ">
                                         {% if product.move.profile is defined %}
 
-                                            <span>Переместить недостоток {{ (product.vars.data.price.total - card_stock) }} шт. со склада:</span>
+                                            <span>Переместить недостоток {{ (product.vars.data.price.total - card.stock) }} шт. со склада:</span>
 
                                             <div class="w-50">
                                                 {{ form_widget(product.move.profile, {
@@ -178,9 +179,9 @@
                             </div>
                         {% else %}
 
-                            {% if card_stock > 0 %}
+                            {% if card.stock > 0 %}
                                 &nbsp; <span
-                                    class="text-success">В наличии  <strong>{{ card_stock }}</strong> шт. </span>
+                                    class="text-success">В наличии  <strong>{{ card.stock }}</strong> шт. </span>
                             {% else %}
                                 <span class="badge rounded-pill text-bg-danger">Нет в наличии</span>
                                 {% set disabled = { disabled : true } %}
@@ -217,8 +218,6 @@
                 </div>
             {% endif %}
         </div>
-
-        {{ dump(disabled) }}  {# TODO: удалить !!! #}
 
 
         <div class="modal-footer">

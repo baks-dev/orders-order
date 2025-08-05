@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -64,7 +65,7 @@ final class PackageOrderProductDTO implements OrderProductInterface
 
 
     /** Карточка товара */
-    private array $card = [];
+    private ProductUserBasketResult|false $card;
 
 
     /** Событие продукта */
@@ -123,12 +124,12 @@ final class PackageOrderProductDTO implements OrderProductInterface
     }
 
     /** Карточка товара */
-    public function getCard(): array
+    public function getCard(): ProductUserBasketResult|false
     {
         return $this->card;
     }
 
-    public function setCard(array $card): void
+    public function setCard(ProductUserBasketResult $card): void
     {
         $this->card = $card;
     }

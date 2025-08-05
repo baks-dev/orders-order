@@ -1,19 +1,20 @@
 {# {% set id =  random() %} #}
 
-<div class="draggable" id="{{ order.order_id }}" tabindex="0">
+{# @var order \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
+
+<div class="draggable" id="{{ order.orderId }}" tabindex="0">
 
 
     <div class="border-bottom border-4 rounded-4"
-         style="background-color: {{ order.order_danger ? 'red' : color }}; border-color: {{ order.order_danger ? 'red' : color }} !important;"
+         style="background-color: {{ order.orderDanger ? 'red' : color }}; border-color: {{ order.orderDanger ? 'red' : color }} !important;"
     >
 
+        <div class="card bg-light-primary rounded-4" {{ order.orderDanger ? 'style="border-color: red;"' }}>
 
-        <div class="card bg-light-primary rounded-4" {{ order.order_danger ? 'style="border-color: red;"' }}>
 
-
-            {% if order.order_profile_discount %}
-                <div class="position-absolute small badge bg-danger translate-middle rounded-1 top-50 start-100">{{ order.order_profile_discount }}
-                    %
+            {% if order.orderProfileDiscount %}
+                <div class="position-absolute small badge bg-danger translate-middle rounded-1 top-50 start-100">
+                    {{ order.orderProfileDiscount }} %
                 </div>
             {% endif %}
 
@@ -21,23 +22,23 @@
             <div class="card-body d-flex justify-content-between small p-2">
 
                 <div class="d-flex flex-column justify-content-between gap-1 offcanvas-link small"
-                     data-href='{{ path('orders-order:admin.detail', { id : order.order_id }) }}'
-                     data-id='{{ order.order_id }}'
+                     data-href='{{ path('orders-order:admin.detail', { id : order.orderId }) }}'
+                     data-id='{{ order.orderId }}'
                      style="cursor: help"
                 >
 
                     <div class="small d-flex justify-content-between gap-2 lh-1">
-                        #{{ order.order_number }}
+                        #{{ order.orderNumber }}
                     </div>
 
-                    {% set dedline = date(order.modify) %}
+                    {% set dedline = date(order.dateModify) %}
                     {% set difference = dedline.diff(date("now")) %}
                     {% set day = difference.days ?: null %}
                     {% set hour = difference.h ?: null %}
 
                     <div class="small">
 
-                        <span class="small text-muted ">{{ order.order_created|format_datetime(pattern="d MMMM") }} | </span>
+                        <span class="small text-muted ">{{ order.orderCreated|format_datetime(pattern="d MMMM") }} | </span>
                         <strong
 
                                 role="tooltip"
@@ -68,13 +69,17 @@
 
                     <span class="fw-bolder d-flex justify-content-between align-items-center">
 
-						{% set arr_price = order.product_price|json_decode %}
+						{# {% set arr_price = order.productPrice %}
 
                         {% set price = 0 %}
 
-                        {% for order_price in arr_price %}
-                            {% set price = order_price.price * order_price.total + price %}
-                        {% endfor %}
+                        {% if order.productPrice %}
+                            {% for order_price in order.productPrice %}
+                                {% set price = order_price.price * order_price.total + price %}
+                            {% endfor %}
+                        {% endif %} #}
+
+
 
                         {# {% set price = order.order_price %} #}
 
@@ -83,7 +88,7 @@
                         {#  Прибавляем стомиость доставки  #}
                         {# {% set price = price + order.delivery_price %} #}
 
-							<span class='h6 mb-0'>{{ money(price, order.order_currency) }}</span>
+							<span class='h6 mb-0'>{{ money(order.getAllProductPrice, order.orderCurrency) }}</span>
 
 						</span>
                 </div>
@@ -92,80 +97,33 @@
 
                     <div class="text-end">
 
-                        {% if order.order_status != 'completed' %}
+                        {% if order.orderStatusEquals('completed') == false %}
 
-                            {% if order.order_move %}
+                            <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
+                                    role="tooltip"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    data-bs-delay='{"show":600,"hide":100}'
+                                    title="Изменить статус сделки"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-arrows-move" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                          d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
+                                </svg>
+                            </button>
 
-                                <button
-
-                                        role="tooltip"
-                                        class="btn btn-sm btn-warning"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        data-bs-delay='{"show":600,"hide":100}'
-                                        title="Заказ ожидает перемещение продукции для полной сборки"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-arrow-left-right" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                              d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"></path>
-                                    </svg>
-                                </button>
-
-                            {% elseif order.order_error or order.move_error %}
-
-                                <button
-
-                                        role="tooltip"
-                                        class="btn btn-sm btn-danger"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        data-bs-delay='{"show":600,"hide":100}'
-                                        title="Невозможно добавить заказ в доставку! Обратитесь на склад для уточнения причины"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-exclamation-diamond-fill" viewBox="0 0 16 16">
-                                        <path d="M9.05.435c-.58-.58-1.52-.58-2.1 0L.436 6.95c-.58.58-.58 1.519 0 2.098l6.516 6.516c.58.58 1.519.58 2.098 0l6.516-6.516c.58-.58.58-1.519 0-2.098L9.05.435zM8 4c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995A.905.905 0 0 1 8 4zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                                    </svg>
-                                </button>
-
-                            {% else %}
-
-                                {# {% if
-                                    order.order_status != 'package' and
-                                    order.order_status != 'extradition'
-                                %} #}
-
-                                <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
-                                        role="tooltip"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="bottom"
-                                        data-bs-delay='{"show":600,"hide":100}'
-                                        title="Изменить статус сделки"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-arrows-move" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                              d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
-                                    </svg>
-                                </button>
-
-                                {# {% endif %} #}
-
-
-
-                            {% endif %}
                         {% endif %}
                     </div>
 
-                    {% if order.order_comment %}
+                    {% if order.orderComment %}
                         <button
                                 class="btn btn-sm btn-outline-danger border-0"
                                 role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":100,"hide":100}'
-                                title="{{ order.order_comment }}"
+                                title="{{ order.orderComment }}"
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -185,10 +143,53 @@
 
             <div class="card-footer d-flex flex-column small p-2">
                 <div class="fw-bolder text-primary">
-                    {{ order.order_profile }}
+                    {{ order.orderProfile }}
                 </div>
 
-                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
+                {% if order.clientName %}
+                    <div class='mb-1 text-truncate pointer fw-bolder'
+                         style="max-width: 140px;"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='{{ order.clientName.profile_value }}'
+                    >
+                        {{ order.clientName.profile_value|call_twig_func(order.clientName.profile_type~'_template') }}
+                    </div>
+                {% endif %}
+
+                {% if order.clientPhone %}
+                    <div class='mb-1 text-truncate pointer'
+                         style="max-width: 140px;"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='{{ order.clientPhone.profile_value }}'
+                    >
+                        {{ order.clientPhone.profile_value|call_twig_func(order.clientPhone.profile_type~'_template') }}
+                    </div>
+                {% endif %}
+
+                {% if order.accountEmail %}
+                    <div class="text-truncate pointer" style="max-width: 140px;">
+                        <a href="mailto:{{ order.accountEmail }}"
+                           class="text-decoration-none"
+                           role="tooltip"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="bottom"
+                           data-bs-delay='{"show":200,"hide":100}'
+                           title='{{ order.accountEmail }}'
+                        >
+                            @ {{ order.accountEmail }}
+                        </a>
+                    </div>
+                {% endif %}
+
+
+
+                {#       {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
 
                 {% if users is not empty %}
 
@@ -221,41 +222,41 @@
                         </div>
                     {% endif %}
 
-                {% endif %}
+                {% endif %} #}
 
 
                 {% if
-                    order.order_status != 'delivery' and
-                    order.order_status != 'completed' and
-                    order.order_status != 'marketplace' %}
+                    order.orderStatusEquals('delivery') == false and
+                    order.orderStatusEquals('completed') == false and
+                    order.orderStatusEquals('marketplace') == false %}
 
                     <div class="border-top mt-2 small">
                         <div>
 
-                            <span class="text-muted">{{ order.delivery_name }}</span>
+                            <span class="text-muted">{{ order.deliveryName }}</span>
 
                             {# Стоимость доставки #}
 
 
                             {# Если указана стоимость доставки #}
-                            {% if order.order_delivery_price %}
+                            {% if order.orderDeliveryPrice %}
 
                                 <div class="text-nowrap d-flex align-items-center gap-1 fw-bolder">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
                                          class="text-secondary" viewBox="0 0 16 16">
                                         <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
                                     </svg>
-                                    +{{ money(order.order_delivery_price, order.order_delivery_currency) }}
+                                    +{{ money(order.orderDeliveryPrice, order.orderDeliveryCurrency) }}
                                 </div>
 
-                            {% elseif order.delivery_price %}
+                            {% elseif order.deliveryPrice %}
 
                                 <div class=" text-nowrap d-flex align-items-center gap-1 text-danger">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
                                          viewBox="0 0 16 16">
                                         <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
                                     </svg>
-                                    Расчетно +{{ money(order.delivery_price, order.order_currency) }}
+                                    Расчетно +{{ money(order.deliveryPrice, order.orderCurrency) }}
                                 </div>
 
                             {% else %}
@@ -263,9 +264,9 @@
                             {% endif %}
                         </div>
 
-                        {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd') %}
+                        {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
                             <span class="badge bg-danger small p-1">Просрочен</span>
-                        {% elseif order.delivery_date|date('Ymd') == date("now")|date('Ymd') %}
+                        {% elseif order.deliveryDate|date('Ymd') == date("now")|date('Ymd') %}
                             <span class="badge bg-warning text-dark small p-1">Опоздание</span>
                         {% else %}
                             <span class="text-muted small">Доставка</span>
@@ -278,17 +279,17 @@
 
                         {% set deliveryDay = deliveryDifference.days ?: null %} #}
 
-                        {% if date("now")|date('Ymd') > order.delivery_date|date('Ymd') %}
+                        {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
                             <strong class="small text-danger">
-                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
                             </strong>
-                        {% elseif date("now")|date('Ymd') == order.delivery_date|date('Ymd') %}
+                        {% elseif date("now")|date('Ymd') == order.deliveryDate|date('Ymd') %}
                             <strong class="small">
-                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
                             </strong>
                         {% else %}
                             <small class="small">
-                                {{ order.delivery_date|format_datetime(pattern="d MMMM") }}
+                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
                             </small>
                         {% endif %}
 

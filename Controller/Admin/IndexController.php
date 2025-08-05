@@ -98,7 +98,7 @@ final class IndexController extends AbstractController
                 ->search($search)
                 ->status($status)
                 ->filter($OrderDeliveryFilterDTO)
-                ->findPaginator($this->getProfileUid())
+                ->findPaginator()
                 ->getData();
         }
 

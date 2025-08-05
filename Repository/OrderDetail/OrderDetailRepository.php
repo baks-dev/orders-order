@@ -30,6 +30,8 @@ use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
+use BaksDev\Field\Pack\Contact\Type\ContactField;
+use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
@@ -124,7 +126,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         {
             throw new InvalidArgumentException(sprintf(
                 'Некорректной тип для параметра запроса $this->order: %s. Ожидаемый тип %s',
-                var_export($this->order, true), OrderUid::class
+                var_export($this->order, true), OrderUid::class,
             ));
         }
 
@@ -148,7 +150,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'orders',
                 OrderEvent::class,
                 'event',
-                'event.id = orders.event'
+                'event.id = orders.event',
             );
 
         $dbal
@@ -157,14 +159,14 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'event',
                 OrderPrint::class,
                 'order_print',
-                'order_print.event = orders.id'
+                'order_print.event = orders.id',
             );
 
         $dbal->leftJoin(
             'orders',
             OrderUser::class,
             'order_user',
-            'order_user.event = orders.event'
+            'order_user.event = orders.event',
         );
 
 
@@ -175,7 +177,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_product',
                 OrderPayment::class,
                 'order_product_payment',
-                'order_product_payment.usr = order_user.id'
+                'order_product_payment.usr = order_user.id',
             );
 
 
@@ -185,7 +187,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_product_payment',
                 Payment::class,
                 'payment',
-                'payment.id = order_product_payment.payment'
+                'payment.id = order_product_payment.payment',
             );
 
 
@@ -195,7 +197,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_product_payment',
                 PaymentTrans::class,
                 'payment_trans',
-                'payment_trans.event = payment.event AND payment_trans.local = :local'
+                'payment_trans.event = payment.event AND payment_trans.local = :local',
             );
 
         /* Продукция в заказе  */
@@ -204,14 +206,14 @@ final class OrderDetailRepository implements OrderDetailInterface
             'orders',
             OrderProduct::class,
             'order_product',
-            'order_product.event = orders.event'
+            'order_product.event = orders.event',
         );
 
         $dbal->leftJoin(
             'order_product',
             OrderPrice::class,
             'order_product_price',
-            'order_product_price.product = order_product.id'
+            'order_product_price.product = order_product.id',
         );
 
 
@@ -219,7 +221,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_product',
             ProductEvent::class,
             'product_event',
-            'product_event.id = order_product.product'
+            'product_event.id = order_product.product',
         );
 
 
@@ -227,7 +229,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event',
             ProductInfo::class,
             'product_info',
-            'product_info.product = product_event.main '
+            'product_info.product = product_event.main ',
         );
 
 
@@ -235,7 +237,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event',
             ProductTrans::class,
             'product_trans',
-            'product_trans.event = product_event.id AND product_trans.local = :local'
+            'product_trans.event = product_event.id AND product_trans.local = :local',
         );
 
         /** Торговое предложение */
@@ -243,7 +245,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event',
             ProductOffer::class,
             'product_offer',
-            'product_offer.id = order_product.offer AND product_offer.event = product_event.id'
+            'product_offer.id = order_product.offer AND product_offer.event = product_event.id',
         );
 
 
@@ -252,7 +254,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_offer',
             CategoryProductOffers::class,
             'category_offer',
-            'category_offer.id = product_offer.category_offer'
+            'category_offer.id = product_offer.category_offer',
         );
 
         /** Название торгового предложения */
@@ -260,7 +262,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'category_offer',
             CategoryProductOffersTrans::class,
             'category_offer_trans',
-            'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local'
+            'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local',
         );
 
 
@@ -271,7 +273,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_offer',
             ProductVariation::class,
             'product_variation',
-            'product_variation.id = order_product.variation AND product_variation.offer = product_offer.id'
+            'product_variation.id = order_product.variation AND product_variation.offer = product_offer.id',
         );
 
         /* Получаем тип множественного варианта */
@@ -280,7 +282,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_variation',
             CategoryProductVariation::class,
             'category_variation',
-            'category_variation.id = product_variation.category_variation'
+            'category_variation.id = product_variation.category_variation',
         );
 
         /* Получаем название множественного варианта */
@@ -288,7 +290,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'category_variation',
             CategoryProductVariationTrans::class,
             'category_variation_trans',
-            'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local'
+            'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local',
         );
 
 
@@ -298,14 +300,14 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_variation',
             ProductModification::class,
             'product_modification',
-            'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id'
+            'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id',
         );
 
         $dbal->leftJoin(
             'product_modification',
             CategoryProductModification::class,
             'category_modification',
-            'category_modification.id = product_modification.category_modification'
+            'category_modification.id = product_modification.category_modification',
         );
 
         /* Получаем название типа модификации */
@@ -313,7 +315,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'category_modification',
             CategoryProductModificationTrans::class,
             'category_modification_trans',
-            'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
+            'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local',
         );
 
 
@@ -323,28 +325,28 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event',
             ProductPhoto::class,
             'product_photo',
-            'product_photo.event = product_event.id AND product_photo.root = true'
+            'product_photo.event = product_event.id AND product_photo.root = true',
         );
 
         $dbal->leftJoin(
             'product_offer',
             ProductOfferImage::class,
             'product_offer_image',
-            'product_offer_image.offer = product_offer.id AND product_offer_image.root = true'
+            'product_offer_image.offer = product_offer.id AND product_offer_image.root = true',
         );
 
         $dbal->leftJoin(
             'product_variation',
             ProductVariationImage::class,
             'product_variation_image',
-            'product_variation_image.variation = product_variation.id AND product_variation_image.root = true'
+            'product_variation_image.variation = product_variation.id AND product_variation_image.root = true',
         );
 
         $dbal->leftJoin(
             'product_modification',
             ProductModificationImage::class,
             'product_modification_image',
-            'product_modification_image.modification = product_modification.id AND product_modification_image.root = true'
+            'product_modification_image.modification = product_modification.id AND product_modification_image.root = true',
         );
 
 
@@ -356,7 +358,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event',
             ProductCategory::class,
             'product_event_category',
-            'product_event_category.event = product_event.id AND product_event_category.root = true'
+            'product_event_category.event = product_event.id AND product_event_category.root = true',
         );
 
 
@@ -364,7 +366,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event_category',
             CategoryProduct::class,
             'category',
-            'category.id = product_event_category.category'
+            'category.id = product_event_category.category',
         );
 
 
@@ -372,7 +374,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'category',
             CategoryProductTrans::class,
             'category_trans',
-            'category_trans.event = category.event AND category_trans.local = :local'
+            'category_trans.event = category.event AND category_trans.local = :local',
         );
 
 
@@ -380,7 +382,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'category',
             CategoryProductInfo::class,
             'category_info',
-            'category_info.event = category.event'
+            'category_info.event = category.event',
         );
 
 
@@ -462,7 +464,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 					)
 			
 			)
-			AS order_products"
+			AS order_products",
         );
 
 
@@ -472,7 +474,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_user',
             OrderDelivery::class,
             'order_delivery',
-            'order_delivery.usr = order_user.id'
+            'order_delivery.usr = order_user.id',
         );
 
 
@@ -483,14 +485,14 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_delivery',
                 OrderDeliveryPrice::class,
                 'order_delivery_price',
-                'order_delivery_price.delivery = order_delivery.id'
+                'order_delivery_price.delivery = order_delivery.id',
             );
 
         $dbal->leftJoin(
             'order_delivery',
             DeliveryEvent::class,
             'delivery_event',
-            'delivery_event.id = order_delivery.event'
+            'delivery_event.id = order_delivery.event',
         );
 
 
@@ -500,7 +502,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'delivery_event',
                 DeliveryTrans::class,
                 'delivery_trans',
-                'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local'
+                'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local',
             );
 
         $dbal
@@ -510,7 +512,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'delivery_event',
             DeliveryPrice::class,
             'delivery_price',
-            'delivery_price.event = delivery_event.id'
+            'delivery_price.event = delivery_event.id',
         );
 
         /* Адрес доставки */
@@ -523,7 +525,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_delivery',
             GeocodeAddress::class,
             'delivery_geocode',
-            'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
+            'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude',
         );
 
         /* Профиль пользователя */
@@ -532,7 +534,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_user',
             UserProfileEvent::class,
             'user_profile',
-            'user_profile.id = order_user.profile'
+            'user_profile.id = order_user.profile',
         );
 
         $dbal->addSelect('user_profile_info.discount AS order_profile_discount');
@@ -541,56 +543,75 @@ final class OrderDetailRepository implements OrderDetailInterface
             'user_profile',
             UserProfileInfo::class,
             'user_profile_info',
-            'user_profile_info.profile = user_profile.profile'
+            'user_profile_info.profile = user_profile.profile',
         );
 
         $dbal->leftJoin(
             'user_profile',
             UserProfileValue::class,
             'user_profile_value',
-            'user_profile_value.event = user_profile.id'
+            'user_profile_value.event = user_profile.id',
         );
+
+        /** Выбираем только контактный номер и телефон */
+        $dbal
+            ->join(
+                'user_profile_value',
+                TypeProfileSectionField::class,
+                'type_section_field_client',
+                '
+                        type_section_field_client.id = user_profile_value.field AND
+                        (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
+                    ')
+            ->setParameter(
+                'field_phone',
+                PhoneField::TYPE,
+            )
+            ->setParameter(
+                'field_contact',
+                ContactField::TYPE,
+            );
 
         $dbal->leftJoin(
             'user_profile',
             TypeProfile::class,
             'type_profile',
-            'type_profile.id = user_profile.type'
+            'type_profile.id = user_profile.type',
         );
 
-        $dbal->addSelect('type_profile_trans.name AS order_profile');
-        $dbal->leftJoin(
-            'type_profile',
-            TypeProfileTrans::class,
-            'type_profile_trans',
-            'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
-        );
+        $dbal
+            ->addSelect('type_profile_trans.name AS order_profile')
+            ->leftJoin(
+                'type_profile',
+                TypeProfileTrans::class,
+                'type_profile_trans',
+                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local',
+            );
 
         $dbal->leftJoin(
             'user_profile_value',
             TypeProfileSectionField::class,
             'type_profile_field',
-            'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
+            'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true',
         );
 
         $dbal->leftJoin(
             'type_profile_field',
             TypeProfileSectionFieldTrans::class,
             'type_profile_field_trans',
-            'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
+            'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
         );
 
         /* Автарка профиля клиента */
-        $dbal->addSelect("CONCAT ( '/upload/".$dbal->table(UserProfileAvatar::class)."' , '/', profile_avatar.name) AS profile_avatar_name");
-
         $dbal
+            ->addSelect("CONCAT ( '/upload/".$dbal->table(UserProfileAvatar::class)."' , '/', profile_avatar.name) AS profile_avatar_name")
             ->addSelect('profile_avatar.ext AS profile_avatar_ext')
             ->addSelect('profile_avatar.cdn AS profile_avatar_cdn')
             ->leftJoin(
                 'user_profile',
                 UserProfileAvatar::class,
                 'profile_avatar',
-                'profile_avatar.event = user_profile.id'
+                'profile_avatar.event = user_profile.id',
             );
 
 
@@ -600,14 +621,14 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'orders',
                 ProductStockOrder::class,
                 'stock_order',
-                'stock_order.ord = orders.id'
+                'stock_order.ord = orders.id',
             );
 
             $dbal->leftJoin(
                 'stock_order',
                 ProductStockEvent::class,
                 'stock_event',
-                'stock_event.id = orders.id'
+                'stock_event.id = orders.id',
             );
 
         }
@@ -627,7 +648,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 					)
 				
 			)
-			AS order_user"
+			AS order_user",
         );
 
         /** Получаем информацию о складской заявке */
@@ -650,7 +671,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->setParameter(
                 key: 'order',
                 value: $order,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         return $orm->getOneOrNullResult();

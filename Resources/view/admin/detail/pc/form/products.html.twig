@@ -15,7 +15,6 @@
 
     {% set card = product.vars.data.card %}
 
-
     <tr id='item_{{ product.vars.id }}'>
 
         <td rowspan="2">
@@ -139,13 +138,11 @@
                             <span class="h4 text-muted opacity-50">-</span>
                         </button>
 
-
                         {{ form_widget(product.price.price, { attr: {
                             class: 'form-control-sm rounded-3 price',
                             style: 'width: 75px;',
                             disabled: false
                         } }) }}
-
 
                         <button type="button" class="btn btn-sm plus"
                                 title="Увеличить количество"

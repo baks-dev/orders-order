@@ -1,3 +1,5 @@
+{# @var item \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
+
 <tr class="vertical-middle">
 
 
@@ -15,7 +17,7 @@
                 title='QR заказа'
         >
                 <a
-                        href="{{ path('orders-order:admin.order.qrcode', { id : item.order_id }) }}"
+                        href="{{ path('orders-order:admin.order.qrcode', { id : item.orderId }) }}"
                         class="btn-link btn p-0 modal-link disabled icon"
                         data-bs-toggle="modal"
                         data-bs-target="#modal"
@@ -35,13 +37,13 @@
 
     <td class="w-100">
 
-        <button data-href='{{ path('orders-order:admin.detail', { id: item.order_id }) }}'
-                data-id='{{ item.order_id }}'
+        <button data-href='{{ path('orders-order:admin.detail', { id: item.orderId }) }}'
+                data-id='{{ item.orderId }}'
                 class="btn btn-sm btn-link fw-bolder mb-1 text-decoration-none product-name offcanvas-link"
         >
-            {{ item.order_number }}
+            {{ item.orderNumber }}
             <span class="badge bg-light text-dark fw-bolder p1 text-start ms-3">
-                {{ item.order_profile }}
+                {{ item.orderProfile }}
             </span>
         </button>
 
@@ -49,17 +51,45 @@
         &nbsp;
         <div class="d-flex gap-3">
 
-            {% set users = item.order_user|json_decode %}
+            {# {% set users = item.order_user|json_decode %}
 
             {% for user in users %}
                 <div class='{{ loop.first ? "fw-bolder" }}'>
                     {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
                 </div>
-            {% endfor %}
+            {% endfor %} #}
+
+            {% if item.clientName %}
+                <div class='mb-1 text-truncate pointer'
+                     style="max-width: calc(100%);"
+                     role="tooltip"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     data-bs-delay='{"show":200,"hide":100}'
+                     title='{{ item.clientName.profile_value }}'
+                >
+                    {{ item.clientName.profile_value|call_twig_func(item.clientName.profile_type~'_template') }}
+                </div>
+            {% endif %}
+
+            {% if item.clientPhone %}
+                <div class='mb-1 text-truncate pointer {{ loop.first ? "fw-bolder" }}'
+                     style="max-width: calc(100%);"
+                     role="tooltip"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     data-bs-delay='{"show":200,"hide":100}'
+                     title='{{ item.clientPhone.profile_value }}'
+                >
+                    {{ item.clientPhone.profile_value|call_twig_func(item.clientPhone.profile_type~'_template') }}
+                </div>
+            {% endif %}
+
+
         </div>
 
         {# Комментарий  #}
-        {% if item.order_comment %}
+        {% if item.orderComment %}
             <div class="text-danger fw-bolder">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                      xmlns="http://www.w3.org/2000/svg">
@@ -69,23 +99,23 @@
                     <rect x="6" y="12" width="7" height="2" rx="1" fill="currentColor"></rect>
                     <rect x="6" y="7" width="12" height="2" rx="1" fill="currentColor"></rect>
                 </svg>
-                &nbsp; {{ item.order_comment }}
+                &nbsp; {{ item.orderComment }}
             </div>
         {% endif %}
     </td>
 
     <td class="text-nowrap ">
-        {{ item.stock_profile_username }}
+        {{ item.stockProfileUsername }}
     </td>
     <td class="text-center">
-        {{ order_status(item.order_status) }}
+        {{ order_status(item.orderStatus) }}
     </td>
 
     <td class="text-center text-nowrap">
-        {{ item.order_created|date('d.m.Y H:i') }}
+        {{ item.orderCreated|date('d.m.Y H:i') }}
     </td>
     <td class="text-nowrap">
-        {{ item.modify|date('d.m.Y H:i') }}
+        {{ item.dateModify|date('d.m.Y H:i') }}
     </td>
 </tr>
 

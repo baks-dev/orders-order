@@ -33,6 +33,8 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
+use BaksDev\Field\Pack\Contact\Type\ContactField;
+use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
@@ -81,6 +83,8 @@ final class AllOrdersRepository implements AllOrdersInterface
 
     private ?int $limit = null;
 
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
@@ -113,10 +117,22 @@ final class AllOrdersRepository implements AllOrdersInterface
         return $this;
     }
 
+    public function forProfile(UserProfileUid|UserProfile $profile): self
+    {
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
+
     /**
      * Метод возвращает список заказов
      */
-    public function findPaginator(UserProfileUid|UserUid $usr): PaginatorInterface
+    public function findPaginator(): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -136,18 +152,14 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_invariable',
 
                 '
-                    order_invariable.main = orders.id AND 
-                    (order_invariable.usr IS NULL OR order_invariable.usr = :user)
-                '.($this->status?->equals(OrderStatusNew::class) ? ' AND (order_invariable.profile IS NULL OR order_invariable.profile = :profile)' : ' AND order_invariable.profile = :profile')
-            )
-            ->setParameter(
-                key: 'user',
-                value: $this->UserProfileTokenStorage->getUser(),
-                type: UserUid::TYPE,
+                    order_invariable.main = orders.id AND
+                '.(($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
+                    ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
+                    : ' order_invariable.profile = :profile'),
             )
             ->setParameter(
                 key: 'profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
+                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
 
@@ -166,17 +178,22 @@ final class AllOrdersRepository implements AllOrdersInterface
         //        }
 
 
-        if($this->filter?->getStatus())
+        if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
         {
             $this->status = $this->filter->getStatus();
         }
 
         $condition = 'order_event.id = orders.event';
 
-        if($this->status)
+        if($this->status instanceof OrderStatus)
         {
             $condition .= ' AND order_event.status = :status';
-            $dbal->setParameter('status', $this->status, OrderStatus::TYPE);
+
+            $dbal->setParameter(
+                key: 'status',
+                value: $this->status,
+                type: OrderStatus::TYPE,
+            );
         }
 
         $dbal
@@ -184,7 +201,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderEvent::class,
                 'order_event',
-                $condition
+                $condition,
             );
 
         $dbal
@@ -193,7 +210,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderModify::class,
                 'orders_modify',
-                'orders_modify.event = orders.event'
+                'orders_modify.event = orders.event',
             );
 
         /**
@@ -205,7 +222,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_invariable',
                 UserProfile::class,
                 'stock_profile',
-                'stock_profile.id = order_invariable.profile'
+                'stock_profile.id = order_invariable.profile',
             );
 
         $dbal
@@ -215,7 +232,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'stock_profile',
                 UserProfilePersonal::class,
                 'stock_profile_personal',
-                'stock_profile_personal.event = stock_profile.event'
+                'stock_profile_personal.event = stock_profile.event',
             );
 
 
@@ -224,7 +241,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderProduct::class,
                 'order_products',
-                'order_products.event = orders.event'
+                'order_products.event = orders.event',
             );
 
 
@@ -234,7 +251,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_products',
                 OrderPrice::class,
                 'order_products_price',
-                'order_products_price.product = order_products.id'
+                'order_products_price.product = order_products.id',
             );
 
 
@@ -243,7 +260,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderUser::class,
                 'order_user',
-                'order_user.event = orders.event'
+                'order_user.event = orders.event',
             );
 
         // Доставка
@@ -257,7 +274,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_user',
                 OrderDelivery::class,
                 'order_delivery',
-                'order_delivery.usr = order_user.id'
+                'order_delivery.usr = order_user.id',
             );
         //}
 
@@ -268,11 +285,12 @@ final class AllOrdersRepository implements AllOrdersInterface
                     'order_delivery',
                     DeliveryEvent::class,
                     'delivery_event',
-                    'delivery_event.id = order_delivery.event AND delivery_event.main = :delivery'
-                )->setParameter(
-                    'delivery',
-                    $this->filter->getDelivery(),
-                    DeliveryUid::TYPE
+                    'delivery_event.id = order_delivery.event AND delivery_event.main = :delivery',
+                )
+                ->setParameter(
+                    key: 'delivery',
+                    value: $this->filter->getDelivery(),
+                    type: DeliveryUid::TYPE,
                 );
 
 
@@ -284,7 +302,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     'order_delivery',
                     DeliveryEvent::class,
                     'delivery_event',
-                    'delivery_event.id = order_delivery.event'
+                    'delivery_event.id = order_delivery.event',
                 );
         }
 
@@ -295,7 +313,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'delivery_event',
                 DeliveryPrice::class,
                 'delivery_price',
-                'delivery_price.event = delivery_event.id'
+                'delivery_price.event = delivery_event.id',
             );
 
 
@@ -307,7 +325,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_delivery',
                 OrderDeliveryPrice::class,
                 'order_delivery_price',
-                'order_delivery_price.delivery = order_delivery.id'
+                'order_delivery_price.delivery = order_delivery.id',
             );
 
 
@@ -317,7 +335,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'delivery_event',
                 DeliveryTrans::class,
                 'delivery_trans',
-                'delivery_trans.event = delivery_event.id'
+                'delivery_trans.event = delivery_event.id',
             );
 
 
@@ -328,7 +346,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_user',
                 UserProfileEvent::class,
                 'user_profile',
-                'user_profile.id = order_user.profile'
+                'user_profile.id = order_user.profile',
             );
 
         $dbal
@@ -337,9 +355,8 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile',
                 UserProfileInfo::class,
                 'user_profile_info',
-                'user_profile_info.profile = user_profile.profile ' //.($usr instanceof UserUid ? ' AND (user_profile_info.usr IS NULL OR user_profile_info.usr = :user)' : '')
-            )//->setParameter('user', $usr, UserUid::TYPE)
-        ;
+                'user_profile_info.profile = user_profile.profile ',
+            );
 
 
         $dbal
@@ -347,7 +364,27 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile',
                 UserProfileValue::class,
                 'user_profile_value',
-                'user_profile_value.event = user_profile.id'
+                'user_profile_value.event = user_profile.id',
+            );
+
+
+        /** Выбираем только контактный номер и телефон */
+        $dbal
+            ->join(
+                'user_profile_value',
+                TypeProfileSectionField::class,
+                'type_section_field_client',
+                '
+                        type_section_field_client.id = user_profile_value.field AND
+                        (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
+                    ')
+            ->setParameter(
+                'field_phone',
+                PhoneField::TYPE,
+            )
+            ->setParameter(
+                'field_contact',
+                ContactField::TYPE,
             );
 
 
@@ -356,7 +393,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile',
                 TypeProfile::class,
                 'type_profile',
-                'type_profile.id = user_profile.type'
+                'type_profile.id = user_profile.type',
             );
 
 
@@ -367,7 +404,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile_info',
                 Account::class,
                 'account',
-                'account.id = user_profile_info.usr'
+                'account.id = user_profile_info.usr',
             );
 
 
@@ -377,7 +414,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'account',
                 AccountEvent::class,
                 'account_event',
-                'account_event.id = account.event'
+                'account_event.id = account.event',
             );
 
         /**
@@ -390,7 +427,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'type_profile',
                 TypeProfileTrans::class,
                 'type_profile_trans',
-                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
+                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local',
             );
 
         $dbal
@@ -398,7 +435,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'user_profile_value',
                 TypeProfileSectionField::class,
                 'type_profile_field',
-                'type_profile_field.id = user_profile_value.field'
+                'type_profile_field.id = user_profile_value.field',
             );
 
         $dbal
@@ -406,7 +443,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'type_profile_field',
                 TypeProfileSectionFieldTrans::class,
                 'type_profile_field_trans',
-                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
+                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
             );
 
         $dbal->addSelect(
@@ -424,7 +461,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 					)
 				
 			)
-			AS order_user"
+			AS order_user",
         );
 
 
@@ -433,78 +470,68 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         // если имеется таблица складского учета - проверяем, имеется ли заказ в перемещении
 
-        if(!$this->status?->equals(OrderStatusNew::class) && class_exists(ProductStock::class))
-        {
-            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+        //        if(false && class_exists(ProductStock::class) && $this->status instanceof OrderStatus && false === $this->status->equals(OrderStatusNew::class))
+        //        {
+        //            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+        //
+        //            $dbalExist
+        //                ->select('1')
+        //                ->from(ProductStockMove::class, 'move')
+        //                ->where('move.ord = orders.id');
+        //
+        //            $dbalExist->join(
+        //                'move',
+        //                ProductStockEvent::class,
+        //                'move_event',
+        //                'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)',
+        //            );
+        //
+        //
+        //            $dbalExist->join(
+        //                'move_event',
+        //                ProductStock::class,
+        //                'move_stock',
+        //                'move_stock.event = move_event.id',
+        //            );
+        //
+        //            $dbal->addSelect(sprintf('EXISTS(%s) AS order_move', $dbalExist->getSQL()));
+        //
+        //
+        //            $dbal->setParameter('moving', new ProductStockStatus(new ProductStockStatus\ProductStockStatusMoving()), ProductStockStatus::TYPE);
+        //            $dbal->setParameter('extradition', new ProductStockStatus(new ProductStockStatus\ProductStockStatusExtradition()), ProductStockStatus::TYPE);
+        //
+        //
+        //            $dbal
+        //                ->leftJoin(
+        //                    'orders',
+        //                    ProductStockOrder::class,
+        //                    'stock_order',
+        //                    'stock_order.ord = orders.id',
+        //                );
+        //
+        //            $dbal
+        //                ->leftJoin(
+        //                    'stock_order',
+        //                    ProductStock::class,
+        //                    'stock',
+        //                    'stock.event = stock_order.event',
+        //                );
+        //
+        //
+        //            $dbal
+        //                ->leftJoin(
+        //                    'stock_order',
+        //                    ProductStockEvent::class,
+        //                    'stock_event',
+        //                    'stock_event.id = stock_order.event',
+        //                );
+        //        }
+        //        else
+        //        {
+        //            $dbal->addSelect('FALSE AS order_move');
+        //        }
 
-            $dbalExist
-                ->select('1')
-                ->from(ProductStockMove::class, 'move')
-                ->where('move.ord = orders.id');
-
-            $dbalExist->join(
-                'move',
-                ProductStockEvent::class,
-                'move_event',
-                'move_event.id = move.event AND (move_event.status = :moving OR move_event.status = :extradition)'
-            );
-
-
-            $dbalExist->join(
-                'move_event',
-                ProductStock::class,
-                'move_stock',
-                'move_stock.event = move_event.id'
-            );
-
-            $dbal->addSelect(sprintf('EXISTS(%s) AS order_move', $dbalExist->getSQL()));
-
-
-            $dbal->setParameter('moving', new ProductStockStatus(new ProductStockStatus\ProductStockStatusMoving()), ProductStockStatus::TYPE);
-            $dbal->setParameter('extradition', new ProductStockStatus(new ProductStockStatus\ProductStockStatusExtradition()), ProductStockStatus::TYPE);
-
-
-            $dbal
-                ->leftJoin(
-                    'orders',
-                    ProductStockOrder::class,
-                    'stock_order',
-                    'stock_order.ord = orders.id'
-                );
-
-            $dbal
-                ->leftJoin(
-                    'stock_order',
-                    ProductStock::class,
-                    'stock',
-                    'stock.event = stock_order.event'
-                );
-
-
-            $dbal
-                ->leftJoin(
-                    'stock_order',
-                    ProductStockEvent::class,
-                    'stock_event',
-                    'stock_event.id = stock_order.event'
-                );
-
-
-            // Профиль ответственного (Клиент)
-
-            //            $dbal->leftJoin(
-            //                'order_user',
-            //                UserProfileEvent::class,
-            //                'user_profile',
-            //                'user_profile.id = order_user.profile'
-            //            );
-
-
-        }
-        else
-        {
-            $dbal->addSelect('FALSE AS order_move');
-        }
+        $dbal->addSelect('FALSE AS order_move');
 
 
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
@@ -520,14 +547,14 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'move',
                 ProductStockEvent::class,
                 'move_event',
-                'move_event.id = move.event AND move_event.status = :error'
+                'move_event.id = move.event AND move_event.status = :error',
             );
 
             $dbalExistMoveError->join(
                 'move_event',
                 ProductStock::class,
                 'move_stock',
-                'move_stock.event = move_event.id'
+                'move_stock.event = move_event.id',
             );
 
             $dbal->addSelect(sprintf('EXISTS(%s) AS move_error', $dbalExistMoveError->getSQL()));
@@ -544,14 +571,14 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'stock_order',
                 ProductStockEvent::class,
                 'stock_order_event',
-                'stock_order_event.id = stock_order.event AND stock_order_event.status = :error'
+                'stock_order_event.id = stock_order.event AND stock_order_event.status = :error',
             );
 
             $dbalExistOrderError->join(
                 'stock_order_event',
                 ProductStock::class,
                 'stock_order_stock',
-                'stock_order_stock.event = stock_order_event.id'
+                'stock_order_stock.event = stock_order_event.id',
             );
 
 
@@ -578,11 +605,11 @@ final class AllOrdersRepository implements AllOrdersInterface
 					)
 		
 			)
-			AS product_price"
+			AS product_price",
         );
 
 
-        if($this->search?->getQuery())
+        if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
 
             // Product Event
@@ -590,7 +617,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_products',
                 ProductEvent::class,
                 'product_event',
-                'product_event.id = order_products.product'
+                'product_event.id = order_products.product',
             );
 
 
@@ -599,7 +626,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'product_event',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product_event.main'
+                'product_info.product = product_event.main',
             );
 
 
@@ -608,7 +635,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     'order_products',
                     ProductOffer::class,
                     'product_offer',
-                    'product_offer.id = order_products.offer'
+                    'product_offer.id = order_products.offer',
                 );
 
 
@@ -617,7 +644,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     'order_products',
                     ProductVariation::class,
                     'product_variation',
-                    'product_variation.id = order_products.variation'
+                    'product_variation.id = order_products.variation',
                 );
 
             $dbal
@@ -625,7 +652,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                     'order_products',
                     ProductModification::class,
                     'product_modification',
-                    'product_modification.id = order_products.modification'
+                    'product_modification.id = order_products.modification',
                 );
 
 
@@ -652,7 +679,7 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
 
         if(
-            is_null($this->status) ||
+            false === ($this->status instanceof OrderStatus) ||
             $this->status->equals(OrderStatusCompleted::class) ||
             $this->status->equals(OrderStatusMarketplace::class)
         )
@@ -667,6 +694,6 @@ final class AllOrdersRepository implements AllOrdersInterface
             $this->paginator->setLimit($this->limit);
         }
 
-        return $this->paginator->fetchAllAssociative($dbal);
+        return $this->paginator->fetchAllHydrate($dbal, AllOrdersResult::class);
     }
 }

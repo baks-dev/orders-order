@@ -1,6 +1,5 @@
 {% trans_default_domain('user.order') %}
 
-
 <div id='user_delivery'>
 
     <div class="d-flex justify-content-between">
@@ -14,8 +13,11 @@
 
                     <div class='mb-1'>
                         {% if delivery.vars.attr['data-price'] %}
-                            <strong>({{ money((delivery.vars.attr['data-price'] * 100), delivery.vars.attr['data-currency'] ) }}
-                                )</strong>
+
+                            <strong>
+                                ({{ money((delivery.vars.attr['data-price'] * 100), delivery.vars.attr['data-currency'] ) }}
+                                )
+                            </strong>
 
                             {% if delivery.vars.attr['data-excess'] %}
                                 &nbsp; <span

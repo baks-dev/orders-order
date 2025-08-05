@@ -1,6 +1,8 @@
 {# Пользовательское меню #}
 
-{% set identifier = item.order_id %}
+{# @var item \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
+
+{% set identifier = item.orderId %}
 
 <button class="btn btn-link btn-sm d-flex align-items-center"
         id="usecase-{{ identifier }}"
@@ -31,10 +33,10 @@
             </a>
         </li> #}
 
-        {% if item.order_status != 'canceled' and item.order_status != 'completed' and ( is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') ) %}
+        {% if item.orderStatusEquals('canceled') == false  and item.orderStatusEquals('completed') == false and ( is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') ) %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('orders-order:admin.order.canceled', { id: item.order_event }) }}"
+                <a href="{{ path('orders-order:admin.order.canceled', { id: item.orderEvent }) }}"
                    class="text-decoration-none text-dark w-100 modal-link disabled"
                    data-bs-toggle="modal"
                    data-bs-target="#modal"

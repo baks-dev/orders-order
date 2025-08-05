@@ -555,7 +555,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         /** Выбираем только контактный номер и телефон */
         $dbal
-            ->join(
+            ->leftJoin(
                 'user_profile_value',
                 TypeProfileSectionField::class,
                 'type_section_field_client',

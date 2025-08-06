@@ -58,8 +58,8 @@ final class AllOrdersResult
         private readonly ?int $order_delivery_price, //  null
         private readonly ?string $order_delivery_currency, //  null
 
-        private readonly string $delivery_name, //  "Самовывоз"
-        private readonly string $delivery_date, //  "2025-08-05 00:00:00"
+        private readonly ?string $delivery_name, //  "Самовывоз"
+        private readonly ?string $delivery_date, //  "2025-08-05 00:00:00"
         private readonly ?int $delivery_price, //  0
 
         private readonly ?string $order_profile_discount, //  null
@@ -185,14 +185,14 @@ final class AllOrdersResult
         return new Currency($this->order_delivery_currency);
     }
 
-    public function getDeliveryName(): string
+    public function getDeliveryName(): ?string
     {
         return $this->delivery_name;
     }
 
     public function getDeliveryDate(): DateTimeImmutable
     {
-        return new DateTimeImmutable($this->delivery_date);
+        return new DateTimeImmutable($this->delivery_date ?: 'now');
     }
 
     public function getDeliveryPrice(): Money|false

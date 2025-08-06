@@ -40,7 +40,7 @@ class OrderStatusMarketplace implements OrderStatusInterface, VoterInterface
 {
     public const string STATUS = 'marketplace';
 
-    private static int $sort = 600;
+    private static int $sort = 710;
 
     private static string $color = '#FFC107';
 

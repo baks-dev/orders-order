@@ -368,9 +368,9 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
 
-        /** Выбираем только контактный номер и телефон */
+        /** Выбираем только контакт и номер телефон */
         $dbal
-            ->join(
+            ->leftJoin(
                 'user_profile_value',
                 TypeProfileSectionField::class,
                 'type_section_field_client',

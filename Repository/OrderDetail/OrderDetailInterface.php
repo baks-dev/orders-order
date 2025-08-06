@@ -43,9 +43,5 @@ interface OrderDetailInterface
      */
     public function fetchDetailOrderAssociative(OrderUid $order): array|null;
 
-    /**
-     * Метод возвращает объект с информацией об заказе
-     */
-    public function getDetailOrder(OrderUid $order): mixed;
 
 }

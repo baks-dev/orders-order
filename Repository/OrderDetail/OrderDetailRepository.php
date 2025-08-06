@@ -658,22 +658,4 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         return $dbal;
     }
-
-    /** Метод возвращает корень агрегата заказа по идентификатору */
-    public function getDetailOrder(OrderUid $order): mixed
-    {
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
-
-        $orm
-            ->select('orders')
-            ->from(Order::class, 'orders')
-            ->where('orders.id = :order')
-            ->setParameter(
-                key: 'order',
-                value: $order,
-                type: OrderUid::TYPE,
-            );
-
-        return $orm->getOneOrNullResult();
-    }
 }

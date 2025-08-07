@@ -36,6 +36,8 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -48,6 +50,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 {
     public function __construct(
         private OrderEventInterface $OrderEventRepository,
+        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -95,6 +98,27 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
             ->find($message->getEvent());
 
         if(false === ($CurrentOrderEvent instanceof OrderEvent))
+        {
+            return;
+        }
+
+
+        /**
+         * Проверяем, является ли данный профиль логистическим складом
+         */
+
+        $UserProfileUid = $CurrentOrderEvent->getOrderProfile();
+
+        if(false === ($UserProfileUid instanceof UserProfileUid))
+        {
+            return;
+        }
+
+        $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
+            ->forProfile($UserProfileUid)
+            ->isLogisticWarehouse();
+
+        if(false === $isLogisticWarehouse)
         {
             return;
         }

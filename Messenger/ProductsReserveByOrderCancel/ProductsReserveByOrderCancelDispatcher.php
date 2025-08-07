@@ -40,6 +40,8 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -56,6 +58,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         private OrderEventInterface $OrderEventRepository,
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private CurrentProductIdentifierInterface $CurrentProductIdentifierRepository,
+        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -109,6 +112,26 @@ final readonly class ProductsReserveByOrderCancelDispatcher
 
                 return;
             }
+        }
+
+        /**
+         * Проверяем, является ли данный профиль логистическим складом
+         */
+
+        $UserProfileUid = $OrderEvent->getOrderProfile();
+
+        if(false === ($UserProfileUid instanceof UserProfileUid))
+        {
+            return;
+        }
+
+        $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
+            ->forProfile($UserProfileUid)
+            ->isLogisticWarehouse();
+
+        if(false === $isLogisticWarehouse)
+        {
+            return;
         }
 
         $this->logger->info(

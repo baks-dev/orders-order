@@ -27,6 +27,8 @@ namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
@@ -37,6 +39,7 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -65,6 +68,7 @@ class BasketController extends AbstractController
 
         #[MapQueryParameter] string|null $share = null,
         #[Autowire(env: 'PROJECT_USER')] string|null $projectUser = null,
+        #[Autowire(env: 'PROJECT_PROFILE')] string|null $projectProfile = null,
         #[Autowire(env: 'HOST')] string|null $HOST = null,
 
     ): Response
@@ -195,7 +199,7 @@ class BasketController extends AbstractController
             $Latitude = $OrderDeliveryDTO->getLatitude();
             $Longitude = $OrderDeliveryDTO->getLongitude();
 
-            if($Latitude === null || $Longitude === null)
+            if(false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
             {
                 $comment = 'Требуется уточнить адрес доставки!';
 
@@ -219,10 +223,50 @@ class BasketController extends AbstractController
 
             if(true === $profiles->valid())
             {
+
+                if(
+                    (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
+                    && empty($projectProfile)
+                )
+                {
+                    /**
+                     * Если геоданные адреса доставки не определены
+                     * и НЕ УКАЗАН профиль проекта - указываем координаты склада Current
+                     *
+                     * @var UserProfileByRegionResult $UserProfileByRegionResult
+                     */
+                    $UserProfileByRegionResult = $profiles->current();
+                    $Latitude = $UserProfileByRegionResult->getLatitude();
+                    $Longitude = $UserProfileByRegionResult->getLongitude();
+                }
+
+
                 $warehouse = null;
 
                 foreach($profiles as $profile)
                 {
+                    if(
+                        (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
+                        && empty($projectProfile)
+                    )
+                    {
+                        /**
+                         * Если геоданные адреса доставки не определены
+                         * УКАЗАН профиль проекта - указываем координаты склада проекта
+                         *
+                         * @var UserProfileByRegionResult $UserProfileByRegionResult
+                         */
+
+                        if(false === $profile->getId()->equals($projectProfile))
+                        {
+                            continue;
+                        }
+
+                        $Latitude = $profile->getLatitude();
+                        $Longitude = $profile->getLongitude();
+                    }
+
+
                     $distance = $GeocodeDistance
                         ->fromLatitude($profile->getLatitude())
                         ->fromLongitude($profile->getLongitude())
@@ -292,8 +336,8 @@ class BasketController extends AbstractController
                     $postfix = (string) ($ProductDetail->getProductModificationPostfix() ?: $ProductDetail->getProductVariationPostfix() ?: $ProductDetail->getProductOfferPostfix() ?: null);
 
                     return $this->redirectToRoute('products-product:public.detail', [
-                        'category' => (string) $ProductDetail->getCategoryUrl(),
-                        'url' => (string) $ProductDetail->getProductUrl(),
+                        'category' => $ProductDetail->getCategoryUrl(),
+                        'url' => $ProductDetail->getProductUrl(),
                         'offer' => (string) $ProductDetail->getProductOfferValue(),
                         'variation' => (string) $ProductDetail->getProductVariationValue(),
                         'modification' => (string) $ProductDetail->getProductModificationValue(),
@@ -309,9 +353,9 @@ class BasketController extends AbstractController
             if($Order instanceof Order)
             {
                 $this->addFlash(
-                    'success',
-                    'user.order.new.success',
-                    'user.order',
+                    type: 'success',
+                    message: 'user.order.new.success',
+                    arguments: 'user.order',
                 );
 
                 // Удаляем кеш
@@ -323,7 +367,11 @@ class BasketController extends AbstractController
                 );
             }
 
-            $this->addFlash('danger', 'user.order.new.danger', 'user.order', $Order);
+            $this->addFlash(
+                type: 'danger',
+                message: 'user.order.new.danger',
+                domain: 'user.order',
+                arguments: $Order);
         }
 
         return $this->render([

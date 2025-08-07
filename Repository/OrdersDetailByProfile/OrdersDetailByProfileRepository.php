@@ -61,6 +61,11 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Products\Sign\BaksDevProductsSignBundle;
+use BaksDev\Products\Sign\Entity\Event\ProductSignEvent;
+use BaksDev\Products\Sign\Entity\Invariable\ProductSignInvariable;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
@@ -415,7 +420,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
 					JSONB_BUILD_OBJECT
 					(
 						/* свойства для сортировки JSON */
-						'product_id', order_product.id,
+						'product_id', product_event.main,
 						'product_url', product_info.url,
 						'product_article', product_info.article,
 						'product_name', product_trans.name,
@@ -621,6 +626,42 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
 
         }
 
+        /** Получаем информацию о честном знаке на продукцию */
+
+        if(class_exists(BaksDevProductsSignBundle::class))
+        {
+
+            $dbal
+                ->leftJoin(
+                    'stock_order',
+                    ProductSignEvent::class,
+                    'product_sign_event',
+                    '
+                    product_sign_event.ord = orders.id 
+                    AND product_sign_event.status = :sign_status
+                ')
+                ->setParameter(
+                    key: 'sign_status',
+                    value: ProductSignStatusDone::class,
+                    type: ProductSignStatus::TYPE,
+                );
+
+            $dbal
+                ->addSelect('product_sign_invariable.part AS sign_part')
+                ->leftJoin(
+                    'product_sign_event',
+                    ProductSignInvariable::class,
+                    'product_sign_invariable',
+                    '
+                    product_sign_invariable.main = product_sign_event.main
+                    AND product_sign_invariable.product = product_event.main
+                    AND product_sign_invariable.offer = product_offer.const
+                    AND product_sign_invariable.variation = product_variation.const
+                ',
+                );
+
+        }
+
         $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -642,6 +683,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         );
 
         $dbal->allGroupByExclude();
+
 
         return $dbal;
     }

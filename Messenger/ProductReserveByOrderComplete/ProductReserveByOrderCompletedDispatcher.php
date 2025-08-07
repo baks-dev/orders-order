@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -49,12 +50,12 @@ final readonly class ProductReserveByOrderCompletedDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
+        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
         private OrderEventInterface $OrderEventRepository,
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch
     ) {}
-
 
     public function __invoke(OrderMessage $message): void
     {
@@ -106,6 +107,28 @@ final readonly class ProductReserveByOrderCompletedDispatcher
                 return;
             }
         }
+
+
+        /**
+         * Проверяем, является ли данный профиль логистическим складом
+         */
+
+        $UserProfileUid = $OrderEvent->getOrderProfile();
+
+        if(false === ($UserProfileUid instanceof UserProfileUid))
+        {
+            return;
+        }
+
+        $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
+            ->forProfile($UserProfileUid)
+            ->isLogisticWarehouse();
+
+        if(false === $isLogisticWarehouse)
+        {
+            return;
+        }
+
 
         $this->logger->info(
             sprintf(

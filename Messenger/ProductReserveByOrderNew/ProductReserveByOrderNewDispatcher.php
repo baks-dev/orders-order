@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -51,6 +52,7 @@ final readonly class ProductReserveByOrderNewDispatcher
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private OrderEventInterface $orderEventRepository,
         private CurrentOrderEventInterface $CurrentOrderEvent,
+        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
     ) {}
@@ -113,6 +115,28 @@ final readonly class ProductReserveByOrderNewDispatcher
                 return;
             }
         }
+
+        /**
+         * Проверяем, является ли данный профиль логистическим складом
+         */
+
+        $UserProfileUid = $OrderEvent->getOrderProfile();
+
+        if(false === ($UserProfileUid instanceof UserProfileUid))
+        {
+            return;
+        }
+
+        $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
+            ->forProfile($UserProfileUid)
+            ->isLogisticWarehouse();
+
+        if(false === $isLogisticWarehouse)
+        {
+            return;
+        }
+
+
 
         $this->logger->info(
             sprintf('%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)', $OrderEvent->getOrderNumber()),

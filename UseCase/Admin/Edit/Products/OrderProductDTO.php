@@ -27,16 +27,24 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\Type\Product\OrderProductUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Posting\OrderProductPostingDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use Doctrine\Common\Collections\ArrayCollection;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderProductDTO implements OrderProductInterface
 {
+    /** Идентификатор продукта в заказе */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private OrderProductUid $id;
+
     /** Событие продукта */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -50,7 +58,7 @@ final class OrderProductDTO implements OrderProductInterface
     #[Assert\Uuid]
     private ?ProductVariationUid $variation = null;
 
-    /** Модификация множественного враинта торгового предложения  */
+    /** Модификация множественного варианта торгового предложения  */
     #[Assert\Uuid]
     private ?ProductModificationUid $modification = null;
 
@@ -58,24 +66,38 @@ final class OrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private OrderPriceDTO $price;
 
+    /**
+     * Коллекция разделенных отправлений одного заказа
+     *
+     * @var ArrayCollection<int, OrderProductPostingDTO> $posting
+     */
+    #[Assert\Valid]
+    private ArrayCollection $posting;
 
     /** Карточка товара */
     private ProductUserBasketResult|null $card = null;
 
-
     public function __construct()
     {
         $this->price = new OrderPriceDTO();
+        $this->posting = new ArrayCollection();
     }
 
+    public function getOrderProductId(): OrderProductUid
+    {
+        return $this->id;
+    }
+
+    public function setId(OrderProductUid $id): void
+    {
+        $this->id = $id;
+    }
 
     /** Событие продукта */
-
     public function getProduct(): ProductEventUid
     {
         return $this->product;
     }
-
 
     public function setProduct(ProductEventUid|string $product): void
     {
@@ -92,14 +114,11 @@ final class OrderProductDTO implements OrderProductInterface
         $this->product = $product;
     }
 
-
     /** Торговое предложение */
-
     public function getOffer(): ?ProductOfferUid
     {
         return $this->offer;
     }
-
 
     public function setOffer(ProductOfferUid|string|null $offer): void
     {
@@ -111,14 +130,11 @@ final class OrderProductDTO implements OrderProductInterface
         $this->offer = $offer;
     }
 
-
     /** Множественный вариант торгового предложения */
-
     public function getVariation(): ?ProductVariationUid
     {
         return $this->variation;
     }
-
 
     public function setVariation(ProductVariationUid|string|null $variation): void
     {
@@ -130,14 +146,11 @@ final class OrderProductDTO implements OrderProductInterface
         $this->variation = $variation;
     }
 
-
     /** Модификация множественного варианта торгового предложения  */
-
     public function getModification(): ?ProductModificationUid
     {
         return $this->modification;
     }
-
 
     public function setModification(ProductModificationUid|string|null $modification): void
     {
@@ -149,9 +162,7 @@ final class OrderProductDTO implements OrderProductInterface
         $this->modification = $modification;
     }
 
-
     /** Стоимость и количество */
-
     public function getPrice(): OrderPriceDTO
     {
         return $this->price;
@@ -162,9 +173,7 @@ final class OrderProductDTO implements OrderProductInterface
         $this->price = $price;
     }
 
-
     /** Карточка товара */
-
     public function getCard(): ?ProductUserBasketResult
     {
         return $this->card;
@@ -175,4 +184,31 @@ final class OrderProductDTO implements OrderProductInterface
         $this->card = $card ?: [];
     }
 
+    /**
+     * Коллекция разделенных отправлений одного заказа
+     *
+     * @return ArrayCollection<int, OrderProductPostingDTO>
+     */
+    public function getPosting(): ArrayCollection
+    {
+        return $this->posting;
+    }
+
+
+    public function addPosting(OrderProductPostingDTO $posting): void
+    {
+        $exist = $this->posting->exists(function(int $key, OrderProductPostingDTO $element) use ($posting) {
+            return $element->getValue() === $posting->getValue();
+        });
+
+        if(false === $exist)
+        {
+            $this->posting->add($posting);
+        }
+    }
+
+    public function removePosting(OrderProductPostingDTO $posting): void
+    {
+        $this->posting->removeElement($posting);
+    }
 }

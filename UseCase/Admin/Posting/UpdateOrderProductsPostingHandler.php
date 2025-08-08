@@ -33,7 +33,7 @@ final class UpdateOrderProductsPostingHandler extends AbstractHandler
 {
     public function handle(OrderProductDTO $command): string|OrderProduct
     {
-        $this
+        $entity = $this
             ->setCommand($command)
             ->prePersistOrUpdate(OrderProduct::class, ['id' => $command->getOrderProductId()]);
 
@@ -45,6 +45,6 @@ final class UpdateOrderProductsPostingHandler extends AbstractHandler
 
         $this->flush();
 
-        return $this->main;
+        return $entity;
     }
 }

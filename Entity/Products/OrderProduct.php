@@ -27,17 +27,16 @@ namespace BaksDev\Orders\Order\Entity\Products;
 
 use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Products\Posting\OrderProductPosting;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
-
-// Перевод OrderProduct
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_product')]
@@ -74,6 +73,10 @@ class OrderProduct extends EntityEvent
     #[ORM\OneToOne(targetEntity: Price\OrderPrice::class, mappedBy: 'product', cascade: ['all'], fetch: 'EAGER')]
     private Price\OrderPrice $price;
 
+    /** Коллекция разделенных отправлений одного заказа */
+    #[ORM\OneToMany(targetEntity: OrderProductPosting::class, mappedBy: 'product', cascade: ['all'], fetch: 'EAGER')]
+    private Collection $posting;
+
     public function __construct(OrderEvent $event)
     {
         $this->id = new OrderProductUid();
@@ -105,7 +108,6 @@ class OrderProduct extends EntityEvent
     {
         return $this->event->getId();
     }
-
 
     public function getDto($dto): mixed
     {

@@ -219,7 +219,9 @@ class BasketController extends AbstractController
             $OrderInvariable = $OrderDTO->getInvariable();
             $OrderInvariable->setUsr($projectUser);
 
-            $profiles = $UserProfileByRegionRepository->findAll();
+            $profiles = $UserProfileByRegionRepository
+                ->onlyOrders()
+                ->findAll();
 
             if(true === $profiles->valid())
             {

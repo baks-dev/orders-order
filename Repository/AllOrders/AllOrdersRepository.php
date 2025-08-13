@@ -656,22 +656,38 @@ final class AllOrdersRepository implements AllOrdersInterface
                 );
 
 
-            $dbal
-                ->createSearchQueryBuilder($this->search)
-                //->addSearchEqualUid('orders.id')
-                //->addSearchEqualUid('orders.event')
-                ->addSearchLike('order_invariable.number')
-                ->addSearchLike('user_profile_value.value')
-                //->addSearchLike('delivery_trans.name')
-                ->addSearchLike('product_info.article')
-                ->addSearchLike('product_variation.article')
-                ->addSearchLike('product_modification.article')
+            if(
+                preg_match('/^\d{3}\.\d{3}\.\d{3}\.\d{3}$/', $this->search->getQuery())
+                || str_starts_with($this->search->getQuery(), 'o-')
+                || str_starts_with($this->search->getQuery(), 'y-')
+                || str_starts_with($this->search->getQuery(), 'w-')
+            )
+            {
+
+                $dbal
+                    ->createSearchQueryBuilder($this->search)
+                    ->addSearchLike('order_invariable.number');
+            }
+            else
+            {
+
+                $dbal
+                    ->createSearchQueryBuilder($this->search)
+                    //->addSearchEqualUid('orders.id')
+                    //->addSearchEqualUid('orders.event')
+                    ->addSearchLike('order_invariable.number')
+                    ->addSearchLike('user_profile_value.value')
+                    //->addSearchLike('delivery_trans.name')
+                    ->addSearchLike('product_info.article')
+                    ->addSearchLike('product_variation.article')
+                    ->addSearchLike('product_modification.article')
 
 
-                //                ->addSearchLike('product_offer.article')
-                //                ->addSearchLike('product_offer_modification.article')
-                //                ->addSearchLike('product_offer_variation.article')
-            ;
+                    //                ->addSearchLike('product_offer.article')
+                    //                ->addSearchLike('product_offer_modification.article')
+                    //                ->addSearchLike('product_offer_variation.article')
+                ;
+            }
         }
 
 

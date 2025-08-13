@@ -43,6 +43,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 // Event
@@ -90,6 +91,7 @@ class OrderEvent extends EntityEvent
 
     /**
      * Ответственный
+     *
      * @deprecated переносится в invariable
      */
     #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
@@ -193,6 +195,11 @@ class OrderEvent extends EntityEvent
     public function getOrderNumber(): ?string
     {
         return $this->invariable?->getNumber();
+    }
+
+    public function getOrderTokenIdentifier(): ?Uuid
+    {
+        return $this->invariable?->getToken();
     }
 
     public function getOrderUser(): ?UserUid

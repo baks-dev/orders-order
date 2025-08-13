@@ -31,9 +31,11 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\GuidType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /* OrderInvariable */
@@ -80,6 +82,12 @@ class OrderInvariable extends EntityReadonly
     private ?UserProfileUid $profile = null;
 
     /**
+     * ID токена маркетплейса
+     */
+    #[ORM\Column(type: Types::GUID, nullable: true)]
+    private Uuid|null $token = null;
+
+    /**
      * Дата заказа
      */
     #[Assert\NotBlank]
@@ -117,6 +125,11 @@ class OrderInvariable extends EntityReadonly
     public function getUsr(): ?UserUid
     {
         return $this->usr;
+    }
+
+    public function getToken(): ?Uuid
+    {
+        return $this->token;
     }
 
     public function getCreated(): DateTimeImmutable

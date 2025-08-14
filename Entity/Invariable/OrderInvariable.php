@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Entity\Invariable;
 
 use BaksDev\Core\Entity\EntityReadonly;
+use BaksDev\Core\Type\UidType\Uid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -35,6 +36,7 @@ use Doctrine\DBAL\Types\GuidType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -84,7 +86,7 @@ class OrderInvariable extends EntityReadonly
     /**
      * ID токена маркетплейса
      */
-    #[ORM\Column(type: Types::GUID, nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private Uuid|null $token = null;
 
     /**

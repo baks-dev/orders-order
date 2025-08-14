@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Entity\Invariable;
 
 use BaksDev\Core\Entity\EntityReadonly;
 use BaksDev\Core\Type\UidType\Uid;
+use BaksDev\Core\Type\UidType\UidType;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -86,7 +87,7 @@ class OrderInvariable extends EntityReadonly
     /**
      * ID токена маркетплейса
      */
-    #[ORM\Column(type: Types::GUID, nullable: true)]
+    #[ORM\Column(type: UidType::TYPE, nullable: true)]
     private string|null $token = null;
 
     /**

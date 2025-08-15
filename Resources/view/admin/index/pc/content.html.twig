@@ -307,6 +307,12 @@
 
     </div>
 
+
+    {% if constant('BaksDev\\Support\\BaksDevSupportBundle::NAMESPACE') is defined %}
+        {{ render_support_widget() }}
+    {% endif %}
+    
+
     {# БЫСТРАЯ СДЕЛКА #}
     {# {{ include(_self|replace({ "content.html.twig": "_fast.order.html.twig" })) }} #}
 

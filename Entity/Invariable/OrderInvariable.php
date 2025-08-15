@@ -88,7 +88,7 @@ class OrderInvariable extends EntityReadonly
      * ID токена маркетплейса
      */
     #[ORM\Column(type: UidType::TYPE, nullable: true)]
-    private string|null $token = null;
+    private Uuid|null $token = null;
 
     /**
      * Дата заказа

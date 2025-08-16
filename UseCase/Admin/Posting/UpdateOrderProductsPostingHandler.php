@@ -45,6 +45,8 @@ final class UpdateOrderProductsPostingHandler extends AbstractHandler
 
         $this->flush();
 
+        $this->messageDispatch->addClearCacheOther('orders-order');
+
         return $this->main;
     }
 }

@@ -50,7 +50,7 @@ class OrderProductPosting extends EntityEvent
      */
     #[Assert\NotBlank]
     #[ORM\Id]
-    #[ORM\Column(name: 'number', type: Types::STRING, unique: true)]
+    #[ORM\Column(name: 'number', type: Types::STRING)]
     private string $value;
 
     public function __construct(OrderProduct $product)

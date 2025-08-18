@@ -95,7 +95,7 @@ final class PreProductForm extends AbstractType
                     },
                     function($product) {
                         return $product ? new ProductEventUid($product) : null;
-                    }
+                    },
                 ),
             );
 
@@ -118,7 +118,7 @@ final class PreProductForm extends AbstractType
                 },
                 function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
-                }
+                },
             ),
         );
 
@@ -141,7 +141,7 @@ final class PreProductForm extends AbstractType
                 },
                 function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
-                }
+                },
             ),
         );
 
@@ -163,7 +163,7 @@ final class PreProductForm extends AbstractType
                 },
                 function($modification) {
                     return $modification ? new ProductModificationUid($modification) : null;
-                }
+                },
             ),
         );
 
@@ -222,7 +222,6 @@ final class PreProductForm extends AbstractType
     {
         /** Получаем список доступной продукции (общие либо собственные) */
         $productChoice = $this->productChoice
-            ->profile($this->UserProfileTokenStorage->getProfile())
             ->fetchAllProductEventByExists($category ?: false);
 
         $form->add(
@@ -245,7 +244,7 @@ final class PreProductForm extends AbstractType
                     ] : [];
                 },
                 'label' => false,
-            ]
+            ],
         );
     }
 
@@ -286,21 +285,22 @@ final class PreProductForm extends AbstractType
                         return $offer ? [
                             'data-filter' => ' ['.$offer->getOption().']',
                             'data-max' => $offer->getOption(),
-                            'data-name' => $offer->getAttr()
+                            'data-name' => $offer->getAttr(),
                         ] : [];
                     },
 
                     'translation_domain' => $CurrentProductOfferUid->getCharacteristic(),
                     'label' => $CurrentProductOfferUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductOfferUid->getProperty()),
-                ]
+                ],
             );
     }
 
     private function formVariationModifier(FormInterface $form, ProductOfferUid $offer): void
     {
         /* Список множественных вариантов торговых предложений */
-        $variations = $this->productVariationChoice->fetchProductVariationExistsByOffer($offer);
+        $variations = $this->productVariationChoice
+            ->fetchProductVariationExistsByOffer($offer);
 
         // Если у продукта нет ТП
         if(!$variations?->valid())
@@ -332,7 +332,7 @@ final class PreProductForm extends AbstractType
                         return $variation ? [
                             'data-filter' => ' ['.$variation->getOption().']',
                             'data-max' => $variation->getOption(),
-                            'data-name' => $variation->getAttr()
+                            'data-name' => $variation->getAttr(),
                         ] : [];
                     },
                     'translation_domain' => $CurrentProductVariationUid->getCharacteristic(),
@@ -377,13 +377,13 @@ final class PreProductForm extends AbstractType
                         return $modification ? [
                             'data-filter' => ' ['.$modification->getOption().']',
                             'data-max' => $modification->getOption(),
-                            'data-name' => $modification->getAttr()
+                            'data-name' => $modification->getAttr(),
                         ] : [];
                     },
                     'translation_domain' => $CurrentProductModificationUid->getCharacteristic(),
                     'label' => $CurrentProductModificationUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductModificationUid->getProperty()),
-                ]
+                ],
             );
     }
 

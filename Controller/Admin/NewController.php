@@ -94,24 +94,24 @@ final class NewController extends AbstractController
                     return $this->redirectToRoute('orders-order:admin.index');
                 }
 
-                /**
-                 * Если бизнес-модель не производство и на складе нет достаточного количества
-                 */
-                if(
-                    false === class_exists(BaksDevMaterialsStocksBundle::class) &&
-                    $product->getPrice()->getTotal() > $ProductUserBasketResult->getProductQuantity()
-                )
-                {
-                    $this->addFlash(
-                        'danger',
-                        sprintf(
-                            'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                            $ProductUserBasketResult->getProductName(),
-                        ),
-                    );
-
-                    return $this->redirectToRoute('orders-order:admin.index');
-                }
+                //                /**
+                //                 * Если бизнес-модель не производство и на складе нет достаточного количества
+                //                 */
+                //                if(
+                //                    false === class_exists(BaksDevMaterialsStocksBundle::class) &&
+                //                    $product->getPrice()->getTotal() > $ProductUserBasketResult->getProductQuantity()
+                //                )
+                //                {
+                //                    $this->addFlash(
+                //                        'danger',
+                //                        sprintf(
+                //                            'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
+                //                            $ProductUserBasketResult->getProductName(),
+                //                        ),
+                //                    );
+                //
+                //                    return $this->redirectToRoute('orders-order:admin.index');
+                //                }
 
                 /** Присваиваем стоимость продукта в заказе */
                 $product

@@ -150,18 +150,26 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderInvariable::class,
                 'order_invariable',
-
-                '
-                    order_invariable.main = orders.id AND
-                '.(($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
-                    ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
-                    : ' order_invariable.profile = :profile'),
-            )
-            ->setParameter(
-                key: 'profile',
-                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
+                'order_invariable.main = orders.id',
             );
+
+
+        /* Если не выбраны все профили, то отобразить только для данного профиля/склада */
+        if($this->filter?->getAll() === false)
+        {
+
+            $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
+                ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
+                : ' order_invariable.profile = :profile');
+
+            $dbal
+                ->andWhere($whereExpression)
+                ->setParameter(
+                    key: 'profile',
+                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                    type: UserProfileUid::TYPE,
+                );
+        }
 
 
         $dbal

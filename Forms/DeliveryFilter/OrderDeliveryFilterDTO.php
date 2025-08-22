@@ -32,6 +32,8 @@ final class OrderDeliveryFilterDTO implements OrderFilterInterface
 {
     private ?DeliveryUid $delivery = null;
 
+    private ?bool $all = null;
+
     public function __construct() {}
 
     /**
@@ -62,5 +64,20 @@ final class OrderDeliveryFilterDTO implements OrderFilterInterface
     public function getStatus(): ?OrderStatus
     {
         return null;
+    }
+
+    /**
+     * Показать для всех профилей
+     */
+    public function getAll(): bool
+    {
+        return $this->all === true;
+    }
+
+    public function setAll(bool $all): self
+    {
+        $this->all = $all;
+
+        return $this;
     }
 }

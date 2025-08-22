@@ -59,4 +59,9 @@ final class OrderFilterDTO implements OrderFilterInterface
     {
         return null;
     }
+
+    public function getAll(): bool
+    {
+        return false;
+    }
 }

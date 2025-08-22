@@ -32,4 +32,6 @@ interface OrderFilterInterface
 
     public function getDelivery(): ?DeliveryUid;
 
+    public function getAll(): bool;
+
 }

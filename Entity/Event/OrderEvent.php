@@ -212,6 +212,11 @@ class OrderEvent extends EntityEvent
         return $this->invariable?->getProfile();
     }
 
+    public function isDanger(): bool
+    {
+        return $this->danger === true;
+    }
+
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;

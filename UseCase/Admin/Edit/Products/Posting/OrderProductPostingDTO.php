@@ -35,15 +35,15 @@ final class OrderProductPostingDTO implements OrderProductPostingInterface
      * Идентификатор разделенного отправления
      */
     #[Assert\NotBlank]
-    private string $value;
+    private string $number;
 
-    public function getValue(): string
+    public function getNumber(): string
     {
-        return $this->value;
+        return $this->number;
     }
 
-    public function setValue(string $value): void
+    public function setNumber(string $value): void
     {
-        $this->value = $value;
+        $this->number = $value;
     }
 }

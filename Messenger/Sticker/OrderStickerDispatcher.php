@@ -21,14 +21,15 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Entity\Products\Posting;
+declare(strict_types=1);
 
-/** @see OrderProductPosting */
-interface OrderProductPostingInterface
+namespace BaksDev\Orders\Order\Messenger\Sticker;
+
+
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler(priority: 0)]
+final class OrderStickerDispatcher
 {
-
-    /**
-     * Идентификатор отправления
-     */
-    public function getNumber(): string;
+    public function __invoke(OrderStickerMessage $message): void {}
 }

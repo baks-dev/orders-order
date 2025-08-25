@@ -197,7 +197,7 @@ final class AllOrdersResult
 
     public function getDeliveryPrice(): Money|false
     {
-        return $this->delivery_price ? new Money($this->delivery_price) : false;
+        return $this->delivery_price ? new Money($this->delivery_price, true) : false;
     }
 
     public function getAccountEmail(): ?string

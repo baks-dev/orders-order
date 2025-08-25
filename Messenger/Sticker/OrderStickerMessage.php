@@ -21,14 +21,41 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Entity\Products\Posting;
+declare(strict_types=1);
 
-/** @see OrderProductPosting */
-interface OrderProductPostingInterface
+namespace BaksDev\Orders\Order\Messenger\Sticker;
+
+
+use ArrayObject;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+
+final class OrderStickerMessage
 {
+    private OrderUid $id;
 
-    /**
-     * Идентификатор отправления
-     */
-    public function getNumber(): string;
+    private ArrayObject|false $results = false;
+
+    public function __construct(OrderUid $id)
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): OrderUid
+    {
+        return $this->id;
+    }
+
+    public function addResult($number, $code): self
+    {
+        $this->results ?: $this->results = new ArrayObject();
+
+        $this->results->offsetSet($number, $code);
+
+        return $this;
+    }
+
+    public function getResults(): ArrayObject|false
+    {
+        return $this->results;
+    }
 }

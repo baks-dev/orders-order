@@ -239,6 +239,7 @@ class OrderEvent extends EntityEvent
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
+    /** @return Collection<OrderProduct> */
     public function getProduct(): Collection
     {
         return $this->product;

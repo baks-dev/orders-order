@@ -1,19 +1,18 @@
 {# ПЕЧАТЬ #}
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100">
-
-
     {% if stickers %}
         {% for sticker in stickers %}
 
-            <img src="data:image/jpeg;base64, {{ sticker }}" alt="ozon-sticker"/>
+            <img src="data:image/jpeg;base64, {{ sticker }}" alt="sticker" style="max-width:300px;"/>
 
-            <div style="page-break-after: always !important;"></div>
+            {% if loop.last != true %}
+                <div style="page-break-after: always !important;"></div>
+            {% endif %}
 
         {% endfor %}
     {% else %}
 
-        {% else %}
-            Стикеров для печати не найдено
+        Стикеров для печати не найдено
     {% endif %}
 
 </div>

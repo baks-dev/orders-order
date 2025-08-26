@@ -156,6 +156,14 @@
                             </a>
                         </li>
 
+                        <a href="{{ path('orders-order:admin.document.sticker', { id : order.order_id }) }}"
+                           class="dropdown-item prnt"
+                           data-bs-toggle="modal"
+                           data-bs-target="#modal"
+                        >
+                            Стикеры маркировки заказа
+                        </a>
+
                         {% if materials_sign %}
 
                             <li>

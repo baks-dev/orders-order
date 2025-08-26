@@ -40,7 +40,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[RoleSecurity('ROLE_ORDERS')]
 final class StickerController extends AbstractController
 {
-    #[Route('/admin/sticker/{id}', name: 'admin.sticker', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/document/stickers/{id}', name: 'admin.document.sticker', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
         #[MapEntity] Order $Order,
@@ -52,7 +52,6 @@ final class StickerController extends AbstractController
 
         return $this->render(
             ['stickers' => $OrderStickerMessage->getResults()],
-            dir: 'admin.sticker',
             file: 'sticker.html.twig',
         );
     }

@@ -453,7 +453,7 @@ async function submitAddToOrderForm(forms)
         {
             $errorFormHandler = "{ \"type\":\"danger\" , " +
                 "\"header\":\"" + header + "\"  , " +
-                "\"message\" : \"На складе продукции отстутсвует необходимое количество\" }";
+                "\"message\" : \"На складе отстутсвует необходимое количество продукции\" }";
         }
 
         if($TOTAL < 1)

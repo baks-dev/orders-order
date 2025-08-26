@@ -97,23 +97,23 @@
 
                     <div class="text-end">
 
-                        {% if order.orderStatusEquals('completed') == false %}
+                        {# {% if order.orderStatusEquals('completed') == false %} #}
 
-                            <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
-                                    role="tooltip"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    data-bs-delay='{"show":600,"hide":100}'
-                                    title="Изменить статус сделки"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-arrows-move" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                          d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
-                                </svg>
-                            </button>
+                        <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
+                                role="tooltip"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
+                                data-bs-delay='{"show":600,"hide":100}'
+                                title="Изменить статус сделки"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-arrows-move" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
+                            </svg>
+                        </button>
 
-                        {% endif %}
+                        {# {% endif %} #}
                     </div>
 
                     {% if order.orderComment %}
@@ -227,7 +227,6 @@
 
                 {% if
                     order.orderStatusEquals('delivery') == false and
-                    order.orderStatusEquals('completed') == false and
                     order.orderStatusEquals('marketplace') == false %}
 
                     <div class="border-top mt-2 small">
@@ -264,33 +263,39 @@
                             {% endif %}
                         </div>
 
-                        {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
-                            <span class="badge bg-danger small p-1">Просрочен</span>
-                        {% elseif order.deliveryDate|date('Ymd') == date("now")|date('Ymd') %}
-                            <span class="badge bg-warning text-dark small p-1">Опоздание</span>
-                        {% else %}
-                            <span class="text-muted small">Доставка</span>
-                        {% endif %}
+                        {% if order.orderStatusEquals('completed') == false %}
+                            {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
+                                <span class="badge bg-danger small p-1">Просрочен</span>
+                            {% elseif order.deliveryDate|date('Ymd') == date("now")|date('Ymd') %}
+                                <span class="badge bg-warning text-dark small p-1">Опоздание</span>
+                            {% else %}
+                                <span class="text-muted small">Доставка</span>
+                            {% endif %}
 
-                        &nbsp;
 
-                        {# {% set deliveryDedline = date(order.delivery_date) %}
+
+
+                            &nbsp;
+
+                            {# {% set deliveryDedline = date(order.delivery_date) %}
                         {% set deliveryDifference = deliveryDedline.diff(date("now")) %}
 
                         {% set deliveryDay = deliveryDifference.days ?: null %} #}
 
-                        {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
-                            <strong class="small text-danger">
-                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
-                            </strong>
-                        {% elseif date("now")|date('Ymd') == order.deliveryDate|date('Ymd') %}
-                            <strong class="small">
-                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
-                            </strong>
-                        {% else %}
-                            <small class="small">
-                                {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
-                            </small>
+                            {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
+                                <strong class="small text-danger">
+                                    {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
+                                </strong>
+                            {% elseif date("now")|date('Ymd') == order.deliveryDate|date('Ymd') %}
+                                <strong class="small">
+                                    {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
+                                </strong>
+                            {% else %}
+                                <small class="small">
+                                    {{ order.deliveryDate|format_datetime(pattern="d MMMM") }}
+                                </small>
+                            {% endif %}
+
                         {% endif %}
 
                     </div>

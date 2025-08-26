@@ -508,7 +508,7 @@ function addProductOrder()
         {
             $warninfFormHandler = '{ "type":"danger" , ' +
                 '"header":"' + header + '"  , ' +
-                '"message" : "На складе продукции отстутсвует необходимое количество" }';
+                "\"message\" : \"На складе отстутсвует необходимое количество продукции\" }";
 
 
             createToast(JSON.parse($warninfFormHandler));

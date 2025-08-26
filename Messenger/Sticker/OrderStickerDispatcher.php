@@ -21,17 +21,15 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Forms;
+declare(strict_types=1);
 
-use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
+namespace BaksDev\Orders\Order\Messenger\Sticker;
 
-interface OrderFilterInterface
+
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler(priority: 0)]
+final class OrderStickerDispatcher
 {
-    public function getStatus(): ?OrderStatus;
-
-    public function getDelivery(): ?DeliveryUid;
-
-    public function getAll(): bool;
-
+    public function __invoke(OrderStickerMessage $message): void {}
 }

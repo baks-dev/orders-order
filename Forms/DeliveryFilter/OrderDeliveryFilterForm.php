@@ -25,7 +25,9 @@ namespace BaksDev\Orders\Order\Forms\DeliveryFilter;
 
 use BaksDev\Delivery\Forms\Delivery\DeliveryForm;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus;
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -51,15 +53,47 @@ final class OrderDeliveryFilterForm extends AbstractType
     {
         $builder->add('delivery', DeliveryForm::class, ['required' => false]);
 
+        $builder->add('all', CheckboxType::class);
+
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
+
+            $session = $this->request->getSession();
+            if($session === false)
+            {
+                $session = $this->request->getSession();
+            }
+
+            if($session && $session->get('statusCode') === 307)
+            {
+                $session->remove($this->sessionKey);
+                $session = false;
+            }
+
+            if($session && (time() - $session->getMetadataBag()->getLastUsed()) > self::LIFETIME)
+            {
+                $session->remove($this->sessionKey);
+//                $session = false;
+            }
 
             /** @var OrderDeliveryFilterDTO $OrderDeliveryFilterDTO */
             $OrderDeliveryFilterDTO = $event->getData();
 
             if($session = $this->clearSessionLifetime())
             {
-                $OrderDeliveryFilterDTO->setDelivery($session->get($this->sessionKey));
+
+                $sessionData = $this->request->getSession()->get($this->sessionKey);
+                $sessionJson = $sessionData ? base64_decode($sessionData) : false;
+                $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true, 512, JSON_THROW_ON_ERROR) : false;
+
+                if($sessionArray !== false)
+                {
+                    $session->remove($this->sessionKey);
+
+                    !isset($sessionArray['all']) ?: $OrderDeliveryFilterDTO->setAll($sessionArray['all'] === true);
+                    !isset($sessionArray['delivery']) ?: $OrderDeliveryFilterDTO->setDelivery(new CategoryProductUid($sessionArray['delivery']));
+                }
             }
+
         });
 
         $builder->addEventListener(
@@ -70,13 +104,30 @@ final class OrderDeliveryFilterForm extends AbstractType
 
                 $session = $this->request->getSession();
 
-                if($OrderDeliveryFilterDTO->getDelivery() === null)
+                if($session)
                 {
-                    $session->remove($this->sessionKey);
-                    return;
-                }
+                    if($OrderDeliveryFilterDTO->getDelivery() === null && $OrderDeliveryFilterDTO->getAll() === false)
+                    {
+                        $session->remove($this->sessionKey);
+                        return;
+                    }
 
-                $this->request->getSession()->set($this->sessionKey, $OrderDeliveryFilterDTO->getDelivery());
+
+                    $sessionArray = [];
+                    $sessionArray['all'] = $OrderDeliveryFilterDTO->getAll();
+                    $sessionArray['delivery'] = (string) $OrderDeliveryFilterDTO->getDelivery();
+
+
+                    if($sessionArray)
+                    {
+                        $sessionJson = json_encode($sessionArray, JSON_THROW_ON_ERROR);
+                        $sessionData = base64_encode($sessionJson);
+                        $this->request->getSession()->set($this->sessionKey, $sessionData);
+                        return;
+                    }
+
+                    $session->remove($this->sessionKey);
+                }
 
             }
         );

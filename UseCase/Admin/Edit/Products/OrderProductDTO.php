@@ -198,7 +198,7 @@ final class OrderProductDTO implements OrderProductInterface
     public function addPosting(OrderProductPostingDTO $posting): void
     {
         $exist = $this->posting->exists(function(int $key, OrderProductPostingDTO $element) use ($posting) {
-            return $element->getValue() === $posting->getValue();
+            return $element->getNumber() === $posting->getNumber();
         });
 
         if(false === $exist)

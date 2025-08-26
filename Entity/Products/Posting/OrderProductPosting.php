@@ -50,8 +50,8 @@ class OrderProductPosting extends EntityEvent
      */
     #[Assert\NotBlank]
     #[ORM\Id]
-    #[ORM\Column(name: 'number', type: Types::STRING, unique: true)]
-    private string $value;
+    #[ORM\Column(name: 'number', type: Types::STRING)]
+    private string $number;
 
     public function __construct(OrderProduct $product)
     {
@@ -63,9 +63,9 @@ class OrderProductPosting extends EntityEvent
         return (string) $this->product;
     }
 
-    public function getValue(): string
+    public function getPostingNumber(): string
     {
-        return $this->value;
+        return $this->number;
     }
 
     public function getDto($dto): mixed

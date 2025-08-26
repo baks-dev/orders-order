@@ -212,6 +212,11 @@ class OrderEvent extends EntityEvent
         return $this->invariable?->getProfile();
     }
 
+    public function isDanger(): bool
+    {
+        return $this->danger === true;
+    }
+
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
@@ -234,6 +239,7 @@ class OrderEvent extends EntityEvent
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
+    /** @return Collection<OrderProduct> */
     public function getProduct(): Collection
     {
         return $this->product;

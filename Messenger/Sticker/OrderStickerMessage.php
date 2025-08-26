@@ -21,17 +21,41 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Orders\Order\Forms;
+declare(strict_types=1);
 
-use BaksDev\Delivery\Type\Id\DeliveryUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
+namespace BaksDev\Orders\Order\Messenger\Sticker;
 
-interface OrderFilterInterface
+
+use ArrayObject;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+
+final class OrderStickerMessage
 {
-    public function getStatus(): ?OrderStatus;
+    private OrderUid $id;
 
-    public function getDelivery(): ?DeliveryUid;
+    private ArrayObject|false $results = false;
 
-    public function getAll(): bool;
+    public function __construct(OrderUid $id)
+    {
+        $this->id = $id;
+    }
 
+    public function getId(): OrderUid
+    {
+        return $this->id;
+    }
+
+    public function addResult($number, $code): self
+    {
+        $this->results ?: $this->results = new ArrayObject();
+
+        $this->results->offsetSet($number, $code);
+
+        return $this;
+    }
+
+    public function getResults(): ArrayObject|false
+    {
+        return $this->results;
+    }
 }

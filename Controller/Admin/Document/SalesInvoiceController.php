@@ -31,7 +31,6 @@ use BaksDev\Barcode\Writer\BarcodeWrite;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceDTO;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceForm;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceOrderDTO;
@@ -129,7 +128,7 @@ final class SalesInvoiceController extends AbstractController
                     $orderEventPrintDTO = new OrderEventPrintDTO($OrderInfo->getOrderEvent());
                     $orderEventPrinted = $OrderEventPrintHandler->handle($orderEventPrintDTO);
 
-                    if(false === $orderEventPrinted instanceof OrderEvent)
+                    if(false === $orderEventPrinted)
                     {
                         $logger->warning(
                             'orders-order: Ошибка сохранения данных о печати накладной',

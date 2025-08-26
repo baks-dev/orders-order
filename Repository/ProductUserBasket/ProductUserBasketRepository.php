@@ -195,7 +195,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ->setParameter(
                 key: 'event',
                 value: $this->event,
-                type: ProductEventUid::TYPE
+                type: ProductEventUid::TYPE,
             );
 
         $dbal
@@ -213,7 +213,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 				   ELSE TRUE
 				END
 			)
-		'
+		',
             );
 
         $dbal
@@ -222,7 +222,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 Product::class,
                 'product',
-                'product.id = product_event.main'
+                'product.id = product_event.main',
             );
 
         $dbal
@@ -231,7 +231,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 ProductTrans::class,
                 'product_trans',
-                'product_trans.event = product_event.id AND product_trans.local = :local'
+                'product_trans.event = product_event.id AND product_trans.local = :local',
             );
 
 
@@ -241,8 +241,10 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 ProductPrice::class,
                 'product_price',
-                'product_price.event = product_event.id'
-            );
+                'product_price.event = product_event.id',
+            )
+            ->addGroupBy('product_price.currency')
+            ->addGroupBy('product_price.reserve');
 
         /** ProductInfo */
         $dbal
@@ -251,7 +253,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product_event.main '
+                'product_info.product = product_event.main ',
             )->addGroupBy('product_info.article');
 
 
@@ -265,7 +267,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_event',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.event = product_event.id '.($this->offer ? ' AND product_offer.id = :product_offer' : '').' '
+                'product_offer.event = product_event.id '.($this->offer ? ' AND product_offer.id = :product_offer' : '').' ',
             )
             ->addGroupBy('product_offer.article');
 
@@ -274,7 +276,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             $dbal->setParameter(
                 key: 'product_offer',
                 value: $this->offer,
-                type: ProductOfferUid::TYPE
+                type: ProductOfferUid::TYPE,
             );
         }
 
@@ -283,7 +285,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_offer',
             ProductOfferPrice::class,
             'product_offer_price',
-            'product_offer_price.offer = product_offer.id'
+            'product_offer_price.offer = product_offer.id',
         );
 
 
@@ -294,7 +296,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_offer',
                 CategoryProductOffers::class,
                 'category_offer',
-                'category_offer.id = product_offer.category_offer'
+                'category_offer.id = product_offer.category_offer',
             );
 
         /** Получаем название торгового предложения */
@@ -304,16 +306,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'category_offer',
                 CategoryProductOffersTrans::class,
                 'category_offer_trans',
-                'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local'
+                'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local',
             );
-
-        /** Наличие и резерв торгового предложения */
-        $dbal->leftJoin(
-            'product_offer',
-            ProductOfferQuantity::class,
-            'product_offer_quantity',
-            'product_offer_quantity.offer = product_offer.id'
-        );
 
 
         /**
@@ -328,7 +322,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_offer',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.offer = product_offer.id'.($this->variation ? ' AND product_variation.id = :variation' : '').' '
+                'product_variation.offer = product_offer.id'.($this->variation ? ' AND product_variation.id = :variation' : '').' ',
             );
 
         if($this->variation)
@@ -336,7 +330,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             $dbal->setParameter(
                 key: 'variation',
                 value: $this->variation,
-                type: ProductVariationUid::TYPE
+                type: ProductVariationUid::TYPE,
             );
         }
 
@@ -345,7 +339,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_variation',
             ProductVariationPrice::class,
             'product_variation_price',
-            'product_variation_price.variation = product_variation.id'
+            'product_variation_price.variation = product_variation.id',
         );
 
         /** Получаем тип множественного варианта */
@@ -355,7 +349,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_variation',
                 CategoryProductVariation::class,
                 'category_variation',
-                'category_variation.id = product_variation.category_variation'
+                'category_variation.id = product_variation.category_variation',
             );
 
         /** Получаем название множественного варианта */
@@ -365,16 +359,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'category_variation',
                 CategoryProductVariationTrans::class,
                 'category_variation_trans',
-                'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local'
+                'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local',
             );
-
-        /** Наличие и резерв множественного варианта */
-        $dbal->leftJoin(
-            'category_variation',
-            ProductVariationQuantity::class,
-            'product_variation_quantity',
-            'product_variation_quantity.variation = product_variation.id'
-        );
 
 
         /** Модификация множественного варианта торгового предложения */
@@ -387,7 +373,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.variation = product_variation.id'.($this->modification ? ' AND product_modification.id = :modification' : '').' '
+                'product_modification.variation = product_variation.id'.($this->modification ? ' AND product_modification.id = :modification' : '').' ',
             );
 
         if($this->modification)
@@ -395,7 +381,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             $dbal->setParameter(
                 key: 'modification',
                 value: $this->modification,
-                type: ProductModificationUid::TYPE
+                type: ProductModificationUid::TYPE,
             );
         }
 
@@ -404,7 +390,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_modification',
             ProductModificationPrice::class,
             'product_modification_price',
-            'product_modification_price.modification = product_modification.id'
+            'product_modification_price.modification = product_modification.id',
         );
 
         /** Получаем тип модификации множественного варианта */
@@ -414,7 +400,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_modification',
                 CategoryProductModification::class,
                 'category_modification',
-                'category_modification.id = product_modification.category_modification'
+                'category_modification.id = product_modification.category_modification',
             );
 
         /** Получаем название типа модификации */
@@ -424,16 +410,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'category_modification',
                 CategoryProductModificationTrans::class,
                 'category_modification_trans',
-                'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
+                'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local',
             );
-
-        /** Наличие и резерв модификации множественного варианта */
-        $dbal->leftJoin(
-            'category_modification',
-            ProductModificationQuantity::class,
-            'product_modification_quantity',
-            'product_modification_quantity.modification = product_modification.id'
-        );
 
 
         /** Артикул продукта */
@@ -456,7 +434,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_modification_image',
             '
 			product_modification_image.modification = product_modification.id AND product_modification_image.root = true
-			'
+			',
         );
 
 
@@ -468,7 +446,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             '
 			product_variation_image.variation = product_variation.id AND 
 			product_variation_image.root = true
-			'
+			',
         );
 
 
@@ -482,7 +460,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 			product_offer_images.offer = product_offer.id AND 
 			product_offer_images.root = true
 			
-		'
+		',
         );
 
         /** Фото продукта */
@@ -490,32 +468,27 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_offer',
             ProductPhoto::class,
             'product_photo',
-            'product_photo.event = product_event.id AND product_photo.root = true'
+            'product_photo.event = product_event.id AND product_photo.root = true',
         );
 
         $dbal
             ->addGroupBy('product_modification_image.ext')
             ->addGroupBy('product_modification_image.cdn')
-            ->addGroupBy('product_modification_price.currency')
-            ->addGroupBy('product_modification_quantity.reserve');
+            ->addGroupBy('product_modification_price.currency');
 
         $dbal
             ->addGroupBy('product_variation_image.ext')
             ->addGroupBy('product_variation_image.cdn')
-            ->addGroupBy('product_variation_price.currency')
-            ->addGroupBy('product_variation_quantity.reserve');
+            ->addGroupBy('product_variation_price.currency');
 
         $dbal
             ->addGroupBy('product_offer_images.ext')
             ->addGroupBy('product_offer_images.cdn')
-            ->addGroupBy('product_offer_price.currency')
-            ->addGroupBy('product_offer_quantity.reserve');
+            ->addGroupBy('product_offer_price.currency');
 
         $dbal
             ->addGroupBy('product_photo.ext')
-            ->addGroupBy('product_photo.cdn')
-            ->addGroupBy('product_price.currency')
-            ->addGroupBy('product_price.reserve');
+            ->addGroupBy('product_photo.cdn');
 
 
         $dbal->addSelect(
@@ -535,7 +508,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 			   
 			   ELSE NULL
 			END AS product_image
-		"
+		",
         );
 
         /** Флаг загрузки файла CDN */
@@ -579,7 +552,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 			   
 			   ELSE NULL
 			END AS product_price
-		"
+		",
         );
 
         /** Предыдущая стоимость продукта */
@@ -609,8 +582,40 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 			   WHEN product_price.price IS NOT NULL AND product_price.price > 0 THEN product_price.currency
 			   ELSE NULL
 			END AS product_currency
-		"
-        );
+		");
+
+
+        /** Наличие и резерв торгового предложения */
+        $dbal
+            ->leftJoin(
+                'product_offer',
+                ProductOfferQuantity::class,
+                'product_offer_quantity',
+                'product_offer_quantity.offer = product_offer.id',
+            )
+            ->addGroupBy('product_offer_quantity.reserve');
+
+
+        /** Наличие и резерв множественного варианта */
+        $dbal
+            ->leftJoin(
+                'category_variation',
+                ProductVariationQuantity::class,
+                'product_variation_quantity',
+                'product_variation_quantity.variation = product_variation.id',
+            )
+            ->addGroupBy('product_variation_quantity.reserve');
+
+        /** Наличие и резерв модификации множественного варианта */
+        $dbal
+            ->leftJoin(
+                'category_modification',
+                ProductModificationQuantity::class,
+                'product_modification_quantity',
+                'product_modification_quantity.modification = product_modification.id',
+            )
+            ->addGroupBy('product_modification_quantity.reserve');
+
 
         /** Наличие продукта */
         $dbal->addSelect(
@@ -631,23 +636,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 			   ELSE 0
 			END AS product_quantity
-		"
+		",
         );
-
-        //		->addGroupBy('product_modification_quantity.quantity')
-        //		->addGroupBy('product_modification_quantity.reserve')
-
-        /** Наличие */
-        //		$dbal->addSelect("
-        //			CASE
-        //			   WHEN product_modification_price.price IS NOT NULL THEN product_modification_price.price
-        //			   WHEN product_variation_price.price IS NOT NULL THEN product_variation_price.price
-        //			   WHEN product_offer_price.price IS NOT NULL THEN product_offer_price.price
-        //			   WHEN product_price.price IS NOT NULL THEN product_price.price
-        //			   ELSE NULL
-        //			END AS product_price
-        //		"
-        //		);
 
 
         /* Категория */
@@ -655,14 +645,14 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'product_event',
             ProductCategory::class,
             'product_event_category',
-            'product_event_category.event = product_event.id AND product_event_category.root = true'
+            'product_event_category.event = product_event.id AND product_event_category.root = true',
         );
 
         $dbal->join(
             'product_event_category',
             CategoryProduct::class,
             'category',
-            'category.id = product_event_category.category'
+            'category.id = product_event_category.category',
         );
 
         $dbal->addSelect('category_trans.name AS category_name'); //->addGroupBy('category_trans.name');
@@ -671,7 +661,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'category',
             CategoryProductTrans::class,
             'category_trans',
-            'category_trans.event = category.event AND category_trans.local = :local'
+            'category_trans.event = category.event AND category_trans.local = :local',
         );
 
         $dbal
@@ -684,14 +674,14 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'category',
             CategoryProductInfo::class,
             'category_info',
-            'category_info.event = category.event'
+            'category_info.event = category.event',
         );
 
         $dbal->leftJoin(
             'category',
             CategoryProductSection::class,
             'category_section',
-            'category_section.event = category.event'
+            'category_section.event = category.event',
         );
 
 
@@ -701,7 +691,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             'category_section',
             CategoryProductSectionField::class,
             'category_section_field',
-            'category_section_field.section = category_section.id AND (category_section_field.card = TRUE )'
+            'category_section_field.section = category_section.id AND (category_section_field.card = TRUE )',
         );
 
         $dbal->leftJoin(
@@ -709,7 +699,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             CategoryProductSectionFieldTrans::class,
             'category_section_field_trans',
             'category_section_field_trans.field = category_section_field.id AND 
-            category_section_field_trans.local = :local'
+            category_section_field_trans.local = :local',
         );
 
         $dbal->leftJoin(
@@ -717,7 +707,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ProductProperty::class,
             'product_property',
             'product_property.event = product_event.id AND 
-            product_property.field = category_section_field.const'
+            product_property.field = category_section_field.const',
         );
 
 
@@ -741,7 +731,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 					'field_value', product_property.value
 				)
 		)
-			AS category_section_field"
+			AS category_section_field",
         );
 
         /**

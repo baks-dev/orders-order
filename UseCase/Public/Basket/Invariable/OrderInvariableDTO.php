@@ -90,10 +90,17 @@ final class OrderInvariableDTO implements OrderInvariableInterface
 
     public function setUsr(UserUid|string|null $usr): self
     {
-        if(is_string($usr) && !empty($usr))
+        if(empty($usr))
+        {
+            $this->usr = null;
+            return $this;
+        }
+
+        if(is_string($usr))
         {
             $usr = new UserUid($usr);
         }
+
 
         $this->usr = $usr;
         return $this;
@@ -109,7 +116,13 @@ final class OrderInvariableDTO implements OrderInvariableInterface
 
     public function setProfile(UserProfileUid|string|null $profile): self
     {
-        if(is_string($profile) && !empty($profile))
+        if(empty($profile))
+        {
+            $this->profile = null;
+            return $this;
+        }
+
+        if(is_string($profile))
         {
             $profile = new UserProfileUid($profile);
         }

@@ -43,6 +43,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use function PHPUnit\Framework\assertFalse;
@@ -50,7 +51,9 @@ use function PHPUnit\Framework\assertNull;
 
 /**
  * @group orders-order
+ * @group orders-order-repo
  */
+#[Group('orders-order')]
 #[When(env: 'test')]
 class ProductUserBasketTest extends KernelTestCase
 {

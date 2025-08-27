@@ -13,10 +13,23 @@
 
         {% if loop.first == true %}
 
-            <div class="d-flex align-items-center justify-content-between mb-2 gap-2">
+            <div class="d-flex align-items-center justify-content-between mb-2 gap-2 accordion">
 
                 <div class="d-flex align-items-center gap-2">
-                    <span class="fs-18 mb-0 text-uppercase fw-bold mb-2"> Заказ № {{ order.order_number }} | {{ ('public_' ~order.order_status)|trans({}, 'status.order') }}</span>
+                    <button class="accordion-button btn-sm border-0 shadow-none bg-body p-0 collapsed collapse-link-content"
+                            style=""
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ order.order_id }}"
+                            data-container="collapse{{ order.order_id }}"
+
+                            data-href="{{ path('orders-order:user.orders.detail', { id: order.order_id }) }}"
+                            aria-expanded="false">
+
+                        <span class="fs-18 mb-0 text-uppercase fw-bold me-2 text-decoration-underline"
+                              title="Пoказать детали"> Заказ № {{ order.order_number }} | {{ ('public_' ~order.order_status)|trans({}, 'status.order') }}</span>
+
+                    </button>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
@@ -34,72 +47,17 @@
 
         {% endif %}
 
-        {# <div class="d-flex align-items-center justify-content-between {{ loop.last == true ? '' : 'border-bottom' }} py-3"> #}
-        <div class="d-flex align-items-center justify-content-between border-bottom py-3">
 
-            <div class="d-flex align-items-center justify-content-between gap-5">
-
-                <a href="{{ path('products-product:public.detail', {
-                    category : product.category_url ,
-                    url : product.product_url ,
-                    offer: product.product_offer_value,
-                    variation: product.product_variation_value,
-                    modification: product.product_modification_value,
-                    postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-' })
-                }) }}"
-                   class="icon rounded-4 mb-2 lazy bg-contain p-1"
-                   data-bg="{{ cdn_image_path(product.product_image, product.product_image_ext, product.product_image_cdn, 'min') }}"
-                   style="width: 75px; height: 75px;">
-                </a>
-
-                <div class="d-flex flex-column justify-content-center gap-2" style="width:350px;">
-
-                    <a href="{{ path('products-product:public.detail', {
-                        category : product.category_url,
-                        url : product.product_url,
-                        offer: product.product_offer_value,
-                        variation: product.product_variation_value,
-                        modification: product.product_modification_value,
-                        postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-' })
-                    }) }}"
-
-                       class="fs-14 text-black fw-bold text-uppercase mb-0 list-group-item best-offers-item">
-                        {{ product.product_name }}
-
-                        {{ product.product_variation_value|call_twig_func(product.product_variation_reference~'_render') ~
-                        product.product_modification_value|call_twig_func(product.product_modification_reference~'_render') }}
-
-                        {{ product.product_offer_value|call_twig_func(product.product_offer_reference~'_render') }}
-
-                        {{ product.product_offer_postfix }}
-                        {{ product.product_variation_postfix }}
-                        {{ product.product_modification_postfix }}
-                    </a>
-
-                    <p class="text-secondary mb-0" style="font-size: 12px;">
-                        Артикул: {{ product.product_article }}
-                    </p>
-
-                </div>
-            </div>
-
-            <div class="d-flex align-items-center justify-content-between gap-4">
-                {# ЦЕНА #}
-                <p class="mb-0 fw-bold" style="width:90px;">
-                    {{ money(product.product_price, product.product_price_currency) }}
-                </p>
-
-                {# КОЛИЧЕСТВО #}
-                <p class="mb-0 fw-bold" style="width:90px;">
-                    {{ product.product_total }} шт.
-                </p>
-
-                {% set priceTotal = priceTotal + product.product_price %}
-                {% set productTotal = productTotal + product.product_total %}
-                {% set productCurrency = product.product_price_currency %}
-
-            </div>
+        {# содержимое контейнера для отображения товаров #}
+        <div id="collapse{{ order.order_id }}"
+             class="card-body fw-normal mb-0 accordion-collapse collapse"
+             data-bs-parent="#accordionPackage">
         </div>
+
+
+        {% set priceTotal = priceTotal + product.product_price %}
+        {% set productTotal = productTotal + product.product_total %}
+        {% set productCurrency = product.product_price_currency %}
 
     {% endfor %}
 

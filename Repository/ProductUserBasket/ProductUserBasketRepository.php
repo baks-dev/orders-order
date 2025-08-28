@@ -64,6 +64,7 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Products\Promotion\BaksDevProductsPromotionBundle;
 use BaksDev\Products\Promotion\Entity\Event\Invariable\ProductPromotionInvariable;
 use BaksDev\Products\Promotion\Entity\Event\Period\ProductPromotionPeriod;
 use BaksDev\Products\Promotion\Entity\Event\Price\ProductPromotionPrice;
@@ -770,7 +771,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
          * ProductsPromotion
          */
 
-        if(true === $dbal->isProjectProfile())
+        if(true === class_exists(BaksDevProductsPromotionBundle::class) && true === $dbal->isProjectProfile())
         {
             $dbal
                 ->leftJoin(

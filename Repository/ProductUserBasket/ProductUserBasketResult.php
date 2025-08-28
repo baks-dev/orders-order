@@ -79,9 +79,9 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         private readonly ?string $product_modification_reference,
         private readonly ?string $product_modification_name,
 
-        private readonly int $product_price,
+        private readonly ?int $product_price,
         private readonly ?int $product_old_price,
-        private readonly string $product_currency,
+        private readonly ?string $product_currency,
         private readonly int $product_quantity,
 
         private readonly ?string $product_image,
@@ -308,7 +308,7 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
     {
         if(empty($this->product_price))
         {
-            return false;
+            return new Money(0);
         }
 
         /** Оригинальная цена */

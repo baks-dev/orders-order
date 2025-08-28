@@ -92,9 +92,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->delivery;
     }
 
-    public function setDelivery($delivery): void
+    public function setDelivery($delivery): self
     {
         $this->delivery = $delivery;
+        return $this;
     }
 
     /** Событие способа оплаты (для расчета стоимости) */
@@ -103,9 +104,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->event;
     }
 
-    public function setEvent(DeliveryEventUid $event): void
+    public function setEvent(DeliveryEventUid $event): self
     {
         $this->event = $event;
+        return $this;
     }
 
     /** Пользовательские поля */
@@ -114,9 +116,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->field ?: new ArrayCollection();
     }
 
-    public function setField(ArrayCollection $field): void
+    public function setField(ArrayCollection $field): self
     {
         $this->field = $field;
+        return $this;
     }
 
     public function addField($field): void
@@ -143,9 +146,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->geocode;
     }
 
-    public function setGeocode(?GeocodeAddressUid $geocode): void
+    public function setGeocode(?GeocodeAddressUid $geocode): self
     {
         $this->geocode = $geocode;
+        return $this;
     }
 
     /**
@@ -156,9 +160,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->latitude;
     }
 
-    public function setLatitude(?GpsLatitude $latitude): void
+    public function setLatitude(?GpsLatitude $latitude): self
     {
         $this->latitude = $latitude;
+        return $this;
     }
 
 
@@ -170,9 +175,10 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->longitude;
     }
 
-    public function setLongitude(?GpsLongitude $longitude): void
+    public function setLongitude(?GpsLongitude $longitude): self
     {
         $this->longitude = $longitude;
+        return $this;
     }
 
     /**

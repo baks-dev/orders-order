@@ -50,10 +50,9 @@ final class NewOrderDTO implements OrderEventInterface
 
     /**
      * Ответственный
+     *
      * @depricate переносится в invariable
      */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
     private UserProfileUid $profile;
 
 
@@ -140,11 +139,13 @@ final class NewOrderDTO implements OrderEventInterface
         $this->usr = $users;
     }
 
+    /** @deprecated */
     public function getProfile(): UserProfileUid
     {
         return $this->profile;
     }
 
+    /** @deprecated */
     public function setProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;

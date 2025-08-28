@@ -93,7 +93,7 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     /**
      * Profile
      */
-    public function getProfile(): UserProfileUid
+    public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
     }

@@ -42,7 +42,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
@@ -56,7 +58,10 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
     private UserProfileUid|false $profile = false;
 
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
+    ) {}
 
 
     public function from(DateTimeImmutable $from): self
@@ -258,31 +263,55 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "product_trans.event = product_event.id AND product_trans.local = :local",
             );
 
-        /**
-         * Product Invariable
-         */
+
         $dbal
+            ->addSelect("
+            JSON_AGG ( 
+                DISTINCT JSONB_BUILD_OBJECT (
+                    'total', stock.total, 
+                    'reserve', stock.reserve 
+                )) FILTER (WHERE stock.total > stock.reserve)
+    
+                AS stock_total
+            ")
             ->leftJoin(
                 'product_modification',
-                ProductInvariable::class,
-                'product_invariable',
+                ProductStockTotal::class,
+                'stock',
                 '
-                    product_invariable.product = orders_product.product AND
-                    (
-                        (product_offer.const IS NOT NULL AND product_invariable.offer = product_offer.const) OR
-                        (product_offer.const IS NULL AND product_invariable.offer IS NULL)
-                    )
+                    stock.profile = :stock_profile  AND
+                    stock.product = product_event.main 
+                    
                     AND
-                    (
-                        (product_variation.const IS NOT NULL AND product_invariable.variation = product_variation.const) OR
-                        (product_variation.const IS NULL AND product_invariable.variation IS NULL)
-                    )
-                   AND
-                   (
-                        (product_modification.const IS NOT NULL AND product_invariable.modification = product_modification.const) OR
-                        (product_modification.const IS NULL AND product_invariable.modification IS NULL)
-                   )
-            ');
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END
+                            
+                    AND 
+                    
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END 
+                ')
+            ->setParameter(
+                key: 'stock_profile',
+                value: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
 
         $dbal->allGroupByExclude();
 

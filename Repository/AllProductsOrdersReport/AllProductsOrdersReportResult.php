@@ -36,6 +36,7 @@ final readonly class AllProductsOrdersReportResult
         private string $product_article,
         private string $money,
         private int $total,
+        private ?string $stock_total,
 
         private ?string $product_offer_value,
         private ?string $product_offer_reference,
@@ -63,6 +64,31 @@ final readonly class AllProductsOrdersReportResult
     public function getTotal(): int
     {
         return $this->total;
+    }
+
+    public function getStockTotal(): int
+    {
+        if(empty($this->stock_total))
+        {
+            return 0;
+        }
+
+        if(false === json_validate($this->stock_total))
+        {
+            return 0;
+        }
+
+        $decode = json_decode($this->stock_total, false, 512, JSON_THROW_ON_ERROR);
+
+        $quantity = 0;
+
+        foreach($decode as $item)
+        {
+            $quantity += (empty($item->total) ? 0 : $item->total);
+            $quantity -= (empty($item->reserve) ? 0 : $item->reserve);
+        }
+
+        return max($quantity, 0);
     }
 
     public function getMoney(): Money

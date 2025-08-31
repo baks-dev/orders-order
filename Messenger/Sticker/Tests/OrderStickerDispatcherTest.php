@@ -37,10 +37,6 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-
-/**
- * @group orders-order
- */
 #[Group('orders-order')]
 #[When(env: 'test')]
 class OrderStickerDispatcherTest extends KernelTestCase

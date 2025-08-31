@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,13 +27,11 @@ namespace BaksDev\Orders\Order\Repository\OrderNumber\NumberByOrder\Tests;
 
 use BaksDev\Orders\Order\Repository\OrderNumber\NumberByOrder\NumberByOrderInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-
-/**
- * @group orders-order
- */
+#[Group('orders-order')]
 #[When(env: 'test')]
 class NumberByOrderRepositoryTest extends KernelTestCase
 {

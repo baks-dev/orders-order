@@ -28,19 +28,19 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Status\Tests;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- * @group orders-order-repository
- * @depends BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest::class
- */
+#[Group('orders-order')]
 #[When(env: 'test')]
 final class OrderStatusCompleteTest extends KernelTestCase
 {
+    #[DependsOnClass(OrderNewTest::class)]
     public static function testUseCase(): void
     {
         $orderStatusDTO = new OrderStatusDTO(OrderStatus\Collection\OrderStatusCompleted::STATUS, new OrderEventUid());

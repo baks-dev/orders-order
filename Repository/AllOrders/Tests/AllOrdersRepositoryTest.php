@@ -39,10 +39,6 @@ use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-
-/**
- * @group orders-order
- */
 #[Group('orders-order')]
 #[When(env: 'test')]
 class AllOrdersRepositoryTest extends KernelTestCase

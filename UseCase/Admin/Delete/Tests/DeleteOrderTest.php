@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderHandler;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -41,12 +42,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 //use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\EditOrderTest;
 
 /**
- * @group delete-order-test
- *
  * depends BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\NewOrderTest::class
  * depends BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\EditOrderTest::class
  */
 #[When(env: 'test')]
+#[Group('orders-order')]
 class DeleteOrderTest extends KernelTestCase
 {
     public function testUseCase(): void

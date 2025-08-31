@@ -1,17 +1,17 @@
 <?php
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,21 +25,22 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Controller\Admin\Document\Tests;
 
+use BaksDev\Delivery\UseCase\Admin\NewEdit\Tests\NewDeliveryHandleTest;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
+use BaksDev\Users\Profile\TypeProfile\UseCase\Admin\NewEdit\Tests\NewTypeProfileHandleTest;
+use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\Tests\UserNewUserProfileHandleTest;
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- * @group orders-order-controller
- *
- * @depends BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest::class
- * @depends BaksDev\Delivery\UseCase\Admin\NewEdit\Tests\NewDeliveryHandleTest::class
- * @depends BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\Tests\UserNewUserProfileHandleTest::class
- * @depends BaksDev\Users\Profile\TypeProfile\UseCase\Admin\NewEdit\Tests\NewTypeProfileHandleTest::class
- */
+#[Group('orders-order')]
+#[When(env: 'test')]
 final class SalesInvoiceControllerTest extends WebTestCase
 {
+
     private const string URL = '/admin/order/document/sales';
 
     private static ?array $post_data = null;
@@ -63,6 +64,10 @@ final class SalesInvoiceControllerTest extends WebTestCase
      * Доступ по без роли
      *
      */
+    #[DependsOnClass(OrderNewTest::class)]
+    #[DependsOnClass(NewDeliveryHandleTest::class)]
+    #[DependsOnClass(UserNewUserProfileHandleTest::class)]
+    #[DependsOnClass(NewTypeProfileHandleTest::class)]
     public function testGuestFiled(): void
     {
         self::ensureKernelShutdown();
@@ -82,6 +87,10 @@ final class SalesInvoiceControllerTest extends WebTestCase
     }
 
     /** Доступ по роли */
+    #[DependsOnClass(OrderNewTest::class)]
+    #[DependsOnClass(NewDeliveryHandleTest::class)]
+    #[DependsOnClass(UserNewUserProfileHandleTest::class)]
+    #[DependsOnClass(NewTypeProfileHandleTest::class)]
     public function testRoleSuccessful(): void
     {
 
@@ -105,6 +114,10 @@ final class SalesInvoiceControllerTest extends WebTestCase
     }
 
     // доступ по роли ROLE_ADMIN
+    #[DependsOnClass(OrderNewTest::class)]
+    #[DependsOnClass(NewDeliveryHandleTest::class)]
+    #[DependsOnClass(UserNewUserProfileHandleTest::class)]
+    #[DependsOnClass(NewTypeProfileHandleTest::class)]
     public function testRoleAdminSuccessful(): void
     {
 

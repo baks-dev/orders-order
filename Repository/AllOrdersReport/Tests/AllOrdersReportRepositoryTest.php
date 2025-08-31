@@ -27,27 +27,27 @@ namespace BaksDev\Orders\Order\Repository\AllOrdersReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest;
 use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewAdminUseCaseTest;
 use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- * @group orders-order-repository
- * @depends BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest::class
- */
+#[Group('orders-order')]
 #[When(env: 'test')]
 final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
     {
         ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
-        new ProductsProductNewAdminUseCaseTest()->testUseCase();
+        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
     }
 
+    #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testFind(): void
     {
         /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */

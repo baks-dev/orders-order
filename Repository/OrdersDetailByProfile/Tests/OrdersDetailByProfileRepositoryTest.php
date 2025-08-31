@@ -29,12 +29,12 @@ use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileI
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\AdminUserProfile\AdminUserProfileInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- */
+#[Group('orders-order')]
 #[When(env: 'test')]
 class OrdersDetailByProfileRepositoryTest extends KernelTestCase
 {
@@ -178,7 +178,7 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         }
     }
 
-    /** @depends testFindAll */
+    #[Depends('testFindAll')]
     public function testOrderProducts(): void
     {
         if(false === self::$result)
@@ -202,7 +202,7 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         }
     }
 
-    /** @depends testOrderProducts */
+    #[Depends('testOrderProducts')]
     public function testOrderUser(): void
     {
         if(false === self::$result)

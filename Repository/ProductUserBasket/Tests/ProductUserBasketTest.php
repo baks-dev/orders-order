@@ -49,10 +49,6 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertNull;
 
-/**
- * @group orders-order
- * @group orders-order-repo
- */
 #[Group('orders-order')]
 #[When(env: 'test')]
 class ProductUserBasketTest extends KernelTestCase

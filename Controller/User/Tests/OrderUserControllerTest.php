@@ -25,10 +25,11 @@ namespace BaksDev\Orders\Order\Controller\User\Tests;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/** @group orders-order */
+#[Group('orders-order')]
 #[When(env: 'test')]
 final class OrderUserControllerTest extends WebTestCase
 {

@@ -28,12 +28,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest;
 
-/**
- * @group orders-order
- *
- * @see     DetailControllerTest
- * @depends BaksDev\Orders\Order\Controller\Admin\Tests\DetailControllerTest::class
- */
+
 #[When(env: 'test')]
 final class PackageControllerTest extends WebTestCase
 {

@@ -24,13 +24,11 @@
 namespace BaksDev\Orders\Order\Controller\Public\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group orders-order
- * @group orders-order-controller
- */
+#[Group('orders-order')]
 #[When(env: 'test')]
 final class BasketPublicControllerTest extends WebTestCase
 {

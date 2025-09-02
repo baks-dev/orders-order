@@ -101,13 +101,16 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
         $dbal->from(Order::class, "orders");
 
-        $dbal->join(
-            "orders",
-            OrderInvariable::class,
-            "order_invariable",
-            "order_invariable.main = orders.id"
-            .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
-        );
+        $dbal
+            //->addSelect('order_invariable.number')
+            //->addSelect('order_invariable.number')
+            ->join(
+                "orders",
+                OrderInvariable::class,
+                "order_invariable",
+                "order_invariable.main = orders.id"
+                .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
+            );
 
         if($this->profile instanceof UserProfileUid)
         {
@@ -138,8 +141,18 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
 
         $dbal
-            ->select("SUM(orders_price.total) AS total")
-            ->addSelect("SUM(orders_price.total * orders_price.price) AS money")
+            ->addSelect("
+            JSON_AGG ( 
+                DISTINCT JSONB_BUILD_OBJECT (
+                
+                    'number', order_invariable.number,
+                    'total', orders_price.total, 
+                    'money', orders_price.total * orders_price.price 
+                ))
+    
+                AS total
+            ")
+
             ->join(
                 "orders_product",
                 OrderPrice::class,

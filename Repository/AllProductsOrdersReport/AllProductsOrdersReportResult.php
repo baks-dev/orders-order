@@ -34,8 +34,7 @@ final readonly class AllProductsOrdersReportResult
     public function __construct(
         private string $product_name,
         private string $product_article,
-        private string $money,
-        private int $total,
+        private ?string $total,
         private ?string $stock_total,
 
         private ?string $product_offer_value,
@@ -63,7 +62,31 @@ final readonly class AllProductsOrdersReportResult
 
     public function getTotal(): int
     {
-        return $this->total;
+        if(empty($this->total))
+        {
+            return 0;
+        }
+
+        if(false === json_validate($this->total))
+        {
+            return 0;
+        }
+
+        $decode = json_decode($this->total, false, 512, JSON_THROW_ON_ERROR);
+
+        $total = 0;
+
+        foreach($decode as $item)
+        {
+            if(empty($item->total))
+            {
+                continue;
+            }
+
+            $total += $item->total;
+        }
+
+        return $total;
     }
 
     public function getStockTotal(): int
@@ -93,6 +116,34 @@ final readonly class AllProductsOrdersReportResult
 
     public function getMoney(): Money
     {
+        if(empty($this->total))
+        {
+            return new Money(0);
+        }
+
+        if(false === json_validate($this->total))
+        {
+            return new Money(0);
+        }
+
+        $decode = json_decode($this->total, false, 512, JSON_THROW_ON_ERROR);
+
+        $money = new Money(0);
+
+        foreach($decode as $item)
+        {
+            if(empty($item->money))
+            {
+                continue;
+            }
+
+            $money->add(new Money($item->money));
+
+            //$total += (empty($item->item) ? 0 : $item->total);
+        }
+
+
+
         return new Money($this->money, true);
     }
 

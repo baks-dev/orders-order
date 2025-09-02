@@ -59,7 +59,7 @@ final class ReportOrdersController extends AbstractController
             ->createForm(
                 type: OrdersReportForm::class,
                 data: $ordersReportDTO,
-                options: ['action' => $this->generateUrl('orders-order:admin.document.report.orders')]
+                options: ['action' => $this->generateUrl('orders-order:admin.document.report.orders')],
             )
             ->handleRequest($request);
 
@@ -76,7 +76,7 @@ final class ReportOrdersController extends AbstractController
                 $this->addFlash(
                     'Отчет о заказах',
                     'Отчета за указанный период не найдено',
-                    'orders-order.admin'
+                    'orders-order.admin',
                 );
 
                 return $this->redirectToReferer();
@@ -96,14 +96,15 @@ final class ReportOrdersController extends AbstractController
                 ->setCellValue('A1', 'Дата')
                 ->setCellValue('B1', 'Номер заказа')
                 ->setCellValue('C1', 'Наименование товара')
-                ->setCellValue('D1', 'Артикул')
-                ->setCellValue('E1', 'Стоимость продукта за единицу')
-                ->setCellValue('F1', 'Стоимость продукта в заказе за единицу')
-                ->setCellValue('G1', 'Количество продукта в заказе')
-                ->setCellValue('H1', 'Сумма')
-                ->setCellValue('I1', 'Разница в цене между продуктом и продуктом в заказе')
-                ->setCellValue('J1', 'Способ доставки')
-                ->setCellValue('K1', 'Доставка');
+                ->setCellValue('D1', 'Торговое предложение')
+                ->setCellValue('E1', 'Артикул')
+                ->setCellValue('F1', 'Стоимость продукта за единицу')
+                ->setCellValue('G1', 'Стоимость продукта в заказе за единицу')
+                ->setCellValue('H1', 'Количество продукта в заказе')
+                ->setCellValue('I1', 'Сумма')
+                ->setCellValue('J1', 'Разница в цене между продуктом и продуктом в заказе')
+                ->setCellValue('K1', 'Способ доставки')
+                ->setCellValue('L1', 'Доставка');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
@@ -123,30 +124,51 @@ final class ReportOrdersController extends AbstractController
             {
                 $name = trim($data->getProductName());
 
+
+                $strOffer = '';
+
+                /**
+                 * Множественный вариант
+                 */
+
                 $variation = $call->call(
                     $environment,
                     $data->getProductVariationValue(),
-                    $data->getProductVariationReference().'_render'
+                    $data->getProductVariationReference().'_render',
                 );
-                $name .= $variation ? ' '.trim($variation) : '';
+
+                $strOffer .= $variation ? ' '.trim($variation) : '';
+
+                /**
+                 * Модификация множественного варианта
+                 */
 
                 $modification = $call->call(
                     $environment,
                     $data->getProductModificationValue(),
-                    $data->getProductModificationReference().'_render'
+                    $data->getProductModificationReference().'_render',
                 );
-                $name .= $modification ? ' '.trim($modification) : '';
+
+                $strOffer .= $modification ? ' '.trim($modification) : '';
+
+                /**
+                 * Торговое предложение
+                 */
 
                 $offer = $call->call(
                     $environment,
                     $data->getProductOfferValue(),
-                    $data->getProductOfferReference().'_render'
+                    $data->getProductOfferReference().'_render',
                 );
 
-                $name .= $modification ? ' '.trim($offer) : '';
-                $name .= $data->getProductOfferPostfix() ? ' '.$data->getProductOfferPostfix() : '';
-                $name .= $data->getProductVariationPostfix() ? ' '.$data->getProductVariationPostfix() : '';
-                $name .= $data->getProductModificationPostfix() ? ' '.$data->getProductModificationPostfix() : '';
+                $strOffer .= $modification ? ' '.trim($offer) : '';
+                $strOffer .= $data->getProductOfferPostfix() ? ' '.$data->getProductOfferPostfix() : '';
+                $strOffer .= $data->getProductVariationPostfix() ? ' '.$data->getProductVariationPostfix() : '';
+                $strOffer .= $data->getProductModificationPostfix() ? ' '.$data->getProductModificationPostfix() : '';
+
+                /**
+                 * Информация о стоимости
+                 */
 
                 $orderPrice = $data->getOrderPrice();
                 $money = $data->getMoney();
@@ -158,14 +180,15 @@ final class ReportOrdersController extends AbstractController
                     ->setCellValue('A'.$key, $data->getDate()->format('d.m.Y H:i'))
                     ->setCellValue('B'.$key, $data->getNumber())
                     ->setCellValue('C'.$key, $name)
-                    ->setCellValue('D'.$key, $data->getProductArticle())
-                    ->setCellValue('E'.$key, $productPrice->getValue())
-                    ->setCellValue('F'.$key, $orderPrice->getValue())
-                    ->setCellValue('G'.$key, $data->getTotal())
-                    ->setCellValue('H'.$key, $money->getValue())
-                    ->setCellValue('I'.$key, $profit->getValue())
-                    ->setCellValue('J'.$key, $data->getDeliveryName())
-                    ->setCellValue('K'.$key, $deliveryPrice->getValue());
+                    ->setCellValue('D'.$key, str_replace(' /', '/', $strOffer))
+                    ->setCellValue('E'.$key, $data->getProductArticle())
+                    ->setCellValue('F'.$key, $productPrice->getValue())
+                    ->setCellValue('G'.$key, $orderPrice->getValue())
+                    ->setCellValue('H'.$key, $data->getTotal())
+                    ->setCellValue('I'.$key, $money->getValue())
+                    ->setCellValue('J'.$key, $profit->getValue())
+                    ->setCellValue('K'.$key, $data->getDeliveryName())
+                    ->setCellValue('L'.$key, $deliveryPrice->getValue());
 
                 $allTotal += $data->getTotal();
                 $allPrice->add($money);

@@ -101,13 +101,15 @@ final class ReportProductsController extends AbstractController
             // Запись заголовков
             $sheet
                 ->setCellValue('A1', 'Наименование товара')
-                ->setCellValue('B1', 'Артикул товара')
-                ->setCellValue('C1', 'Общее количество за период')
-                ->setCellValue('D1', 'Суммарная стоимость за период')
-                ->setCellValue('E1', 'Остаток');
+                ->setCellValue('B1', 'Торговое предложение')
+                ->setCellValue('C1', 'Артикул товара')
+                ->setCellValue('D1', 'Общее количество за период')
+                ->setCellValue('E1', 'Суммарная стоимость за период')
+                ->setCellValue('F1', 'Остаток');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
+            $sheet->getColumnDimension('C')->setAutoSize(true);
 
             $allTotal = 0;
             $allStock = 0;
@@ -118,41 +120,61 @@ final class ReportProductsController extends AbstractController
             /** @var AllProductsOrdersReportResult $data */
             foreach($result as $data)
             {
-                $name = trim($data->getProductName());
+                $strOffer = '';
+
+                /**
+                 * Множественный вариант
+                 */
 
                 $variation = $call->call(
                     $environment,
                     $data->getProductVariationValue(),
                     $data->getProductVariationReference().'_render',
                 );
-                $name .= $variation ? ' '.trim($variation) : '';
+
+                $strOffer .= $variation ? ' '.trim($variation) : '';
+
+                /**
+                 * Модификация множественного варианта
+                 */
 
                 $modification = $call->call(
                     $environment,
                     $data->getProductModificationValue(),
                     $data->getProductModificationReference().'_render',
                 );
-                $name .= $modification ? ' '.trim($modification) : '';
+
+                $strOffer .= $modification ? ' '.trim($modification) : '';
+
+                /**
+                 * Торговое предложение
+                 */
 
                 $offer = $call->call(
                     $environment,
                     $data->getProductOfferValue(),
                     $data->getProductOfferReference().'_render',
                 );
-                $name .= $modification ? ' '.trim($offer) : '';
 
-                $name .= $data->getProductOfferPostfix() ? ' '.$data->getProductOfferPostfix() : '';
-                $name .= $data->getProductVariationPostfix() ? ' '.$data->getProductVariationPostfix() : '';
-                $name .= $data->getProductModificationPostfix() ? ' '.$data->getProductModificationPostfix() : '';
+                $strOffer .= $modification ? ' '.trim($offer) : '';
+
+                $strOffer .= $data->getProductOfferPostfix() ? ' '.$data->getProductOfferPostfix() : '';
+                $strOffer .= $data->getProductVariationPostfix() ? ' '.$data->getProductVariationPostfix() : '';
+                $strOffer .= $data->getProductModificationPostfix() ? ' '.$data->getProductModificationPostfix() : '';
+
+                /**
+                 * Информация о стоимости
+                 */
 
                 $money = $data->getMoney();
 
                 $sheet
-                    ->setCellValue('A'.$key, $name)
-                    ->setCellValue('B'.$key, $data->getProductArticle())
-                    ->setCellValue('C'.$key, $data->getTotal())
-                    ->setCellValue('D'.$key, $money->getValue())
-                    ->setCellValue('E'.$key, $data->getStockTotal());
+                    ->setCellValue('A'.$key, $data->getProductName())
+                    ->setCellValue('B'.$key, str_replace(' /', '/', $strOffer))
+                    ->setCellValue('C'.$key, $data->getProductArticle())
+                    ->setCellValue('D'.$key, $data->getTotal())
+                    ->setCellValue('E'.$key, $money->getValue())
+                    ->setCellValue('F'.$key, $data->getStockTotal());
 
                 $allTotal += $data->getTotal();
                 $allStock += $data->getStockTotal();
@@ -163,9 +185,9 @@ final class ReportProductsController extends AbstractController
             // Общее количество и общая стоимость
             $sheet
                 ->setCellValue('A'.$key, "Итого")
-                ->setCellValue('C'.$key, $allTotal)
-                ->setCellValue('D'.$key, $allPrice)
-                ->setCellValue('E'.$key, $allStock);
+                ->setCellValue('D'.$key, $allTotal)
+                ->setCellValue('E'.$key, $allPrice)
+                ->setCellValue('F'.$key, $allStock);
 
             $filename =
                 'Отчёт о заказах по продуктам ('.

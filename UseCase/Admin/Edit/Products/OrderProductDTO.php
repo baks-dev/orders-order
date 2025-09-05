@@ -38,10 +38,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see OrderProduct */
 final class OrderProductDTO implements OrderProductInterface
 {
     /** Идентификатор продукта в заказе */
-    #[Assert\NotBlank]
     #[Assert\Uuid]
     private OrderProductUid $id;
 

@@ -383,8 +383,11 @@
                             ></span>
                         </div>
 
+                        {% set organization_field = constant('BaksDev\\Field\\Pack\\Organization\\Type\\OrganizationField::TYPE') %}
+                        {% set contact_field = constant('BaksDev\\Field\\Pack\\Contact\\Type\\ContactField::TYPE') %}
+                        {% set phone_field = constant('BaksDev\\Field\\Pack\\Phone\\Type\\PhoneField::TYPE') %}
 
-                        {% for user in users %}
+                        {% for user in users|filter(v => v.profile_type == organization_field or v.profile_type == contact_field or v.profile_type == phone_field) %}
                             <div class='d-flex flex-column small'>
                                 <small class="small text-muted">{{ user.profile_name }}</small>
                                 <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>

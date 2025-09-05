@@ -4,6 +4,65 @@
         {{ include(_self|replace({ "content.html.twig": "breadcrumb.html.twig" })) }}
     </div>
 
+    {% if baks_profile.user_profile_profiles is defined %}
+
+        {% set authProfiles = baks_profile.user_profile_profiles|sort((a, b) => a.user_profile_username <=> b.user_profile_username) %}
+
+
+        <div class="btn-group">
+
+            <button class="btn btn-outline-secondary border-light btn-sm disabled d-flex text-dark gap-3 pe-3"
+                    type="button">
+                <span>Покупатель:</span>
+                <strong>{{ baks_profile.user_profile_username }}</strong>
+                <span class="badge text-bg-secondary">{{ baks_profile.user_profile_type }}</span>
+            </button>
+
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary border-light dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+
+            <ul class="dropdown-menu leader p-3">
+                {% for profil in authProfiles %}
+
+                    {% if baks_profile.id is defined %}
+
+                        {% if baks_profile.id != profil.user_profile_id %}
+                            <li class="p-1 w-100 list-group-item rounded-5">
+                                <a class="d-block text-decoration-none w-100 px-1 text-nowrap"
+                                   href="{{ path('users-profile-user:user.activate', { id: profil.user_profile_event }) }}">
+                                    {{ profil.user_profile_username }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="p-1 w-100 disabled">
+                                <div class="px-1 text-nowrap text-muted fw-normal">
+                                    &bull; &nbsp; {{ profil.user_profile_username }}
+                                </div>
+                            </li>
+                        {% endif %}
+
+                    {% endif %}
+
+                {% else %}
+
+                    <li class="p-1 w-100 list-group-item rounded-3">
+                        <a href='{{ path('users-profile-user:user.index') }}'
+                           class="d-block text-decoration-none w-100 px-2 text-nowrap text-secondary small ">
+                            + Добавить профиль
+                        </a>
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+        </div>
+
+    {% endif %}
+
+
 
     {% if form %}
         {{ form_start(form) }}
@@ -15,7 +74,8 @@
 
                 <div class="small">
                     <button class="btn share-btn border-0" id="shareButton" data-shared="{{ share }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-share-fill" viewbox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                             class="bi bi-share-fill" viewbox="0 0 16 16">
                             <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
                         </svg>
                     </button>

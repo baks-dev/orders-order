@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
 use BaksDev\Field\Pack\Contact\Type\ContactField;
+use BaksDev\Field\Pack\Organization\Type\OrganizationField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
@@ -228,6 +229,16 @@ final class AllOrdersResult
         }
 
         return json_decode($this->order_user, false, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public function getOrganizationName(): ?object
+    {
+        /** Пробуем определить название организации */
+        $filter = array_filter($this->getOrderUser(), static function(object $element) {
+            return $element->profile_type === OrganizationField::TYPE;
+        });
+
+        return current($filter) ?: null;
     }
 
     public function getClientName(): ?object

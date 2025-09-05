@@ -146,6 +146,19 @@
                     {{ order.orderProfile }}
                 </div>
 
+                {% if order.getOrganizationName %}
+                    <div class="text-primary text-truncate"
+                         style="max-width: 140px;"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='{{ order.getOrganizationName.profile_value }}'
+                    >
+                        {{ order.getOrganizationName.profile_value|call_twig_func(order.clientName.profile_type~'_template') }}
+                    </div>
+                {% endif %}
+
                 {% if order.clientName %}
                     <div class='mb-1 text-truncate pointer fw-bolder'
                          style="max-width: 140px;"

@@ -3,7 +3,7 @@
     {% if stickers %}
         {% for sticker in stickers %}
 
-            <img src="data:image/jpeg;base64, {{ sticker }}" alt="sticker" style="max-width:300px;"/>
+            <img src="data:image/jpeg;base64, {{ sticker }}" alt="sticker" style="max-width:300px; min-width: 300px;"/>
 
             {% if loop.last != true %}
                 <div style="page-break-after: always !important;"></div>

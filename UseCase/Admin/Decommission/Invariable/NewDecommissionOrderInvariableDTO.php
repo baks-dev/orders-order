@@ -43,6 +43,7 @@ final class NewDecommissionOrderInvariableDTO implements OrderInvariableInterfac
     /**
      * Идентификатор заказа
      */
+    #[Assert\NotBlank]
     private string $number;
 
 

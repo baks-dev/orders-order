@@ -83,7 +83,7 @@ final class IndexController extends AbstractController
         /** @var OrderStatus $status */
         foreach(OrderStatus::cases() as $status)
         {
-            if($status->equals('canceled'))
+            if($status->equals('canceled') || $status->equals('decommission'))
             {
                 continue;
             }

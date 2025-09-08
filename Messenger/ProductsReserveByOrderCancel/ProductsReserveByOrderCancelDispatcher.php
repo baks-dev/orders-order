@@ -32,6 +32,7 @@ use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
@@ -50,7 +51,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * Снимаем только резерв с продукции при отмене заказа
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
-#[AsMessageHandler(priority: 900)]
+#[AsMessageHandler(priority: 999)]
 final readonly class ProductsReserveByOrderCancelDispatcher
 {
     public function __construct(
@@ -90,8 +91,11 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
-        /** Если статус не "ОТМЕНА" - завершаем обработчик */
-        if(false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
+        /** Если статус не "ОТМЕНА" и не "СПИСАНИЕ" - завершаем обработчик */
+        if(
+            false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class)
+            && false === $OrderEvent->isStatusEquals(OrderStatusDecommission::class)
+        )
         {
             return;
         }

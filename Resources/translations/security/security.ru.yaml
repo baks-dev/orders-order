@@ -80,3 +80,7 @@ ROLE_ORDERS_STATUS_MARKETPLACE:
 ROLE_ORDERS_STATUS_DELIVERY:
   name: 'Доставка'
   desc: 'Передн в службу доставки'
+
+ROLE_ORDERS_STATUS_DECOMMISSION:
+  name: 'Списание'
+  desc: ''

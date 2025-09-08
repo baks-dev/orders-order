@@ -6,6 +6,7 @@ canceled: 'Отменен'
 extradition: 'Собран'
 unpaid: 'Не оплачен'
 marketplace: 'Маркетплейс'
+decommission: 'Списание'
 
 public_new: 'Создан'
 public_package: 'В обработке'

@@ -33,14 +33,25 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
+#[Group('orders-order-type')]
 #[When(env: 'test')]
 final class OrderStatusTest extends KernelTestCase
 {
     public function testUseCase(): void
     {
+        // Бросаем событие консольной комманды
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
+        $dispatcher->dispatch($event, 'console.command');
+
         /** @var OrderStatusCollection $OrderStatusCollection */
         $OrderStatusCollection = self::getContainer()->get(OrderStatusCollection::class);
 

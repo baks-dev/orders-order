@@ -37,7 +37,7 @@ final class NewDecommissionOrderInvariableForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('number', HiddenType::class);
+        $builder->add('number', TextType::class, ['label' => 'Номер']);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

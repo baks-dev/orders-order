@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Decommission\Products\NewDecommissionOrde
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Repository\CurrentProductEvent\CurrentProductEventInterface;
 use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByConstInterface;
+use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByConstResult;
 use BaksDev\Products\Sign\UseCase\Admin\Decommission\DecommissionProductSignDTO;
 use BaksDev\Products\Sign\UseCase\Admin\Decommission\DecommissionProductSignHandler;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
@@ -63,7 +64,7 @@ final class DecommissionController extends AbstractController
 
         /** Product */
         $productEvent = $CurrentProductEventRepository->findByProduct($productStocksTotal->getProduct());
-        if(false === $productEvent instanceof ProductEvent)
+        if(false === ($productEvent instanceof ProductEvent))
         {
             throw new InvalidArgumentException(sprintf(
                 'Event of product %s does not exist',
@@ -78,6 +79,11 @@ final class DecommissionController extends AbstractController
             ->modificationConst($productStocksTotal->getModification())
             ->findResult();
 
+        if(false === ($productDetail instanceof ProductDetailByConstResult))
+        {
+            return $this->redirectToReferer();
+        }
+
         $productDTO = new NewDecommissionOrderProductDTO()
             ->setProduct($productEvent->getId())
             ->setOffer($productDetail->getProductOfferUid())
@@ -86,7 +92,7 @@ final class DecommissionController extends AbstractController
 
         $orderDTO->addProduct($productDTO);
 
-        $orderDTO->getInvariable()->setProfile($this->getCurrentProfileUid())->setUsr($this->getCurrentUsr());
+        $orderDTO->getInvariable()->setProfile($this->getProfileUid())->setUsr($this->getUsr()->getId());
 
         $form = $this
             ->createForm(
@@ -107,17 +113,17 @@ final class DecommissionController extends AbstractController
 
             $this->addFlash(
                 'page.new',
-                $handle instanceof Order ? 'success.new' : 'danger.new',
+                ($handle instanceof Order) ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                $handle instanceof Order ? $orderDTO->getInvariable()->getNumber() : $handle,
+                ($handle instanceof Order) ? $orderDTO->getInvariable()->getNumber() : $handle,
             );
 
-            if(true === $handle instanceof Order &&true === $form->get('signs')->getData())
+            if(true === ($handle instanceof Order) && true === $orderDTO->isSigns())
             {
                 $DecommissionProductSignHandler->handle(new DecommissionProductSignDTO()
                     ->setUsr($this->getCurrentUsr())
                     ->setProfile($this->getCurrentProfileUid())
-                    ->setTotal($form->get('product')->getData()->current()->getPrice()->getTotal())
+                    ->setTotal($orderDTO->getProduct()->current()->getPrice()->getTotal())
                     ->setOffer($productDetail->getProductOfferConst())
                     ->setVariation($productDetail->getProductVariationConst())
                     ->setModification($productDetail->getProductModificationConst())
@@ -126,7 +132,7 @@ final class DecommissionController extends AbstractController
                 );
             }
 
-            return $handle instanceof Order ? $this->redirectToRoute('products-stocks:admin.total.index') : $this->redirectToReferer();
+            return ($handle instanceof Order) ? $this->redirectToRoute('products-stocks:admin.total.index') : $this->redirectToReferer();
         }
 
         return $this->render([

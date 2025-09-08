@@ -1,17 +1,17 @@
 <?php
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,12 +39,13 @@ use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByConstResult
 use BaksDev\Products\Sign\UseCase\Admin\Decommission\DecommissionProductSignDTO;
 use BaksDev\Products\Sign\UseCase\Admin\Decommission\DecommissionProductSignHandler;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
+use BaksDev\Users\User\Type\Id\UserUid;
+use InvalidArgumentException;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use InvalidArgumentException;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_DECOMMISSION')]
@@ -55,80 +56,94 @@ final class DecommissionController extends AbstractController
         Request $request,
         #[MapEntity] ProductStockTotal $productStocksTotal,
         NewDecommissionOrderHandler $NewDecommissionOrderHandler,
-        CurrentProductEventInterface $CurrentProductEventRepository,
         ProductDetailByConstInterface $productDetailByConst,
         DecommissionProductSignHandler $DecommissionProductSignHandler,
     ): Response
     {
-        $orderDTO = new NewDecommissionOrderDTO();
+        $UserUid = $this->getUsr()?->getId();
 
-        /** Product */
-        $productEvent = $CurrentProductEventRepository->findByProduct($productStocksTotal->getProduct());
-        if(false === ($productEvent instanceof ProductEvent))
+        if(false === ($UserUid instanceof UserUid))
         {
-            throw new InvalidArgumentException(sprintf(
-                'Event of product %s does not exist',
-                $productStocksTotal->getProduct())
-            );
+            throw new InvalidArgumentException('Invalid Argument User');
         }
 
-        $productDetail = $productDetailByConst
+        /** Получаем идентификаторы события продукта для заказа */
+
+        $ProductDetailByConstResult = $productDetailByConst
             ->product($productStocksTotal->getProduct())
             ->offerConst($productStocksTotal->getOffer())
             ->variationConst($productStocksTotal->getVariation())
             ->modificationConst($productStocksTotal->getModification())
             ->findResult();
 
-        if(false === ($productDetail instanceof ProductDetailByConstResult))
+        if(false === ($ProductDetailByConstResult instanceof ProductDetailByConstResult))
         {
             return $this->redirectToReferer();
         }
 
+        $NewDecommissionOrderDTO = new NewDecommissionOrderDTO();
+
+        /** Добавляем продукт в коллекцию заказа */
+
         $productDTO = new NewDecommissionOrderProductDTO()
-            ->setProduct($productEvent->getId())
-            ->setOffer($productDetail->getProductOfferUid())
-            ->setVariation($productDetail->getProductVariationUid())
-            ->setModification($productDetail->getProductModificationUid());
+            ->setProduct($ProductDetailByConstResult->getEvent())
+            ->setOffer($ProductDetailByConstResult->getProductOfferUid())
+            ->setVariation($ProductDetailByConstResult->getProductVariationUid())
+            ->setModification($ProductDetailByConstResult->getProductModificationUid());
 
-        $orderDTO->addProduct($productDTO);
+        $NewDecommissionOrderDTO->addProduct($productDTO);
 
-        $orderDTO->getInvariable()->setProfile($this->getProfileUid())->setUsr($this->getUsr()->getId());
+
+        /** Присваиваем профиль пользователя в качестве целевого склада */
+        $NewDecommissionOrderDTO
+            ->getInvariable()
+            ->setProfile($this->getProfileUid())
+            ->setUsr($UserUid);
+
 
         $form = $this
             ->createForm(
                 type: NewDecommissionOrderForm::class,
-                data: $orderDTO,
+                data: $NewDecommissionOrderDTO,
                 options: ['action' => $this->generateUrl(
                     'orders-order:admin.decommission.new',
-                    ['id' => (string) $productStocksTotal]
+                    ['id' => (string) $productStocksTotal],
                 )],
             )
             ->handleRequest($request);
+
 
         if($form->isSubmitted() && $form->isValid() && $form->has('new_decommission_order'))
         {
             $this->refreshTokenForm($form);
 
-            $handle = $NewDecommissionOrderHandler->handle($orderDTO);
+            $handle = $NewDecommissionOrderHandler->handle($NewDecommissionOrderDTO);
 
             $this->addFlash(
                 'page.new',
                 ($handle instanceof Order) ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                ($handle instanceof Order) ? $orderDTO->getInvariable()->getNumber() : $handle,
+                ($handle instanceof Order) ? $NewDecommissionOrderDTO->getInvariable()->getNumber() : $handle,
             );
 
-            if(true === ($handle instanceof Order) && true === $orderDTO->isSigns())
+            /**
+             * Если выбрано списание честных знаков - отправляем на поиск и списание честных знаков
+             */
+
+            if(true === ($handle instanceof Order) && true === $NewDecommissionOrderDTO->isSigns())
             {
+                $NewDecommissionOrderProductDTO = $NewDecommissionOrderDTO->getProduct()->current();
+
                 $DecommissionProductSignHandler->handle(new DecommissionProductSignDTO()
-                    ->setUsr($this->getCurrentUsr())
-                    ->setProfile($this->getCurrentProfileUid())
-                    ->setTotal($orderDTO->getProduct()->current()->getPrice()->getTotal())
-                    ->setOffer($productDetail->getProductOfferConst())
-                    ->setVariation($productDetail->getProductVariationConst())
-                    ->setModification($productDetail->getProductModificationConst())
-                    ->setProduct($productDetail->getId())
-                    ->setOrd($handle->getId())
+                    ->setUsr($UserUid)
+                    ->setProfile($this->getProfileUid())
+                    ->setTotal($NewDecommissionOrderProductDTO->getPrice()->getTotal())
+                    ->setOffer($ProductDetailByConstResult->getProductOfferConst())
+                    ->setVariation($ProductDetailByConstResult->getProductVariationConst())
+                    ->setModification($ProductDetailByConstResult->getProductModificationConst())
+                    ->setProduct($ProductDetailByConstResult->getId())
+                    ->setSeller($this->getProfileUid())
+                    ->setOrd($handle->getId()),
                 );
             }
 
@@ -137,8 +152,8 @@ final class DecommissionController extends AbstractController
 
         return $this->render([
             'form' => $form->createView(),
-            'card' => $productDetail,
-            'total' => $productStocksTotal->getTotal()
+            'card' => $ProductDetailByConstResult,
+            'total' => $productStocksTotal->getTotal(),
         ]);
     }
 }

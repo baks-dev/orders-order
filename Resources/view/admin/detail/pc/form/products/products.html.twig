@@ -80,7 +80,7 @@
                 {# Выводим бейдж при несоответствии цены продукта и заказа #}
                 <div class="col position-relative mt-2">
                     {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
-                        <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0 mt-2">
+                        <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0">
                             <strike class="small text-muted">
                                 {{ money(card.productPrice, card.productCurrency) }}
                             </strike>
@@ -95,9 +95,9 @@
         {# Запрет на редактирвоание количества либо стоимости #}
 
         <td class="vertical-middle text-center">
-            {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
+            {# {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
                 <span class="text-danger">Не указана</span>
-            {% else %}
+            {% endif %} #}
 
                 {% if product.price.price is defined %}
 
@@ -139,7 +139,7 @@
                     {{ money(product.vars.data.price.price, card.productCurrency) }}
                 {% endif %}
 
-            {% endif %}
+
         </td>
 
 

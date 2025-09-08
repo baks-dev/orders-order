@@ -32,6 +32,7 @@ use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
@@ -91,8 +92,11 @@ final readonly class ProductReserveByOrderNewDispatcher
             return;
         }
 
-        /** Если заказ не является новым - завершаем обработчик */
-        if(false === $OrderEvent->isStatusEquals(OrderStatusNew::class))
+        /** Если заказ не является новым и не списывает продукцию на складе - завершаем обработчик */
+        if(
+            false === $OrderEvent->isStatusEquals(OrderStatusNew::class)
+            && false === $OrderEvent->isStatusEquals(OrderStatusDecommission::class)
+        )
         {
             return;
         }
@@ -135,8 +139,6 @@ final readonly class ProductReserveByOrderNewDispatcher
         {
             return;
         }
-
-
 
         $this->logger->info(
             sprintf('%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)', $OrderEvent->getOrderNumber()),

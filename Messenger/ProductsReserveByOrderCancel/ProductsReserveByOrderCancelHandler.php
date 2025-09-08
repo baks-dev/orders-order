@@ -47,8 +47,6 @@ final readonly class ProductsReserveByOrderCancelHandler
 
     public function __invoke(ProductsReserveByOrderCancelMessage $message): void
     {
-
-
         /**
          * Всегда пробуем определить активное состояние карточки на случай обновления
          */

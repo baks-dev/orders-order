@@ -5,6 +5,7 @@ page:
   edit: 'Edit order'
   delete: 'Delete order'
   add: 'Add products to order'
+  decommission: 'Product decommission'
 
 breadcrumb:
   index: 'Order management'

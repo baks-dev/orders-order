@@ -188,7 +188,7 @@
 
             <div class="d-flex justify-content-between gap-2 cards-box p-2 ">
 
-                {% set status_array = status|filter(v => v.getValue() != 'canceled') %}
+                {% set status_array = status|filter(v => v.getValue() != 'canceled' and v.getValue() != 'decommission') %}
                 {% set width_col = (1100 / (status_array|length))|round %}
 
                 {% for stats in status_array %}

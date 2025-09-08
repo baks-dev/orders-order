@@ -37,6 +37,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -83,12 +86,12 @@ final class IndexController extends AbstractController
         /** @var OrderStatus $status */
         foreach(OrderStatus::cases() as $status)
         {
-            if($status->equals('canceled'))
+            if($status->equals(OrderStatusCanceled::class) || $status->equals(OrderStatusDecommission::class))
             {
                 continue;
             }
 
-            if($status->equals('completed'))
+            if($status->equals(OrderStatusCompleted::class))
             {
                 $allOrders->setLimit(10);
             }

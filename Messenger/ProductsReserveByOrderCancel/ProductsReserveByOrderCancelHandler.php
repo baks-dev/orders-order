@@ -34,6 +34,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Снимает резерв с карточки товара при отмене заказа
+ *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[AsMessageHandler(priority: 999)]
@@ -79,12 +80,11 @@ final readonly class ProductsReserveByOrderCancelHandler
             ->subQuantity(false)
             ->update();
 
-
         if($result === 0)
         {
             $this->logger->critical(
                 'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [var_export($message, true), self::class.':'.__LINE__,]
+                [var_export($message, true), self::class.':'.__LINE__,],
             );
 
             return;
@@ -92,7 +92,7 @@ final readonly class ProductsReserveByOrderCancelHandler
 
         $this->logger->info(
             'Сняли общий резерв продукции в карточке при отмене заказа',
-            [var_export($message, true), self::class.':'.__LINE__,]
+            [var_export($message, true), self::class.':'.__LINE__,],
         );
     }
 }

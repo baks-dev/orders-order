@@ -41,6 +41,11 @@ final class OrderEventPrintHandler extends AbstractHandler
             return false;
         }
 
+        if(true === $OrderEvent->isPrinted())
+        {
+            return true;
+        }
+
         $this->setCommand($command);
 
         $OrderEvent->setEntity($command);

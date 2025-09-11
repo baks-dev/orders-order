@@ -208,7 +208,8 @@ executeFunc(function P8X1I2diQ4()
 
                         /** Инициируем LAZYLOAD  */
                         let lazy = document.createElement('script');
-                        lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
+                        lazy.src = "/assets/js/lazyload.min.js?v=" + Date.now();
+
                         document.head.appendChild(lazy);
 
 

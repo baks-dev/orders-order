@@ -97,6 +97,6 @@ class OrderPrint extends EntityReadonly
 
     public function isPrinted(): bool
     {
-        return $this->printed;
+        return $this->printed === true;
     }
 }

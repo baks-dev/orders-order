@@ -108,7 +108,7 @@ class OrderEvent extends EntityEvent
 
     /** Флаг о печати */
     #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
-    private OrderPrint $printed;
+    private ?OrderPrint $printed = null;
 
     /** Комментарий к заказу */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -145,6 +145,11 @@ class OrderEvent extends EntityEvent
     public function getMain(): ?OrderUid
     {
         return $this->orders;
+    }
+
+    public function isPrinted(): bool
+    {
+        return $this->printed?->isPrinted() === true;
     }
 
     public function setMain(OrderUid|Order $order): void

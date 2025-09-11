@@ -163,6 +163,11 @@ final class AllOrdersResult
 
         foreach($this->getProductPrice() as $item)
         {
+            if(empty($item->total))
+            {
+                continue;
+            }
+
             $multiplication = $item->price->multiplication($item->total);
             $totalPrice->add($multiplication);
         }

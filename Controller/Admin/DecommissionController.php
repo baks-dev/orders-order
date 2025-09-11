@@ -48,7 +48,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDERS_DECOMMISSION')]
+#[RoleSecurity('ROLE_ORDERS_STATUS_DECOMMISSION')]
 final class DecommissionController extends AbstractController
 {
     #[Route('/admin/order/decommission/{id}', name: 'admin.decommission.new', methods: ['GET', 'POST'])]

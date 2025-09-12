@@ -69,18 +69,18 @@ final class PackageOrderInvariableForm extends AbstractType
          * Идентификатор пользователя
          */
 
-        $builder->add('usr', HiddenType::class);
-
-        $builder->get('usr')->addModelTransformer(
-            new CallbackTransformer(
-                function(?UserUid $user) {
-                    return $user instanceof UserUid ? $user->getValue() : $user;
-                },
-                function(?string $user) {
-                    return $user ? new UserUid($user) : null;
-                },
-            ),
-        );
+        //        $builder->add('usr', HiddenType::class);
+        //
+        //        $builder->get('usr')->addModelTransformer(
+        //            new CallbackTransformer(
+        //                function(?UserUid $user) {
+        //                    return $user instanceof UserUid ? $user->getValue() : $user;
+        //                },
+        //                function(?string $user) {
+        //                    return $user ? new UserUid($user) : null;
+        //                },
+        //            ),
+        //        );
 
 
         /**
@@ -140,7 +140,6 @@ final class PackageOrderInvariableForm extends AbstractType
                 /** @var PackageOrderInvariableDTO $PackageOrderInvariableDTO */
                 //$PackageOrderDTO = $event->getData();
                 $PackageOrderInvariableDTO = $event->getData();
-
 
                 /**
                  * Присваиваем идентификаторы заказа

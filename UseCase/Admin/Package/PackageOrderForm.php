@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 
 use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Package\Invariable\PackageOrderInvariableDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\Invariable\PackageOrderInvariableForm;
 use BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\OrderDeliveryDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -45,46 +46,18 @@ final class PackageOrderForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
-        $builder->add('invariable', PackageOrderInvariableForm::class);
-        $builder->add('product', HiddenType::class);
+        $builder->add('invariable', PackageOrderInvariableForm::class, ['label' => false]);
 
         $builder->addEventListener(
             FormEvents::POST_SET_DATA,
             function(FormEvent $event): void {
-
 
                 /** @var PackageOrderDTO $PackageOrderDTO */
                 $PackageOrderDTO = $event->getData();
                 $form = $event->getForm();
 
                 $PackageOrderInvariableDTO = $PackageOrderDTO->getInvariable();
-
                 $UserProfileUid = $PackageOrderInvariableDTO->getProfile();
-
-                /**
-                 * Присваиваем идентификаторы заказа
-                 * методы присвоят идентификаторы только в случае, если ранее они не были определены
-                 */
-
-                $this->productModifier($form, $UserProfileUid);
-
-            },
-        );
-
-        $builder->addEventListener(
-            FormEvents::POST_SET_DATA,
-            function(FormEvent $event): void {
-
-
-                /** @var PackageOrderDTO $PackageOrderDTO */
-                $PackageOrderDTO = $event->getData();
-                $form = $event->getForm();
-
-                $PackageOrderInvariableDTO = $PackageOrderDTO->getInvariable();
-
-                $UserProfileUid = $PackageOrderInvariableDTO->getProfile();
-
 
                 /**
                  * Присваиваем идентификаторы заказа
@@ -109,25 +82,25 @@ final class PackageOrderForm extends AbstractType
         );
 
 
-        //        /**
-        //         * Обновляем список доступной продукции на складе
-        //         */
-        //        $builder->get('invariable')->addEventListener(
-        //            FormEvents::POST_SUBMIT,
-        //            function(FormEvent $event): void {
-        //
-        //                /** @var PackageOrderInvariableDTO $PackageOrderInvariableDTO */
-        //                $PackageOrderInvariableDTO = $event->getData();
-        //                $this->productModifier($event->getForm()->getParent(), $PackageOrderInvariableDTO->getProfile());
-        //            }
-        //        );
+        /**
+         * Обновляем список доступной продукции на складе
+         */
+        $builder->get('invariable')->addEventListener(
+            FormEvents::POST_SUBMIT,
+            function(FormEvent $event): void {
 
+                /** @var PackageOrderInvariableDTO $PackageOrderInvariableDTO */
+                $PackageOrderInvariableDTO = $event->getData();
+
+                $this->productModifier($event->getForm()->getParent(), $PackageOrderInvariableDTO->getProfile());
+            },
+        );
 
         /* Сохранить */
         $builder->add(
             'package',
             SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
     }
 
@@ -141,7 +114,10 @@ final class PackageOrderForm extends AbstractType
         /* Коллекция продукции */
         $form->add('product', CollectionType::class, [
             'entry_type' => Products\PackageOrderProductForm::class,
-            'entry_options' => ['label' => false, 'warehouse' => $profile],
+            'entry_options' => [
+                'label' => false,
+                'warehouse' => $profile,
+            ],
             'label' => false,
             'by_reference' => false,
             'allow_delete' => true,

@@ -56,11 +56,6 @@ final class PackageOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    //    /** Профиль ответственного */
-    //    #[Assert\Uuid]
-    //    private ?UserProfileUid $profile = null;
-
-
     public function __construct()
     {
         $this->product = new ArrayCollection();
@@ -101,25 +96,13 @@ final class PackageOrderDTO implements OrderEventInterface
 
     public function getUsr(): User\OrderUserDTO
     {
-
-        if(!(new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
+        if(false === (new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
         {
             $this->usr = new User\OrderUserDTO();
         }
 
         return $this->usr;
     }
-
-    //    public function getProfile(): ?UserProfileUid
-    //    {
-    //        return $this->profile;
-    //    }
-    //
-    //    public function setProfile(?UserProfileUid $profile): self
-    //    {
-    //        $this->profile = $profile;
-    //        return $this;
-    //    }
 
     /**
      * Status

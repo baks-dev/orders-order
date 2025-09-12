@@ -153,6 +153,7 @@ final class PackageController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid() && $form->has('package'))
         {
+
             $this->refreshTokenForm($form);
 
             /**
@@ -364,6 +365,7 @@ final class PackageController extends AbstractController
                 200,
             );
         }
+
 
         return $this->render(['form' => $form->createView()]);
     }

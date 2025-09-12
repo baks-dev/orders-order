@@ -27,10 +27,14 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products;
 
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
@@ -52,16 +56,78 @@ final class PackageOrderProductForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /*  Перемещение */
-        $builder->add('move', HiddenType::class);
+        //        $builder->add('move', HiddenType::class);
+        //
+        //        $builder->get('move')->addModelTransformer(
+        //            new CallbackTransformer(
+        //                function($move) {
+        //                    return $move instanceof Moving\MovingProductStockForm ? $move : null;
+        //                },
+        //                function($move): void {}
+        //            )
+        //        );
 
-        $builder->get('move')->addModelTransformer(
+
+        $builder->add('product', HiddenType::class);
+
+        $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
-                function($move) {
-                    return $move instanceof Moving\MovingProductStockForm ? $move : null;
+                function($product) {
+                    return $product instanceof ProductEventUid ? $product->getValue() : $product;
                 },
-                function($move): void {}
+                function($product) {
+
+                    return new ProductEventUid($product);
+                },
+            ),
+        );
+
+
+        $builder->add('offer', HiddenType::class);
+
+        $builder->get('offer')->addModelTransformer(
+            new CallbackTransformer(
+                function($offer) {
+                    return $offer instanceof ProductOfferUid ? $offer->getValue() : $offer;
+                },
+                function($offer) {
+
+                    return new ProductOfferUid($offer);
+                },
             )
         );
+
+
+        $builder->add('variation', HiddenType::class);
+
+        $builder->get('variation')->addModelTransformer(
+            new CallbackTransformer(
+                function($variation) {
+                    return $variation instanceof ProductVariationUid ? $variation->getValue() : $variation;
+                },
+                function($variation) {
+
+                    return new ProductVariationUid($variation);
+                },
+            )
+        );
+
+        $builder->add('modification', HiddenType::class);
+
+
+        $builder->get('modification')->addModelTransformer(
+            new CallbackTransformer(
+                function($modification) {
+                    return $modification instanceof ProductModificationUid ? $modification->getValue() : $modification;
+                },
+                function($modification) {
+
+                    return new ProductModificationUid($modification);
+                },
+            ),
+        );
+
+
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
@@ -73,6 +139,7 @@ final class PackageOrderProductForm extends AbstractType
 
                 if($data)
                 {
+
                     $warehouse = $options['warehouse'];
 
                     if(is_null($warehouse))

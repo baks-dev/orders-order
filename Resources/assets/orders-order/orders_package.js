@@ -25,14 +25,14 @@ executeFunc(initOrderPackage);
 
 function initOrderPackage()
 {
-    let orderpackageWarehouse = document.getElementById('package_order_form_invariable_profile');
+    let orderpackageWarehouse = document.getElementById("package_order_form_invariable_profile");
 
     if(orderpackageWarehouse === null)
     {
         return false;
     }
 
-    orderpackageWarehouse.addEventListener('change', changeObjectPackageWarehouse, false);
+    orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
 
     return true;
 }
@@ -51,21 +51,15 @@ function changeObjectPackageWarehouse()
 
     /* Имя формы */
     let PackageOrderForm = document.forms.package_order_form;
-    disabledElementsForm(PackageOrderForm);
+    // disabledElementsForm(PackageOrderForm);
 
+    let formData = new FormData(PackageOrderForm);
+    formData.delete(PackageOrderForm.name + "[_token]");
 
-    let formData = new FormData();
-
-
-    // const varehouse = document.getElementById('moving_product_stock_form_targetWarehouse');
-    // formData.append(varehouse.getAttribute('name'), varehouse.value);
-
-    formData.append(this.getAttribute('name'), this.value);
-
-    requestModalName.open(PackageOrderForm.getAttribute('method'), PackageOrderForm.getAttribute('action'), true);
+    requestModalName.open(PackageOrderForm.getAttribute("method"), PackageOrderForm.getAttribute("action"), true);
 
     /* Указываем заголовки для сервера */
-    requestModalName.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    requestModalName.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
     /* Получаем ответ от сервера на запрос*/
     requestModalName.addEventListener("readystatechange", function()
@@ -74,14 +68,14 @@ function changeObjectPackageWarehouse()
         if(requestModalName.readyState === 4 && requestModalName.status === 200)
         {
 
-            let result = requestModalName.response.getElementById('modal-body');
+            let result = requestModalName.response.getElementById("modal-body");
 
-            result.querySelectorAll('[data-select="select2"]').forEach(function(item)
+            result.querySelectorAll("[data-select=\"select2\"]").forEach(function(item)
             {
-                new NiceSelect(item, {searchable: true});
+                new NiceSelect(item, {searchable : true});
             });
 
-            document.getElementById('modal-body').replaceWith(result);
+            document.getElementById("modal-body").replaceWith(result);
 
 
             /** Изменияем список целевых складов */

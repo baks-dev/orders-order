@@ -65,7 +65,7 @@ final class PackageOrderProductDTO implements OrderProductInterface
 
 
     /** Карточка товара */
-    private ProductUserBasketResult|false $card;
+    private ProductUserBasketResult|false $card = false;
 
 
     /** Событие продукта */

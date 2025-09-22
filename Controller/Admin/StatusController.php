@@ -31,7 +31,6 @@ use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
@@ -90,7 +89,7 @@ final class StatusController extends AbstractController
 
         $OrderStatusDTO = new OrderStatusDTO(
             $OrderStatus,
-            $Order->getEvent()
+            $Order->getEvent(),
         )
             ->setProfile($this->getProfileUid());
 
@@ -112,7 +111,7 @@ final class StatusController extends AbstractController
                     'message' => sprintf('Заказ уже находится в статусе %s', $OrderStatusName),
                     'status' => 400,
                 ],
-                400
+                400,
             );
         }
 
@@ -125,7 +124,7 @@ final class StatusController extends AbstractController
                     'message' => 'Невозможно вернуть заказ на обратную стадию!',
                     'status' => 400,
                 ],
-                400
+                400,
             );
         }
 
@@ -134,10 +133,10 @@ final class StatusController extends AbstractController
          */
 
         /** Невозможно применить повторно статус */
-        $isExistsStatus = $existOrderEventByStatus->isExists(
-            $Order->getId(),
-            $OrderStatusDTO->getStatus()
-        );
+        $isExistsStatus = $existOrderEventByStatus
+            ->forOrder($Order->getId())
+            ->forStatus($OrderStatusDTO->getStatus())
+            ->isExists();
 
         if($isExistsStatus)
         {
@@ -148,7 +147,7 @@ final class StatusController extends AbstractController
                     'message' => 'Невозможно применить повторно статус '.$OrderStatusName,
                     'status' => 400,
                 ],
-                400
+                400,
             );
         }
 
@@ -157,10 +156,10 @@ final class StatusController extends AbstractController
          * Изменить статус выполненного заказа невозможно
          */
 
-        $isExistsCompleted = $existOrderEventByStatus->isExists(
-            $Order->getId(),
-            new OrderStatus(OrderStatusCompleted::class)
-        );
+        $isExistsCompleted = $existOrderEventByStatus
+            ->forOrder($Order->getId())
+            ->forStatus(OrderStatusCompleted::class)
+            ->isExists();
 
         if($isExistsCompleted)
         {
@@ -171,7 +170,7 @@ final class StatusController extends AbstractController
                     'message' => 'Заказ уже выполнен!',
                     'status' => 400,
                 ],
-                400
+                400,
             );
         }
 
@@ -184,10 +183,10 @@ final class StatusController extends AbstractController
              */
             if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusCompleted::class))
             {
-                $isExists = $existOrderEventByStatus->isExists(
-                    $Order->getId(),
-                    new OrderStatus(OrderStatusExtradition::class)
-                );
+                $isExists = $existOrderEventByStatus
+                    ->forOrder($Order->getId())
+                    ->forStatus(OrderStatusExtradition::class)
+                    ->isExists();
 
                 if($isExists === false)
                 {
@@ -198,7 +197,7 @@ final class StatusController extends AbstractController
                             'message' => 'Заказ не прошел стадию упаковки на складе',
                             'status' => 400,
                         ],
-                        400
+                        400,
                     );
                 }
             }
@@ -213,7 +212,7 @@ final class StatusController extends AbstractController
                         'message' => 'Заказ не прошел стадию упаковки на складе',
                         'status' => 400,
                     ],
-                    400
+                    400,
                 );
             }
         }
@@ -230,7 +229,7 @@ final class StatusController extends AbstractController
                         'message' => 'Заказ не прошел стадию погрузки в транспорт доставки',
                         'status' => 400,
                     ],
-                    400
+                    400,
                 );
             }
         }
@@ -246,7 +245,7 @@ final class StatusController extends AbstractController
                     'message' => sprintf('%s: Ошибка при обновлении заказа', $OrderStatusHandler),
                     'status' => 400,
                 ],
-                400
+                400,
             );
         }
 
@@ -268,7 +267,7 @@ final class StatusController extends AbstractController
                 'message' => 'Статус успешно обновлен',
                 'status' => 200,
             ],
-            200
+            200,
         );
     }
 

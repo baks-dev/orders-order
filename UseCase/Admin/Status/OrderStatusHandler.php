@@ -72,7 +72,10 @@ final class OrderStatusHandler extends AbstractHandler
          */
         if($deduplicator)
         {
-            $exists = $this->existOrderEventByStatus->isExists($this->main->getId(), $command->getStatus());
+            $exists = $this->existOrderEventByStatus
+                ->forOrder($this->main->getId())
+                ->forStatus($command->getStatus())
+                ->isExists();
 
             if($exists)
             {
@@ -87,7 +90,7 @@ final class OrderStatusHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order'.($this->event->isStatusEquals(OrderStatusMarketplace::class) ? '-low' : '')
+                transport: 'orders-order'.($this->event->isStatusEquals(OrderStatusMarketplace::class) ? '-low' : ''),
             );
 
         return $this->main;

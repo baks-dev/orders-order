@@ -30,6 +30,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
@@ -43,6 +44,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * При изменении статуса заказа - снимаем резерв и наличие с продукта если заказ выполнен
+ *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[AsMessageHandler(priority: 900)]
@@ -54,7 +56,8 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         private OrderEventInterface $OrderEventRepository,
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private DeduplicatorInterface $deduplicator,
-        private MessageDispatchInterface $messageDispatch
+        private MessageDispatchInterface $messageDispatch,
+        private ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository
     ) {}
 
     public function __invoke(OrderMessage $message): void
@@ -63,10 +66,25 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                self::class
+                self::class,
             ]);
 
         if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+        /**
+         * Проверяем, что статус не вызывается повторно, чтобы исключить двойное списание (например при возврате заказа)
+         */
+
+        $isCompleted = $this->ExistOrderEventByStatusRepository
+            ->forOrder($message->getId())
+            ->forOrderEvent($message->getEvent())
+            ->forStatus(OrderStatusCompleted::class)
+            ->isOtherExists();
+
+        if($isCompleted)
         {
             return;
         }
@@ -78,7 +96,7 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         {
             $this->logger->critical(
                 'products-sign: Не найдено событие OrderEvent',
-                [self::class.':'.__LINE__, var_export($message, true)]
+                [self::class.':'.__LINE__, var_export($message, true)],
             );
 
             return;
@@ -101,7 +119,7 @@ final readonly class ProductReserveByOrderCompletedDispatcher
             {
                 $this->logger->critical(
                     'orders-order: Не найдено событие OrderEvent',
-                    [self::class.':'.__LINE__, var_export($message, true)]
+                    [self::class.':'.__LINE__, var_export($message, true)],
                 );
 
                 return;
@@ -133,12 +151,12 @@ final readonly class ProductReserveByOrderCompletedDispatcher
         $this->logger->info(
             sprintf(
                 '#%s: Снимаем общий резерв и наличие продукции в карточке при выполненном заказе (см. products-product.log)',
-                $OrderEvent->getOrderNumber()
+                $OrderEvent->getOrderNumber(),
             ),
             [
                 self::class.':'.__LINE__,
                 'deduplicator' => $Deduplicator->getKey(),
-            ]
+            ],
         );
 
         $EditOrderDTO = new EditOrderDTO();
@@ -154,9 +172,9 @@ final readonly class ProductReserveByOrderCompletedDispatcher
                     $product->getOffer(),
                     $product->getVariation(),
                     $product->getModification(),
-                    $product->getPrice()->getTotal()
+                    $product->getPrice()->getTotal(),
                 ),
-                transport: 'products-product'
+                transport: 'products-product',
             );
         }
 

@@ -32,34 +32,91 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
+use InvalidArgumentException;
 
 final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatusInterface
 {
+    private OrderUid|false $order = false;
+
+    private OrderEventUid|false $event = false;
+
+    private OrderStatus|false $status = false;
+
     public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
-    /**
-     * Метод проверяет, имеется ли событие у заказа с указанным статусом
-     */
-    public function isExists(OrderUid|string $order, OrderStatus|OrderStatusInterface|string $status): bool
+    public function forOrder(Order|OrderUid $order): self
     {
-        if(is_string($order))
+        if($order instanceof Order)
         {
-            $order = new OrderUid($order);
+            $order = $order->getId();
         }
+
+        $this->order = $order;
+
+        return $this;
+    }
+
+    public function forOrderEvent(OrderEvent|OrderEventUid $event): self
+    {
+
+        if($event instanceof OrderEvent)
+        {
+            $event = $event->getId();
+        }
+
+        $this->event = $event;
+
+        return $this;
+    }
+
+    public function forStatus(OrderStatus|OrderStatusInterface|string $status): self
+    {
 
         if(is_string($status) || $status instanceof OrderStatusInterface)
         {
             $status = new OrderStatus($status);
         }
 
+        $this->status = $status;
+
+        return $this;
+    }
+
+
+    /**
+     * Метод проверяет, имеется ли событие у заказа с указанным статусом
+     */
+    public function isExists(): bool
+    {
+        if(false === ($this->order instanceof OrderUid))
+        {
+            throw new InvalidArgumentException('Invalid Argument OrderUid');
+        }
+
+        if(false === ($this->status instanceof OrderStatus))
+        {
+            throw new InvalidArgumentException('Invalid Argument OrderStatus');
+        }
+
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
+        $dbal->from(OrderEvent::class, 'event');
+
         $dbal
-            ->from(OrderEvent::class, 'event')
             ->where('event.orders = :ord')
-            ->setParameter('ord', $order, OrderUid::TYPE)
+            ->setParameter(
+                key: 'ord',
+                value: $this->order,
+                type: OrderUid::TYPE,
+            );
+
+        $dbal
             ->andWhere('event.status = :status')
-            ->setParameter('status', $status, OrderStatus::TYPE);
+            ->setParameter(
+                key: 'status',
+                value: $status,
+                type: OrderStatus::TYPE,
+            );
 
         return $dbal->fetchExist();
     }
@@ -68,49 +125,54 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
     /**
      * Метод проверяет, имеется ли другое событие заказа с указанным статусом
      */
-    public function isOtherExists(
-        OrderUid|string $order,
-        OrderEventUid|string $event,
-        OrderStatus|OrderStatusInterface|string $status
-    ): bool
+    public function isOtherExists(): bool
     {
-
-        if(is_string($order))
+        if(false === ($this->order instanceof OrderUid))
         {
-            $order = new OrderUid($order);
+            throw new InvalidArgumentException('Invalid Argument OrderUid');
         }
 
-        if(is_string($event))
+        if(false === ($this->event instanceof OrderEventUid))
         {
-            $event = new OrderEventUid($event);
+            throw new InvalidArgumentException('Invalid Argument OrderEventUid');
         }
 
-        if(is_string($status) || $status instanceof OrderStatusInterface)
+        if(false === ($this->status instanceof OrderStatus))
         {
-            $status = new OrderStatus($status);
+            throw new InvalidArgumentException('Invalid Argument OrderStatus');
         }
 
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-
         $dbal
             ->from(Order::class, 'main')
             ->where('main.id = :ord')
-            ->setParameter('ord', $order, OrderUid::TYPE);
+            ->setParameter(
+                key: 'ord',
+                value: $this->order,
+                type: OrderUid::TYPE,
+            );
 
         $dbal
             ->join(
                 'main',
                 OrderEvent::class,
                 'event',
-                'event.orders = main.id AND event.id != :event AND event.status = :status'
+                'event.orders = main.id AND event.id != :event AND event.status = :status',
             )
-            ->setParameter('event', $event, OrderEventUid::TYPE)
-            ->setParameter('status', $status, OrderStatus::TYPE);
+            ->setParameter(
+                key: 'event',
+                value: $this->event,
+                type: OrderEventUid::TYPE,
+            )
+            ->setParameter(
+                key: 'status',
+                value: $this->status,
+                type: OrderStatus::TYPE,
+            );
 
         $dbal->andWhere('main.event = event.id');
 
         return $dbal->fetchExist();
     }
-
 }

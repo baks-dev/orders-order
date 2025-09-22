@@ -114,7 +114,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
             ->andWhere('event.status = :status')
             ->setParameter(
                 key: 'status',
-                value: $status,
+                value: $this->status,
                 type: OrderStatus::TYPE,
             );
 

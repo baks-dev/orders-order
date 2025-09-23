@@ -181,7 +181,7 @@ final class OrderProductDTO implements OrderProductInterface
 
     public function setCard(bool|ProductUserBasketResult $card): void
     {
-        $this->card = $card ?: [];
+        $this->card = $card ?: null;
     }
 
     /**

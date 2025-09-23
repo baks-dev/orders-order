@@ -83,8 +83,7 @@ final class OrderDetailRepository implements OrderDetailInterface
     private OrderUid|false $order = false;
 
     public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly ORMQueryBuilder $ORMQueryBuilder,
+        private readonly DBALQueryBuilder $DBALQueryBuilder
     ) {}
 
     /**
@@ -506,14 +505,13 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
         $dbal
-            ->addSelect('delivery_price.price AS delivery_price');
-
-        $dbal->leftJoin(
-            'delivery_event',
-            DeliveryPrice::class,
-            'delivery_price',
-            'delivery_price.event = delivery_event.id',
-        );
+            ->addSelect('delivery_price.price AS delivery_price')
+            ->leftJoin(
+                'delivery_event',
+                DeliveryPrice::class,
+                'delivery_price',
+                'delivery_price.event = delivery_event.id',
+            );
 
         /* Адрес доставки */
 

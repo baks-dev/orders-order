@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Repository\OrderDetail;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
+use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
@@ -48,10 +49,11 @@ final readonly class OrderDetailResult
         private string $payment_name,
         private string $order_products,
 
-        private ?int $order_delivery_price,
+
         private ?string $order_delivery_currency,
         private string $delivery_name,
-        private int $delivery_price,
+        private ?int $delivery_price,
+        private ?int $order_delivery_price,
 
         private ?string $delivery_geocode_longitude,
         private ?string $delivery_geocode_latitude,
@@ -128,9 +130,14 @@ final readonly class OrderDetailResult
         return $products;
     }
 
-    public function getOrderDeliveryPrice(): ?int
+    public function getOrderDeliveryPrice(): Money
     {
-        return $this->order_delivery_price;
+        return new Money($this->order_delivery_price ?? 0, true);
+    }
+
+    public function getDeliveryPrice(): Money
+    {
+        return new Money($this->delivery_price ?? 0, true);
     }
 
     public function getOrderDeliveryCurrency(): ?string
@@ -143,10 +150,6 @@ final readonly class OrderDetailResult
         return $this->delivery_name;
     }
 
-    public function getDeliveryPrice(): int
-    {
-        return $this->delivery_price;
-    }
 
     public function getDeliveryGeocodeLongitude(): ?string
     {

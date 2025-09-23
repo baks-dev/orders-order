@@ -183,7 +183,7 @@ final class AllOrdersResult
 
     public function getOrderDeliveryPrice(): Money|false
     {
-        return $this->order_delivery_price ? new Money($this->order_delivery_price) : false;
+        return $this->order_delivery_price ? new Money($this->order_delivery_price, true) : false;
     }
 
     public function getOrderDeliveryCurrency(): Currency

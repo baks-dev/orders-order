@@ -75,6 +75,26 @@
                 </button>
             </li>
 
+            {# УСЛУГИ #}
+            {% if form.serv is defined %}
+
+                <li class="nav-item" role="presentation">
+                    <button class="btn nav-link fw-bolder rounded-3 border"
+                            id="history"
+                            data-bs-toggle="pill"
+                            data-bs-target="#pills-services"
+                            aria-controls="pills-services"
+                            type="button"
+                            role="tab"
+
+                            aria-selected="false" tabindex="-1">
+
+                        <span class="text-uppercase px-3">Услуги</span>
+                    </button>
+                </li>
+
+            {% endif %}
+
             <li class="nav-item " role="presentation">
                 <button class="btn nav-link fw-bolder rounded-3 border"
                         id="delivery" data-bs-toggle="pill"
@@ -120,8 +140,7 @@
                     <button class="btn btn-warning dropdown-toggle " type="button"
                             data-bs-toggle="dropdown"
                             data-bs-auto-close="false"
-                            aria-expanded="false"
-                    >
+                            aria-expanded="false">
                         Документы
                     </button>
 
@@ -139,9 +158,8 @@
                                data-order="{{ order.order_id }}"
 
                                data-collection-form="order_form_data" {# name коллекции из DTO #}
-                               data-post-class="add-one-to-collection" {# признак одного элемента #}
+                               data-post-class="add-one-to-collection" {# признак одного элемента #}>
 
-                            >
                                 Накладная
                             </a>
                         </li>
@@ -150,18 +168,18 @@
                             <a href="{{ path('orders-order:admin.document.receipt', { id : order.order_id }) }}"
                                class="dropdown-item prnt"
                                data-bs-toggle="modal"
-                               data-bs-target="#modal"
-                            >
-                                Приходный ордер
+                               data-bs-target="#modal">
+
+                            Приходный ордер
                             </a>
                         </li>
 
                         <a href="{{ path('orders-order:admin.document.sticker', { id : order.order_id }) }}"
                            class="dropdown-item prnt"
                            data-bs-toggle="modal"
-                           data-bs-target="#modal"
-                        >
-                            Стикеры маркировки заказа
+                           data-bs-target="#modal">
+
+                        Стикеры маркировки заказа
                         </a>
 
                         {% if materials_sign %}
@@ -356,8 +374,7 @@
 
             <div class="tab-pane fade active show" role="tabpanel"
                  id="pills-order"
-                 tabindex="0"
-            >
+                 tabindex="0">
 
                 {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
 
@@ -533,12 +550,66 @@
                 </div>
 
             </div>
+
+
+            {# УСЛУГИ #}
+
+            {% if form.serv is defined %}
+
+                {% set service_prototype = 'service_collection_prototype' %}
+
+                <h5 class="text-uppercase fw-bolder py-2">Услуги для заказа</h5>
+
+                <div class="tab-pane fade" id="pills-services" role="tabpanel" tabindex="0">
+
+                    {# Коллекция элементов #}
+                    <div class="border rounded-4 p-2 mb-2">
+                        {{ include(_self|replace({ "content.html.twig": "form/services/service.html.twig" })) }}
+                    </div>
+
+                    <div id="service_collcetion_controls">
+
+                        {# Кнопка добавления элемента в коллекцию #}
+                        <a id="add_item_{{ form.serv.vars.id }}"
+                           href="{{ path('services:admin.order.service.edit') }}"
+                           class="btn btn-primary w-100 modal-link"
+                           title="Добавить в заказ"
+                           data-bs-toggle="modal"
+                           data-bs-target="#modal"
+                           data-form="{{ form.serv.vars.id }}"
+                           data-prototype="{{ service_prototype }}"
+                           data-index="{{ form.serv.count }}">
+
+                            <span class="svg-icon svg-icon-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none">
+                                    <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"
+                                          transform="rotate(-90 11 18)" fill="currentColor"></rect>
+                                    <rect x="6" y="11" width="12" height="2" rx="1" fill="currentColor"></rect>
+                                </svg>
+                            </span>
+
+                            Добавить в заказ
+
+                        </a>
+
+                        {# Прототип для элемента коллекции #}
+                        <div id="{{ service_prototype }}"
+                             data-prototype="{{ include('@orders-order/admin/detail/pc/form/services/service.prototype.html.twig')|e('html_attr') }}">
+                        </div>
+                    </div>
+
+
+                </div>
+
+            {% endif %}
+
         </div>
 
     </div>
 
-
-    {% set total_summ_product = 0 %}
+    {# Калькуляция стоимости продуктов в заказе #}
+    {% set total_summ = 0 %}
     {% set total_summ_currency = null %}
 
     {% for product in form.product %}
@@ -548,7 +619,7 @@
 
         {% if card %}
             {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
-            {% set total_summ_product = total_summ_product + summ %}
+            {% set total_summ = total_summ + summ %}
             {% set total_summ_currency = card.productCurrency %}
         {% endif %}
 
@@ -558,14 +629,39 @@
     <div class="w-100 d-flex justify-content-between align-items-center bg-light p-3 gap-3">
 
         <div class="w-100">
+
+            {# Сумма за продукцию #}
             <span class="small">Товаров на сумму: &nbsp;
-                <span id='total_product_sum'>{{ money(total_summ_product, total_summ_currency) }}</span>
+                <span id='total_product_sum'>{{ money(total_summ, total_summ_currency) ?: 0 }}</span>
             </span>
+
+            <br>
+
+            {# УСЛУГИ #}
+            {% if form.serv is defined %}
+
+                {# Калькуляция стоимости услуг в заказе #}
+                {% set total_summ_service = 0 %}
+
+                {% for serv in form.serv %}
+                    {% set total_summ_service = total_summ_service + (serv.money.vars.data * 100) %}
+                {% endfor %}
+
+                {# Сумма за услуги #}
+                <span class="small">Услуг на сумму: &nbsp;
+                    <span id='service_sum'
+                          data-summ="{{ total_summ_service/100 }}">{{ money(total_summ_service) ?: 0 }}</span>
+                </span>
+
+                {# Суммируем с суммой за продукцию #}
+                {% set total_summ = total_summ + total_summ_service %}
+
+            {% endif %}
 
             <div class="d-flex align-items-stretch">
                 <span class="small me-3 pt-1">Итого:</span>
                 <span id='total_all_sum'
-                      class="fw-bolder mb-0 h3">{{ money(total_summ_product, total_summ_currency) }}</span>
+                      class="fw-bolder mb-0 h3">{{ money(total_summ, total_summ_currency) }}</span>
             </div>
         </div>
 

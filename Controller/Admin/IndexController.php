@@ -32,14 +32,14 @@ use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterDTO;
 use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -58,25 +58,20 @@ final class IndexController extends AbstractController
     ): Response
     {
 
-        // Поиск
-        $search = new SearchDTO();
-
+        /** Поиск */
         $searchForm = $this
             ->createForm(
                 type: SearchForm::class,
-                data: $search,
+                data: $search = new SearchDTO(),
                 options: ['action' => $this->generateUrl('orders-order:admin.index')]
             )
             ->handleRequest($request);
 
-
         /** Фильтр по способу доставки */
-        $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO();
-
         $OrderDeliveryFilterForm = $this
             ->createForm(
                 type: OrderDeliveryFilterForm::class,
-                data: $OrderDeliveryFilterDTO,
+                data: $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO(),
                 options: ['action' => $this->generateUrl('orders-order:admin.index')]
             )
             ->handleRequest($request);
@@ -111,7 +106,6 @@ final class IndexController extends AbstractController
                 'status' => $collection->cases(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
                 'current_profile' => $this->getCurrentProfileUid(),
-
                 'search' => $searchForm->createView(),
                 'filter' => $OrderDeliveryFilterForm->createView(),
             ]

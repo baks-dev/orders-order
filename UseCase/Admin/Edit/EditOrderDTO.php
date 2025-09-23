@@ -28,12 +28,13 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
 
 /** @see OrderEvent */
 final class EditOrderDTO implements OrderEventInterface
@@ -57,9 +58,21 @@ final class EditOrderDTO implements OrderEventInterface
     /** Статус заказа */
     private OrderStatus $status;
 
-    /** Коллекция продукции в заказе */
+    /**
+     * Коллекция продукции в заказе
+     *
+     * @var ArrayCollection{int, OrderProductDTO} $product
+     */
     #[Assert\Valid]
     private ArrayCollection $product;
+
+    /**
+     * Коллекция услуг в заказе
+     *
+     * @var ArrayCollection{int, OrderServiceDTO} $product
+     */
+    #[Assert\Valid]
+    private ArrayCollection $serv;
 
     /** Пользователь */
     #[Assert\Valid]
@@ -83,6 +96,7 @@ final class EditOrderDTO implements OrderEventInterface
         $this->usr = new OrderUserDTO();
         $this->invariable = new EditOrderInvariableDTO();
 
+        $this->serv = new ArrayCollection();
     }
 
 
@@ -96,9 +110,11 @@ final class EditOrderDTO implements OrderEventInterface
         $this->id = null;
     }
 
-
     /**
      * Коллекция продукции в заказе
+     *
+     * @return ArrayCollection{int, OrderProductDTO}
+     *
      */
 
     public function getProduct(): ArrayCollection
@@ -126,6 +142,34 @@ final class EditOrderDTO implements OrderEventInterface
         $this->product->removeElement($product);
     }
 
+    /**
+     * Коллекция услуг в заказе
+     *
+     * @return ArrayCollection{int, OrderServiceDTO}
+     */
+
+    public function getServ(): ArrayCollection
+    {
+        return $this->serv;
+    }
+
+    public function setSer(ArrayCollection $ser): void
+    {
+        $this->serv = $ser;
+    }
+
+    public function addServ(OrderServiceDTO $ser): void
+    {
+        if(false === $this->serv->contains($ser))
+        {
+            $this->serv->add($ser);
+        }
+    }
+
+    public function removeServ(OrderServiceDTO $ser): void
+    {
+        $this->serv->removeElement($ser);
+    }
 
     /**
      * Пользователь
@@ -142,7 +186,6 @@ final class EditOrderDTO implements OrderEventInterface
         $this->usr = $users;
     }
 
-
     /**
      * Статус заказа
      */
@@ -151,7 +194,6 @@ final class EditOrderDTO implements OrderEventInterface
     {
         return $this->status;
     }
-
 
     public function setStatus(OrderStatus|OrderStatusInterface|string $status): void
     {

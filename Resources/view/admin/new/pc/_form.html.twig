@@ -1,5 +1,7 @@
-<div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+<div class="modal-dialog modal-dialog-centered flex-column justify-content-center" style="max-width: 900px;">
+
     {{ form_start(form) }}
+
     <div class="modal-content p-3 border-bottom border-5 border-primary">
         <div class="modal-header align-items-center">
 
@@ -13,8 +15,7 @@
                     <button class="btn nav-link fw-bolder active"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#client"
-                    >
+                            data-bs-target="#client">
                         <span class="text-uppercase px-3">Данные получателя</span>
                     </button>
                 </li>
@@ -23,18 +24,31 @@
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#products"
-                    >
+                            data-bs-target="#products">
                         <span class="text-uppercase px-3">Продукция</span>
                     </button>
                 </li>
+
+                {# Услуги #}
+
+                {% if form.serv is defined %}
+
+                    <li class="nav-item">
+                        <button class="btn nav-link fw-bolder"
+                                type="button"
+                                data-bs-toggle="pill"
+                                data-bs-target="#services">
+                            <span class="text-uppercase px-3">Услуги</span>
+                        </button>
+                    </li>
+
+                {% endif %}
 
                 <li class="nav-item">
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#payment"
-                    >
+                            data-bs-target="#payment">
                         <span class="text-uppercase px-3">Оплата</span>
                     </button>
                 </li>
@@ -43,12 +57,10 @@
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#delivery"
-                    >
+                            data-bs-target="#delivery">
                         <span class="text-uppercase px-3">Доставка</span>
                     </button>
                 </li>
-
 
             </ul>
 
@@ -61,6 +73,7 @@
 
             <div class="tab-content w-100">
 
+                {# Данные получателя #}
                 <div class="tab-pane fade show active" id="client">
                     {{ include(_self|replace({ "_form.html.twig": "form/userprofile.html.twig" })) }}
 
@@ -70,15 +83,91 @@
 
                 </div>
 
+                {# Продукты #}
                 <div class="tab-pane fade" id="products">
                     {{ include(_self|replace({ "_form.html.twig": "form/products/products.html.twig" })) }}
+
                 </div>
 
+                {# Услуги #}
 
+                {% if form.serv is defined %}
+
+                    <div class="tab-pane fade" id="services">
+
+                        <div id="add_new_order_service_collection">
+
+                            <div class="{{ (field_value(form.usr.userProfile.type) is empty) ? 'd-none' : '' }}">
+
+                                <h5 class="text-uppercase fw-bolder py-2">
+                                    Список услуг
+                                </h5>
+
+                                {{ include(_self|replace({ "_form.html.twig": "form/services/service.html.twig" })) }}
+
+                                <hr>
+
+                                {% set service_prototype = 'service_collection_prototype' %}
+
+                                <div id="service_collcetion_controls">
+
+                                    {# Кнопка добавления элемента в коллекцию #}
+                                    <a id="add_item_{{ form.serv.vars.id }}"
+                                       class="btn btn-primary w-100"
+                                       type="button" role="button"
+
+                                       data-bs-target="#collapse_{{ form.serv.vars.id }}"
+                                       data-bs-toggle="collapse"
+
+                                       aria-expanded="false"
+                                       aria-controls="{{ form.serv.vars.id }}"
+                                       aria-label="{{ form.serv.vars.id }}"
+
+                                       data-form="{{ form.serv.vars.id }}"
+                                       data-prototype="{{ service_prototype }}"
+                                       data-index="{{ form.serv.count }}">
+
+                                    <span class="svg-icon svg-icon-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none">
+                                                <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"
+                                                      transform="rotate(-90 11 18)" fill="currentColor"></rect>
+                                                <rect x="6" y="11" width="12" height="2" rx="1"
+                                                      fill="currentColor"></rect>
+                                            </svg>
+                                    </span>
+
+                                        Выбрать услугу
+                                    </a>
+
+                                    {# Прототип для элемента коллекции #}
+                                    <div id="{{ service_prototype }}"
+                                         data-prototype="{{ include('@orders-order/admin/detail/pc/form/services/service.prototype.html.twig')|e('html_attr') }}">
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {% if not field_value(form.usr.userProfile.type) %}
+                                <div class="w-100 alert alert-warning mb-0" role="alert">
+                                    Выберите тип заказа для добавления услуг
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                {# Доставка #}
                 <div class="tab-pane fade" id="delivery">
                     {{ include(_self|replace({ "_form.html.twig": "form/delivery.html.twig" })) }}
                 </div>
 
+                {# Оплата #}
                 <div class="tab-pane fade" id="payment">
                     {{ include(_self|replace({ "_form.html.twig": "form/payment.html.twig" })) }}
                 </div>
@@ -87,7 +176,7 @@
 
         </div>
 
-
+        {# FOOTER #}
         <div class="modal-footer">
 
             <div class="flex-grow-1">
@@ -101,16 +190,34 @@
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
 
-
                 {# Удалить #}
                 {{ form_widget(form.order_new, { label: '
-				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
-				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-			'}) }}
+                        <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+                        <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                    '}) }}
             </div>
         </div>
     </div>
+
     {{ form_end(form) }}
+
+    {# Услуги #}
+
+    {% if form.serv is defined %}
+
+        <div class="position-relative">
+            <div id="collapse_{{ form.serv.vars.id }}"
+                 hx-get="{{ path('services:admin.order.service.new') }}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML"
+                 class="collapse multi-collapse bg-white shadow rounded-3 position-absolute"
+                 style="top: -293px; left: -419px; width: max-content">
+            </div>
+        </div>
+
+    {% endif %}
+
+
 </div>
 
 

@@ -1,4 +1,7 @@
-<style></style>
+{# ---- CSS ------------------------------------------------------------ #}
+ {% block stylesheets %}
+     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+ {% endblock %}
 
 {{ include(_self|replace({ "content.html.twig" : baks_settings.device~"/_form.html.twig" })) }}
 
@@ -12,3 +15,13 @@
         class='lazy'></script>
 {#
 <script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script> #}
+
+{% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
+
+    <script nonce="{{ csp_nonce() }}" async data-src="/assets/plugins/htmx/2.0.4/htmx.min.js" class="lazy"></script>
+
+    <script nonce="{{ csp_nonce() }}" async data-src="/assets/services/order_service_add_new.min.js?v={{ version }}"
+            class='lazy'></script>
+
+{% endif %}
+

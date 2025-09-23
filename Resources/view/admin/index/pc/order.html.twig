@@ -1,5 +1,3 @@
-{# {% set id =  random() %} #}
-
 {# @var order \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
 
 <div class="draggable" id="{{ order.orderId }}" tabindex="0">
@@ -67,30 +65,27 @@
                         </strong>
                     </div>
 
-                    <span class="fw-bolder d-flex justify-content-between align-items-center">
 
-						{# {% set arr_price = order.productPrice %}
+                    {% if order.allProductPrice.value != 0 %}
+                        <div class="d-flex justify-content-between align-items-center fw-bolder">
+                            <span class="badge text-bg-primary">продукты &nbsp; - &nbsp; {{ order.productPrice|length }}</span>
+                        </div>
 
-                        {% set price = 0 %}
+                        <div class="d-flex justify-content-between align-items-center fw-bolder">
+                            <span class='h6 mb-0'>{{ money(order.allProductPrice, order.orderCurrency) }}</span>
+                        </div>
+                    {% endif %}
 
-                        {% if order.productPrice %}
-                            {% for order_price in order.productPrice %}
-                                {% set price = order_price.price * order_price.total + price %}
-                            {% endfor %}
-                        {% endif %} #}
+                    {% if order.allServicePrice.value != 0 %}
+                        <div class="d-flex justify-content-between align-items-center fw-bolder">
+                            <span class="badge text-bg-success">услуги &nbsp; - &nbsp; {{ order.servicePrice|length }}</span>
+                        </div>
 
+                        <div class="fw-bolder d-flex justify-content-between align-items-center">
+                            <span class='h6 mb-0'>{{ money(order.allServicePrice) }}</span>
+                        </div>
+                    {% endif %}
 
-
-                        {# {% set price = order.order_price %} #}
-
-
-
-                        {#  Прибавляем стомиость доставки  #}
-                        {# {% set price = price + order.delivery_price %} #}
-
-							<span class='h6 mb-0'>{{ money(order.getAllProductPrice, order.orderCurrency) }}</span>
-
-						</span>
                 </div>
 
                 <div class="d-flex flex-column justify-content-between gap-1">

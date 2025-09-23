@@ -23,45 +23,6 @@
         <div class="modal-body" id="modal-body">
 
 
-            {# {% for delivery in form.vars.data.users.delivery.field %}
-
-                <div class="mb-3">
-                    <a target="_blank" href="https://yandex.ru/maps/?text={{ delivery.value }}&z=18"
-                       class="text-decoration-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                             class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
-                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                        </svg>
-                        &nbsp;
-                        {{ delivery.value }}
-                    </a>
-                </div>
-
-            {% endfor %} #}
-
-
-            {#            {% if form.vars.data.warehouse %}
-
-                <div class="mb-3">
-                    <a href="https://yandex.ru/maps/?rtext={{ form.vars.data.warehouse.option }}~{{ form.vars.data.users.delivery.latitude }},{{ form.vars.data.users.delivery.longitude }}&rtt=auto"
-                       target="_blank"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                             class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
-                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                        </svg>
-
-                        {{ form.vars.data.users.delivery.address }}
-
-                    </a>
-
-                    {% if form.vars.data.users.delivery.pickup %}
-                        <span class="ms-3 badge bg-danger">Пункт выдачи заказов</span>
-                    {% endif %}
-                </div>
-            {% endif %} #}
-
-
             {{ form_row(form.invariable.profile, {
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}

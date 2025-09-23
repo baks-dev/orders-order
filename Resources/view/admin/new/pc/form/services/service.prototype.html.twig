@@ -1,0 +1,83 @@
+{# dto \BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO  #}
+
+<table>
+
+    <tbody id="prototypeItem">
+
+    <tr id="order_form_service-__service__" class="item-service">
+
+        {# идентификатор, название #}
+        <td>
+
+            {{ form_widget(form.serv.vars.prototype.serv, { attr: {
+                class: form.serv.vars.prototype.serv.vars.id,
+            } }) }}
+
+
+            {{ form_widget(form.serv.vars.prototype.name, { attr: {
+                class: 'form-control-sm rounded-3 '~ form.serv.vars.prototype.name.vars.id,
+                disabled: false,
+            } }) }}
+
+        </td>
+
+        {# Цена #}
+        <td>
+
+            <div class="d-flex justify-content-center align-items-center text-center">
+
+                <button type="button" class="btn btn-sm order-service-price-minus"
+                        title="Уменьшить количество"
+                        data-id='{{ form.serv.vars.prototype.money.vars.id }}'
+                        data-step='100'>
+
+                    <span class="h4 text-muted opacity-50">-</span>
+                </button>
+
+                {{ form_widget(form.serv.vars.prototype.money, { attr: {
+                    class: 'form-control-sm rounded-3 text-center price '~ form.serv.vars.prototype.money.vars.id,
+                    style: 'width: 66px;',
+                    disabled: false
+                } }) }}
+
+                <button type="button" class="btn btn-sm order-service-price-plus"
+                        title="Увеличить количество"
+                        data-id='{{ form.serv.vars.prototype.money.vars.id }}'
+                        data-step='100'>
+                    <span class="h5 text-muted opacity-50">+</span>
+                </button>
+            </div>
+
+        </td>
+
+        {# Дата #}
+        <td>
+            {{ form_widget(form.serv.vars.prototype.date, { attr: {
+                class: form.serv.vars.prototype.date.vars.id,
+            } }) }}
+        </td>
+
+        {# Период (идентификатор) #}
+        <td>
+            {{ form_widget(form.serv.vars.prototype.period, { attr: {
+                class: form.serv.vars.prototype.period.vars.id,
+            } }) }}
+        </td>
+
+        {# Кнопка удаления элемента коллекции #}
+        <td class="w-25">
+            <button id="delete-order_form_service-__service__" type="button"
+                    class="btn btn-outline-danger border-0 del-item-service">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     viewBox="0 0 16 16" class='mb-1'>
+                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"></path>
+                </svg>
+            </button>
+        </td>
+
+    </tr>
+
+    </tbody>
+
+</table>

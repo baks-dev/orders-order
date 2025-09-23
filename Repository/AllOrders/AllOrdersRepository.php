@@ -41,6 +41,8 @@ use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Entity\Services\OrderService;
+use BaksDev\Orders\Order\Entity\Services\Price\OrderServicePrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
@@ -600,6 +602,40 @@ final class AllOrdersRepository implements AllOrdersInterface
             $dbal->addSelect('FALSE AS order_error');
         }
 
+        /** Услуги */
+
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderService::class,
+                'orders_service',
+                'orders_service.event = orders.event',
+            );
+
+        $dbal
+            ->leftJoin(
+                'orders_service',
+                OrderServicePrice::class,
+                'orders_service_price',
+                'orders_service_price.serv = orders_service.id',
+            );
+
+
+        $dbal->addSelect(
+            "JSON_AGG
+			( DISTINCT
+		
+					JSONB_BUILD_OBJECT
+					(
+						'service', orders_service_price.serv,
+						'price', orders_service_price.price,
+						'currency', orders_service_price.currency
+					)
+			)
+			AS service_price",
+        );
+
+
 
         $dbal->addSelect(
             "JSON_AGG
@@ -717,6 +753,8 @@ final class AllOrdersRepository implements AllOrdersInterface
         {
             $this->paginator->setLimit($this->limit);
         }
+
+        //        dd($dbal->fetchAllAssociative());
 
         return $this->paginator->fetchAllHydrate($dbal, AllOrdersResult::class);
     }

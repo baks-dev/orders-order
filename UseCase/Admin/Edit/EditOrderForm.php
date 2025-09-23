@@ -24,6 +24,10 @@
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserForm;
+use BaksDev\Services\BaksDevServicesBundle;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -32,8 +36,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductForm;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserForm;
 
 final class EditOrderForm extends AbstractType
 {
@@ -49,6 +51,24 @@ final class EditOrderForm extends AbstractType
             'allow_add' => true,
             'prototype_name' => '__product__',
         ]);
+
+        /**
+         * Коллекция услуг в заказе (ЕСЛИ УСТАНОВЛЕН МОДУЛЬ services)
+         */
+
+        if(true === class_exists(BaksDevServicesBundle::class))
+        {
+            $builder->add('serv', CollectionType::class, [
+                'entry_type' => OrderServiceForm::class,
+                'entry_options' => ['label' => false],
+                'label' => false,
+                'by_reference' => false,
+                'allow_delete' => true,
+                'allow_add' => true,
+                'prototype_name' => '__service__',
+            ]);
+
+        }
 
         $builder->add('usr', OrderUserForm::class, ['label' => false]);
 
@@ -87,5 +107,4 @@ final class EditOrderForm extends AbstractType
             ]
         );
     }
-
 }

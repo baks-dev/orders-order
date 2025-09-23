@@ -69,7 +69,6 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
                 type: OrderUid::TYPE
             );
 
-
         $orm
             ->select('event')
             ->join(

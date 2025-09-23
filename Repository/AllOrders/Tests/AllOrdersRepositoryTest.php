@@ -46,12 +46,14 @@ class AllOrdersRepositoryTest extends KernelTestCase
 
     public function testUseCase(): void
     {
+        $profile = $_SERVER['TEST_PROFILE'] ?? '019577a9-71a3-714b-a99c-0386833d802f';
+
         /** @var AllOrdersInterface $AllOrdersRepository */
         $AllOrdersRepository = self::getContainer()->get(AllOrdersInterface::class);
 
         $AllOrdersResults = $AllOrdersRepository
             ->status(new OrderStatus(OrderStatus\Collection\OrderStatusNew::class))
-            ->forProfile(new UserProfileUid('019577a9-71a3-714b-a99c-0386833d802f'))
+            ->forProfile(new UserProfileUid($profile))
             ->findPaginator()
             ->getData();
 

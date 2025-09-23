@@ -1,0 +1,217 @@
+<?php
+/*
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is furnished
+ *  to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate;
+
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Entity\Services\OrderService;
+use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Services\BaksDevServicesBundle;
+use BaksDev\Services\Entity\Event\Invariable\ServiceInvariable;
+use BaksDev\Services\Entity\Event\Period\ServicePeriod;
+use BaksDev\Services\Entity\Event\ServiceEvent;
+use BaksDev\Services\Entity\Service;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
+use Exception;
+use Generator;
+use InvalidArgumentException;
+
+/** Возвращает массив периодов на переданную дату с информацией об их использовании */
+final class AllServicePeriodByDateRepository implements AllServicePeriodByDateInterface
+{
+    private DateTimeImmutable|false $date = false;
+
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+    ) {}
+
+    public function byDate(DateTimeImmutable $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    /**
+     * Возвращает массив периодов на переданную дату с информацией об их использовании
+     *
+     * @return Generator{int, AllServicePeriodByDateResult}|false
+     */
+    public function findAll(ServiceUid $service): Generator|false
+    {
+        if(false === class_exists(BaksDevServicesBundle::class))
+        {
+            throw new Exception('Не установлен зависимый модуль services');
+        }
+
+        $builder = $this->builder($service);
+
+        $result = $builder->fetchAllAssociative();
+
+        if(true === empty($result))
+        {
+            return false;
+        }
+
+        $result = $this->unique($result);
+
+        foreach($result as $serv)
+        {
+            yield new AllServicePeriodByDateResult(...$serv);
+        }
+    }
+
+    /** Убирает дублирующийся неактивный период */
+    private function unique(array $periods): array
+    {
+        $result = array_reduce($periods, function($prev, $item) {
+            $key = $item['period_id'];
+
+            // если уже есть true — не затираем его
+            if(isset($prev[$key]) && $prev[$key]['order_service_active'] === true)
+            {
+                return $prev;
+            }
+
+            // если текущий true — заменяем
+            if($item['order_service_active'] === true)
+            {
+                $prev[$key] = $item;
+            }
+            else
+            {
+                // если ещё нет записи для ключа
+                $prev[$key] ??= $item;
+            }
+
+            return $prev;
+        });
+
+        return $result;
+    }
+
+    /** Возвращает массив периодов на переданную дату с информацией об их использовании */
+    private function builder(ServiceUid $service): DBALQueryBuilder
+    {
+        $dbal = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class)
+            ->bindLocal();
+
+        if(false === $dbal->isProjectProfile())
+        {
+            throw new InvalidArgumentException('Не установлен PROJECT_PROFILE');
+        }
+
+        if(false === $this->date instanceof DateTimeImmutable)
+        {
+            throw new InvalidArgumentException('Не передан обязательный параметр запроса $this->date');
+        }
+
+        $dbal->distinct();
+
+        $dbal->from(Service::class, 'service');
+
+        /** Активное событие */
+        $dbal
+            ->join(
+                'service',
+                ServiceEvent::class,
+                'service_event',
+                '
+                    service_event.main = service.id  
+                    AND
+                    service_event.main = :serv'
+            )
+            ->setParameter(
+                key: 'serv',
+                value: $service,
+                type: ServiceUid::TYPE,
+            );
+
+        /** Invariable, Profile */
+        $dbal
+            ->join(
+                'service',
+                ServiceInvariable::class,
+                'service_invariable',
+                '
+                        service_invariable.main = service.id
+                        AND
+                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
+            );
+
+        /** Period */
+        $dbal
+            ->addSelect('service_period.id AS period_id')
+            ->addSelect('service_period.frm')
+            ->addSelect('service_period.upto')
+            ->join(
+                'service_event',
+                ServicePeriod::class,
+                'service_period',
+                'service_period.event = service_event.id'
+            );
+
+        $dbal
+            //            ->addSelect('orders_service.period as orders_period')
+            ->addSelect('orders_service.date as orders_service_date ')
+            ->leftJoin(
+                'service_period',
+                OrderService::class,
+                'orders_service',
+                '
+                    orders_service.period = service_period.id 
+                    AND orders_service.date = :date'
+
+            );
+
+        $dbal->setParameter('date', $this->date, Types::DATE_IMMUTABLE);
+
+        /** Все услуги (в т.ч. на неактивные заказы) */
+        $dbal
+            ->leftJoin(
+                'orders_service',
+                Order::class,
+                'orders',
+                'orders.event = orders_service.event'
+            );
+
+        $dbal
+            ->addSelect('
+                CASE
+                    WHEN
+                        orders.event = orders_service.event
+                    THEN true
+                    ELSE false
+                END AS order_service_active
+            ');
+
+        $dbal->orderBy('service_period.frm');
+
+        return $dbal;
+    }
+}

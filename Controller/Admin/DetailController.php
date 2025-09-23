@@ -33,11 +33,14 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
+use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
+use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -55,10 +58,12 @@ final class DetailController extends AbstractController
     public function index(
         Request $request,
         #[MapEntity] Order $Order,
-        CurrentOrderEventInterface $currentOrderEvent,
-        ProductUserBasketInterface $userBasket,
-        OrderDetailInterface $orderDetail,
-        OrderHistoryInterface $orderHistory,
+        CurrentOrderEventInterface $currentOrderEventRepository,
+        ProductUserBasketInterface $userBasketRepository,
+        OrderDetailInterface $orderDetailRepository,
+        OrderHistoryInterface $orderHistoryRepository,
+        OneServiceByIdInterface $oneServiceByIdRepository,
+        ExistActiveOrderServiceInterface $existActiveOrderServiceRepository,
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
@@ -70,7 +75,7 @@ final class DetailController extends AbstractController
     ): Response
     {
         /** Получаем активное событие заказа */
-        $OrderEvent = $currentOrderEvent
+        $OrderEvent = $currentOrderEventRepository
             ->forOrder($Order->getId())
             ->find();
 
@@ -80,7 +85,7 @@ final class DetailController extends AbstractController
         }
 
         /** Информация о заказе */
-        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($OrderEvent->getMain());
+        $OrderInfo = $orderDetailRepository->fetchDetailOrderAssociative($OrderEvent->getMain());
 
         if(!$OrderInfo)
         {
@@ -90,10 +95,13 @@ final class DetailController extends AbstractController
         $OrderDTO = new EditOrderDTO($Order->getId());
         $OrderEvent->getDto($OrderDTO);
 
-        /** @var OrderProductDTO $product */
+        /**
+         * Продукты в заказе
+         * @var OrderProductDTO $product
+         */
         foreach($OrderDTO->getProduct() as $product)
         {
-            $ProductUserBasketResult = $userBasket
+            $ProductUserBasketResult = $userBasketRepository
                 ->forEvent($product->getProduct())
                 ->forOffer($product->getOffer())
                 ->forVariation($product->getVariation())
@@ -101,6 +109,26 @@ final class DetailController extends AbstractController
                 ->find();
 
             $product->setCard($ProductUserBasketResult);
+        }
+
+        /**
+         * Услуги в заказе
+         */
+
+        /** @var OrderServiceDTO $serv */
+        foreach($OrderDTO->getServ() as $serv)
+        {
+            $serviceInfo = $oneServiceByIdRepository->findOne($serv->getServ());
+
+            if(false === $serviceInfo)
+            {
+                return new Response('Информация об услуге в заказе не найдена');
+            }
+
+            $serv
+                ->setName($serviceInfo->getName())
+                ->setMoney($serv->getPrice()->getPrice())
+                ->setMinPrice($serviceInfo->getPrice()->getValue());
         }
 
         // Динамическая форма корзины (необходима для динамического изменения полей в форме)
@@ -116,15 +144,55 @@ final class DetailController extends AbstractController
             )
             ->handleRequest($request);
 
-
         if(false === $request->isXmlHttpRequest() && $form->isSubmitted() && false === $form->isValid())
         {
+
+            $this->addFlash(
+                'danger',
+                'admin.danger.update',
+                'orders-order.admin',
+            );
+
             return $this->redirectToReferer();
         }
 
         if($form->isSubmitted() && $form->isValid())
         {
+
             $this->refreshTokenForm($form);
+
+            /**
+             * Проверка уникальности периода
+             *
+             * @var OrderServiceDTO $service
+             */
+            foreach($OrderDTO->getServ() as $service)
+            {
+                if(null === $service->getPeriod())
+                {
+                    continue;
+                }
+
+                $exist = $existActiveOrderServiceRepository
+                    ->byDate($service->getDate())
+                    ->byPeriod($service->getPeriod())
+                    ->byEvent($OrderDTO->getEvent())
+                    ->exist();
+
+                if(true === $exist)
+                {
+                    $this->addFlash(
+                        'danger',
+                        sprintf('Услуга <b>"%s"</b> на <b>%s</b> в период <b>%s</b> УЖЕ ЗАБРОНИРОВАНА',
+                            $service->getName(),
+                            $service->getDate()->format('Y-m-d'),
+                            $service->getPeriod()->getParams('time')
+                        ),
+                    );
+
+                    return $this->redirectToReferer();
+                }
+            }
 
             $OrderHandler = $handler->handle($OrderDTO);
 
@@ -141,7 +209,7 @@ final class DetailController extends AbstractController
         }
 
         /** История изменения статусов */
-        $History = $orderHistory
+        $History = $orderHistoryRepository
             ->order($OrderEvent->getMain())
             ->findAllHistory();
 
@@ -188,6 +256,7 @@ final class DetailController extends AbstractController
             }
         }
 
+
         return $this->render(
             [
                 'id' => $id,
@@ -196,7 +265,6 @@ final class DetailController extends AbstractController
                 'history' => $History,
                 'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
                 'statuses' => $collection,
-
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign
             ]

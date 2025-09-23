@@ -29,12 +29,14 @@ use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\Services\OrderService;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -69,9 +71,13 @@ class OrderEvent extends EntityEvent
     private ?OrderUid $orders = null;
 
     /** Товары в заказе */
-    #[Assert\Count(min: 1)]
+    #[Assert\When(expression: 'this.isServiceEmpty() === true', constraints: new Assert\Count(min: 1))]
     #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
     private Collection $product;
+
+    #[Assert\When(expression: 'this.isProductEmpty() === true', constraints: new Assert\Count(min: 1))]
+    #[ORM\OneToMany(targetEntity: OrderService::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    private Collection $serv;
 
     /**
      * Постоянная величина
@@ -250,6 +256,11 @@ class OrderEvent extends EntityEvent
         return $this->product;
     }
 
+    public function isProductEmpty(): bool
+    {
+        return $this->product->isEmpty();
+    }
+
     /**
      * Users.
      */
@@ -264,4 +275,14 @@ class OrderEvent extends EntityEvent
         return $this->usr->getClientProfile();
     }
 
+    /** @return Collection<OrderService> */
+    public function getServ(): Collection
+    {
+        return $this->serv;
+    }
+
+    public function isServiceEmpty(): bool
+    {
+        return $this->serv->isEmpty();
+    }
 }

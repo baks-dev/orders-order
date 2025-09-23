@@ -50,6 +50,16 @@ final class OrderForm extends AbstractType
             'prototype_name' => '__product__',
         ]);
 
+        $builder->add('product', CollectionType::class, [
+            'entry_type' => Add\OrderProductForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__product__',
+        ]);
+
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) {

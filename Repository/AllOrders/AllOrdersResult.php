@@ -30,6 +30,7 @@ use BaksDev\Field\Pack\Organization\Type\OrganizationField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\OrderService\OrderServiceUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Reference\Currency\Type\Currency;
@@ -53,6 +54,7 @@ final class AllOrdersResult
         private readonly ?string $stock_profile_location, //  null
 
         private readonly ?string $product_price,
+        private readonly ?string $service_price,
         //  "[{"price": 495000, "total": 1, "product": "01986a30-80e9-7228-ae35-e26893974b5d"}]"
         private readonly ?string $order_currency, //  "rub"
 
@@ -150,6 +152,48 @@ final class AllOrdersResult
         }
 
         return $items;
+    }
+
+    public function getServicePrice(): array|false
+    {
+        if(empty($this->service_price))
+        {
+            return false;
+        }
+
+        if(false === json_validate($this->service_price))
+        {
+            return false;
+        }
+
+        $items = json_decode($this->service_price, false, 512, JSON_THROW_ON_ERROR);
+
+        // Обновляем поля price и product
+        foreach($items as $item)
+        {
+            $item->price = new Money($item->price, true);
+            $item->service = new OrderServiceUid($item->service);
+            $item->currency = new Currency($item->currency);
+        }
+
+        return $items;
+    }
+
+    public function getAllServicePrice(): Money
+    {
+        $totalPrice = new Money(0);
+
+        if(false === $this->getServicePrice())
+        {
+            return new Money(0);
+        }
+
+        foreach($this->getServicePrice() as $item)
+        {
+            $totalPrice->add($item->price);
+        }
+
+        return $totalPrice;
     }
 
     public function getAllProductPrice(): Money

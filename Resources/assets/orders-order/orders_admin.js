@@ -176,6 +176,37 @@ document.querySelectorAll('.minus').forEach(function(btn)
     });
 });
 
+/** Увеличиваем число продукции */
+document.querySelectorAll('.plus').forEach(function(btn)
+{
+
+    btn.addEventListener('click', function(event)
+    {
+        let inpt = document.getElementById(this.dataset.id);
+
+        let result = parseFloat(inpt.value.replace(",", "."));
+        result = result + (this.dataset.step ? this.dataset.step * 1 : 1);
+
+        //let inpt = document.getElementById(this.dataset.id);
+        //let result = inpt.value * 1 + 1;
+
+        if(inpt.dataset.max && result > inpt.dataset.max)
+        {
+            return;
+        }
+
+        /** изменение value у input */
+        inpt.value = result;
+
+        /** Пересчет Суммы */
+        orderSum(result, this.dataset.id);
+
+        /** Персчет всего количество */
+        total();
+
+    });
+});
+
 
 document.querySelectorAll('.total').forEach(function(input)
 {
@@ -214,38 +245,6 @@ document.querySelectorAll('.price').forEach(function(input)
 });
 
 
-/** Увеличиваем число продукции */
-document.querySelectorAll('.plus').forEach(function(btn)
-{
-
-    btn.addEventListener('click', function(event)
-    {
-        let inpt = document.getElementById(this.dataset.id);
-
-        let result = parseFloat(inpt.value.replace(",", "."));
-        result = result + (this.dataset.step ? this.dataset.step * 1 : 1);
-
-        //let inpt = document.getElementById(this.dataset.id);
-        //let result = inpt.value * 1 + 1;
-
-        console.log(inpt.dataset.max);
-
-        if(inpt.dataset.max && result > inpt.dataset.max)
-        {
-            return;
-        }
-
-        document.getElementById(this.dataset.id).value = result;
-
-        /** Пересчет Суммы */
-        orderSum(result, this.dataset.id);
-
-        /** Персчет всего количество */
-        total();
-
-    });
-});
-
 function orderCounter()
 {
     let result = this.value * 1;
@@ -270,6 +269,7 @@ function orderCounter()
     total();
 }
 
+/** Суммирует цену с учетом количества */
 function orderSum(result, id)
 {
     let product_total = document.getElementById(id);
@@ -281,7 +281,7 @@ function orderSum(result, id)
 
         result_product_sum = new Intl.NumberFormat($locale, {
             style: 'currency',
-            currency : product_total.dataset.currency === "RUR" ? "RUB" : product_total.dataset.currency,
+            currency: product_total.dataset.currency === "RUR" ? "RUB" : product_total.dataset.currency,
             maximumFractionDigits: 2
         }).format(result_product_sum);
 
@@ -372,6 +372,17 @@ function total()
 
     /** пересчитываем доставку */
     let delivery = document.querySelector('input[name*="[users][delivery][delivery]"][checked="checked"]');
+
+    let service_sum = document.getElementById('service_sum');
+
+    /** С учетом стоимости услуг */
+    if(service_sum)
+    {
+        let service_sum_parse = service_sum.textContent.replace(/[^\d]/g, "");
+        let service_sum_int = parseInt(service_sum_parse, 10);
+
+        result_total = result_total + service_sum_int;
+    }
 
     if(delivery && delivery.dataset.price)
     {

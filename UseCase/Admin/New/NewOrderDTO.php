@@ -27,10 +27,9 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Entity\User as UserEntity;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -41,20 +40,22 @@ final class NewOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
-    /** Коллекция продукции в заказе */
+    /**
+     * Коллекция продукции в заказе
+     *
+     * @var ArrayCollection{int, NewOrderProductDTO} $product
+     * */
     #[Assert\Valid]
     private ArrayCollection $product;
-
 
     private preProduct\PreProductDTO $preProduct;
 
     /**
-     * Ответственный
-     *
-     * @depricate переносится в invariable
+     * Коллекция продукции в заказе
+     * @var ArrayCollection{int, OrderServiceDTO} $serv
      */
-    private UserProfileUid $profile;
-
+    #[Assert\Valid]
+    private ArrayCollection $serv;
 
     /** Постоянная величина */
     #[Assert\Valid]
@@ -64,7 +65,6 @@ final class NewOrderDTO implements OrderEventInterface
     #[Assert\NotBlank]
     private OrderStatus $status;
 
-
     /** Пользователь */
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
@@ -72,17 +72,23 @@ final class NewOrderDTO implements OrderEventInterface
     /** Комментарий к заказу */
     private ?string $comment = null;
 
+    /**
+     * Ответственный
+     *
+     * @depricate переносится в invariable
+     */
+    private UserProfileUid $profile;
 
     public function __construct()
     {
         $this->invariable = new Invariable\NewOrderInvariableDTO();
 
         $this->product = new ArrayCollection();
+        $this->serv = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
         $this->preProduct = new preProduct\PreProductDTO();
         $this->status = new OrderStatus(OrderStatusNew::class);
     }
-
 
     public function getEvent(): ?OrderEventUid
     {
@@ -97,7 +103,7 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Коллекция продукции в заказе
      *
-     * @return ArrayCollection<int, NewOrderProductDTO>
+     * @return ArrayCollection{int, NewOrderProductDTO}
      */
     public function getProduct(): ArrayCollection
     {
@@ -122,6 +128,34 @@ final class NewOrderDTO implements OrderEventInterface
         $this->product->removeElement($product);
     }
 
+    /**
+     * Коллекция услуг в заказе
+     *
+     * @return ArrayCollection{int, OrderServiceDTO}
+     */
+    public function getServ(): ArrayCollection
+    {
+        return $this->serv;
+    }
+
+    public function setSer(ArrayCollection $ser): void
+    {
+        $this->serv = $ser;
+    }
+
+    public function addServ(OrderServiceDTO $ser): void
+    {
+        if(!$this->serv->contains($ser))
+        {
+            $this->serv->add($ser);
+        }
+    }
+
+    public function removeServ(OrderServiceDTO $ser): void
+    {
+        $this->serv->removeElement($ser);
+    }
+
     /** Статус заказа */
     public function getStatus(): OrderStatus
     {
@@ -138,20 +172,6 @@ final class NewOrderDTO implements OrderEventInterface
     {
         $this->usr = $users;
     }
-
-    /** @deprecated */
-    public function getProfile(): UserProfileUid
-    {
-        return $this->profile;
-    }
-
-    /** @deprecated */
-    public function setProfile(UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
-
 
     /**
      * Comment
@@ -187,5 +207,18 @@ final class NewOrderDTO implements OrderEventInterface
     public function getInvariable(): Invariable\NewOrderInvariableDTO
     {
         return $this->invariable;
+    }
+
+    /** @deprecated */
+    public function getProfile(): UserProfileUid
+    {
+        return $this->profile;
+    }
+
+    /** @deprecated */
+    public function setProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
     }
 }

@@ -1,0 +1,60 @@
+<div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+
+    {{ form_start(form,
+        { attr: { style: 'min-width: 500px;' } }
+    ) }}
+
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+        <div class="modal-header align-items-center">
+
+            <h5 class="modal-title">
+                {# Заголовок модального окна #}
+                {{ 'Добавить в заказ'|trans }}: &nbsp;
+            </h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+
+            <div class="tab-content w-100">
+
+                <div id="services">
+                    {{ include(_self|replace({ "content.html.twig": "form/services.html.twig" })) }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <div class="flex-grow-1">
+                &nbsp;
+            </div>
+
+            <div id="service_buttons" class="d-flex gap-3">
+
+                {# Отмена #}
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
+
+
+                {% if form.order_service_add is defined %}
+
+                    {{ form_widget(form.order_service_add, {
+                        label: '
+                        <span>'~ 'btn.add'|trans({}, 'core.btn') ~'</span>
+                        <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>',
+                    }) }}
+                {% endif %}
+
+
+            </div>
+
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+</div>

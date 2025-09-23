@@ -27,15 +27,14 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Materials\Stocks\BaksDevMaterialsStocksBundle;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
-use BaksDev\Reference\Currency\Type\Currency;
-use BaksDev\Reference\Money\Type\Money;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -50,6 +49,7 @@ final class NewController extends AbstractController
         Request $request,
         NewOrderHandler $OrderHandler,
         ProductUserBasketInterface $userBasket,
+        ExistActiveOrderServiceInterface $existActiveOrderServiceRepository,
     ): Response
     {
         $OrderDTO = new NewOrderDTO();
@@ -60,7 +60,7 @@ final class NewController extends AbstractController
             ->setProfile($this->getProfileUid());
 
         // Форма
-        $form = $this
+        $NewOrderForm = $this
             ->createForm(
                 type: NewOrderForm::class,
                 data: $OrderDTO,
@@ -68,16 +68,55 @@ final class NewController extends AbstractController
             )
             ->handleRequest($request);
 
-        $form->createView();
+        $NewOrderForm->createView();
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('order_new'))
+        if($NewOrderForm->isSubmitted() && $NewOrderForm->isValid() && $NewOrderForm->has('order_new'))
         {
-            $this->refreshTokenForm($form);
+            $this->refreshTokenForm($NewOrderForm);
 
-            if($OrderDTO->getProduct()->isEmpty())
+            /** Если без продукта и услуг */
+            if($OrderDTO->getProduct()->isEmpty() && $OrderDTO->getServ()->isEmpty())
             {
+                $this->addFlash(
+                    'page.new',
+                    'Добавьте продукты или услуги в заказ',
+                    'orders-order.admin',
+                );
+
                 return $this->redirectToRoute('orders-order:admin.index');
             }
+
+            /**
+             * Услуги
+             *
+             * @var OrderServiceDTO $service
+             */
+            foreach($OrderDTO->getServ() as $service)
+            {
+
+                /** Проверка уникальности и активности */
+                $exist = $existActiveOrderServiceRepository
+                    ->byDate($service->getDate())
+                    ->byPeriod($service->getPeriod())
+                    ->exist();
+
+                if(true === $exist)
+                {
+                    $this->addFlash(
+                        'danger',
+                        sprintf('Услуга <b>"%s"</b> на <b>%s</b> в выбранный период УЖЕ ЗАБРОНИРОВАНА',
+                            $service->getName(),
+                            $service->getDate()->format('Y-m-d'),
+                        ),
+                    );
+
+                    return $this->redirectToReferer();
+                }
+            }
+
+            /**
+             * Продукты
+             */
 
             foreach($OrderDTO->getProduct() as $product)
             {
@@ -136,6 +175,6 @@ final class NewController extends AbstractController
 
         }
 
-        return $this->render(['form' => $form->createView()]);
+        return $this->render(['form' => $NewOrderForm->createView()]);
     }
 }

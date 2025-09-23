@@ -3,25 +3,44 @@
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/js/print.min.js?v={{ version }}"
         class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
+
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/offcanvas.min.js?v={{ version }}"
+        class="lazy"></script>
+
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_admin.js?v={{ version }}"
         class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
         class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/offcanvas.min.js?v={{ version }}"
-        class="lazy"></script>
-{#<script nonce='{{ csp_nonce() }}' async data-src="/assets/js/script.min.js?v={{ version }}"
-        class="lazy"></script>#}
+
+{% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
+
+    <style>
+
+        option.blocked {
+            color: #aaa;
+            background-color: #f8f9fa;
+            pointer-events: none; /* не всегда работает в <option>, зависит от браузера */
+        }
+
+        option.current {
+            font-weight: bold;
+        }
+
+    </style>
+
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/services/order_service_add_edit.min.js?v={{ version }}"
+            class="lazy"></script>
+{% endif %}
+
 
 <script nonce='{{ csp_nonce() }}' class="lazy">
 
-
     /* вешаем события на модальные ссылки */
     document.querySelectorAll('[data-bs-toggle="modal"]')
-    .forEach(function(item, i, arr)
-    {
-        modalLink(item);
-    });
-
+        .forEach(function(item, i, arr)
+        {
+            modalLink(item);
+        });
 
 
     document.querySelectorAll(".dropdown-item").forEach(item =>

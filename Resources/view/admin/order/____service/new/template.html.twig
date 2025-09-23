@@ -1,0 +1,28 @@
+{% trans_default_domain('orders-order.admin') %}
+
+{% extends Template('/admin/base.html.twig') %}
+
+{% block title %}{{ 'page.new'|trans }}{% endblock %}
+
+ {% block stylesheets %}
+     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+     <link href="/assets/plugins/datepicker/datepicker.min.css" rel="stylesheet">
+ {% endblock %}
+
+{% block content %}
+    {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
+{% endblock %}
+
+{% block javascript %}
+
+{#<script nonce="{{ csp_nonce() }}" data-src='/assets/js/script.min.js?v={{ version }}' class="lazy"></script>#}
+
+{#<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}"#}
+{#            defer class="lazy"></script>#}
+{#<script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}'#}
+{#            class='lazy'></script>#}
+
+{#    <script nonce='{{ csp_nonce() }}' async data-src="/assets/services/order_service_add_new.min.js?v={{ version }}"#}
+{#            class="lazy"></script>#}
+
+{% endblock %}

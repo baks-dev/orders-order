@@ -224,22 +224,6 @@ async function changeObjectProduct(forms)
                     });
                 }
 
-
-                // return;
-                //
-                //
-                // /** Изменияем список целевых складов */
-                // let warehouse = result.getElementById('targetWarehouse');
-                //
-                //
-                // document.getElementById('targetWarehouse').replaceWith(warehouse);
-                // document.getElementById('new_order_form_targetWarehouse').addEventListener('change', changeObjectWarehause, false);
-                //
-                // new NiceSelect(document.getElementById('new_order_form_targetWarehouse'), {
-                //     searchable: true,
-                //     id: 'select2-' + replaceId
-                // });
-
             }
 
             enableElementsForm(forms);
@@ -620,12 +604,12 @@ function addProductOrder()
 
 
     /*
-    if(collectionProductOrder.size >= 5)
-    {
-        $errorFormHandler = '{ "type":"danger" , ' +
-            '"header":"' + header + '"  , ' +
-            '"message" : "Количество в заявке временно ограничено до 5 позиций! Сохраните активную и добавьте новую." }';
-    }
+     if(collectionProductOrder.size >= 5)
+     {
+     $errorFormHandler = '{ "type":"danger" , ' +
+     '"header":"' + header + '"  , ' +
+     '"message" : "Количество в заявке временно ограничено до 5 позиций! Сохраните активную и добавьте новую." }';
+     }
      */
 
     /* Выводим сообщение об ошибке заполнения */
@@ -972,8 +956,6 @@ async function submitRegionForm(forms, id)
 
     disabledElementsForm(forms);
 
-    //console.log('submitRegionForm');
-
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
@@ -1083,8 +1065,6 @@ async function submitPaymentForm(forms)
 
     disabledElementsForm(forms);
 
-    //console.log('submitPaymentForm');
-
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
@@ -1167,8 +1147,6 @@ async function submitProfileForm(forms)
 {
 
     disabledElementsForm(forms);
-
-    //console.log('submitProfileForm');
 
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
@@ -1292,6 +1270,14 @@ async function submitProfileForm(forms)
                     }
                 }
 
+                /** Блок услуг */
+
+                let service_collection = document.getElementById('add_new_order_service_collection')
+
+                if(service_collection)
+                {
+                    service_collection.replaceWith(doc.getElementById('add_new_order_service_collection'))
+                }
 
                 /** Блок способа оплаты */
                 let user_payment = doc.getElementById('user_payment');
@@ -1399,119 +1385,3 @@ async function submitProfileForm(forms)
     //     console.error('Error:', error);
     // }); // parses JSON response into native JavaScript objects
 }
-
-
-//if(document.readyState === 'loading')
-//{
-//    document.addEventListener('DOMContentLoaded', initFormDraft);
-//} else
-//{
-//    initFormDraft();
-//}
-
-
-//function initFormDraft()
-//{
-//
-//    let form = document.querySelector('#modal form');  //getElementById('modal');
-//
-//    if(typeof form == 'undefined' || !form)
-//    {
-//        return false;
-//    }
-//
-//    //console.log(form);
-//
-//    let name = form.name;
-//
-//    input = form.querySelector('#' + name + '_price_total'); //basket.getElementById('order_product_form_price_total');
-//
-//    if(input)
-//    {
-//
-//        /** Событие на изменение количество в ручную */
-//        input.addEventListener('input', orderModalCounter.debounce(300));
-//
-//
-//        /** Счетчик  */
-//        form.querySelector('#plus').addEventListener('click', () =>
-//        {
-//
-//            let price_total = form.querySelector('#' + name + '_price_total');
-//            let result = price_total.value * 1;
-//            let max = price_total.dataset.max * 1;
-//
-//            if(result < max)
-//            {
-//                result = result + 1;
-//                form.querySelector('#' + name + '_price_total').value = result;
-//                orderModalSum(result);
-//            }
-//
-//        });
-//
-//
-//        form.querySelector('#minus').addEventListener('click', () =>
-//        {
-//            let price_total = form.querySelector('#' + name + '_price_total');
-//            let result = price_total.value * 1;
-//
-//            if(result > 1)
-//            {
-//                result = result - 1
-//                form.querySelector('#' + name + '_price_total').value = result;
-//                orderModalSum(result);
-//            }
-//        });
-//
-//        //return;
-//    }
-//
-//
-//    function orderModalCounter()
-//    {
-//
-//        console.log(this);
-//
-//        let result = this.value * 1;
-//        let max = this.dataset.max * 1;
-//
-//        if(result > max)
-//        {
-//            form.querySelector('#' + name + '_price_total').value = max;
-//            form.querySelector('#summ_' + name + '_price_total').value = max;
-//            result = max;
-//        }
-//
-//        orderModalSum(result);
-//    }
-//
-//    function orderModalSum(result)
-//    {
-//
-//        let product_summ = form.querySelector('#summ_' + name + '_price_total');
-//
-//        let result_product_sum = result * product_summ.dataset.price;
-//
-//        if(product_summ.dataset.discount)
-//        {
-//            result_product_sum = result_product_sum - (result_product_sum / 100 * product_summ.dataset.discount);
-//        }
-//
-//        if(product_summ.dataset.currency)
-//        {
-//            result_product_sum = result_product_sum / 100;
-//            result_product_sum = new Intl.NumberFormat($locale, {
-//                style: 'currency',
-//                currency: product_summ.dataset.currency,
-//                maximumFractionDigits: 0
-//            }).format(result_product_sum);
-//            product_summ.innerText = result_product_sum;
-//        }
-//    }
-//
-//
-//}
-
-
-//executeFunc(initFormDraft);

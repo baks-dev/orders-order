@@ -23,7 +23,9 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New;
 
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\Invariable\NewOrderInvariableForm;
+use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -42,6 +44,7 @@ final class NewOrderForm extends AbstractType
     {
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
+
             /** @var NewOrderDTO $NewOrderDTO */
             $NewOrderDTO = $event->getData();
 
@@ -57,6 +60,7 @@ final class NewOrderForm extends AbstractType
 
         });
 
+        /** Коллекция продуктов в заказе */
 
         $builder->add('preProduct', preProduct\PreProductForm::class, ['label' => false]);
 
@@ -70,6 +74,24 @@ final class NewOrderForm extends AbstractType
             'allow_add' => true,
             'prototype_name' => '__product__',
         ]);
+
+
+        /**
+         * Коллекция услуг в заказе (ЕСЛИ УСТАНОВЛЕН МОДУЛЬ services)
+         */
+
+        if(true === class_exists(BaksDevServicesBundle::class))
+        {
+            $builder->add('serv', CollectionType::class, [
+                'entry_type' => OrderServiceForm::class,
+                'entry_options' => ['label' => false],
+                'label' => false,
+                'by_reference' => false,
+                'allow_delete' => true,
+                'allow_add' => true,
+                'prototype_name' => '__service__',
+            ]);
+        }
 
         $builder->add('invariable', NewOrderInvariableForm::class, ['label' => false]);
 

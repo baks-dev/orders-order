@@ -821,13 +821,13 @@ async function submitDeliveryForm(forms)
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(data, 'text/html');
 
-                let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
+                let user_delivery_new = doc.getElementById('user_delivery_new');
+                document.getElementById('user_delivery_new').replaceWith(user_delivery_new);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery)
+                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery_new)
                 {
-                    user_delivery.addEventListener('change', function(event)
+                    user_delivery_new.addEventListener('change', function(event)
                     {
 
                         let forms = this.closest('form');
@@ -852,7 +852,7 @@ async function submitDeliveryForm(forms)
 
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(user_delivery_new.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -1104,13 +1104,13 @@ async function submitPaymentForm(forms)
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(data, 'text/html');
 
-                let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
+                let user_payment_new = doc.getElementById('user_payment_new');
+                document.getElementById('user_payment_new').replaceWith(user_payment_new);
 
 
-                document.querySelectorAll('input[name="new_order_form[usr][payment][payment]"]').forEach(function(user_payment)
+                document.querySelectorAll('input[name="new_order_form[usr][payment][payment]"]').forEach(function(user_payment_new)
                 {
-                    user_payment.addEventListener('change', function(event)
+                    user_payment_new.addEventListener('change', function(event)
                     {
 
                         let forms = this.closest('form');
@@ -1123,7 +1123,7 @@ async function submitPaymentForm(forms)
                 /** Пересобираем поля для способа оплаты */
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(user_payment_new.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -1209,8 +1209,8 @@ async function submitProfileForm(forms)
 
 
                 /** Блок продукции */
-                let user_products = doc.getElementById('user_products');
-                document.getElementById('user_products').replaceWith(user_products);
+                let user_products_new = doc.getElementById('user_products_new');
+                document.getElementById('user_products_new').replaceWith(user_products_new);
 
 
                 var object_category = document.getElementById('new_order_form_preProduct_category');
@@ -1280,8 +1280,8 @@ async function submitProfileForm(forms)
                 }
 
                 /** Блок способа оплаты */
-                let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
+                let user_payment_new = doc.getElementById('user_payment_new');
+                document.getElementById('user_payment_new').replaceWith(user_payment_new);
 
 
                 /** Пересобираем события способа оплаты */
@@ -1297,13 +1297,13 @@ async function submitProfileForm(forms)
                 });
 
                 /** Блок способа Добавки */
-                let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
+                let user_delivery_new = doc.getElementById('user_delivery_new');
+                document.getElementById('user_delivery_new').replaceWith(user_delivery_new);
 
                 /** Пересобираем поля для способа доставки */
-                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery)
+                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery_new)
                 {
-                    user_delivery.addEventListener('change', function(event)
+                    user_delivery_new.addEventListener('change', function(event)
                     {
 
                         let forms = this.closest('form');

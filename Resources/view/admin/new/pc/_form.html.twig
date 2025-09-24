@@ -15,7 +15,7 @@
                     <button class="btn nav-link fw-bolder active"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#client">
+                            data-bs-target="#client_new">
                         <span class="text-uppercase px-3">Данные получателя</span>
                     </button>
                 </li>
@@ -24,7 +24,7 @@
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#products">
+                            data-bs-target="#products_new">
                         <span class="text-uppercase px-3">Продукция</span>
                     </button>
                 </li>
@@ -37,7 +37,7 @@
                         <button class="btn nav-link fw-bolder"
                                 type="button"
                                 data-bs-toggle="pill"
-                                data-bs-target="#services">
+                                data-bs-target="#services_new">
                             <span class="text-uppercase px-3">Услуги</span>
                         </button>
                     </li>
@@ -48,7 +48,7 @@
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#payment">
+                            data-bs-target="#payment_new">
                         <span class="text-uppercase px-3">Оплата</span>
                     </button>
                 </li>
@@ -57,7 +57,7 @@
                     <button class="btn nav-link fw-bolder"
                             type="button"
                             data-bs-toggle="pill"
-                            data-bs-target="#delivery">
+                            data-bs-target="#delivery_new">
                         <span class="text-uppercase px-3">Доставка</span>
                     </button>
                 </li>
@@ -74,7 +74,7 @@
             <div class="tab-content w-100">
 
                 {# Данные получателя #}
-                <div class="tab-pane fade show active" id="client">
+                <div class="tab-pane fade show active" id="client_new">
                     {{ include(_self|replace({ "_form.html.twig": "form/userprofile.html.twig" })) }}
 
                     <hr>
@@ -84,7 +84,7 @@
                 </div>
 
                 {# Продукты #}
-                <div class="tab-pane fade" id="products">
+                <div class="tab-pane fade" id="products_new">
                     {{ include(_self|replace({ "_form.html.twig": "form/products/products.html.twig" })) }}
 
                 </div>
@@ -93,7 +93,7 @@
 
                 {% if form.serv is defined %}
 
-                    <div class="tab-pane fade" id="services">
+                    <div class="tab-pane fade" id="services_new">
 
                         <div id="add_new_order_service_collection">
 
@@ -163,12 +163,12 @@
 
 
                 {# Доставка #}
-                <div class="tab-pane fade" id="delivery">
+                <div class="tab-pane fade" id="delivery_new">
                     {{ include(_self|replace({ "_form.html.twig": "form/delivery.html.twig" })) }}
                 </div>
 
                 {# Оплата #}
-                <div class="tab-pane fade" id="payment">
+                <div class="tab-pane fade" id="payment_new">
                     {{ include(_self|replace({ "_form.html.twig": "form/payment.html.twig" })) }}
                 </div>
 

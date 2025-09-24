@@ -70,7 +70,7 @@
                             <span class="badge text-bg-primary small p-1" style="min-width: 1.7em;">
                                 {{ order.getProductTotal }}
                             </span>
-                            <span class='h6 mb-0'>
+                            <span class='mb-0'>
                                 {{ money(order.allProductPrice, order.orderCurrency) }}
                             </span>
                         </div>
@@ -81,7 +81,7 @@
                             <span class="badge text-bg-success small p-1" style="min-width: 1.7em;">
                                 {{ order.servicePrice|length }}
                             </span>
-                            <span class='h6 mb-0'>{{ money(order.allServicePrice) }}</span>
+                            <span class='mb-0'>{{ money(order.allServicePrice) }}</span>
                         </div>
                     {% endif %}
 

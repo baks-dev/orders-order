@@ -1,29 +1,29 @@
 {# ПЕЧАТЬ #}
 
-{#<style>#}
-{#    @media print {#}
-{#        .d-print-block {#}
-{#            font-size: 40px;#}
-{#            overflow: visible !important;#}
-{#            height: auto !important;#}
-{#            page-break-inside: auto;#}
-{#        }#}
-{#    }#}
-{#</style>#}
+{# <style> #}
+{#    @media print { #}
+{#        .d-print-block { #}
+{#            font-size: 40px; #}
+{#            overflow: visible !important; #}
+{#            height: auto !important; #}
+{#            page-break-inside: auto; #}
+{#        } #}
+{#    } #}
+{# </style> #}
 
 {% for order in orders %}
 
-{% set organization = 'Интернет магазин ' ~ app.request.server.get('HOST') %}
+    {% set organization = 'Интернет магазин ' ~ app.request.server.get('HOST') %}
 
-{% set money =  0 %}
+    {% set money =  0 %}
 
-{% set products = order.orderProducts %}
+    {% set products = order.orderProducts %}
 
-{% for product in products %}
-    {% set money = (product.product_total * product.product_price) + money %}
-{% endfor %}
+    {% for product in products %}
+        {% set money = (product.product_total * product.product_price) + money %}
+    {% endfor %}
 
-{% set order_user = order.orderUser|json_decode %}
+    {% set order_user = order.orderUser|json_decode %}
 
 
 <li class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
@@ -63,12 +63,12 @@
         <li class="list-group-item">
             Способ оплаты:
 
-        {% if order.paymentId != '01876b9a-f696-7c7b-87cd-1dc3ab014ed8' %}
+            {% if order.paymentId != '01876b9a-f696-7c7b-87cd-1dc3ab014ed8' %}
                 &nbsp; <strong>Оплачено на сайте</strong>
                 &nbsp; <span class="small">({{ order.paymentName }})</span>
-        {% else %}
+            {% else %}
                 {{ order.paymentName }}
-        {% endif %}
+            {% endif %}
         </li>
 
         {% if order.orderComment %}
@@ -100,7 +100,7 @@
             <th scope="row"> {{ loop.index }}
             <td> {# {{ product.product_name }} Triangle Group TR259 225/65 R17 106V #}
 
-                {{ card.product_name }}<br>
+                <strong> {{ card.product_name }} </strong> &nbsp;
 
                 {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
                 card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
@@ -114,6 +114,7 @@
                 {# Постфикс модификации #}
                 {{ card.product_modification_postfix }}
 
+
             <td> {{ card.product_total }}
             <td> шт
             <td> {{ card.product_price / 100 }}
@@ -122,11 +123,11 @@
 
                 {% set counter = loop.index %}
 
-        {% endfor %}
+                {% endfor %}
 
-        {% if order.orderDeliveryPrice %}
+                {% if order.orderDeliveryPrice %}
 
-            {% if order.orderDeliveryPrice > 100 %}
+                {% if order.orderDeliveryPrice > 100 %}
 
                 {% set counter = counter + 1 %}
 
@@ -148,9 +149,9 @@
             <td> {{ delivery_price }}
             <td> {{ delivery_price }}
 
-            {% endif %}
+                {% endif %}
 
-        {% elseif order.deliveryPrice %}
+                {% elseif order.deliveryPrice %}
 
                 {% set counter = counter + 1 %}
                 {% set delivery_price = order.deliveryPrice / 100 %}
@@ -170,7 +171,7 @@
             <td> {{ delivery_price }}
             <td> {{ delivery_price }}
 
-        {% endif %}
+                {% endif %}
 
         <tfoot>
         <tr>
@@ -230,4 +231,4 @@
 
     <div class="" style="page-break-before:always; position: absolute;">&nbsp;</div>
 
-    {% endfor %}
+{% endfor %}

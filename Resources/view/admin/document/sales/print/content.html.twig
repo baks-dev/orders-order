@@ -113,7 +113,7 @@
                 <th scope="row"> {{ loop.index }}
                 <td> {# {{ product.product_name }} Triangle Group TR259 225/65 R17 106V #}
 
-                    {{ card.product_name }}<br>
+                    <strong class="h6">{{ card.product_name }}</strong> &nbsp;
 
                     {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
                     card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}

@@ -137,20 +137,12 @@
 
                     {% endfor %}
 
+
+
                     {% if order.orderDeliveryPrice %}
 
-                    {% if order.orderDeliveryPrice > 100 %}
-
                     {% set counter = counter + 1 %}
-
-                    {% set delivery_price = order.orderDeliveryPrice / 100 %}
-                    {# {{ money(order.order_delivery_price) }} #}
-
-                    {# {% set in_total = money + order.order_delivery_price %} #}
-
-                    {# <div class="mt-2"><strong>Итого c доставкой:</strong> &nbsp; {{ money(in_total) }} ({{ money_word(in_total / 100) }})</div> #}
-
-                    {% set money = money + order.orderDeliveryPrice %}
+                    {% set money = money + order.orderDeliveryPrice.value %}
 
             <tr>
                 <th scope="row"> {{ counter }}
@@ -158,21 +150,14 @@
 
                 <td> -
                 <td> -
-                <td> {{ delivery_price }}
-                <td> {{ delivery_price }}
+                <td> {{ order.orderDeliveryPrice }}
+                <td> {{ order.orderDeliveryPrice }}
 
-                    {% endif %}
 
                     {% elseif order.deliveryPrice %}
 
                     {% set counter = counter + 1 %}
-                    {% set delivery_price = order.deliveryPrice / 100 %}
-                    {# {{ money(order.delivery_price) }} #}
-
-                    {% set money = money + order.deliveryPrice %}
-
-                    {# <div class="mt-2"><strong>Итого с доставкой:</strong>  &nbsp; {{ money(in_total) }} ({{ money_word(in_total / 100) }})</div> #}
-
+                    {% set money = money + order.deliveryPrice.value %}
 
             <tr>
                 <th scope="row"> {{ counter }}
@@ -180,10 +165,11 @@
 
                 <td> -
                 <td> -
-                <td> {{ delivery_price }}
-                <td> {{ delivery_price }}
+                <td> {{ order.deliveryPrice }}
+                <td> {{ order.deliveryPrice }}
 
                     {% endif %}
+
 
             <tfoot>
             <tr>

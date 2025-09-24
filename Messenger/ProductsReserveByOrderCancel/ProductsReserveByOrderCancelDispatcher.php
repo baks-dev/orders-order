@@ -107,7 +107,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         }
 
         /**  Получаем предыдущее событие заказа если статус текущего - Canceled «Отменен»  */
-        if($OrderEvent->isStatusEquals(OrderStatusCanceled::class))
+        if(true === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
         {
             $LastOrderEvent = $this->OrderEventRepository
                 ->find($message->getLast());

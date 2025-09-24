@@ -154,6 +154,32 @@ final class AllOrdersResult
         return $items;
     }
 
+    /** Возвращает общее количество товаров в заказе */
+    public function getProductTotal(): int|false
+    {
+        if(empty($this->product_price))
+        {
+            return false;
+        }
+
+        if(false === json_validate($this->product_price))
+        {
+            return false;
+        }
+
+        $items = json_decode($this->product_price, false, 512, JSON_THROW_ON_ERROR);
+
+        $total = 0;
+
+        // Обновляем поля price и product
+        foreach($items as $item)
+        {
+            $total += $item->total;
+        }
+
+        return $total;
+    }
+
     public function getServicePrice(): array|false
     {
         if(empty($this->service_price))

@@ -330,7 +330,7 @@ class BasketController extends AbstractController
                         type: 'danger',
                         message: sprintf(
                             'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                            $ProductDetail['product_name'],
+                            $ProductDetail->getProductName(),
                         ),
                     );
 

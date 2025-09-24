@@ -558,9 +558,11 @@
 
                 {% set service_prototype = 'service_collection_prototype' %}
 
-                <h5 class="text-uppercase fw-bolder py-2">Услуги для заказа</h5>
+
 
                 <div class="tab-pane fade" id="pills-services" role="tabpanel" tabindex="0">
+
+                    <h5 class="text-uppercase fw-bolder py-2">Услуги для заказа</h5>
 
                     {# Коллекция элементов #}
                     <div class="border rounded-4 p-2 mb-2">
@@ -571,7 +573,7 @@
 
                         {# Кнопка добавления элемента в коллекцию #}
                         <a id="add_item_{{ form.serv.vars.id }}"
-                           href="{{ path('services:admin.order.service.edit') }}"
+                           href="{# {{ path('services:admin.order.service.edit') }} #}"
                            class="btn btn-primary w-100 modal-link"
                            title="Добавить в заказ"
                            data-bs-toggle="modal"

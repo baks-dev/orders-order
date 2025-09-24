@@ -43,6 +43,7 @@ function addOrder(event)
 document.querySelectorAll('.order-basket').forEach(function(forms)
 {
     const btn = forms.querySelector('button[type="submit"]');
+
     if(btn)
     {
         btn.addEventListener('click', addOrder);
@@ -410,13 +411,13 @@ document.querySelectorAll(".delete-product").forEach(function($button)
         let $row = $e.currentTarget.getAttribute("data-row");
 
         deleteElement($row);
-    }
-    );
+    });
 });
 
 function deleteElement($row)
 {
     let $elemCount = document.querySelectorAll(".delete-product").length;
+
     if($elemCount < 2)
     {
         /* TOAST */
@@ -581,7 +582,9 @@ async function submitDeliveryForm(forms)
                     }
 
                     if(limitOxMvRIBczY > 1000)
-                    { return; }
+                    {
+                        return;
+                    }
 
                     limitOxMvRIBczY = limitOxMvRIBczY * 2;
 
@@ -639,6 +642,7 @@ async function submitRegionForm(forms, id)
             }
 
             return response.text();
+
         })
 
         .then((data) =>
@@ -646,17 +650,13 @@ async function submitRegionForm(forms, id)
 
             if(data)
             {
-
-
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(data, 'text/html');
 
                 let callId = id.replace(/_region/g, '_call');
                 let call = doc.getElementById(callId);
 
-
                 document.getElementById(callId).replaceWith(call);
-
 
                 /** Сбрасываем значения геолокации */
                 document.querySelector('[data-latitude]').value = '';
@@ -677,7 +677,9 @@ async function submitRegionForm(forms, id)
                     }
 
                     if(limitZJzxDhmvtC > 1000)
-                    { return; }
+                    {
+                        return;
+                    }
 
                     limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
 
@@ -727,6 +729,7 @@ async function submitPaymentForm(forms)
             }
 
             return response.text();
+
         })
 
         .then((data) =>

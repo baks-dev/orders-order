@@ -65,23 +65,22 @@
                         </strong>
                     </div>
 
-
                     {% if order.allProductPrice.value != 0 %}
-                        <div class="d-flex justify-content-between align-items-center fw-bolder">
-                            <span class="badge text-bg-primary">продукты &nbsp; - &nbsp; {{ order.productPrice|length }}</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center fw-bolder">
-                            <span class='h6 mb-0'>{{ money(order.allProductPrice, order.orderCurrency) }}</span>
+                        <div class="d-flex gap-1 align-items-center fw-bolder">
+                            <span class="badge text-bg-primary small p-1" style="min-width: 1.7em;">
+                                {{ order.getProductTotal }}
+                            </span>
+                            <span class='h6 mb-0'>
+                                {{ money(order.allProductPrice, order.orderCurrency) }}
+                            </span>
                         </div>
                     {% endif %}
 
                     {% if order.allServicePrice.value != 0 %}
-                        <div class="d-flex justify-content-between align-items-center fw-bolder">
-                            <span class="badge text-bg-success">услуги &nbsp; - &nbsp; {{ order.servicePrice|length }}</span>
-                        </div>
-
                         <div class="fw-bolder d-flex justify-content-between align-items-center">
+                            <span class="badge text-bg-success small p-1" style="min-width: 1.7em;">
+                                {{ order.servicePrice|length }}
+                            </span>
                             <span class='h6 mb-0'>{{ money(order.allServicePrice) }}</span>
                         </div>
                     {% endif %}

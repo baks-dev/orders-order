@@ -41,6 +41,7 @@ use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -131,6 +132,7 @@ class OrderEvent extends EntityEvent
         $this->modify = new OrderModify($this);
         $this->created = new DateTimeImmutable();
         $this->status = new OrderStatus(OrderStatusNew::class);
+        $this->serv = new ArrayCollection();
     }
 
     public function __clone()

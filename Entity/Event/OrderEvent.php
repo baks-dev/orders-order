@@ -285,6 +285,6 @@ class OrderEvent extends EntityEvent
 
     public function isServiceEmpty(): bool
     {
-        return $this->serv->isEmpty();
+        return $this->serv->isEmpty() === true;
     }
 }

@@ -28,6 +28,7 @@ use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePe
 use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePeriodByDateResult;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 use BaksDev\Services\BaksDevServicesBundle;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -49,11 +50,14 @@ class AllServicePeriodByDateRepositoryTest extends KernelTestCase
         /** @var AllServicePeriodByDateRepository $AllServicePeriodRepository */
         $AllServicePeriodRepository = self::getContainer()->get(AllServicePeriodByDateRepository::class);
 
+        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
+
         $result = $AllServicePeriodRepository
+            ->byProfile(new UserProfileUid($profile))
             ->byDate(new \DateTimeImmutable('2025-09-19'))
             ->findAll(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
 
-        if(false === $result->valid())
+        if(false === $result)
         {
             return;
         }

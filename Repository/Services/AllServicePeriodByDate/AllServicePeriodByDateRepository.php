@@ -35,6 +35,8 @@ use BaksDev\Services\Entity\Event\Invariable\ServiceInvariable;
 use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\ServiceEvent;
 use BaksDev\Services\Entity\Service;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Exception;
@@ -46,13 +48,23 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
 {
     private DateTimeImmutable|false $date = false;
 
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
     public function byDate(DateTimeImmutable $date): self
     {
         $this->date = $date;
+        return $this;
+    }
+
+    /** Фильтр по профилю */
+    public function byProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
         return $this;
     }
 
@@ -121,11 +133,6 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
-        if(false === $dbal->isProjectProfile())
-        {
-            throw new InvalidArgumentException('Не установлен PROJECT_PROFILE');
-        }
-
         if(false === $this->date instanceof DateTimeImmutable)
         {
             throw new InvalidArgumentException('Не передан обязательный параметр запроса $this->date');
@@ -161,7 +168,12 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 '
                         service_invariable.main = service.id
                         AND
-                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
+                        service_invariable.profile = :profile'
+            )
+            ->setParameter(
+                key: 'profile',
+                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
             );
 
         /** Period */

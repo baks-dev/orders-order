@@ -479,11 +479,11 @@
 
             </div>
 
+            {# ОПЛАТА  #}
 
             <div class="tab-pane fade " id="pills-payment" role="tabpanel" tabindex="0">
                 {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
             </div>
-
 
             {# ОПЛАТА И ДОСТАВКА #}
 
@@ -558,8 +558,6 @@
 
                 {% set service_prototype = 'service_collection_prototype' %}
 
-
-
                 <div class="tab-pane fade" id="pills-services" role="tabpanel" tabindex="0">
 
                     <h5 class="text-uppercase fw-bolder py-2">Услуги для заказа</h5>
@@ -573,7 +571,7 @@
 
                         {# Кнопка добавления элемента в коллекцию #}
                         <a id="add_item_{{ form.serv.vars.id }}"
-                           href="{# {{ path('services:admin.order.service.edit') }} #}"
+                           href="{{ path('services:admin.order.service.edit') }}"
                            class="btn btn-primary w-100 modal-link"
                            title="Добавить в заказ"
                            data-bs-toggle="modal"

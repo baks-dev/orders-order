@@ -7,7 +7,7 @@
     <tr id="order_form_service-__service__" class="item-service">
 
         {# идентификатор, название #}
-        <td class="w-50">
+        <td class="py-3 w-50">
 
             {{ form_widget(form.serv.vars.prototype.serv, { attr: {
                 class: form.serv.vars.prototype.serv.vars.id,
@@ -51,14 +51,14 @@
         </td>
 
         {# Дата #}
-        <td class="w-25 text-center">
+        <td class="py-3 w-25 text-center">
             {{ form_widget(form.serv.vars.prototype.date, { attr: {
                 class: form.serv.vars.prototype.date.vars.id,
             } }) }}
         </td>
 
         {# Период (идентификатор) #}
-        <td class="w-25 text-center">
+        <td class="py-3 w-25 text-center">
             {{ form_widget(form.serv.vars.prototype.period, { attr: {
                 class: form.serv.vars.prototype.period.vars.id,
             } }) }}

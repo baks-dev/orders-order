@@ -48,7 +48,5 @@ class ExistActiveOrderServiceRepositoryTest extends KernelTestCase
             ->byPeriod(new ServicePeriodUid())
             ->byDate(new \DateTimeImmutable())
             ->exist();
-
-        //        dd($result);
     }
 }

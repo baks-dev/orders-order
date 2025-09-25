@@ -207,7 +207,7 @@
 
         <div class="position-relative">
             <div id="collapse_{{ form.serv.vars.id }}"
-                 hx-get="{# {{ path('services:admin.order.service.new') }} #}"
+                 hx-get="{{ path('services:admin.order.service.new') }}"
                  hx-trigger="load"
                  hx-swap="innerHTML"
                  class="collapse multi-collapse bg-white shadow rounded-3 position-absolute"

@@ -12,7 +12,7 @@
     </tr>
     </thead>
 
-    <tbody id="service_сollection">
+    <tbody id="service_сollection_edit_order">
 
     {% set service = form.serv %}
 
@@ -21,7 +21,7 @@
         <tr id="order_form_service-{{ key }}">
 
             {# идентификатор, название #}
-            <td class="w-50">
+            <td class="py-3 w-50">
                 {{ serv.vars.value.name }}
 
                 {{ form_widget(serv.serv) }}

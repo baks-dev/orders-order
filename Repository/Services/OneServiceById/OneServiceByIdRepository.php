@@ -35,39 +35,38 @@ use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\Price\ServicePrice;
 use BaksDev\Services\Entity\Event\ServiceEvent;
 use BaksDev\Services\Entity\Service;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Exception;
-use InvalidArgumentException;
 
 /** Возвращает информацию об услуге по ее идентификатору */
-final readonly class OneServiceByIdRepository implements OneServiceByIdInterface
+final class OneServiceByIdRepository implements OneServiceByIdInterface
 {
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
-        private DBALQueryBuilder $DBALQueryBuilder,
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
+    /** Фильтр по профилю */
+    public function byProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
     /** Возвращает информацию об услуге по ее идентификатору */
-    public function findOne(ServiceUid $service): OneServiceByIdResult|false
+    public function find(ServiceUid $service): OneServiceByIdResult|false
     {
         if(false === class_exists(BaksDevServicesBundle::class))
         {
             throw new Exception('Не установлен зависимый модуль services');
         }
 
-        $builder = $this->builder($service);
-
-        return $builder->fetchHydrate(OneServiceByIdResult::class);
-    }
-
-    private function builder(Service|ServiceUid $service): DBALQueryBuilder
-    {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
-
-        if(false === $dbal->isProjectProfile())
-        {
-            throw new InvalidArgumentException('Не установлен PROJECT_PROFILE');
-        }
 
         $dbal
             ->addSelect('service.id')
@@ -100,7 +99,12 @@ final readonly class OneServiceByIdRepository implements OneServiceByIdInterface
                 '
                         service_invariable.main = service.id
                         AND
-                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
+                        service_invariable.profile = :profile'
+            )
+            ->setParameter(
+                key: 'profile',
+                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
             );
 
         /** Price */
@@ -136,6 +140,6 @@ final readonly class OneServiceByIdRepository implements OneServiceByIdInterface
                 'service_period.event = service_event.id'
             );
 
-        return $dbal;
+        return $dbal->fetchHydrate(OneServiceByIdResult::class);
     }
 }

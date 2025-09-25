@@ -24,8 +24,10 @@
 
 namespace BaksDev\Orders\Order\Repository\Services\OneServiceById\Tests;
 
+use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
+use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdResult;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
-use BaksDev\Services\Repository\OneServiceById\OneServiceByIdInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -42,8 +44,29 @@ class OneServiceByIdRepositoryTest extends KernelTestCase
         /** @var OneServiceByIdInterface $OneServiceByIdInterface */
         $OneServiceByIdInterface = self::getContainer()->get(OneServiceByIdInterface::class);
 
-        $result = $OneServiceByIdInterface->findOne(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
+        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
-        //        dd($result);
+        $OneServiceByIdResult = $OneServiceByIdInterface
+            ->byProfile(new UserProfileUid($profile))
+            ->find(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
+
+        if(false === $OneServiceByIdResult)
+        {
+            return;
+        }
+
+        // Вызываем все геттеры
+        $reflectionClass = new \ReflectionClass(OneServiceByIdResult::class);
+        $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+        foreach($methods as $method)
+        {
+            // Методы без аргументов
+            if($method->getNumberOfParameters() === 0)
+            {
+                // Вызываем метод
+                $data = $method->invoke($OneServiceByIdResult);
+            }
+        }
     }
 }

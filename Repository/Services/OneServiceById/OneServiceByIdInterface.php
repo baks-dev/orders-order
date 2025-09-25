@@ -31,5 +31,5 @@ use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 interface OneServiceByIdInterface
 {
     /** Возвращает информацию об услуге по ее идентификатору */
-    public function findOne(ServiceUid $service): OneServiceByIdResult|false;
+    public function find(ServiceUid $service): OneServiceByIdResult|false;
 }

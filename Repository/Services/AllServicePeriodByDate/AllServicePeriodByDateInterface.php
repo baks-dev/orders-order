@@ -27,12 +27,15 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate;
 
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Generator;
 
 interface AllServicePeriodByDateInterface
 {
     public function byDate(DateTimeImmutable $date): self;
+
+    public function byProfile(UserProfileUid $profile): self;
 
     /**
      * Возвращает массив периодов на переданную дату с информацией об их использовании

@@ -153,6 +153,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
                 type: OrderUid::TYPE,
             );
 
+
         $dbal
             ->join(
                 'main',
@@ -170,8 +171,6 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
                 value: $this->status,
                 type: OrderStatus::TYPE,
             );
-
-        $dbal->andWhere('main.event = event.id');
 
         return $dbal->fetchExist();
     }

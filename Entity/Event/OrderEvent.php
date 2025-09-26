@@ -180,11 +180,6 @@ class OrderEvent extends EntityEvent
         return $this;
     }
 
-
-    /**
-     * @deprecated  используйте метод isStatusEquals
-     * @see self::isStatusEquals
-     */
     public function getStatus(): OrderStatus
     {
         return $this->status;

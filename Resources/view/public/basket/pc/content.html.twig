@@ -249,6 +249,13 @@
 						{% endif %} #}
 
 
+                        {# Услуги #}
+                        {% if has_services %}
+                            <div class="p-5 py-4">
+                                {{ include(_self|replace({ "content.html.twig" : "form/services.html.twig" })) }}
+                            </div>
+                            <hr>
+                        {% endif %}
 
                         {# Способы оплаты  #}
                         {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
@@ -282,6 +289,10 @@
                                               class="fw-bolder mb-0 h3">{{ discount ?  money(discount) : money(total_summ_product) }}</span>
                                     </div>
                                 </div>
+
+                                {% if has_services %}
+                                    <p id="selected-services" class="fs-16 mb-2">Выбранные услуги:</p>
+                                {% endif %}
                                 <div class="w-50 d-flex align-items-end justify-content-end">
 
                                     {# {{ form_row(form.order, {

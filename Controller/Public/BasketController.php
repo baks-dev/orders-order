@@ -29,18 +29,24 @@ use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
-use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
+use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdResult;
+use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\Price\OrderServicePriceDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
+use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Services\BaksDevServicesBundle;
+use BaksDev\Services\Repository\AllServicesByProjectProfile\AllServicesByProjectProfileInterface;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -65,7 +71,8 @@ class BasketController extends AbstractController
         AppCacheInterface $cache,
         GeocodeDistance $GeocodeDistance,
         UserProfileByRegionInterface $UserProfileByRegionRepository,
-
+        ?AllServicesByProjectProfileInterface $AllServicesByProjectProfile = null,
+        OneServiceByIdInterface $oneServiceRepository,
         #[MapQueryParameter] string|null $share = null,
         #[Autowire(env: 'PROJECT_USER')] string|null $projectUser = null,
         #[Autowire(env: 'PROJECT_PROFILE')] string|null $projectProfile = null,
@@ -170,6 +177,36 @@ class BasketController extends AbstractController
             }
 
             $OrderDTO->setProduct($this->products);
+
+
+        }
+
+
+        /* Данные по услугам */
+        $has_services = false;
+        if(true === class_exists(BaksDevServicesBundle::class))
+        {
+            $services = $AllServicesByProjectProfile->findAll();
+
+            foreach($services as $serviceUId)
+            {
+                /** @var OneServiceByIdResult $service */
+
+                $service = $oneServiceRepository->find($serviceUId);
+
+                $BasketServiceDTO = new BasketServiceDTO();
+
+                $OrderServicePriceDTO = new OrderServicePriceDTO();
+                $OrderServicePriceDTO->setPrice(new Money($service->getPrice()->getValue()));
+
+                $BasketServiceDTO->setServ(new ServiceUid($serviceUId))
+                    ->setPrice($OrderServicePriceDTO)
+                    ->setMoney(new Money($service->getPrice()->getValue()))
+                    ->setName($service->getName());
+                $OrderDTO->addServ($BasketServiceDTO);
+
+                $has_services = true;
+            }
         }
 
         // Динамическая форма корзины
@@ -380,6 +417,7 @@ class BasketController extends AbstractController
             'form' => $form->createView(),
             'share' => $key,
             'is_shared' => empty($share) === false,
+            'has_services' => $has_services,
         ]);
     }
 }

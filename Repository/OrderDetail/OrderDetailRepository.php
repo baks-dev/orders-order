@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
@@ -37,6 +36,7 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Entity\Services\OrderService;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
@@ -67,6 +67,12 @@ use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
+use BaksDev\Services\BaksDevServicesBundle;
+use BaksDev\Services\Entity\Event\Info\ServiceInfo;
+use BaksDev\Services\Entity\Event\Period\ServicePeriod;
+use BaksDev\Services\Entity\Event\Price\ServicePrice;
+use BaksDev\Services\Entity\Event\ServiceEvent;
+use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
@@ -466,6 +472,71 @@ final class OrderDetailRepository implements OrderDetailInterface
 			AS order_products",
         );
 
+        /* Услуги */
+        if(true === class_exists(BaksDevServicesBundle::class))
+        {
+            $dbal->leftJoin(
+                'orders',
+                OrderService::class,
+                'order_service',
+                'order_service.event = orders.event',
+            );
+
+            $dbal->leftJoin(
+                'order_service',
+                Service::class,
+                'service',
+                'service.id = order_service.serv',  // .serv
+            );
+
+            $dbal->leftJoin(
+                'service',
+                ServiceEvent::class,
+                'service_event',
+                'service_event.id = service.event',
+            );
+
+            $dbal->leftJoin(
+                'service_event',
+                ServiceInfo::class,
+                'service_info',
+                'service_info.event = service_event.id',
+            );
+
+            $dbal->leftJoin(
+                'service_event',
+                ServicePrice::class,
+                'service_price',
+                'service_price.event = service_event.id',
+            );
+
+            $dbal->leftJoin(
+                'service_event',
+                ServicePeriod::class,
+                'service_period',
+                'service_period.event = service_event.id',
+            );
+
+            $dbal->addSelect(
+                "JSON_AGG
+			( DISTINCT
+				
+					JSONB_BUILD_OBJECT
+					(
+						/* свойства для сортирвоки JSON */
+						'service_id', order_service.id,
+						'service_event', service_event.id,
+						'service_name', service_info.name,
+						'service_preview', service_info.preview,
+						'service_price', service_price.price,	
+						'service_date', order_service.date,	
+						'service_currency', service_price.currency
+					)
+			
+			)
+			AS order_services",
+            );
+        }
 
         /* Доставка */
 

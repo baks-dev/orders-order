@@ -145,7 +145,11 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->addSelect('orders.number AS order_number')
             ->from(Order::class, 'orders')
             ->where('orders.id = :order')
-            ->setParameter('order', $this->order, OrderUid::TYPE);
+            ->setParameter(
+                key: 'order',
+                value: $this->order,
+                type: OrderUid::TYPE,
+            );
 
         $dbal
             ->addSelect('event.status AS order_status')
@@ -490,42 +494,34 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
             $dbal->leftJoin(
-                'service',
-                ServiceEvent::class,
-                'service_event',
-                'service_event.id = service.event',
-            );
-
-            $dbal->leftJoin(
-                'service_event',
+                'order_service',
                 ServiceInfo::class,
                 'service_info',
-                'service_info.event = service_event.id',
+                'service_info.event = order_service.event',
             );
 
             $dbal->leftJoin(
-                'service_event',
+                'order_service',
                 ServicePrice::class,
                 'service_price',
-                'service_price.event = service_event.id',
+                'service_price.event = order_service.event',
             );
 
             $dbal->leftJoin(
-                'service_event',
+                'order_service',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = service_event.id',
+                'service_period.event = order_service.event',
             );
 
             $dbal->addSelect(
-                "JSON_AGG
-			( DISTINCT
+                "JSON_AGG ( DISTINCT
 				
 					JSONB_BUILD_OBJECT
 					(
 						/* свойства для сортирвоки JSON */
 						'service_id', order_service.id,
-						'service_event', service_event.id,
+						'service_event', order_service.event,
 						'service_name', service_info.name,
 						'service_preview', service_info.preview,
 						'service_price', service_price.price,	
@@ -533,9 +529,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 						'service_currency', service_price.currency
 					)
 			
-			)
-			AS order_services",
-            );
+			) AS order_services");
         }
 
         /* Доставка */
@@ -586,16 +580,16 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         /* Адрес доставки */
 
-        $dbal->addSelect('delivery_geocode.longitude AS delivery_geocode_longitude');
-        $dbal->addSelect('delivery_geocode.latitude AS delivery_geocode_latitude');
-        $dbal->addSelect('delivery_geocode.address AS delivery_geocode_address');
-
-        $dbal->leftJoin(
-            'order_delivery',
-            GeocodeAddress::class,
-            'delivery_geocode',
-            'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude',
-        );
+        $dbal
+            ->addSelect('delivery_geocode.longitude AS delivery_geocode_longitude')
+            ->addSelect('delivery_geocode.latitude AS delivery_geocode_latitude')
+            ->addSelect('delivery_geocode.address AS delivery_geocode_address')
+            ->leftJoin(
+                'order_delivery',
+                GeocodeAddress::class,
+                'delivery_geocode',
+                'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude',
+            );
 
         /* Профиль пользователя */
 
@@ -606,14 +600,14 @@ final class OrderDetailRepository implements OrderDetailInterface
             'user_profile.id = order_user.profile',
         );
 
-        $dbal->addSelect('user_profile_info.discount AS order_profile_discount');
-
-        $dbal->leftJoin(
-            'user_profile',
-            UserProfileInfo::class,
-            'user_profile_info',
-            'user_profile_info.profile = user_profile.profile',
-        );
+        $dbal
+            ->addSelect('user_profile_info.discount AS order_profile_discount')
+            ->leftJoin(
+                'user_profile',
+                UserProfileInfo::class,
+                'user_profile_info',
+                'user_profile_info.profile = user_profile.profile',
+            );
 
         $dbal->leftJoin(
             'user_profile',
@@ -633,12 +627,12 @@ final class OrderDetailRepository implements OrderDetailInterface
                         (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
                     ')
             ->setParameter(
-                'field_phone',
-                PhoneField::TYPE,
+                key: 'field_phone',
+                value: PhoneField::TYPE,
             )
             ->setParameter(
-                'field_contact',
-                ContactField::TYPE,
+                key: 'field_contact',
+                value: ContactField::TYPE,
             );
 
         $dbal->leftJoin(

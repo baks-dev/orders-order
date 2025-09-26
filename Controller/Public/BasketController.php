@@ -181,10 +181,10 @@ class BasketController extends AbstractController
 
         }
 
-
         /* Данные по услугам */
-        $has_services = false;
-        if(true === class_exists(BaksDevServicesBundle::class))
+        $has_services = class_exists(BaksDevServicesBundle::class);
+
+        if(true === $has_services)
         {
             $services = $AllServicesByProjectProfile->findAll();
 
@@ -204,8 +204,6 @@ class BasketController extends AbstractController
                     ->setMoney(new Money($service->getPrice()->getValue()))
                     ->setName($service->getName());
                 $OrderDTO->addServ($BasketServiceDTO);
-
-                $has_services = true;
             }
         }
 
@@ -217,9 +215,7 @@ class BasketController extends AbstractController
         $form = $this->createForm(
             type: OrderForm::class,
             data: $OrderDTO,
-            options: [
-                'action' => $this->generateUrl('orders-order:public.basket'),
-            ]);
+            options: ['action' => $this->generateUrl('orders-order:public.basket')]);
 
 
         if(null === $request->headers->get('X-Requested-With'))

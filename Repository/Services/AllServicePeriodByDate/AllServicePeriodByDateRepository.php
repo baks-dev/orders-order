@@ -27,10 +27,14 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Services\OrderService;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Services\BaksDevServicesBundle;
+use BaksDev\Services\Entity\Event\Info\ServiceInfo;
 use BaksDev\Services\Entity\Event\Invariable\ServiceInvariable;
 use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\ServiceEvent;
@@ -149,9 +153,9 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 ServiceEvent::class,
                 'service_event',
                 '
-                    service_event.main = service.id  
+                    service_event.main = :serv
                     AND
-                    service_event.main = :serv'
+                    service_event.id = service.event'
             )
             ->setParameter(
                 key: 'serv',
@@ -189,7 +193,6 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
             );
 
         $dbal
-            //            ->addSelect('orders_service.period as orders_period')
             ->addSelect('orders_service.date as orders_service_date ')
             ->leftJoin(
                 'service_period',
@@ -213,10 +216,25 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
             );
 
         $dbal
+            ->leftJoin(
+                'orders',
+                OrderEvent::class,
+                'orders_event',
+
+                'orders_event.id = orders.event AND orders_event.status != :status'
+            );
+
+        $dbal->setParameter(
+            key: 'status',
+            value: OrderStatusCanceled::STATUS,
+            type: OrderStatus::TYPE
+        );
+
+        $dbal
             ->addSelect('
                 CASE
                     WHEN
-                        orders.event = orders_service.event
+                        orders_event.id = orders.event AND orders.event = orders_service.event 
                     THEN true
                     ELSE false
                 END AS order_service_active

@@ -61,7 +61,7 @@ final class OrderServiceDTO implements OrderServiceInterface
 
     public OrderServicePriceDTO $price;
 
-    public int $minPrice;
+    public int $minPrice = 0;
 
     public function __construct()
     {

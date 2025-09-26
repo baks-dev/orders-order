@@ -32,6 +32,8 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Services\OrderService;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\OrderService\Period\ServicePeriodUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
@@ -107,6 +109,21 @@ final class ExistActiveOrderServiceRepository implements ExistActiveOrderService
                 'orders',
                 'orders.event = orders_service.event'
             );
+
+        $dbal
+            ->join(
+                'orders',
+                OrderEvent::class,
+                'orders_event',
+
+                'orders_event.id = orders.event AND orders_event.status != :status'
+            );
+
+        $dbal->setParameter(
+            key: 'status',
+            value: OrderStatusCanceled::STATUS,
+            type: OrderStatus::TYPE
+        );
 
         $dbal->where('orders_service.date = :date AND orders_service.period = :period');
 

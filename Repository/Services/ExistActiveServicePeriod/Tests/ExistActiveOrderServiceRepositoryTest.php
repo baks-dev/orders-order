@@ -44,9 +44,9 @@ class ExistActiveOrderServiceRepositoryTest extends KernelTestCase
         $ExistActiveOrderServiceInterface = self::getContainer()->get(ExistActiveOrderServiceInterface::class);
 
         $result = $ExistActiveOrderServiceInterface
-            ->byEvent(new OrderEventUid())
-            ->byPeriod(new ServicePeriodUid())
-            ->byDate(new \DateTimeImmutable())
+            ->byEvent(new OrderEventUid('01997c20-f323-71d8-908b-b774f6ab3ad0'))
+            ->byPeriod(new ServicePeriodUid('0199811b-7856-73bc-a5d7-7d171853a4b2'))
+            ->byDate(new \DateTimeImmutable('2025-09-25'))
             ->exist();
     }
 }

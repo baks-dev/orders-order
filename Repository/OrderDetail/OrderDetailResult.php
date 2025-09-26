@@ -48,7 +48,7 @@ final readonly class OrderDetailResult
         private string $payment_id,
         private string $payment_name,
         private string $order_products,
-        private ?string $order_services,
+
         private ?string $order_delivery_currency,
         private string $delivery_name,
         private ?int $delivery_price,
@@ -65,6 +65,7 @@ final readonly class OrderDetailResult
         private ?string $profile_avatar_cdn,
         private string $order_user,
         private ?bool $printed,
+        private ?string $order_services = null,
     ) {}
 
     public function getOrderId(): OrderUid

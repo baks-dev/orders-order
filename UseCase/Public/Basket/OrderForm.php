@@ -25,7 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
-use BaksDev\Orders\Order\UseCase\Public\Basket\Invariable\OrderInvariableForm;
+
+use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceForm;
+use BaksDev\Services\BaksDevServicesBundle;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -50,15 +53,18 @@ final class OrderForm extends AbstractType
             'prototype_name' => '__product__',
         ]);
 
-        $builder->add('product', CollectionType::class, [
-            'entry_type' => Add\OrderProductForm::class,
-            'entry_options' => ['label' => false],
-            'label' => false,
-            'by_reference' => false,
-            'allow_delete' => true,
-            'allow_add' => true,
-            'prototype_name' => '__product__',
-        ]);
+        $has_services = class_exists(BaksDevServicesBundle::class);
+
+        if($has_services)
+        {
+            $builder->add('serv', CollectionType::class, [
+                'entry_type' => BasketServiceForm::class,
+                'entry_options' => ['label' => false],
+                'label' => false,
+                'by_reference' => false,
+                'allow_add' => true,
+            ]);
+        }
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
@@ -79,15 +85,44 @@ final class OrderForm extends AbstractType
                         ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
                     );
                 }
+
             }
         );
+
+
+        if($has_services)
+        {
+            /* Удалить из коллекции НЕ выбранную услугу */
+            $builder->addEventListener(
+                FormEvents::POST_SUBMIT,
+                function(FormEvent $event) {
+
+                    /** @var OrderDTO $data */
+                    $data = $event->getData();
+
+                    /** @var ArrayCollection $collection */
+                    $collection = $data->getServ();
+
+                    foreach($collection as $BasketServiceDTO)
+                    {
+                        $selected = $BasketServiceDTO->getSelected();
+
+                        if($selected === false)
+                        {
+                            /* Удалить элемент коллекции */
+                            $data->removeServ($BasketServiceDTO);
+                        }
+                    }
+
+                });
+        }
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => OrderDTO::class,
-
         ]);
     }
 

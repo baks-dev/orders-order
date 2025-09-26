@@ -48,8 +48,7 @@ final readonly class OrderDetailResult
         private string $payment_id,
         private string $payment_name,
         private string $order_products,
-
-
+        private ?string $order_services,
         private ?string $order_delivery_currency,
         private string $delivery_name,
         private ?int $delivery_price,
@@ -214,5 +213,27 @@ final readonly class OrderDetailResult
     public function getQrcode(): string
     {
         return $this->qrcode;
+    }
+
+    public function getOrderServices(): array|null
+    {
+        if(is_null($this->order_services))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->order_services))
+        {
+            return null;
+        }
+
+        $services = json_decode($this->order_services, true, 512, JSON_THROW_ON_ERROR);
+
+        if(null === current($services))
+        {
+            return null;
+        }
+
+        return $services;
     }
 }

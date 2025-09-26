@@ -27,9 +27,8 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderEvent */
@@ -51,13 +50,17 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
+    /** Коллекция услуг в заказе */
+    #[Assert\Valid]
+    private ArrayCollection $serv;
+
     /** Комментарий к заказу */
     private ?string $comment = null;
-
 
     public function __construct()
     {
         $this->product = new ArrayCollection();
+        $this->serv = new ArrayCollection();
         $this->usr = new User\OrderUserDTO();
         $this->invariable = new Invariable\OrderInvariableDTO();
     }
@@ -128,4 +131,31 @@ final class OrderDTO implements OrderEventInterface
         $this->comment = $comment;
         return $this;
     }
+
+
+    /** Коллекция услуг в заказе */
+
+    public function getServ(): ArrayCollection
+    {
+        return $this->serv;
+    }
+
+    public function setServ(ArrayCollection $serv): void
+    {
+        $this->serv = $serv;
+    }
+
+    public function addServ(BasketServiceDTO $serv): void
+    {
+        if(!$this->serv->contains($serv))
+        {
+            $this->serv->add($serv);
+        }
+    }
+
+    public function removeServ(BasketServiceDTO $serv): void
+    {
+        $this->serv->removeElement($serv);
+    }
+
 }

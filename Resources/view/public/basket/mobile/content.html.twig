@@ -82,7 +82,12 @@
 
                 </div>
 
-
+                {% if has_services %}
+                    <div class="p-5 py-4">
+                        {{ include(_self|replace({ "content.html.twig" : "form/services.html.twig" })) }}
+                    </div>
+                    <hr>
+                {% endif %}
 
                 <div class="container py-3 text-center">
 
@@ -189,6 +194,10 @@
 					{{ discount ?  money(discount) : money(total_summ_product) }}
 				</span>
                     </div>
+
+                    {% if has_services %}
+                        <p id="selected-services" class="fs-16 mb-2">Выбранные услуги:</p>
+                    {% endif %}
                 </div>
 
 

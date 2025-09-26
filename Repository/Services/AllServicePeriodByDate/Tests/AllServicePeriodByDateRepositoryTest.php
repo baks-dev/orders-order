@@ -24,7 +24,7 @@
 
 namespace BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\Tests;
 
-use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePeriodByDateRepository;
+use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePeriodByDateInterface;
 use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePeriodByDateResult;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 use BaksDev\Services\BaksDevServicesBundle;
@@ -47,17 +47,17 @@ class AllServicePeriodByDateRepositoryTest extends KernelTestCase
             return;
         }
 
-        /** @var AllServicePeriodByDateRepository $AllServicePeriodRepository */
-        $AllServicePeriodRepository = self::getContainer()->get(AllServicePeriodByDateRepository::class);
+        /** @var AllServicePeriodByDateInterface $AllServicePeriodByDateInterface */
+        $AllServicePeriodByDateInterface = self::getContainer()->get(AllServicePeriodByDateInterface::class);
 
         $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
-        $result = $AllServicePeriodRepository
+        $result = $AllServicePeriodByDateInterface
             ->byProfile(new UserProfileUid($profile))
             ->byDate(new \DateTimeImmutable('2025-09-19'))
             ->findAll(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
 
-        if(false === $result)
+        if(false === $result || false === $result->valid())
         {
             return;
         }

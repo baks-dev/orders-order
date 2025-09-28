@@ -182,28 +182,35 @@ class BasketController extends AbstractController
         }
 
         /* Данные по услугам */
-        $has_services = class_exists(BaksDevServicesBundle::class);
+        $has_services = ($AllServicesByProjectProfile instanceof AllServicesByProjectProfileInterface);
 
-        if(true === $has_services)
+        if($has_services)
         {
             $services = $AllServicesByProjectProfile->findAll();
 
-            foreach($services as $serviceUId)
+            if(false === $services || false === $services->valid)
             {
-                /** @var OneServiceByIdResult $service */
+                $has_services = false;
+            }
+            else
+            {
+                foreach($services as $serviceUId)
+                {
+                    /** @var OneServiceByIdResult $service */
 
-                $service = $oneServiceRepository->find($serviceUId);
+                    $service = $oneServiceRepository->find($serviceUId);
 
-                $BasketServiceDTO = new BasketServiceDTO();
+                    $BasketServiceDTO = new BasketServiceDTO();
 
-                $OrderServicePriceDTO = new OrderServicePriceDTO();
-                $OrderServicePriceDTO->setPrice(new Money($service->getPrice()->getValue()));
+                    $OrderServicePriceDTO = new OrderServicePriceDTO();
+                    $OrderServicePriceDTO->setPrice(new Money($service->getPrice()->getValue()));
 
-                $BasketServiceDTO->setServ(new ServiceUid($serviceUId))
-                    ->setPrice($OrderServicePriceDTO)
-                    ->setMoney(new Money($service->getPrice()->getValue()))
-                    ->setName($service->getName());
-                $OrderDTO->addServ($BasketServiceDTO);
+                    $BasketServiceDTO->setServ(new ServiceUid($serviceUId))
+                        ->setPrice($OrderServicePriceDTO)
+                        ->setMoney(new Money($service->getPrice()->getValue()))
+                        ->setName($service->getName());
+                    $OrderDTO->addServ($BasketServiceDTO);
+                }
             }
         }
 

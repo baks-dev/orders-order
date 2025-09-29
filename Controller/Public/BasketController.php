@@ -197,8 +197,12 @@ class BasketController extends AbstractController
                 foreach($services as $serviceUId)
                 {
                     /** @var OneServiceByIdResult $service */
-
                     $service = $oneServiceRepository->find($serviceUId);
+
+                    if(false === ($service instanceof OneServiceByIdResult))
+                    {
+                        continue;
+                    }
 
                     $BasketServiceDTO = new BasketServiceDTO();
 

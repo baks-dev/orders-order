@@ -40,7 +40,7 @@ class OrderStatusUnpaid implements OrderStatusInterface, VoterInterface
 {
     public const string STATUS = 'unpaid';
 
-    private static int $sort = 120;
+    private static int $sort = 510;
 
     private static string $color = '#6C757D';
 

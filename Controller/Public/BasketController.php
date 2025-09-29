@@ -188,7 +188,7 @@ class BasketController extends AbstractController
         {
             $services = $AllServicesByProjectProfile->findAll();
 
-            if(false === $services || false === $services->valid)
+            if(false === $services || false === $services->valid())
             {
                 $has_services = false;
             }

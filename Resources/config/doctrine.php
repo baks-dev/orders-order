@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -57,32 +57,26 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
         ->autowire()
         ->autoconfigure();
 
-    $services->set(OrderUid::class)->class(OrderUid::class); // #[ParamConverter(['order'])] OrderUid $order,
+    // #[ParamConverter(['order'])] OrderUid $order,
+    $services->set(OrderUid::class)->class(OrderUid::class);
+    // #[ParamConverter(['service'])] ServiceUid service,
+    $services->set(ServiceUid::class)->class(ServiceUid::class);
+
 
     $doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
-
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
     $doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
-
-    /** Услуги */
-    $services->set(ServiceUid::class)->class(ServiceUid::class);
-    $doctrine->dbal()->type(OrderServiceUid::TYPE)->class(OrderServiceType::class);
     $doctrine->dbal()->type(ServiceUid::TYPE)->class(ServiceType::class);
+    $doctrine->dbal()->type(OrderServiceUid::TYPE)->class(OrderServiceType::class);
     $doctrine->dbal()->type(ServicePeriodUid::TYPE)->class(ServicePeriodType::class);
-
     $doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);
-
     $doctrine->dbal()->type(OrderPaymentUid::TYPE)->class(OrderPaymentType::class);
     $doctrine->dbal()->type(OrderPaymentFieldUid::TYPE)->class(OrderPaymentFieldType::class);
-
-
     $doctrine->dbal()->type(OrderDeliveryUid::TYPE)->class(OrderDeliveryType::class);
     $doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
-
     $doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
 
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
-
 
     $emDefault->mapping('orders-order')
         ->type('attribute')

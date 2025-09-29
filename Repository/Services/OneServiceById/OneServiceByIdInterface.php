@@ -27,9 +27,13 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\Services\OneServiceById;
 
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface OneServiceByIdInterface
 {
+
+    public function byProfile(UserProfileUid $profile): self;
+
     /** Возвращает информацию об услуге по ее идентификатору */
     public function find(ServiceUid $service): OneServiceByIdResult|false;
 }

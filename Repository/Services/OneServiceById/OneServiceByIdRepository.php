@@ -35,7 +35,6 @@ use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\Price\ServicePrice;
 use BaksDev\Services\Entity\Event\ServiceEvent;
 use BaksDev\Services\Entity\Service;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Exception;
 
@@ -46,7 +45,6 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
     /** Фильтр по профилю */
@@ -90,22 +88,46 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                 type: ServiceUid::TYPE,
             );
 
-        /** Invariable, Profile */
-        $dbal
-            ->join(
-                'service',
-                ServiceInvariable::class,
-                'service_invariable',
-                '
+        /**
+         * Invariable, Profile
+         */
+
+        if(false === $this->profile instanceof UserProfileUid)
+        {
+            $dbal
+                ->join(
+                    'service',
+                    ServiceInvariable::class,
+                    'service_invariable',
+                    '
+                        service_invariable.main = service.id
+                        AND
+                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
+                );
+
+            /** Биндим параметр PROJECT_PROFILE_KEY */
+            $dbal->isProjectProfile();
+        }
+
+        if(true === $this->profile instanceof UserProfileUid)
+        {
+            $dbal
+                ->join(
+                    'service',
+                    ServiceInvariable::class,
+                    'service_invariable',
+                    '
                         service_invariable.main = service.id
                         AND
                         service_invariable.profile = :profile'
-            )
-            ->setParameter(
+                );
+
+            $dbal->setParameter(
                 key: 'profile',
-                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                value: $this->profile,
                 type: UserProfileUid::TYPE,
             );
+        }
 
         /** Price */
         $dbal

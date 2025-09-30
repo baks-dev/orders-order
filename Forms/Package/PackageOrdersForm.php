@@ -103,7 +103,6 @@ final class PackageOrdersForm extends AbstractType
                  * Присваиваем идентификаторы заказа
                  * методы присвоят идентификаторы только в случае, если ранее они не были определены
                  */
-                /** todo do we need users? */
                 if(false === ($packageOrdersDTO->getProfile() instanceof UserProfileUid))
                 {
                     $packageOrdersDTO->setProfile($this->profileTokenStorage->getProfile());
@@ -245,29 +244,6 @@ final class PackageOrdersForm extends AbstractType
             ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
     }
-
-
-    //    public function productModifier(FormInterface $form, ?UserProfileUid $profile): void
-    //    {
-    //        if(is_null($profile))
-    //        {
-    //            return;
-    //        }
-    //
-    //        /* Перемещаемая продукция */
-    //        $form->add('products', CollectionType::class, [
-    //            'entry_type' => PackageOrdersProductForm::class,
-    //            'entry_options' => [
-    //                'label' => false,
-    //                'warehouse' => $profile,
-    //            ],
-    //            'label' => false,
-    //            'by_reference' => false,
-    //            'allow_delete' => true,
-    //            'allow_add' => true,
-    //            'prototype_name' => '__product__',
-    //        ]);
-    //    }
 
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -56,13 +56,12 @@ final class OrderStatusHandler extends AbstractHandler
 
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
-    {dump($command);
-        try
-        {
-            $this
-                ->setCommand($command)
-                ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
-        } catch(\Exception $exception) {dd();}
+    {
+        $this
+            ->setCommand($command)
+            ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
+
+
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
         {

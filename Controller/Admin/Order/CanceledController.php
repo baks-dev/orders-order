@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,12 +30,13 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
+use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -58,9 +59,9 @@ final class CanceledController extends AbstractController
         $canceledOrdersForm = $this->createForm(
             CanceledOrdersForm::class,
             $canceledOrdersDTO,
-            ['action' => $this->generateUrl('orders-order:admin.order.canceled')]
+            ['action' => $this->generateUrl('orders-order:admin.order.canceled')],
         )
-        ->handleRequest($request);
+            ->handleRequest($request);
 
         if(
             $canceledOrdersForm->isSubmitted()
@@ -68,6 +69,7 @@ final class CanceledController extends AbstractController
             && $canceledOrdersForm->has('order_cancel')
         )
         {
+
             $this->refreshTokenForm($canceledOrdersForm);
 
             $unsuccessful = [];
@@ -96,15 +98,29 @@ final class CanceledController extends AbstractController
 
                 if(false === ($handle instanceof Order))
                 {
-                    $unsuccessful[] = $orderEvent->getId();
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
                 }
+            }
+
+
+            if(true === empty($unsuccessful))
+            {
+                return new JsonResponse(
+                    [
+                        'type' => 'success',
+                        'header' => 'Отмена заказов',
+                        'message' => 'Статусы заказов '.implode(',', $unsuccessful).' успешно обновлены',
+                        'status' => 200,
+                    ],
+                    200,
+                );
             }
 
             $this->addFlash(
                 'page.cancel',
-                true === empty($unsuccessful) ? 'success.cancel' : 'danger.cancel',
+                'danger.cancel',
                 'orders-order.admin',
-                $unsuccessful
+                $unsuccessful,
             );
 
             return $this->redirectToReferer();  // отмена заказа может происходить в других разделах
@@ -113,6 +129,7 @@ final class CanceledController extends AbstractController
         $numbers = [];
         /**
          * Если не было сабмита формы - рендерим её
+         *
          * @var CanceledOrdersOrderDTO $order
          */
         foreach($canceledOrdersDTO->getOrders() as $order)
@@ -144,7 +161,7 @@ final class CanceledController extends AbstractController
 
         return $this->render([
             'form' => $canceledOrdersForm->createView(),
-            'numbers' => $numbers
+            'numbers' => $numbers,
         ]);
     }
 }

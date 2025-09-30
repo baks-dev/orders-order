@@ -34,12 +34,23 @@ function initOrderPackage()
 
     orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
 
+
+    /* Имя формы */
+    let forms = document.forms.package_orders_form;
+
+    /* событие отправки формы */
+    forms.addEventListener("submit", function(event)
+    {
+        event.preventDefault();
+        submitModalForm(forms);
+        return true;
+    });
+
     return true;
 }
 
 function changeObjectPackageWarehouse()
 {
-
 
     //console.log('changeObjectPackageWarehouse');
 
@@ -51,7 +62,8 @@ function changeObjectPackageWarehouse()
 
     /* Имя формы */
     let PackageOrderForm = document.forms.package_orders_form;
-    // disabledElementsForm(PackageOrderForm);
+    disabledElementsForm(PackageOrderForm);
+
 
     let formData = new FormData(PackageOrderForm);
     formData.delete(PackageOrderForm.name + "[_token]");

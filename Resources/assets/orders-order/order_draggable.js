@@ -26,8 +26,17 @@ var containers = document.querySelectorAll(".draggable-zone");
 // Массив для хранения выбранных заказов
 let selectedOrders = new Set();
 
+let status = null;
+
+
 const form = document.forms.order_delivery_filter_form;
-form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+form.addEventListener("change", () =>
+{
+    setTimeout(() =>
+    {
+        form.submit();
+    }, 300);
+});
 
 
 function getToken(url, ctx)
@@ -35,27 +44,24 @@ function getToken(url, ctx)
     return new Promise((resolve, reject) =>
     {
         fetch(url, {
-            method: 'POST',
-            headers: new Headers({'Content-Type': 'application/json'}),
-            body: JSON.stringify(ctx)
-        })
-            .then(res =>
+            method : "POST",
+            headers : new Headers({"Content-Type" : "application/json"}),
+            body : JSON.stringify(ctx),
+        }).then(res =>
+        {
+            if(!res.ok)
             {
-                if(!res.ok)
-                {
-                    throw new Error(`Unexpected status code ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data =>
-            {
-                resolve(data.token);
+                throw new Error(`Unexpected status code ${res.status}`);
+            }
+            return res.json();
+        }).then(data =>
+        {
+            resolve(data.token);
 
-            })
-            .catch(err =>
-            {
-                reject(err);
-            });
+        }).catch(err =>
+        {
+            reject(err);
+        });
     });
 }
 
@@ -63,34 +69,71 @@ function getToken(url, ctx)
 executeFunc(function P8X1I2diQ4()
 {
 
-    if(typeof Droppable !== 'object' || typeof bootstrap !== 'object')
+    if(typeof Droppable !== "object" || typeof bootstrap !== "object")
     {
         return false;
     }
 
     // Добавляем обработчики для чекбоксов
-    function initCheckboxHandlers() {
-        const checkboxes = document.querySelectorAll('.draggable input[type="checkbox"]');
-        console.log('Найдено чекбоксов:', checkboxes.length);
+    function initCheckboxHandlers()
+    {
+        const checkboxes = document.querySelectorAll(".draggable input[type=\"checkbox\"]");
+        console.log("Найдено чекбоксов:", checkboxes.length);
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const orderId = this.closest('.draggable').id;
-                const draggableElement = this.closest('.draggable');
+        checkboxes.forEach(checkbox =>
+        {
 
-                console.log('Чекбокс изменен для заказа:', orderId, 'Checked:', this.checked);
+            /** снимаем чеки при обновлении */
+            checkbox.checked = false;
 
-                if (this.checked) {
+            checkbox.addEventListener("change", function()
+            {
+                const orderId = this.closest(".draggable").id;
+                const draggableElement = this.closest(".draggable");
+
+                /** Ограничиваем выделяемые заказы по статусу */
+                status = checkbox.dataset.status;
+
+
+                console.log("Чекбокс изменен для заказа:", orderId, "Checked:", this.checked);
+
+                if(this.checked)
+                {
+                    //selectCheckboxesByPrefix(checkbox.id);
+
                     selectedOrders.add(orderId);
-                    draggableElement.classList.add('selected-order');
-                    console.log('Заказ добавлен в selectedOrders:', orderId);
-                } else {
+                    draggableElement.classList.add("selected-order");
+                    console.log("Заказ добавлен в selectedOrders:", orderId);
+
+                    /** Выделяем аналогичные заказы */
+
+                        // Извлекаем префикс (убираем последнюю часть после последнего дефиса)
+                    let checkboxId = checkbox.id;
+                    const idParts = checkboxId.split("-");
+                    idParts.pop(); // Удаляем последнюю часть
+                    const prefix = idParts.join("-");
+
+                    // Находим и выделяем все соответствующие checkbox
+                    const checkboxes = document.querySelectorAll(`input[type="checkbox"][id^="${prefix}"]`);
+
+                    checkboxes.forEach(check =>
+                    {
+                        if(!check.checked)
+                        {
+                            check.checked = true;
+                            selectedOrders.add(check.value);
+                        }
+                    });
+
+                }
+                else
+                {
                     selectedOrders.delete(orderId);
-                    draggableElement.classList.remove('selected-order');
-                    console.log('Заказ удален из selectedOrders:', orderId);
+                    draggableElement.classList.remove("selected-order");
+                    console.log("Заказ удален из selectedOrders:", orderId);
                 }
 
-                console.log('Текущий список selectedOrders:', Array.from(selectedOrders));
+                console.log("Текущий список selectedOrders:", Array.from(selectedOrders));
 
                 // Визуальное выделение выбранных карточек
                 updateSelectedOrdersVisuals();
@@ -99,46 +142,90 @@ executeFunc(function P8X1I2diQ4()
     }
 
     // Функция для обновления визуального состояния выбранных карточек
-    function updateSelectedOrdersVisuals() {
-        const allDraggables = document.querySelectorAll('.draggable');
+    function updateSelectedOrdersVisuals()
+    {
+        const allDraggables = document.querySelectorAll(".draggable");
 
-        allDraggables.forEach(draggable => {
+        allDraggables.forEach(draggable =>
+        {
             const orderId = draggable.id;
-            const draggableHandle = draggable.querySelector('.draggable-handle');
+            const draggableHandle = draggable.querySelector(".draggable-handle");
+            const draggableCheckbox = draggable.querySelector("input[type=\"checkbox\"]");
 
-            if (selectedOrders.has(orderId)) {
-                draggable.style.opacity = '0.8';
-                draggable.style.transform = 'scale(0.98)';
-                draggable.style.boxShadow = '0 0 0 2px #007bff';
+            if(selectedOrders.has(orderId))
+            {
+                /** Показать полностью весь заказ */
+                draggable.classList.remove("opacity-75");
+                draggable.classList.remove("z-0");
+
+                //draggable.classList.add("opacity-100");
+
+                /** Выделяем заказ рамкой */
+                draggable.style.transform = "scale(0.98)";
+                draggable.style.boxShadow = "0 0 0 2px #007bff";
 
                 // Если есть выделенные карточки, включаем перетаскивание только для них
-                if (draggableHandle) {
-                    draggableHandle.style.pointerEvents = 'auto';
-                    draggableHandle.style.opacity = '1';
+                if(draggableHandle)
+                {
+                    //draggableHandle.classList.remove("d-none");
+                    draggableHandle.style.pointerEvents = "auto";
                 }
-            } else {
-                draggable.style.opacity = '';
-                draggable.style.transform = '';
-                draggable.style.boxShadow = '';
+            }
+            else
+            {
+
+                //draggable.classList.remove("opacity-100");
+                draggable.removeAttribute("style");
+
+                //draggable.style.opacity = '';
+                //draggable.style.removeProperty('transform'); // transform = "";
+                //draggable.style.removeProperty('box-shadow') //.boxShadow = "";
 
                 // Если есть выделенные карточки, отключаем перетаскивание для невыделенных
-                if (draggableHandle && selectedOrders.size > 0) {
-                    draggableHandle.style.pointerEvents = 'none';
-                    draggableHandle.style.opacity = '0.3';
-                    draggable.style.opacity = '0.5';
-                } else if (draggableHandle) {
-                    // Если нет выделенных карточек, включаем перетаскивание для всех
-                    draggableHandle.style.pointerEvents = 'auto';
-                    draggableHandle.style.opacity = '1';
+                if(draggableHandle)
+                {
+                    if(selectedOrders.size > 0)
+                    {
+                        draggable.classList.add("opacity-75"); // полупрозрачный заказ
+                        //draggableHandle.classList.add("d-none"); // скрываем кнопку перетаскивания
+
+                        //draggableHandle.style.pointerEvents = 'auto';
+                        draggableHandle.style.pointerEvents = "none";
+
+                        /** получаем элемент chekbox */
+                        if(draggableCheckbox.dataset.status !== status)
+                        {
+                            //draggableCheckbox.classList.add("invisible");
+                            draggableCheckbox.disabled = true;
+                        }
+                    }
+
+                    if(selectedOrders.size === 0)
+                    {
+                        // Если нет выделенных карточек, включаем перетаскивание для всех
+                        draggable.classList.remove("opacity-75");
+                        //draggableHandle.classList.remove("d-none");
+
+
+                        draggableHandle.style.pointerEvents = "auto";
+
+                        //draggableCheckbox.classList.remove("disabled");
+                        draggableCheckbox.disabled = false;
+
+                        status = null;
+                    }
+
                 }
+
             }
         });
     }
 
     // Функция для создания визуального индикатора множественного перетаскивания
-    function createMultipleDragIndicator(count) {
-        const indicator = document.createElement('div');
-        indicator.className = 'multiple-drag-indicator';
+    function createMultipleDragIndicator(count)
+    {
+        const indicator = document.createElement("div");
+        indicator.className = "multiple-drag-indicator";
         indicator.style.cssText = `
             position: absolute;
             top: -10px;
@@ -162,18 +249,18 @@ executeFunc(function P8X1I2diQ4()
     // Инициализируем обработчики чекбоксов
     initCheckboxHandlers();
 
-    const modal = document.getElementById('modal');
+    const modal = document.getElementById("modal");
     const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
 
     var droppable = new Droppable.default(containers, {
-        draggable: ".draggable",
-        dropzone: ".draggable-zone",
-        handle: ".draggable .draggable-handle",
-        mirror: {
+        draggable : ".draggable",
+        dropzone : ".draggable-zone",
+        handle : ".draggable .draggable-handle",
+        mirror : {
             //appendTo: selector,
-            appendTo: "body",
-            constrainDimensions: true
-        }
+            appendTo : "body",
+            constrainDimensions : true,
+        },
     });
 
     // Define draggable element variable for permissions level
@@ -188,37 +275,51 @@ executeFunc(function P8X1I2diQ4()
     // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
     droppable.on("drag:start", (e) =>
     {
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = "hidden";
 
         const draggedOrderId = e.originalSource.id;
 
-        console.log('Drag start для заказа:', draggedOrderId);
-        console.log('Выбранные заказы:', Array.from(selectedOrders));
-        console.log('Размер выбранных:', selectedOrders.size);
+        console.log("Drag start для заказа:", draggedOrderId);
+        console.log("Выбранные заказы:", Array.from(selectedOrders));
+        console.log("Размер выбранных:", selectedOrders.size);
 
         // Проверяем, является ли перетаскиваемый элемент частью выделенных
-        if (selectedOrders.has(draggedOrderId) && selectedOrders.size > 1) {
+        if(selectedOrders.has(draggedOrderId) && selectedOrders.size > 1)
+        {
             isDraggingSelected = true;
             draggedOrderIds = Array.from(selectedOrders);
 
-            console.log('Групповое перетаскивание активировано для:', draggedOrderIds);
+            console.log("Групповое перетаскивание активировано для:", draggedOrderIds);
 
             // Добавляем индикатор множественного перетаскивания
             const indicator = createMultipleDragIndicator(selectedOrders.size);
             e.originalSource.appendChild(indicator);
 
+
             // Делаем все выбранные элементы полупрозрачными во время перетаскивания
-            selectedOrders.forEach(orderId => {
+            selectedOrders.forEach(orderId =>
+            {
                 const element = document.getElementById(orderId);
-                if (element && element !== e.originalSource) {
-                    element.style.opacity = '0.5';
-                    element.style.transition = 'opacity 0.2s ease';
+                if(element && element !== e.originalSource)
+                {
+                    /** При перетаскивании скрываем остальные перетаскиваемые элементы кроме текущего */
+                    if(element.id !== draggedOrderId)
+                    {
+                        element.classList.add("d-none");
+                    }
+
+                    //element.style.opacity = '0.5';
+                    //element.style.transition = 'opacity 0.2s ease';
                 }
             });
-        } else {
+
+
+        }
+        else
+        {
             isDraggingSelected = false;
             draggedOrderIds = [draggedOrderId];
-            console.log('Одиночное перетаскивание для:', draggedOrderId);
+            console.log("Одиночное перетаскивание для:", draggedOrderId);
         }
     });
 
@@ -252,55 +353,65 @@ executeFunc(function P8X1I2diQ4()
     droppable.on("drag:stop", async (e) =>
     {
         // Удаляем индикатор множественного перетаскивания
-        const indicator = e.originalSource.querySelector('.multiple-drag-indicator');
-        if (indicator) {
+        const indicator = e.originalSource.querySelector(".multiple-drag-indicator");
+
+        if(indicator)
+        {
             indicator.remove();
         }
 
-        // Возвращаем нормальную прозрачность всем элементам
-        if (isDraggingSelected) {
-            selectedOrders.forEach(orderId => {
-                const element = document.getElementById(orderId);
-                if (element) {
-                    element.style.opacity = '';
-                    element.style.transition = '';
-                }
-            });
-        }
+        //// Возвращаем нормальную прозрачность всем элементам
+        //if(isDraggingSelected)
+        //{
+        //    selectedOrders.forEach(orderId =>
+        //    {
+        //        const element = document.getElementById(orderId);
+        //
+        //        if(element)
+        //        {
+        //            element.classList.remove("d-none");
+        //        }
+        //    });
+        //}
 
-        // удалить весь перетаскиваемый занятый предел
+
         containers.forEach(c =>
         {
             c.classList.remove("draggable-dropzone--occupied");
         });
 
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = "auto";
 
         let level = e.sourceContainer.getAttribute("data-status");
 
-        if(e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== 'restricted')
+        if(e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== "restricted")
         {
             // Универсальная логика для одиночного и группового перетаскивания
             let ordersToProcess = [];
 
-            if (isDraggingSelected && draggedOrderIds.length > 1) {
+            if(isDraggingSelected && draggedOrderIds.length > 1)
+            {
                 // Групповое перетаскивание
                 ordersToProcess = draggedOrderIds;
                 console.log(`Групповое перетаскивание ${ordersToProcess.length} заказов:`, ordersToProcess);
-            } else {
+            }
+            else
+            {
                 // Одиночное перетаскивание
                 ordersToProcess = [e.originalSource.id];
-                console.log('Одиночное перетаскивание заказа:', ordersToProcess[0]);
+                console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
             }
 
             console.log(`Из статуса ${level} в статус ${droppableLevel}`);
 
+
             /** Включаем preload */
-            modal.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="d-flex justify-content-center w-100"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div></div></div>';
+            modal.innerHTML = "<div class=\"modal-dialog modal-dialog-centered\"><div class=\"d-flex justify-content-center w-100\"><div class=\"spinner-border text-light\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div></div></div>";
             modal_bootstrap.show();
 
             // Единый запрос для всех заказов
-            try {
+            try
+            {
                 //const requestData = {
                 //    status_form: {
                 //        orders: ordersToProcess,
@@ -309,19 +420,21 @@ executeFunc(function P8X1I2diQ4()
 
                 let formData = new FormData();
 
-                ordersToProcess.forEach((id, index) => {
-                    formData.append(`${droppableLevel}_orders_form[orders][${index}][id]`, id)
+                ordersToProcess.forEach((id, index) =>
+                {
+                    formData.append(`${droppableLevel}_orders_form[orders][${index}][id]`, id);
                 });
 
-                const response = await fetch('/admin/order/' + droppableLevel, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                const response = await fetch("/admin/order/" + droppableLevel, {
+                    method : "POST",
+                    headers : {
+                        "X-Requested-With" : "XMLHttpRequest",
                     },
-                    body: formData
+                    body : formData,
                 });
 
-                if (response.status === 302 || response.status === 404) {
+                if(response.status === 302 || response.status === 404)
+                {
                     // Отправляем уведомления для всех заказов
                     //await Promise.all(ordersToProcess.map(orderId =>
                     //    fetch('/admin/order/status/' + orderId, {
@@ -329,28 +442,40 @@ executeFunc(function P8X1I2diQ4()
                     //    })
                     //));
 
+
                     formData = new FormData();
 
-                    ordersToProcess.forEach((id, index) => {
-                        formData.append(`status_form[orders][${index}][id]`, id)
+                    ordersToProcess.forEach((id, index) =>
+                    {
+                        formData.append(`status_form[orders][${index}][id]`, id);
                     });
 
-                    await fetch('/admin/order/status/' + droppableLevel, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
+                    await fetch("/admin/order/status/" + droppableLevel, {
+                        method : "POST",
+                        headers : {
+                            "X-Requested-With" : "XMLHttpRequest",
                         },
-                        body: formData
+                        body : formData,
                     });
 
                     // Очищаем список выбранных заказов и закрываем модал
                     selectedOrders.clear();
                     updateSelectedOrdersVisuals();
                     modal_bootstrap.hide();
+
+                    createToast(JSON.parse(
+                        "{ \"type\":\"success\" , " +
+                        "\"header\" : \"Обновление заказов\"  , " +
+                        "\"message\" : \"Статус заказов успешно обновлен\" }",
+                    ));
+
                     return;
+
+
                 }
 
-                if (response.status === 200) {
+                if(response.status === 200)
+                {
                     const result = await response.text();
 
                     // Очищаем список выбранных заказов
@@ -358,21 +483,21 @@ executeFunc(function P8X1I2diQ4()
                     updateSelectedOrdersVisuals();
 
                     //if (result.requiresForm && ordersToProcess.length === 1) {
-                        // Только один заказ требует форму - показываем её
-                        modal.innerHTML = result;
+                    // Только один заказ требует форму - показываем её
+                    modal.innerHTML = result;
 
-                        /** Инициируем LAZYLOAD */
-                        let lazy = document.createElement('script');
-                        lazy.src = '/assets/js/lazyload.min.js?v={{ version }}';
-                        document.head.appendChild(lazy);
+                    /** Инициируем LAZYLOAD */
+                    let lazy = document.createElement("script");
+                    lazy.src = "/assets/js/lazyload.min.js?v={{ version }}";
+                    document.head.appendChild(lazy);
 
-                        //modal.querySelectorAll('form').forEach(function(forms) {
-                        //    forms.addEventListener('submit', function(event) {
-                        //        event.preventDefault();
-                        //        submitModalForm(forms);
-                        //        return false;
-                        //    });
-                        //});
+                    //modal.querySelectorAll('form').forEach(function(forms) {
+                    //    forms.addEventListener('submit', function(event) {
+                    //        event.preventDefault();
+                    //        submitModalForm(forms);
+                    //        return false;
+                    //    });
+                    //});
 
                     //} else {
                     //    // Обрабатываем успешные обновления
@@ -438,19 +563,23 @@ executeFunc(function P8X1I2diQ4()
                     //        createToast(JSON.parse($dangerOrderToast));
                     //    }
                     //}
-                } else {
+                }
+                else
+                {
                     throw new Error(`Unexpected status code ${response.status}`);
                 }
 
-            } catch (error) {
+            }
+            catch(error)
+            {
                 modal_bootstrap.hide();
                 selectedOrders.clear();
                 updateSelectedOrdersVisuals();
-                console.error('Ошибка обновления:', error);
+                console.error("Ошибка обновления:", error);
 
-                let $dangerOrderToast = '{ "type":"danger" , ' +
-                    '"header":"Ошибка сети"  , ' +
-                    '"message" : "Ошибка при отправке запроса на сервер!" }';
+                let $dangerOrderToast = "{ \"type\":\"danger\" , " +
+                    "\"header\":\"Ошибка сети\"  , " +
+                    "\"message\" : \"Ошибка при отправке запроса на сервер!\" }";
                 createToast(JSON.parse($dangerOrderToast));
             }
         }
@@ -470,7 +599,7 @@ executeFunc(function P8X1I2diQ4()
         droppableLevel = e.dropzone.getAttribute("data-status");
         droppableRestrict = e.dropzone.getAttribute("data-level");
 
-        if(droppableRestrict === 'restricted')
+        if(droppableRestrict === "restricted")
         {
             e.cancel();
         }

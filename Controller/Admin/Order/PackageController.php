@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -49,6 +49,7 @@ use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockHandler;
 use BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -79,7 +80,7 @@ final class PackageController extends AbstractController
             ->createForm(
                 PackageOrdersForm::class,
                 $packageOrdersDTO,
-                ['action' => $this->generateUrl('orders-order:admin.order.package')]
+                ['action' => $this->generateUrl('orders-order:admin.order.package')],
             )
             ->handleRequest($request);
 
@@ -132,6 +133,7 @@ final class PackageController extends AbstractController
 
                 /**
                  * Трансформируем идентификаторы продукта в константы
+                 *
                  * @var OrderProduct $const
                  */
                 foreach($orderEvent->getProduct() as $const)
@@ -194,7 +196,7 @@ final class PackageController extends AbstractController
                             $this->addFlash(
                                 'page.index',
                                 'danger.size',
-                                'delivery-transport.package'
+                                'delivery-transport.package',
                             );
                             return $this->redirectToReferer();
                         }
@@ -232,7 +234,7 @@ final class PackageController extends AbstractController
                         'danger',
                         'danger.update',
                         'orders-order.admin',
-                        $PackageProductStock
+                        $PackageProductStock,
                     );
 
                     return $this->redirectToReferer();
@@ -258,7 +260,7 @@ final class PackageController extends AbstractController
                     $this->addFlash('danger',
                         'danger.update',
                         'orders-order.admin',
-                        $OrderStatusHandler
+                        $OrderStatusHandler,
                     );
 
                     return $this->redirectToReferer();
@@ -267,14 +269,26 @@ final class PackageController extends AbstractController
                 $ordersNumbers[] = $orderEvent->getOrderNumber();
             }
 
+
             if(true === empty($unsuccessful))
             {
-                $this->addFlash('success',
-                    'Заказы #'.implode(', ', $ordersNumbers),
-                    'Статусы успешно обновлены',
-                    'orders-order.admin'
+                return new JsonResponse(
+                    [
+                        'type' => 'success',
+                        'header' => 'Упаковка заказов',
+                        'message' => 'Статусы заказов '.implode(',', $unsuccessful).' успешно обновлены',
+                        'status' => 200,
+                    ],
+                    200,
                 );
             }
+
+            $this->addFlash(
+                'page.package',
+                'danger.package',
+                'orders-order.admin',
+                $unsuccessful,
+            );
 
             return $this->redirectToReferer();
         }
@@ -282,7 +296,7 @@ final class PackageController extends AbstractController
         $prePackageOrdersForm = $this->createForm(
             PackageOrdersForm::class,
             $packageOrdersDTO,
-            ['action' => $this->generateUrl('orders-order:admin.order.package')]
+            ['action' => $this->generateUrl('orders-order:admin.order.package')],
         );
 
         return $this->render(['form' => $prePackageOrdersForm->createView()]);

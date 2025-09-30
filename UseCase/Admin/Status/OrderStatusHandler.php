@@ -61,6 +61,7 @@ final class OrderStatusHandler extends AbstractHandler
             ->setCommand($command)
             ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
+
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
         {

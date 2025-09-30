@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,6 +21,8 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
@@ -28,13 +30,12 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
+use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
+use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -45,69 +46,105 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CanceledController extends AbstractController
 {
     /** Отмена заказа с указанием причины */
-    #[Route('/admin/order/canceled/{id}', name: 'admin.order.canceled', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/canceled', name: 'admin.order.canceled', methods: ['GET', 'POST'])]
     public function canceled(
         Request $request,
-        EntityManagerInterface $entityManager,
+        EntityManagerInterface $EntityManager,
         CentrifugoPublishInterface $publish,
         OrderStatusHandler $OrderStatusHandler,
-        string $id
     ): Response
     {
+        $canceledOrdersDTO = new CanceledOrdersDTO();
+        $canceledOrdersForm = $this->createForm(
+            CanceledOrdersForm::class,
+            $canceledOrdersDTO,
+            ['action' => $this->generateUrl('orders-order:admin.order.canceled')]
+        )
+        ->handleRequest($request);
 
-        /** Пробуем найти по идентификатору заказа */
-        $OrderUid = new OrderUid($id);
-        $Order = $entityManager->getRepository(Order::class)->find($OrderUid);
-
-        $OrderEventUid = $Order instanceof Order ? $Order->getEvent() : new OrderEventUid($id);
-        $OrderEvent = $entityManager->getRepository(OrderEvent::class)->find($OrderEventUid);
-
-        if(!$OrderEvent)
+        if(
+            $canceledOrdersForm->isSubmitted()
+            && $canceledOrdersForm->isValid()
+            && $canceledOrdersForm->has('order_cancel')
+        )
         {
-            return $this->redirectToReferer();
-        }
+            $this->refreshTokenForm($canceledOrdersForm);
 
-        if(false === ($Order instanceof Order))
-        {
-            $Order = $entityManager->getRepository(Order::class)->find($OrderEvent->getMain());
-        }
+            $unsuccessful = [];
+            foreach($canceledOrdersDTO->getOrders() as $order)
+            {
+                /** Пробуем найти по идентификатору заказа */
+                $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
+                if(false === ($orderMain instanceof Order))
+                {
+                    continue;
+                }
 
-        /**
-         * Отправляем сокет для скрытия заказа у других менеджеров
-         */
-        $publish
-            ->addData(['order' => (string) $OrderEvent->getMain()])
-            ->addData(['profile' => (string) $this->getCurrentProfileUid()])
-            ->send('orders');
+                $orderEvent = $EntityManager->getRepository(OrderEvent::class)->find($orderMain->getEvent());
 
-        $OrderCanceledDTO = new CanceledOrderDTO();
-        $OrderEvent->getDto($OrderCanceledDTO);
+                if(false === ($orderEvent instanceof OrderEvent))
+                {
+                    continue;
+                }
 
-        $form = $this->createForm(CanceledOrderForm::class, $OrderCanceledDTO, [
-            'action' => $this->generateUrl('orders-order:admin.order.canceled', ['id' => $OrderEvent->getMain()]),
-        ]);
+                $orderCanceledDTO = new CanceledOrderDTO();
+                $orderEvent->getDto($orderCanceledDTO);
 
-        $form->handleRequest($request);
+                $orderCanceledDTO->setComment($canceledOrdersDTO->getComment());
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('order_cancel'))
-        {
-            $this->refreshTokenForm($form);
+                $handle = $OrderStatusHandler->handle($orderCanceledDTO);
 
-            $handle = $OrderStatusHandler->handle($OrderCanceledDTO);
+                if(false === ($handle instanceof Order))
+                {
+                    $unsuccessful[] = $orderEvent->getId();
+                }
+            }
 
             $this->addFlash(
                 'page.cancel',
-                $handle instanceof Order ? 'success.cancel' : 'danger.cancel',
+                true === empty($unsuccessful) ? 'success.cancel' : 'danger.cancel',
                 'orders-order.admin',
-                $handle
+                $unsuccessful
             );
 
             return $this->redirectToReferer();  // отмена заказа может происходить в других разделах
         }
 
+        $numbers = [];
+        /**
+         * Если не было сабмита формы - рендерим её
+         * @var CanceledOrdersOrderDTO $order
+         */
+        foreach($canceledOrdersDTO->getOrders() as $order)
+        {
+            /** Пробуем найти по идентификатору заказа */
+            $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
+            if(false === ($orderMain instanceof Order))
+            {
+                continue;
+            }
+
+            $orderEvent = $EntityManager->getRepository(OrderEvent::class)->find($orderMain->getEvent());
+
+            if(false === ($orderEvent instanceof OrderEvent))
+            {
+                continue;
+            }
+
+            /**
+             * Отправляем сокет для скрытия заказа у других менеджеров
+             */
+            $publish
+                ->addData(['order' => (string) $orderEvent->getMain()])
+                ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+                ->send('orders');
+
+            $numbers[] = $orderEvent->getOrderNumber();
+        }
+
         return $this->render([
-            'form' => $form->createView(),
-            'number' => $Order->getNumber()
+            'form' => $canceledOrdersForm->createView(),
+            'numbers' => $numbers
         ]);
     }
 }

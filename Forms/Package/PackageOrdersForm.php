@@ -166,9 +166,18 @@ final class PackageOrdersForm extends AbstractType
                                 $productInDTO = $products->exists(
                                     function($key, PackageOrdersProductDTO $packageOrdersProductDTO) use ($product) {
                                         return $packageOrdersProductDTO->getProduct()->equals($product->getProduct())
-                                            && $packageOrdersProductDTO->getOffer()->equals($product->getOffer())
-                                            && $packageOrdersProductDTO->getVariation()->equals($product->getVariation())
-                                            && $packageOrdersProductDTO->getModification()->equals($product->getModification());
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getOffer()) === true && is_null($product->getOffer()) === true)
+                                                || $packageOrdersProductDTO->getOffer()?->equals($product->getOffer())
+                                            )
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getVariation()) === true && is_null($product->getVariation()) === true)
+                                                || $packageOrdersProductDTO->getVariation()?->equals($product->getVariation())
+                                            )
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getModification()) === true && is_null($product->getModification()) === true)
+                                                || $packageOrdersProductDTO->getModification()?->equals($product->getModification())
+                                            );
                                     }
                                 );
                             }
@@ -203,9 +212,18 @@ final class PackageOrdersForm extends AbstractType
                                 $productDTO = $products->filter(
                                     function(PackageOrdersProductDTO $packageOrdersProductDTO) use ($product) {
                                         return $packageOrdersProductDTO->getProduct()->equals($product->getProduct())
-                                            && $packageOrdersProductDTO->getOffer()->equals($product->getOffer())
-                                            && $packageOrdersProductDTO->getVariation()->equals($product->getVariation())
-                                            && $packageOrdersProductDTO->getModification()->equals($product->getModification());
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getOffer()) === true && is_null($product->getOffer()) === true)
+                                                || $packageOrdersProductDTO->getOffer()?->equals($product->getOffer())
+                                            )
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getVariation()) === true && is_null($product->getVariation()) === true)
+                                                || $packageOrdersProductDTO->getVariation()?->equals($product->getVariation())
+                                            )
+                                            && (
+                                                (is_null($packageOrdersProductDTO->getModification()) === true && is_null($product->getModification()) === true)
+                                                || $packageOrdersProductDTO->getModification()?->equals($product->getModification())
+                                            );
                                     }
                                 )->current();
 

@@ -180,6 +180,14 @@
                                 {% set disabled = { disabled : true } %}
                             {% endif %}
 
+
+                        {{ form_widget(product.product) }}
+                        {{ form_widget(product.offer) }}
+                        {{ form_widget(product.variation) }}
+                        {{ form_widget(product.modification) }}
+                        {{ form_widget(product.total) }}
+                        {{ form_widget(product.stock) }}
+
 {#                        {% endif %}#}
 
                     </div>

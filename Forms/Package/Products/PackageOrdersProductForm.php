@@ -102,9 +102,9 @@ final class PackageOrdersProductForm extends AbstractType
             )
         );
 
-        $builder->add('total', HiddenType::class);
+        $builder->add('total', HiddenType::class, ['attr' => ['class' => 'product-total']]);
 
-        $builder->add('stock', HiddenType::class);
+        $builder->add('stock', HiddenType::class, ['attr' => ['class' => 'product-stock']]);
 
         $builder->addEventListener(
             FormEvents::POST_SET_DATA,

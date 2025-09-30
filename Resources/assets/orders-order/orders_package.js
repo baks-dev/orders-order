@@ -25,7 +25,7 @@ executeFunc(initOrderPackage);
 
 function initOrderPackage()
 {
-    let orderpackageWarehouse = document.getElementById("package_order_form_invariable_profile");
+    let orderpackageWarehouse = document.getElementById("package_orders_form_profile");
 
     if(orderpackageWarehouse === null)
     {
@@ -50,7 +50,7 @@ function changeObjectPackageWarehouse()
     requestModalName.responseType = "document";
 
     /* Имя формы */
-    let PackageOrderForm = document.forms.package_order_form;
+    let PackageOrderForm = document.forms.package_orders_form;
     // disabledElementsForm(PackageOrderForm);
 
     let formData = new FormData(PackageOrderForm);

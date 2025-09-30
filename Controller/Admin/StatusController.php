@@ -21,6 +21,8 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Controller\Admin;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
@@ -28,7 +30,9 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Delivery\BaksDevDeliveryBundle;
 use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Forms\Status\StatusDTO;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
@@ -39,237 +43,202 @@ use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use InvalidArgumentException;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use BaksDev\Orders\Order\Forms\Status\StatusForm;
+use Symfony\Component\HttpFoundation\Request;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class StatusController extends AbstractController
 {
     #[Route(
-        '/admin/order/status/{status}/{id}',
+        '/admin/order/status/{status}',
         name: 'admin.status',
-        methods: ['GET'],
+        methods: ['POST'],
         condition: "request.headers.get('X-Requested-With') === 'XMLHttpRequest'",
     )]
     public function status(
-        //Request $request,
-        #[MapEntity] Order $Order,
+        Request $request,
         CurrentOrderEventInterface $currentOrderEvent,
         OrderStatusCollection $orderStatusCollection,
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish,
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
-        TranslatorInterface $translator,
         string $status,
     ): Response
     {
+        $statusDTO = new StatusDTO();
+        $statusForm = $this->createForm(StatusForm::class, $statusDTO, [
+            'action' => $this->generateUrl('orders-order:admin.status', ['status' => $status]),
+        ]);
 
+        $statusForm->handleRequest($request);
 
-        $OrderEvent = $currentOrderEvent
-            ->forOrder($Order->getId())
-            ->find();
+        $unsuccessful = [];
+        $orders = [];
 
-        if(!$OrderEvent)
+        if($statusForm->isSubmitted())
         {
-            throw new InvalidArgumentException('Invalid Argument Order');
-        }
-
-        /** @var EditOrderDTO $EditOrderDTO */
-
-        $EditOrderDTO = $OrderEvent->getDto(new EditOrderDTO());
-        $currentPriority = $EditOrderDTO->getStatus()->getOrderStatus()::priority();
-
-
-        $OrderStatus = $orderStatusCollection->from($status);
-
-        $OrderStatusDTO = new OrderStatusDTO(
-            $OrderStatus,
-            $Order->getEvent(),
-        )
-            ->setProfile($this->getProfileUid());
-
-
-        $OrderStatusName = $translator->trans($OrderStatusDTO->getStatus(), domain: 'status.order');
-
-
-        /**
-         * Статус заказа можно двигать только вперед
-         */
-
-
-        if($currentPriority === $OrderStatus->getOrderStatus()::priority())
-        {
-            return new JsonResponse(
-                [
-                    'type' => 'danger',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => sprintf('Заказ уже находится в статусе %s', $OrderStatusName),
-                    'status' => 400,
-                ],
-                400,
-            );
-        }
-
-        if($currentPriority > $OrderStatus->getOrderStatus()::priority())
-        {
-            return new JsonResponse(
-                [
-                    'type' => 'danger',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => 'Невозможно вернуть заказ на обратную стадию!',
-                    'status' => 400,
-                ],
-                400,
-            );
-        }
-
-        /**
-         * Обновляем статус заказа
-         */
-
-        /** Невозможно применить повторно статус */
-        $isExistsStatus = $existOrderEventByStatus
-            ->forOrder($Order->getId())
-            ->forStatus($OrderStatusDTO->getStatus())
-            ->isExists();
-
-        if($isExistsStatus)
-        {
-            return new JsonResponse(
-                [
-                    'type' => 'danger',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => 'Невозможно применить повторно статус '.$OrderStatusName,
-                    'status' => 400,
-                ],
-                400,
-            );
-        }
-
-
-        /**
-         * Изменить статус выполненного заказа невозможно
-         */
-
-        $isExistsCompleted = $existOrderEventByStatus
-            ->forOrder($Order->getId())
-            ->forStatus(OrderStatusCompleted::class)
-            ->isExists();
-
-        if($isExistsCompleted)
-        {
-            return new JsonResponse(
-                [
-                    'type' => 'danger',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => 'Заказ уже выполнен!',
-                    'status' => 400,
-                ],
-                400,
-            );
-        }
-
-
-        if(class_exists(BaksDevProductsStocksBundle::class))
-        {
-            /**
-             * Если имеется модуль склада - в статус Completed «Выполнен» можно только после сборки
-             * Extradition «Готов к выдаче»
-             */
-            if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusCompleted::class))
+            foreach($statusDTO->getOrders() as $order)
             {
-                $isExists = $existOrderEventByStatus
-                    ->forOrder($Order->getId())
-                    ->forStatus(OrderStatusExtradition::class)
+                $orderEvent = $currentOrderEvent
+                    ->forOrder($order->getId())
+                    ->find();
+
+                if(false === ($orderEvent instanceof OrderEvent))
+                {
+                    throw new InvalidArgumentException('Invalid Order Event');
+                }
+
+                /** @var EditOrderDTO $editOrderDTO */
+                $editOrderDTO = $orderEvent->getDto(new EditOrderDTO());
+                $currentPriority = $editOrderDTO->getStatus()->getOrderStatus()::priority();
+
+                $orderStatus = $orderStatusCollection->from($status);
+
+                $orderStatusDTO = new OrderStatusDTO(
+                    $orderStatus,
+                    $orderEvent->getId()
+                )
+                ->setProfile($this->getProfileUid());
+
+
+                /**
+                 * Статус заказа можно двигать только вперед
+                 */
+                if($currentPriority >= $orderStatus->getOrderStatus()::priority())
+                {
+                    $unsuccessful[] = $order->getNumber();
+                    continue;
+                }
+
+                /**
+                 * Обновляем статус заказа
+                 */
+
+                /** Невозможно применить повторно статус */
+                $isExistsStatus = $existOrderEventByStatus
+                    ->forOrder($order->getId())
+                    ->forStatus($orderStatusDTO->getStatus())
                     ->isExists();
 
-                if($isExists === false)
+                if($isExistsStatus)
                 {
-                    return new JsonResponse(
-                        [
-                            'type' => 'danger',
-                            'header' => 'Заказ #'.$Order->getNumber(),
-                            'message' => 'Заказ не прошел стадию упаковки на складе',
-                            'status' => 400,
-                        ],
-                        400,
-                    );
+                    $unsuccessful[] = $order->getNumber();
+                    continue;
                 }
+
+                /**
+                 * Изменить статус выполненного заказа невозможно
+                 */
+                $isExistsCompleted = $existOrderEventByStatus
+                    ->forOrder($order->getId())
+                    ->forStatus(OrderStatusCompleted::class)
+                    ->isExists();
+
+                if($isExistsCompleted)
+                {
+                    $unsuccessful[] = $order->getNumber();
+                    continue;
+                }
+
+                if(class_exists(BaksDevProductsStocksBundle::class))
+                {
+                    /**
+                     * Если имеется модуль склада - в статус Completed «Выполнен» можно только после сборки
+                     * Extradition «Готов к выдаче»
+                     */
+                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusCompleted::class))
+                    {
+                        $isExists = $existOrderEventByStatus
+                            ->forOrder($order->getId())
+                            ->forStatus(OrderStatusExtradition::class)
+                            ->isExists();
+
+                        if($isExists === false)
+                        {
+                            $unsuccessful[] = $order->getNumber();
+                            continue;
+                        }
+                    }
+
+                    /** Изменить статус на Статус Extradition «Готов к выдаче» можно только через склад */
+                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusExtradition::class))
+                    {
+                        $unsuccessful[] = $order->getNumber();
+                        continue;
+                    }
+                }
+
+                if(class_exists(BaksDevDeliveryBundle::class))
+                {
+                    /** Изменить статус на Статус Delivery «Доставка (погружен в транспорт)» можно только через Доставку */
+                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusDelivery::class))
+                    {
+                        $unsuccessful[] = $order->getNumber();
+                        continue;
+                    }
+                }
+
+                $OrderStatusHandler = $handler->handle($orderStatusDTO);
+
+                if(false === $OrderStatusHandler instanceof Order)
+                {
+                    $unsuccessful[] = $order->getNumber();
+                    continue;
+                }
+
+                // Отправляем сокет для скрытия заказа у других менеджеров
+                $socket = $publish
+                    ->addData(['order' => (string) $OrderStatusHandler->getId()])
+                    ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+                    ->send('orders');
+
+                if($socket && $socket->isError())
+                {
+                    return new JsonResponse($socket->getMessage());
+                }
+
+                $orders[] = $order->getId();
             }
 
-            /** Изменить статус на Статус Extradition «Готов к выдаче» можно только через склад */
-            if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusExtradition::class))
+            if(true === empty($unsuccessful))
             {
                 return new JsonResponse(
                     [
-                        'type' => 'danger',
-                        'header' => 'Заказ #'.$Order->getNumber(),
-                        'message' => 'Заказ не прошел стадию упаковки на складе',
-                        'status' => 400,
+                        'type' => 'success',
+                        'header' => 'Заказы #'.implode(',', $orders),
+                        'message' => 'Статусы успешно обновлены',
+                        'status' => 200,
                     ],
-                    400,
+                    200
                 );
             }
         }
 
-        if(class_exists(BaksDevDeliveryBundle::class))
-        {
-            /** Изменить статус на Статус Delivery «Доставка (погружен в транспорт)» можно только через Доставку */
-            if(true === $OrderStatusDTO->getStatus()->equals(OrderStatusDelivery::class))
-            {
-                return new JsonResponse(
-                    [
-                        'type' => 'danger',
-                        'header' => 'Заказ #'.$Order->getNumber(),
-                        'message' => 'Заказ не прошел стадию погрузки в транспорт доставки',
-                        'status' => 400,
-                    ],
-                    400,
-                );
-            }
-        }
-
-        $OrderStatusHandler = $handler->handle($OrderStatusDTO);
-
-        if(!$OrderStatusHandler instanceof Order)
+        if(false === empty($unsuccessful))
         {
             return new JsonResponse(
                 [
                     'type' => 'danger',
-                    'header' => 'Заказ #'.$Order->getNumber(),
-                    'message' => sprintf('%s: Ошибка при обновлении заказа', $OrderStatusHandler),
+                    'header' => 'Заказы #'.implode(',', $unsuccessful),
+                    'message' => 'Ошибка обновления заказов',
                     'status' => 400,
                 ],
                 400,
             );
-        }
-
-        // Отправляем сокет для скрытия заказа у других менеджеров
-        $socket = $publish
-            ->addData(['order' => (string) $OrderStatusHandler->getId()])
-            ->addData(['profile' => (string) $this->getCurrentProfileUid()])
-            ->send('orders');
-
-        if($socket && $socket->isError())
-        {
-            return new JsonResponse($socket->getMessage());
         }
 
         return new JsonResponse(
             [
-                'type' => 'success',
-                'header' => 'Заказ #'.$Order->getNumber(),
-                'message' => 'Статус успешно обновлен',
-                'status' => 200,
+                'type' => 'danger',
+                'header' => 'Заказы',
+                'message' => 'Ошибка обновления заказов',
+                'status' => 400,
             ],
-            200,
         );
     }
-
-
 }

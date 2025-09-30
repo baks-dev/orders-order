@@ -494,24 +494,24 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service',
                 ServiceInfo::class,
                 'service_info',
-                'service_info.event = order_service.event',
+                'service_info.event = service.event',
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service',
                 ServicePrice::class,
                 'service_price',
-                'service_price.event = order_service.event',
+                'service_price.event = service.event',
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = order_service.event',
+                'service_period.event = service.event',
             );
 
             $dbal->addSelect(
@@ -520,8 +520,9 @@ final class OrderDetailRepository implements OrderDetailInterface
 					JSONB_BUILD_OBJECT
 					(
 						/* свойства для сортирвоки JSON */
-						'service_id', order_service.id,
-						'service_event', order_service.event,
+						'service_id', service.id,
+						'service_event', service.event,
+						
 						'service_name', service_info.name,
 						'service_preview', service_info.preview,
 						'service_price', service_price.price,	

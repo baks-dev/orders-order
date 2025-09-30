@@ -129,20 +129,18 @@
 
                 <td> {{ card.product_total }}
                 <td> шт
-                <td> {{ card.product_price / 100 }}
-                <td> {{ (card.product_price * card.product_total) / 100 }}
+                <td> {{ money(card.product_price) }}
+                <td> {{ money((card.product_price * card.product_total)) }}
 
 
                     {% set counter = loop.index %}
 
                     {% endfor %}
 
-
-
-                    {% if order.orderDeliveryPrice %}
+                    {% if order.orderDeliveryPrice.value > 0 %}
 
                     {% set counter = counter + 1 %}
-                    {% set money = money + order.orderDeliveryPrice.value %}
+                    {% set money = order.orderDeliveryPrice.value * 100 + money %}
 
             <tr>
                 <th scope="row"> {{ counter }}
@@ -150,14 +148,14 @@
 
                 <td> -
                 <td> -
-                <td> {{ order.orderDeliveryPrice }}
-                <td> {{ order.orderDeliveryPrice }}
+                <td> {{ money(order.orderDeliveryPrice) }}
+                <td> {{ money(order.orderDeliveryPrice) }}
 
 
-                    {% elseif order.deliveryPrice %}
+                    {% elseif order.deliveryPrice.value > 0 %}
 
                     {% set counter = counter + 1 %}
-                    {% set money = money + order.deliveryPrice.value %}
+                    {% set money =  order.deliveryPrice.value * 100 + money %}
 
             <tr>
                 <th scope="row"> {{ counter }}
@@ -182,11 +180,7 @@
             Всего наименований {{ counter }}, на сумму {{ money(money) }} ({{ money_word(money / 100) }})
         </div>
 
-
-
         <hr>
-
-
 
         <div class="w-100 d-flex gap-3 mb-2">
 
@@ -242,10 +236,6 @@
                 <div class="small"><small>расшифровка подписи</small></div>
             </div>
         </div>
-
-
-
-
 
         {% if loop.last == false %}
             <div style="page-break-before:always;">&nbsp;</div>

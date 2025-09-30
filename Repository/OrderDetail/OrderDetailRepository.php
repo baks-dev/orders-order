@@ -72,7 +72,6 @@ use BaksDev\Services\Entity\Event\Info\ServiceInfo;
 use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\Price\ServicePrice;
 use BaksDev\Services\Entity\Event\ServiceEvent;
-use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
@@ -488,47 +487,51 @@ final class OrderDetailRepository implements OrderDetailInterface
 
             $dbal->leftJoin(
                 'order_service',
-                Service::class,
-                'service',
-                'service.id = order_service.serv',  // .serv
+                ServiceEvent::class,
+                'service_event',
+                'service_event.main = order_service.serv',  // .serv
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service_event',
                 ServiceInfo::class,
                 'service_info',
-                'service_info.event = order_service.event',
+                'service_info.event = service_event.id',
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service_event',
                 ServicePrice::class,
                 'service_price',
-                'service_price.event = order_service.event',
+                'service_price.event = service_event.id',
             );
 
             $dbal->leftJoin(
-                'order_service',
+                'service_event',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = order_service.event',
+                'service_period.event = service_event.id',
             );
 
             $dbal->addSelect(
-                "JSON_AGG ( DISTINCT
-				
-					JSONB_BUILD_OBJECT
-					(
-						/* свойства для сортирвоки JSON */
-						'service_id', order_service.id,
-						'service_event', order_service.event,
-						'service_name', service_info.name,
-						'service_preview', service_info.preview,
-						'service_price', service_price.price,	
-						'service_date', order_service.date,	
-						'service_currency', service_price.currency
-					)
-			
+                "
+                JSON_AGG ( DISTINCT
+                    CASE
+                        WHEN order_service.event IS NOT NULL THEN
+
+                            JSONB_BUILD_OBJECT
+                            (
+                                /* свойства для сортирвоки JSON */
+                                'service_id', order_service.id,
+                                'service_event', order_service.event,
+                                'service_name', service_info.name,
+                                'service_preview', service_info.preview,
+                                'service_price', service_price.price,
+                                'service_date', order_service.date,
+                                'service_currency', service_price.currency
+                            )
+                        ELSE NULL
+                    END
 			) AS order_services");
         }
 

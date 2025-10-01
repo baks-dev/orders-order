@@ -32,6 +32,28 @@ function initOrderPackage()
         return false;
     }
 
+    // Подсчёт продуктов в форме
+    let productsCount = document.querySelectorAll('.product-total').length;
+
+    // Блокируем кнопку сабмита, если на складе недостаточно остатка
+    for(let key = 0; key < productsCount; key++)
+    {
+        let total = document.getElementById(`package_orders_form_products_${key}_total`).value;
+        let stock = document.getElementById(`package_orders_form_products_${key}_stock`).value;
+        let submitButton = document.getElementById("package_orders_form_package");
+        if(total > stock && false === submitButton.classList.contains("disabled"))
+        {
+            submitButton.classList.add("disabled");
+            break;
+        }
+
+        if(total <= stock && true === submitButton.classList.contains("disabled"))
+        {
+            submitButton.classList.remove("disabled");
+            submitButton.disabled = false;
+        }
+    }
+
     orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
 
 
@@ -51,14 +73,11 @@ function initOrderPackage()
 
 function changeObjectPackageWarehouse()
 {
-
-    //console.log('changeObjectPackageWarehouse');
-
-
     /* Создаём объект класса XMLHttpRequest */
     const requestModalName = new XMLHttpRequest();
 
     requestModalName.responseType = "document";
+
 
     /* Имя формы */
     let PackageOrderForm = document.forms.package_orders_form;
@@ -76,6 +95,8 @@ function changeObjectPackageWarehouse()
     /* Получаем ответ от сервера на запрос*/
     requestModalName.addEventListener("readystatechange", function()
     {
+        enableElementsForm(PackageOrderForm);
+
         /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
         if(requestModalName.readyState === 4 && requestModalName.status === 200)
         {
@@ -89,7 +110,6 @@ function changeObjectPackageWarehouse()
 
             document.getElementById("modal-body").replaceWith(result);
 
-
             /** Изменияем список целевых складов */
             // new NiceSelect(document.getElementById('package_order_form_warehouse'), {
             //     searchable: true,
@@ -99,33 +119,9 @@ function changeObjectPackageWarehouse()
             initOrderPackage();
         }
 
-        enableElementsForm(PackageOrderForm);
-
         return false;
     });
 
     requestModalName.send(formData);
 
 }
-
-//limit = 100;
-//
-//setTimeout(function OxMvRIBczY()
-//{
-//
-//    if(typeof initOrderPackage == 'function')
-//    {
-//        initOrderPackage();
-//        console.log('initOrderPackage');
-//        return;
-//    }
-//
-//    console.log(limit);
-//
-//    if(limit > 1000)
-//    { return; }
-//
-//    setTimeout(OxMvRIBczY, limit);
-//
-//}, 100);
-

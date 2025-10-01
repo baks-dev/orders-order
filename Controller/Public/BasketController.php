@@ -184,7 +184,7 @@ class BasketController extends AbstractController
         /* Данные по услугам */
         $has_services = ($AllServicesByProjectProfile instanceof AllServicesByProjectProfileInterface);
 
-        if($has_services)
+        if($has_services && false === $this->products->isEmpty())
         {
             $services = $AllServicesByProjectProfile->findAll();
 

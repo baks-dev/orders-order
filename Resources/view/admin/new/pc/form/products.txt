@@ -60,7 +60,7 @@
 							variation: card.product_variation_value,
 							modification: card.product_modification_value
 						}) }} #}" class="icon rounded-4 mb-2 lazy bg-contain p-1"
-                           data-bg="{{ card.product_image ? img_path ~ card.product_image ~ product_image_ext : '/assets/img/blank.svg' }}"
+                           data-bg="{{ card.product_image ? img_path ~ card.product_image ~ product_image_ext : '/assets/'~version~'/img/blank.svg' }}"
                            style="width: 75px; height: 75px;"
                         ></a>
 
@@ -169,7 +169,7 @@
                 >
                     <img data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiNCMUI2QkIiIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNOCAxLjMxNEMxMi40MzgtMy4yNDggMjMuNTM0IDQuNzM1IDggMTUtNy41MzQgNC43MzYgMy41NjItMy4yNDggOCAxLjMxNHoiPjwvcGF0aD48L3N2Zz4K"
                          width="16" height="16"
-                         src="/assets/img/empty.png"
+                         src="/assets/{{version}}/img/empty.png"
                          class="lazy"
                     >
                 </button>

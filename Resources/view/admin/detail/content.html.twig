@@ -1,15 +1,17 @@
 {{ include(_self|replace({ "content.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/js/print.min.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/print.min.js?v={{ version }}"
         class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
-
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/offcanvas.min.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/copy.min.js?v={{ version }}"
         class="lazy"></script>
 
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_admin.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async
+        data-src="/assets/{{ version }}/plugins/datepicker/offcanvas.min.js?v={{ version }}"
         class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
+
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/orders_admin.js?v={{ version }}"
+        class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"
         class="lazy"></script>
 
 {% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
@@ -28,7 +30,8 @@
 
     </style>
 
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/services/order_service_add_edit.min.js?v={{ version }}"
+    <script nonce='{{ csp_nonce() }}' async
+            data-src="/assets/{{ version }}/services/order_service_add_edit.min.js?v={{ version }}"
             class="lazy"></script>
 {% endif %}
 

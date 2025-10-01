@@ -627,7 +627,7 @@ async function submitAddToOrderForm(forms)
     let offerImagePath = offerOption === null ? null : offerOption.getAttribute("data-image-path");
     let variationImagePath = variationOption === null ? null : variationOption.getAttribute("data-image-path");
     let modificationImagePath = modificationOption === null ? null : modificationOption.getAttribute("data-image-path");
-    let imagePath = productImagePath === null ? modificationImagePath === null ? variationImagePath === null ? offerImagePath === null ? "/assets/img/blank.svg" : offerImagePath : variationImagePath : modificationImagePath : productImagePath;
+    let imagePath = productImagePath === null ? modificationImagePath === null ? variationImagePath === null ? offerImagePath === null ? "/assets/" + $version + "/img/blank.svg" : offerImagePath : variationImagePath : modificationImagePath : productImagePath;
     imagePath = "url('" + imagePath + "')";
 
     prototype = prototype.replaceAll("__image_path__", imagePath);

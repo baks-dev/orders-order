@@ -386,7 +386,7 @@
                         <div>
 
                             {# Обложка  #}
-                            {% set image_path = '/assets/img/blank.svg' %}
+                            {% set image_path = '/assets/'~version~'/img/blank.svg' %}
 
                             {% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
                                 {% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}

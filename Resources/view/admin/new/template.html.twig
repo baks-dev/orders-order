@@ -9,8 +9,8 @@
      {# <link rel="preconnect" href="https://yastatic.net" /> #}
      <link rel="preload"
            href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"/>
-     <link href="/assets//plugins/datepicker/datepicker.min.css" rel="stylesheet">
-     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+     <link href="/assets/{{ version }}/plugins/datepicker/datepicker.min.css" rel="stylesheet">
+     <link href="/assets/{{ version }}/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
 
  {% endblock %}
 
@@ -25,25 +25,25 @@
 <script nonce='{{ csp_nonce() }}' async
             data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"
             class='lazy'></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_draft.js?v={{ version }}"
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/orders_draft.js?v={{ version }}"
             class='lazy'></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"
             class='lazy'></script>
-    <script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/datepicker/datepicker.min.js?v={{ version }}"
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/datepicker/datepicker.min.js?v={{ version }}"
             defer class="lazy"></script>
-    <script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}'
+    <script nonce='{{ csp_nonce() }}' async data-src='/assets/{{ version }}/plugins/nice-select2/nice-select2.min.js?v={{ version }}'
             class='lazy'></script>
 
 {% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
 
-    <script nonce="{{ csp_nonce() }}" async data-src="/assets/plugins/htmx/2.0.4/htmx.min.js" class="lazy"></script>
+    <script nonce="{{ csp_nonce() }}" async data-src="/assets/{{ version }}/plugins/htmx/2.0.4/htmx.min.js" class="lazy"></script>
 
-    <script nonce="{{ csp_nonce() }}" async data-src="/assets/services/order_service_add_new.min.js?v={{ version }}"
+    <script nonce="{{ csp_nonce() }}" async data-src="/assets/{{ version }}/services/order_service_add_new.min.js?v={{ version }}"
         class='lazy'></script>
 
 {% endif %}
 
 
-{# <script async nonce="{{ csp_nonce() }}" data-src="/assets/products_stocks/moving.js?v={{ version }}" class="lazy"></script> #}
+{# <script async nonce="{{ csp_nonce() }}" data-src="/assets/{{ version }}/products-stocks/moving.js?v={{ version }}" class="lazy"></script> #}
 
 {% endblock %}

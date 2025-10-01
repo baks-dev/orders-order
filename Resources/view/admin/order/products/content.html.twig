@@ -5,9 +5,11 @@
 <script nonce='{{ csp_nonce() }}' async
         data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"
         class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/orders_admin.min.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async
+        data-src="/assets/{{ version }}/orders-order/orders_admin.min.js?v={{ version }}"
         class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/users-address/script.min.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"
         class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_status.min.js?v={{ version }}"
+<script nonce='{{ csp_nonce() }}' async
+        data-src="/assets/{{ version }}/orders-order/order_status.min.js?v={{ version }}"
         class="lazy"></script>

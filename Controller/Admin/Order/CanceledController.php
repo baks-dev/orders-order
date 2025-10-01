@@ -92,7 +92,11 @@ final class CanceledController extends AbstractController
                 $orderCanceledDTO = new CanceledOrderDTO();
                 $orderEvent->getDto($orderCanceledDTO);
 
-                $orderCanceledDTO->setComment($canceledOrdersDTO->getComment());
+                /** Присваиваем комментарий из формы только в случае, если не было комментария у заказа */
+                if(empty($orderCanceledDTO->getComment()))
+                {
+                    $orderCanceledDTO->setComment($canceledOrdersDTO->getComment());
+                }
 
                 $handle = $OrderStatusHandler->handle($orderCanceledDTO);
 
@@ -101,7 +105,6 @@ final class CanceledController extends AbstractController
                     $unsuccessful[] = $orderEvent->getOrderNumber();
                 }
             }
-
 
             if(true === empty($unsuccessful))
             {

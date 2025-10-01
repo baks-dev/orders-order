@@ -7,10 +7,10 @@
 
 {# ---- CSS ------------------------------------------------------------ #}
  {% block stylesheets %}
-     <link href="/assets/plugins/draggable/draggable.min.css" rel="stylesheet" type="text/css">
-     <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet" type="text/css">
-     <link href="/assets//plugins/datepicker/datepicker.min.css" rel="stylesheet">
-     <link href="/assets/css/print.min.css" rel="stylesheet">
+     <link href="/assets/{{ version }}/plugins/draggable/draggable.min.css" rel="stylesheet" type="text/css">
+     <link href="/assets/{{ version }}/plugins/nice-select2/nice-select2.min.css" rel="stylesheet" type="text/css">
+     <link href="/assets/{{ version }}/plugins/datepicker/datepicker.min.css" rel="stylesheet">
+     <link href="/assets/{{ version }}/css/print.min.css" rel="stylesheet">
  {% endblock %}
 
 
@@ -35,11 +35,11 @@
 {% block javascript %}
 
 <script nonce='{{ csp_nonce() }}' async data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/draggable/draggable.bundle.min.js?v={{ version }}" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/orders-order/order_draggable.min.js?v={{ version }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async data-src='/assets/plugins/datepicker/datepicker.js?v={{ version }}' class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/draggable/draggable.bundle.min.js" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/nice-select2/nice-select2.min.js" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/order_draggable.min.js" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src='/assets/{{ version }}/plugins/datepicker/datepicker.js' class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/{{ version }}/js/copy.min.js" class="lazy"></script>
 
 {#  Сокеты  #}
 
@@ -48,8 +48,8 @@
     window.centrifugo_token = "{{ token }}";
 </script>
 
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/socket.min.js?v={{ version }}" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/centrifuge.min.js" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/socket.min.js" class='lazy'></script>
 
 <script nonce="{{ csp_nonce() }}">
 

@@ -155,8 +155,9 @@ executeFunc(function P8X1I2diQ4()
             if(selectedOrders.has(orderId))
             {
                 /** Показать полностью весь заказ */
-                draggable.classList.remove("opacity-75");
-                draggable.classList.remove("z-0");
+                draggable.classList.remove("opacity-50");
+                draggable.classList.replace("z-0", "z-3");
+
 
                 //draggable.classList.add("opacity-100");
 
@@ -186,7 +187,7 @@ executeFunc(function P8X1I2diQ4()
                 {
                     if(selectedOrders.size > 0)
                     {
-                        draggable.classList.add("opacity-75"); // полупрозрачный заказ
+                        draggable.classList.add("opacity-50"); // полупрозрачный заказ
                         //draggableHandle.classList.add("d-none"); // скрываем кнопку перетаскивания
 
                         //draggableHandle.style.pointerEvents = 'auto';
@@ -203,7 +204,7 @@ executeFunc(function P8X1I2diQ4()
                     if(selectedOrders.size === 0)
                     {
                         // Если нет выделенных карточек, включаем перетаскивание для всех
-                        draggable.classList.remove("opacity-75");
+                        draggable.classList.remove("opacity-50");
                         //draggableHandle.classList.remove("d-none");
 
 
@@ -488,7 +489,7 @@ executeFunc(function P8X1I2diQ4()
 
                     /** Инициируем LAZYLOAD */
                     let lazy = document.createElement("script");
-                    lazy.src = "/assets/js/lazyload.min.js?v={{ version }}";
+                    lazy.src = "/assets/{{ version }}/js/lazyload.min.js?v={{ version }}";
                     document.head.appendChild(lazy);
 
                     //modal.querySelectorAll('form').forEach(function(forms) {

@@ -174,7 +174,7 @@
 
                             {% if card.stock > 0 %}
                                 &nbsp; <span
-                                    class="text-success">В наличии  <strong>{{ card.stock }}</strong> шт. </span>
+                                    class={{ card.stock < product.vars.data.total ? "text-danger" : "text-success" }}>В наличии  <strong>{{ card.stock }}</strong> шт. </span>
                             {% else %}
                                 <span class="badge rounded-pill text-bg-danger">Нет в наличии</span>
                                 {% set disabled = { disabled : true } %}

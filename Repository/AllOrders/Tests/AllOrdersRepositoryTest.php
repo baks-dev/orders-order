@@ -40,6 +40,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[Group('orders-order')]
+#[Group('orders-order-repository')]
 #[When(env: 'test')]
 class AllOrdersRepositoryTest extends KernelTestCase
 {
@@ -52,7 +53,7 @@ class AllOrdersRepositoryTest extends KernelTestCase
         $AllOrdersRepository = self::getContainer()->get(AllOrdersInterface::class);
 
         $AllOrdersResults = $AllOrdersRepository
-            ->status(new OrderStatus(OrderStatus\Collection\OrderStatusNew::class))
+            ->status(new OrderStatus(OrderStatus\Collection\OrderStatusExtradition::class))
             ->forProfile(new UserProfileUid($profile))
             ->findPaginator()
             ->getData();
@@ -70,7 +71,7 @@ class AllOrdersRepositoryTest extends KernelTestCase
                 {
                     // Вызываем метод
                     $get = $method->invoke($AllOrdersResult);
-                    //dump($get);
+//                    dump($get);
                 }
             }
         }

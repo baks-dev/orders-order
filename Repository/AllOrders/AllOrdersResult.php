@@ -33,49 +33,68 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\OrderService\OrderServiceUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 
-final class AllOrdersResult
+final readonly class AllOrdersResult
 {
 
     public function __construct(
-        private readonly string $order_id, //  "01986a30-80e8-7dc4-92db-007c0483d520"
-        private readonly string $order_event, //  "01986a30-80e8-7dc4-92db-007c054183c9"
-        private readonly ?string $order_number, //  "175.412.813.102"
-        private readonly string $order_created, //  "2025-08-02 12:50:20"
-        private readonly string $order_status, //  "new"
+        private string $order_id, //  "01986a30-80e8-7dc4-92db-007c0483d520"
+        private string $order_event, //  "01986a30-80e8-7dc4-92db-007c054183c9"
+        private ?string $order_number, //  "175.412.813.102"
+        private string $order_created, //  "2025-08-02 12:50:20"
+        private string $order_status, //  "new"
 
-        private readonly ?string $order_comment, //  null
-        private readonly ?bool $order_danger, //  false
+        private ?string $order_comment, //  null
+        private ?bool $order_danger, //  false
 
-        private readonly ?string $stock_profile_username, //  "admin"
-        private readonly ?string $stock_profile_location, //  null
+        private ?string $stock_profile_username, //  "admin"
+        private ?string $stock_profile_location, //  null
 
-        private readonly ?string $product_price,
-        private readonly ?string $service_price,
-        //  "[{"price": 495000, "total": 1, "product": "01986a30-80e9-7228-ae35-e26893974b5d"}]"
-        private readonly ?string $order_currency, //  "rub"
+        private ?string $product_price,
+        private ?string $service_price,
+        //  "[{
+        //      "price": 495000,
+        //      "total": 1,
+        //      "product": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "main": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "offer": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "variation": "01986a30-80e9-7228-ae35-e26893974b5d"
+        //      "modification": "01986a30-80e9-7228-ae35-e26893974b5d"
+        //}]"
+        private ?string $order_currency, //  "rub"
 
-        private readonly ?int $order_delivery_price, //  null
-        private readonly ?string $order_delivery_currency, //  null
+        private ?int $order_delivery_price, //  null
+        private ?string $order_delivery_currency, //  null
 
-        private readonly ?string $delivery_name, //  "Самовывоз"
-        private readonly ?string $delivery_date, //  "2025-08-05 00:00:00"
-        private readonly ?int $delivery_price, //  0
+        private ?string $delivery_name, //  "Самовывоз"
+        private ?string $delivery_date, //  "2025-08-05 00:00:00"
+        private ?int $delivery_price, //  0
 
-        private readonly ?string $order_profile_discount, //  null
-        private readonly ?string $account_email, //  null
-        private readonly ?string $order_profile, //  "Пользователь"
-        private readonly ?string $order_user,
+        private ?string $order_profile_discount, //  null
+        private ?string $account_email, //  null
+        private ?string $order_profile, //  "Пользователь"
+        private ?string $order_user,
         //  "[{"0": 1, "profile_name": "Контактный телефон", "profile_type": "phone_field", "profile_value": "+9 (878) 787-98-98"}]"
-        private readonly ?bool $order_move, //  false
-        private readonly ?bool $move_error, //  false
-        private readonly ?bool $order_error, //  false
+        private ?bool $order_move, //  false
+        private ?bool $move_error, //  false
+        private ?bool $order_error, //  false
 
-        private readonly string $modify, //  "2025-08-02 12:50:20"
+        private string $modify, //  "2025-08-02 12:50:20"
 
+        private ?string $stocks,
+        //  "[{
+        //      "price": 495000,
+        //      "total": 1,
+        //      "product": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "main": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "offer": "01986a30-80e9-7228-ae35-e26893974b5d",
+        //      "variation": "01986a30-80e9-7228-ae35-e26893974b5d"
+        //      "modification": "01986a30-80e9-7228-ae35-e26893974b5d"
+        //}]"
     ) {}
 
     public function getOrderId(): OrderUid
@@ -119,6 +138,32 @@ final class AllOrdersResult
         if(empty($this->order_number))
         {
             return true;
+        }
+
+        if(class_exists(BaksDevProductsStocksBundle::class))
+        {
+            foreach($this->getProductPrice() as $product)
+            {
+                $stock = array_filter(json_decode($this->stocks, false, 512, JSON_THROW_ON_ERROR),
+                    static function($element) use ($product) {
+                        return $element->main === $product->main
+                            && $element->offer === $product->offer
+                            && $element->variation === $product->variation
+                            && $element->modification === $product->modification;
+                    });
+
+                $total = $product->total;
+
+                foreach($stock as $item)
+                {
+                    $total -= ($item->total - $item->reserve);
+                }
+
+                if($total > 0)
+                {
+                    return true;
+                }
+            }
         }
 
         return $this->order_danger;

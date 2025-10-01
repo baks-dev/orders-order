@@ -21,6 +21,8 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Repository\AllOrders;
 
 use BaksDev\Auth\Email\Entity\Account;
@@ -57,10 +59,12 @@ use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMove;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Entity\Stock\ProductStock;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
@@ -73,7 +77,6 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 
 final class AllOrdersRepository implements AllOrdersInterface
 {
@@ -145,7 +148,6 @@ final class AllOrdersRepository implements AllOrdersInterface
             ->addSelect('orders.event AS order_event')
             ->from(Order::class, 'orders');
 
-
         $dbal
             ->addSelect('order_invariable.number AS order_number')
             ->join(
@@ -159,7 +161,6 @@ final class AllOrdersRepository implements AllOrdersInterface
         /* Если не выбраны все профили, то отобразить только для данного профиля/склада */
         if($this->filter?->getAll() === false)
         {
-
             $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
                 ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
                 : ' order_invariable.profile = :profile');
@@ -173,20 +174,11 @@ final class AllOrdersRepository implements AllOrdersInterface
                 );
         }
 
-
         $dbal
             ->addSelect('order_event.created AS order_created')
             ->addSelect('order_event.status AS order_status')
             ->addSelect('order_event.comment AS order_comment')
             ->addSelect('order_event.danger AS order_danger');
-
-        //        if($this->status)
-        //        {
-        //            $dbal
-        //                ->andWhere('order_event.status = :status')
-        //                ->setParameter('status', $this->status, OrderStatus::TYPE);
-        //        }
-
 
         if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
         {
@@ -274,11 +266,8 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
         // Доставка
-
         $dbal->addSelect('order_delivery.delivery_date AS delivery_date');
 
-        //if($this->filter->getDelivery())
-        //{
         $dbal
             ->leftJoin(
                 'order_user',
@@ -286,7 +275,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'order_delivery',
                 'order_delivery.usr = order_user.id',
             );
-        //}
 
         if($this->filter?->getDelivery())
         {
@@ -302,8 +290,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                     value: $this->filter->getDelivery(),
                     type: DeliveryUid::TYPE,
                 );
-
-
         }
         else
         {
@@ -541,8 +527,6 @@ final class AllOrdersRepository implements AllOrdersInterface
         //            $dbal->addSelect('FALSE AS order_move');
         //        }
 
-        $dbal->addSelect('FALSE AS order_move');
-
 
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
         if(class_exists(DeliveryTransport::class))
@@ -635,8 +619,6 @@ final class AllOrdersRepository implements AllOrdersInterface
 			AS service_price",
         );
 
-
-
         $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -644,62 +626,103 @@ final class AllOrdersRepository implements AllOrdersInterface
 					JSONB_BUILD_OBJECT
 					(
 						'product', order_products_price.product,
+
+						'main', product_event.main,
+						'offer', product_offer.const,
+						'variation', product_variation.const,
+						'modification', product_modification.const,
+						
 						'price', order_products_price.price,
 						'total', order_products_price.total
 					)
-		
 			)
 			AS product_price",
         );
 
+        if(class_exists(BaksDevProductsStocksBundle::class))
+        {
+            /** Получаем остаток и резерв на текущем складе */
+            $dbal
+                ->leftJoin(
+                    'product_event',
+                    ProductStockTotal::class,
+                    'product_stock_total',
+                    'product_stock_total.product = product_event.main
+                    AND product_stock_total.offer = product_offer.const
+                    AND product_stock_total.variation = product_variation.const
+                    AND product_stock_total.modification = product_modification.const
+                    AND product_stock_total.profile = :profile',
+                )
+                ->setParameter(
+                    key: 'profile',
+                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                    type: UserProfileUid::TYPE,
+                );
 
+            $dbal->addSelect("JSON_AGG
+			( DISTINCT
+					JSONB_BUILD_OBJECT
+					(
+						'id', product_stock_total.id,
+						
+						'main', product_stock_total.product,
+						'offer', product_stock_total.offer,
+						'variation', product_stock_total.variation,
+						'modification', product_stock_total.modification,
+						
+						'total', product_stock_total.total,
+						'reserve', product_stock_total.reserve
+					)
+			) AS stocks");
+        }
+        else
+        {
+            $dbal->addSelect('NULL AS stocks');
+        }
+
+        // Product Event
+        $dbal->leftJoin(
+            'order_products',
+            ProductEvent::class,
+            'product_event',
+            'product_event.id = order_products.product',
+        );
+
+        // Product Info
+        $dbal->leftJoin(
+            'product_event',
+            ProductInfo::class,
+            'product_info',
+            'product_info.product = product_event.main',
+        );
+
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductOffer::class,
+                'product_offer',
+                'product_offer.id = order_products.offer',
+            );
+
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductVariation::class,
+                'product_variation',
+                'product_variation.id = order_products.variation',
+            );
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductModification::class,
+                'product_modification',
+                'product_modification.id = order_products.modification',
+            );
         if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
-
-            // Product Event
-            $dbal->leftJoin(
-                'order_products',
-                ProductEvent::class,
-                'product_event',
-                'product_event.id = order_products.product',
-            );
-
-
-            // Product Info
-            $dbal->leftJoin(
-                'product_event',
-                ProductInfo::class,
-                'product_info',
-                'product_info.product = product_event.main',
-            );
-
-
-            $dbal
-                ->leftJoin(
-                    'order_products',
-                    ProductOffer::class,
-                    'product_offer',
-                    'product_offer.id = order_products.offer',
-                );
-
-
-            $dbal
-                ->leftJoin(
-                    'order_products',
-                    ProductVariation::class,
-                    'product_variation',
-                    'product_variation.id = order_products.variation',
-                );
-
-            $dbal
-                ->leftJoin(
-                    'order_products',
-                    ProductModification::class,
-                    'product_modification',
-                    'product_modification.id = order_products.modification',
-                );
-
-
             if(
                 preg_match('/^\d{3}\.\d{3}\.\d{3}\.\d{3}$/', $this->search->getQuery())
                 || str_starts_with($this->search->getQuery(), 'o-')
@@ -717,20 +740,11 @@ final class AllOrdersRepository implements AllOrdersInterface
 
                 $dbal
                     ->createSearchQueryBuilder($this->search)
-                    //->addSearchEqualUid('orders.id')
-                    //->addSearchEqualUid('orders.event')
                     ->addSearchLike('order_invariable.number')
                     ->addSearchLike('user_profile_value.value')
-                    //->addSearchLike('delivery_trans.name')
                     ->addSearchLike('product_info.article')
                     ->addSearchLike('product_variation.article')
-                    ->addSearchLike('product_modification.article')
-
-
-                    //                ->addSearchLike('product_offer.article')
-                    //                ->addSearchLike('product_offer_modification.article')
-                    //                ->addSearchLike('product_offer_variation.article')
-                ;
+                    ->addSearchLike('product_modification.article');
             }
         }
 
@@ -753,8 +767,6 @@ final class AllOrdersRepository implements AllOrdersInterface
         {
             $this->paginator->setLimit($this->limit);
         }
-
-        //        dd($dbal->fetchAllAssociative());
 
         return $this->paginator->fetchAllHydrate($dbal, AllOrdersResult::class);
     }

@@ -137,14 +137,10 @@ final readonly class AllProductsOrdersReportResult
                 continue;
             }
 
-            $money->add(new Money($item->money));
-
-            //$total += (empty($item->item) ? 0 : $item->total);
+            $money->add(new Money($item->money, true));
         }
 
-
-
-        return new Money($this->money, true);
+        return $money;
     }
 
     /** Offer */

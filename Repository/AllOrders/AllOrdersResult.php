@@ -33,6 +33,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\OrderService\OrderServiceUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
@@ -141,7 +142,10 @@ final  class AllOrdersResult
             return true;
         }
 
-        if(class_exists(BaksDevProductsStocksBundle::class))
+        if(
+            class_exists(BaksDevProductsStocksBundle::class)
+            && $this->getOrderStatus()->equals(OrderStatusNew::class)
+        )
         {
             foreach($this->getProductPrice() as $product)
             {

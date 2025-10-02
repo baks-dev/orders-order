@@ -78,7 +78,7 @@ executeFunc(function P8X1I2diQ4()
     function initCheckboxHandlers()
     {
         const checkboxes = document.querySelectorAll(".draggable input[type=\"checkbox\"]");
-        console.log("Найдено чекбоксов:", checkboxes.length);
+        //console.log("Найдено чекбоксов:", checkboxes.length);
 
         checkboxes.forEach(checkbox =>
         {
@@ -95,7 +95,7 @@ executeFunc(function P8X1I2diQ4()
                 status = checkbox.dataset.status;
 
 
-                console.log("Чекбокс изменен для заказа:", orderId, "Checked:", this.checked);
+                //console.log("Чекбокс изменен для заказа:", orderId, "Checked:", this.checked);
 
                 if(this.checked)
                 {
@@ -103,7 +103,7 @@ executeFunc(function P8X1I2diQ4()
 
                     selectedOrders.add(orderId);
                     draggableElement.classList.add("selected-order");
-                    console.log("Заказ добавлен в selectedOrders:", orderId);
+                    //console.log("Заказ добавлен в selectedOrders:", orderId);
 
                     /** Выделяем аналогичные заказы */
 
@@ -130,10 +130,10 @@ executeFunc(function P8X1I2diQ4()
                 {
                     selectedOrders.delete(orderId);
                     draggableElement.classList.remove("selected-order");
-                    console.log("Заказ удален из selectedOrders:", orderId);
+                    //console.log("Заказ удален из selectedOrders:", orderId);
                 }
 
-                console.log("Текущий список selectedOrders:", Array.from(selectedOrders));
+                //console.log("Текущий список selectedOrders:", Array.from(selectedOrders));
 
                 // Визуальное выделение выбранных карточек
                 updateSelectedOrdersVisuals();
@@ -281,9 +281,9 @@ executeFunc(function P8X1I2diQ4()
 
         const draggedOrderId = e.originalSource.id;
 
-        console.log("Drag start для заказа:", draggedOrderId);
-        console.log("Выбранные заказы:", Array.from(selectedOrders));
-        console.log("Размер выбранных:", selectedOrders.size);
+        //console.log("Drag start для заказа:", draggedOrderId);
+        //console.log("Выбранные заказы:", Array.from(selectedOrders));
+        //console.log("Размер выбранных:", selectedOrders.size);
 
         // Проверяем, является ли перетаскиваемый элемент частью выделенных
         if(selectedOrders.has(draggedOrderId) && selectedOrders.size > 1)
@@ -291,7 +291,7 @@ executeFunc(function P8X1I2diQ4()
             isDraggingSelected = true;
             draggedOrderIds = Array.from(selectedOrders);
 
-            console.log("Групповое перетаскивание активировано для:", draggedOrderIds);
+            //console.log("Групповое перетаскивание активировано для:", draggedOrderIds);
 
             // Добавляем индикатор множественного перетаскивания
             const indicator = createMultipleDragIndicator(selectedOrders.size);
@@ -317,7 +317,7 @@ executeFunc(function P8X1I2diQ4()
         {
             isDraggingSelected = false;
             draggedOrderIds = [draggedOrderId];
-            console.log("Одиночное перетаскивание для:", draggedOrderId);
+            //console.log("Одиночное перетаскивание для:", draggedOrderId);
         }
 
     });
@@ -390,16 +390,16 @@ executeFunc(function P8X1I2diQ4()
             {
                 // Групповое перетаскивание
                 ordersToProcess = draggedOrderIds;
-                console.log(`Групповое перетаскивание ${ordersToProcess.length} заказов:`, ordersToProcess);
+                //console.log(`Групповое перетаскивание ${ordersToProcess.length} заказов:`, ordersToProcess);
             }
             else
             {
                 // Одиночное перетаскивание
                 ordersToProcess = [e.originalSource.id];
-                console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
+                //console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
             }
 
-            console.log(`Из статуса ${level} в статус ${droppableLevel}`);
+            //console.log(`Из статуса ${level} в статус ${droppableLevel}`);
 
 
             /** Включаем preload */

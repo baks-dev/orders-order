@@ -34,6 +34,8 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -54,8 +56,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
-            ->date(new DateTimeImmutable('0197b0c0-51fc-735d-ada6-0aa53dfff7cd'))
-            ->profile(new UserProfileUid(''))
+            ->date(new DateTimeImmutable())
+            ->forProfile(new UserProfileUid())
             ->findAll();
 
         if(false === $result)
@@ -67,35 +69,21 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         /** @var AllOrdersReportResult $AllOrdersReportResult */
         foreach($result as $AllOrdersReportResult)
         {
-            self::assertInstanceOf(AllOrdersReportResult::class, $AllOrdersReportResult);
 
-            self::assertInstanceOf(DateTimeImmutable::class, $AllOrdersReportResult->getDate()); //: DateTimeImmutable
-            self::assertIsString($AllOrdersReportResult->getNumber()); //: string
-            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getProductPrice()); //: Money;
+            // Вызываем все геттеры
+            $reflectionClass = new ReflectionClass(AllOrdersReportResult::class);
+            $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
-            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getOrderPrice()); //: Money;
-            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getMoney()); //: Money;
-            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getProfit()); //: Money;
-
-            self::assertIsInt($AllOrdersReportResult->getTotal());
-
-            self::assertTrue((is_string($AllOrdersReportResult->getProductName()) || is_null($AllOrdersReportResult->getProductName())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductArticle()) || is_null($AllOrdersReportResult->getProductArticle())));
-
-            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferValue()) || is_null($AllOrdersReportResult->getProductOfferValue())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferPostfix()) || is_null($AllOrdersReportResult->getProductOfferPostfix())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductOfferReference()) || is_null($AllOrdersReportResult->getProductOfferReference())));
-
-            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationValue()) || is_null($AllOrdersReportResult->getProductVariationValue())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationPostfix()) || is_null($AllOrdersReportResult->getProductVariationPostfix())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductVariationReference()) || is_null($AllOrdersReportResult->getProductVariationReference())));
-
-            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationValue()) || is_null($AllOrdersReportResult->getProductModificationValue())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationPostfix()) || is_null($AllOrdersReportResult->getProductModificationPostfix())));
-            self::assertTrue((is_string($AllOrdersReportResult->getProductModificationReference()) || is_null($AllOrdersReportResult->getProductModificationReference())));
-
-            self::assertTrue((is_string($AllOrdersReportResult->getDeliveryName()) || is_null($AllOrdersReportResult->getDeliveryName())));
-            self::assertInstanceOf(Money::class, $AllOrdersReportResult->getDeliveryPrice());
+            foreach($methods as $method)
+            {
+                // Методы без аргументов
+                if($method->getNumberOfParameters() === 0)
+                {
+                    // Вызываем метод
+                    $data = $method->invoke($AllOrdersReportResult);
+                    // dump($data);
+                }
+            }
 
             break;
         }

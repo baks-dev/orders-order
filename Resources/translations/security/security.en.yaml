@@ -48,6 +48,10 @@ ROLE_ORDERS_STATUS_CANCELED:
   name: 'Cancel'
   desc: ''
 
+ROLE_ORDERS_STATUS_RETURN:
+  name: 'Return'
+  desc: ''
+
 ROLE_ORDERS_STATUS_COMPLETED:
   name: 'Done'
   desc: ''

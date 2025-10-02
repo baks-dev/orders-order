@@ -61,6 +61,9 @@ final class AllOrdersReportResult
         private readonly ?string $delivery_name,
         private readonly ?int $delivery_price,
 
+        private readonly ?bool $danger,
+        private readonly ?string $comment,
+
         private ?string $profile_discount = null,
         private ?string $project_discount = null
 
@@ -182,7 +185,6 @@ final class AllOrdersReportResult
         return $this->product_modification_reference;
     }
 
-
     public function getDeliveryName(): ?string
     {
         return $this->delivery_name;
@@ -193,4 +195,13 @@ final class AllOrdersReportResult
         return new Money($this->delivery_price, true);
     }
 
+    public function isDanger(): ?bool
+    {
+        return $this->danger === true;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
 }

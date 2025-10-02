@@ -32,19 +32,23 @@ function initOrderPackage()
         return false;
     }
 
+    orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
+
     // Подсчёт продуктов в форме
-    let productsCount = document.querySelectorAll('.product-total').length;
+    let productsCount = document.querySelectorAll(".product-total").length;
 
     // Блокируем кнопку сабмита, если на складе недостаточно остатка
     for(let key = 0; key < productsCount; key++)
     {
-        let total = document.getElementById(`package_orders_form_products_${key}_total`).value;
-        let stock = document.getElementById(`package_orders_form_products_${key}_stock`).value;
+        let total = parseInt(document.getElementById(`package_orders_form_products_${key}_total`).value);
+        let stock = parseInt(document.getElementById(`package_orders_form_products_${key}_stock`).value);
+
         let submitButton = document.getElementById("package_orders_form_package");
+
         if(total > stock && false === submitButton.classList.contains("disabled"))
         {
             submitButton.classList.add("disabled");
-            break;
+            return false;
         }
 
         if(total <= stock && true === submitButton.classList.contains("disabled"))
@@ -53,9 +57,6 @@ function initOrderPackage()
             submitButton.disabled = false;
         }
     }
-
-    orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
-
 
     /* Имя формы */
     let forms = document.forms.package_orders_form;

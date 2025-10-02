@@ -51,6 +51,10 @@ ROLE_ORDERS_STATUS_CANCELED:
   name: 'Отмена'
   desc: ''
 
+ROLE_ORDERS_STATUS_RETURN:
+  name: 'Возврат'
+  desc: ''
+
 ROLE_ORDERS_STATUS_COMPLETED:
   name: 'Выполнен'
   desc: ''
@@ -63,11 +67,9 @@ ROLE_ORDERS_STATUS_PHONE:
   name: 'Не дозвонились'
   desc: ''
 
-
 ROLE_ORDERS_STATUS_EXTRADITION:
   name: 'Сборка'
   desc: ''
-
 
 ROLE_ORDERS_STATUS_UNPAID:
   name: 'Неоплачен'

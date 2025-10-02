@@ -33,7 +33,10 @@
             </a>
         </li> #}
 
-        {% if item.orderStatusEquals('canceled') == false  and item.orderStatusEquals('completed') == false and ( is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN') ) %}
+        {% if item.orderStatusEquals('canceled') == false
+            and item.orderStatusEquals('completed') == false
+            and item.orderStatusEquals('return') == false
+            and (is_granted(ROLE~'_STATUS') or is_granted('ROLE_ADMIN')) %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('orders-order:admin.order.canceled', { id: item.orderEvent }) }}"

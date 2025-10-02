@@ -110,7 +110,10 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 
         $dbal->from(Order::class, "orders");
 
-        $dbal->join(
+        $dbal
+            ->addSelect('orders_event.danger')
+            ->addSelect('orders_event.comment')
+            ->join(
             'orders',
             OrderEvent::class,
             "orders_event",

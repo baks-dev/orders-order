@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersReport\AllOrdersReportResult;
 use BaksDev\Reference\Money\Type\Money;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -104,7 +105,8 @@ final class ReportOrdersController extends AbstractController
                 ->setCellValue('I1', 'Сумма')
                 ->setCellValue('J1', 'Разница в цене между продуктом и продуктом в заказе')
                 ->setCellValue('K1', 'Способ доставки')
-                ->setCellValue('L1', 'Доставка');
+                ->setCellValue('L1', 'Доставка')
+                ->setCellValue('M1', 'Комментарий');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
@@ -176,6 +178,17 @@ final class ReportOrdersController extends AbstractController
                 $productPrice = $data->getProductPrice();
                 $profit = $data->getProfit();
 
+                if($data->isDanger())
+                {
+                    // Заливка диапазона
+                    $sheet
+                        ->getStyle('A'.$key.':M'.$key)
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB('ff0000'); // Красный
+                }
+
                 $sheet
                     ->setCellValue('A'.$key, $data->getDate()->format('d.m.Y H:i'))
                     ->setCellValue('B'.$key, $data->getNumber())
@@ -188,7 +201,8 @@ final class ReportOrdersController extends AbstractController
                     ->setCellValue('I'.$key, $money->getValue())
                     ->setCellValue('J'.$key, $profit->getValue())
                     ->setCellValue('K'.$key, $data->getDeliveryName())
-                    ->setCellValue('L'.$key, $deliveryPrice->getValue());
+                    ->setCellValue('L'.$key, $deliveryPrice->getValue())
+                    ->setCellValue('M'.$key, $data->getComment());
 
                 $allTotal += $data->getTotal();
                 $allPrice->add($money);

@@ -107,23 +107,23 @@ executeFunc(function P8X1I2diQ4()
 
                     /** Выделяем аналогичные заказы */
 
-                        // Извлекаем префикс (убираем последнюю часть после последнего дефиса)
-                    let checkboxId = checkbox.id;
-                    const idParts = checkboxId.split("-");
-                    idParts.pop(); // Удаляем последнюю часть
-                    const prefix = idParts.join("-");
-
-                    // Находим и выделяем все соответствующие checkbox
-                    const checkboxes = document.querySelectorAll(`input[type="checkbox"][id^="${prefix}"]`);
-
-                    checkboxes.forEach(check =>
-                    {
-                        if(!check.checked)
-                        {
-                            check.checked = true;
-                            selectedOrders.add(check.value);
-                        }
-                    });
+                    //// Извлекаем префикс (убираем последнюю часть после последнего дефиса)
+                    //let checkboxId = checkbox.id;
+                    //const idParts = checkboxId.split("-");
+                    //idParts.pop(); // Удаляем последнюю часть
+                    //const prefix = idParts.join("-");
+                    //
+                    //// Находим и выделяем все соответствующие checkbox
+                    //const checkboxes = document.querySelectorAll(`input[type="checkbox"][id^="${prefix}"]`);
+                    //
+                    //checkboxes.forEach(check =>
+                    //{
+                    //    if(!check.checked)
+                    //    {
+                    //        check.checked = true;
+                    //        selectedOrders.add(check.value);
+                    //    }
+                    //});
 
                 }
                 else
@@ -157,7 +157,6 @@ executeFunc(function P8X1I2diQ4()
                 /** Показать полностью весь заказ */
                 draggable.classList.remove("opacity-50");
                 draggable.classList.replace("z-0", "z-3");
-
 
                 //draggable.classList.add("opacity-100");
 
@@ -276,6 +275,8 @@ executeFunc(function P8X1I2diQ4()
     // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
     droppable.on("drag:start", (e) =>
     {
+
+
         document.body.style.overflow = "hidden";
 
         const draggedOrderId = e.originalSource.id;
@@ -301,6 +302,7 @@ executeFunc(function P8X1I2diQ4()
             selectedOrders.forEach(orderId =>
             {
                 const element = document.getElementById(orderId);
+
                 if(element && element !== e.originalSource)
                 {
                     /** При перетаскивании скрываем остальные перетаскиваемые элементы кроме текущего */
@@ -308,13 +310,8 @@ executeFunc(function P8X1I2diQ4()
                     {
                         element.classList.add("d-none");
                     }
-
-                    //element.style.opacity = '0.5';
-                    //element.style.transition = 'opacity 0.2s ease';
                 }
             });
-
-
         }
         else
         {
@@ -322,14 +319,13 @@ executeFunc(function P8X1I2diQ4()
             draggedOrderIds = [draggedOrderId];
             console.log("Одиночное перетаскивание для:", draggedOrderId);
         }
+
     });
 
 
     // Handle drag over event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragOverEvent.html
     droppable.on("drag:over", (e) =>
     {
-
-        //console.log('drag:over');
 
 
         // const isRestricted = e.overContainer.closest('[data-kt-draggable-level="restricted"]');

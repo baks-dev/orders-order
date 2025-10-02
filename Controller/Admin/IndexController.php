@@ -35,6 +35,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,7 +82,11 @@ final class IndexController extends AbstractController
         /** @var OrderStatus $status */
         foreach(OrderStatus::cases() as $status)
         {
-            if($status->equals(OrderStatusCanceled::class) || $status->equals(OrderStatusDecommission::class))
+            if(
+                $status->equals(OrderStatusCanceled::class)
+                || $status->equals(OrderStatusReturn::class)
+                || $status->equals(OrderStatusDecommission::class)
+            )
             {
                 continue;
             }

@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
@@ -97,10 +98,12 @@ final readonly class ProductsReserveByOrderCancelDispatcher
          * Не снимаем резерв в карточке, если статус не:
          * - Canceled «Отменен»
          * - Decommission «Списание»
+         * - Return «Возврат»
          */
         if(
             false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class)
             && false === $OrderEvent->isStatusEquals(OrderStatusDecommission::class)
+            && false === $OrderEvent->isStatusEquals(OrderStatusReturn::class)
         )
         {
             return;
@@ -176,7 +179,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 $OrderEvent->getOrderNumber(),
             ),
             [
-                'status' => OrderStatusCanceled::STATUS,
+                'status' => (string) $OrderEvent->getStatus(),
                 'deduplicator' => $Deduplicator->getKey(),
             ],
         );

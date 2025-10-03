@@ -127,7 +127,6 @@ final readonly class MultiplyOrdersPackageDispatcher
             $MultiplyProductStocksPackageMessage = new MultiplyProductStocksPackageMessage(
                 $message->getOrderId(),
                 $message->getUserProfile(),
-                $OrderEvent->getOrderUser(),
             );
 
             $this->messageDispatch->dispatch(

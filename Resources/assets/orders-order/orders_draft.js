@@ -1335,7 +1335,7 @@ async function submitProfileForm(forms)
 
                 /** Перезапускаем lazyload */
                 let lazy = document.createElement('script');
-                lazy.src = "/assets/{{ version }}/js/lazyload.min.js";
+                lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
                 document.head.appendChild(lazy);
 
                 /** Инициируем календарь */

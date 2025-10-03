@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\DeliveryTransport\BaksDevDeliveryTransportBundle;
 use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
@@ -70,8 +71,10 @@ final class PackageController extends AbstractController
         CurrentProductIdentifierInterface $CurrentProductIdentifier,
         PackageProductStockHandler $packageHandler,
         OrderStatusHandler $statusHandler,
+        DeduplicatorInterface $deduplicator,
         ?ProductStocksTotalAccessInterface $ProductStocksTotalAccess = null,
-        ?PackageOrderProductsInterface $PackageOrderProducts = null,
+        ?PackageOrderProductsInterface $PackageOrderProducts = null
+
     ): Response
     {
         $packageOrdersDTO = new PackageOrdersDTO();
@@ -98,7 +101,21 @@ final class PackageController extends AbstractController
             /** @var PackageOrdersOrderDTO $packageOrderDTO */
             foreach($packageOrdersDTO->getOrders() as $packageOrderDTO)
             {
-                $order = $EntityManager->getRepository(Order::class)->find($packageOrderDTO->getId());
+                $Deduplicator = $deduplicator
+                    ->namespace('module-name')
+                    ->deduplication([
+                        $packageOrderDTO->getId(),
+                        self::class,
+                    ]);
+
+                if($Deduplicator->isExecuted())
+                {
+                    continue;
+                }
+
+                $order = $EntityManager
+                    ->getRepository(Order::class)
+                    ->find($packageOrderDTO->getId());
 
                 if(false === ($order instanceof Order))
                 {
@@ -267,6 +284,7 @@ final class PackageController extends AbstractController
                 }
 
                 $ordersNumbers[] = $orderEvent->getOrderNumber();
+                $Deduplicator->save();
             }
 
 

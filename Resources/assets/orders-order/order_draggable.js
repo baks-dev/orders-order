@@ -485,7 +485,7 @@ executeFunc(function P8X1I2diQ4()
 
                     /** Инициируем LAZYLOAD */
                     let lazy = document.createElement("script");
-                    lazy.src = "/assets/{{ version }}/js/lazyload.min.js?v={{ version }}";
+                    lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
                     document.head.appendChild(lazy);
 
                     //modal.querySelectorAll('form').forEach(function(forms) {

@@ -42,7 +42,7 @@ final readonly class OrderStatusCollection
 
         foreach($this->status as $key => $status)
         {
-            $case[$status::priority().$key] = new $status();
+            $case[$status::priority() + $key] = new $status();
         }
 
         ksort($case);

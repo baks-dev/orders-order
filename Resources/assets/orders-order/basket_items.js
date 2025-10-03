@@ -22,27 +22,89 @@
 
 document.querySelectorAll('.img-product').forEach((el) => el.addEventListener('click', () => document.getElementById('img-product').style.backgroundImage = el.style.backgroundImage));
 
-/* Счетчик  */
+/* Счетчик c учетом шага увеличения/уменьшения кол-ва в форме оформления заказа  */
 document.getElementById("plus")?.addEventListener("click", () =>
 {
     let price_total = document.getElementById("order_product_form_price_total");
-    let result = price_total.value * 1;
+
+    /* Получить Шаг увеличения/уменьшения кол-ва */
+    let step = price_total.dataset.step * 1;
+
+    /* Результат складывается из значения + Шаг */
+    let result = price_total.value * 1 + step;
+
     let max = price_total.dataset.max * 1;
 
-    if(result < max)
+    if(result <= max)
     {
-        document.getElementById("order_product_form_price_total").value = result + 1;
+        document.getElementById("order_product_form_price_total").value = result;
     }
 
 });
 
+/* C учетом шага увеличения/уменьшения кол-ва в форме оформления заказа */
 document.getElementById("minus")?.addEventListener("click", () =>
 {
 
     let price_total = document.getElementById("order_product_form_price_total");
+
+    /* Шаг увеличения/уменьшения кол-ва */
+    let step = price_total.dataset.step * 1;
+
     let result = price_total.value * 1;
+
     if(result > 1)
     {
-        document.getElementById("order_product_form_price_total").value = result - 1;
+        result = result - step;
+
+        if(result <= 0)
+        {
+            return;
+        }
+
+        document.getElementById("order_product_form_price_total").value = result;
+
     }
 });
+
+
+/* Обработка изменения кол-ва вручную  */
+const product_price_total = document.getElementById("order_product_form_price_total");
+
+product_price_total.addEventListener("input", orderProductCounter.debounce(500));
+
+function orderProductCounter()
+{
+    /* Шаг увеличения/уменьшения кол-ва */
+    let step = this.dataset.step * 1;
+
+    /* Значение */
+    let total = this.value * 1;
+
+    /* Если указали 0 */
+    if(total === 0)
+    {
+        total = step;
+        this.value = step;
+    }
+
+    /* Максимальное */
+    let max = this.dataset.max * 1
+
+    let remainder = this.value % step;
+
+    /* Скорректировать значение если указано значение не кратное step */
+    if(remainder !== 0)
+    {
+        /* Если поль-ль указал значение меньше шага, то задать значение равное шагу */
+        if(total < step)
+        {
+            this.value = step;
+        }
+        /* Иначе указать значение с учетом остатка */
+        if(total > step)
+        {
+            this.value = total - remainder;
+        }
+    }
+}

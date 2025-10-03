@@ -20,14 +20,17 @@
  *  THE SOFTWARE.
  */
 
+
 basket = document.querySelector('#modal');
 
 modal_form = null;
 clicked_button = null; /** Сохраняем ссылку на нажатую кнопку */
 
 /** Отслеживаем клики по кнопкам "Добавить в корзину" */
-document.addEventListener('click', function(event) {
-    if (event.target.closest('.add-basket')) {
+document.addEventListener('click', function(event)
+{
+    if(event.target.closest('.add-basket'))
+    {
         clicked_button = event.target.closest('.add-basket');
     }
 });
@@ -46,11 +49,15 @@ basket.addEventListener('shown.bs.modal', function(event)
 
         /** Обработчик для кнопки "В корзину" в модальном окне */
         const submitButton = basket.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.addEventListener('click', function(event) {
+        if(submitButton)
+        {
+            submitButton.addEventListener('click', function(event)
+            {
                 /** Заменяем кнопку в карточке товара на ссылку на корзину */
-                setTimeout(function() {
-                    if (clicked_button && clicked_button.parentNode) {
+                setTimeout(function()
+                {
+                    if(clicked_button && clicked_button.parentNode)
+                    {
                         const basketLink = document.createElement('a');
                         basketLink.href = '/basket';
                         basketLink.className = 'btn btn-success d-flex align-items-center';
@@ -62,10 +69,12 @@ basket.addEventListener('shown.bs.modal', function(event)
                             </svg>
                         `;
 
-                        try {
+                        try
+                        {
                             clicked_button.parentNode.replaceChild(basketLink, clicked_button);
                             clicked_button = null;
-                        } catch (error) {
+                        } catch(error)
+                        {
 
                         }
                     }
@@ -78,18 +87,23 @@ basket.addEventListener('shown.bs.modal', function(event)
         if(input)
         {
             /** Событие на изменение количество в ручную */
-            input.addEventListener('input', orderModalCounter.debounce(300));
+            input.addEventListener('input', orderModalCounter.debounce(600));
 
             /** Счетчик  */
             basket.querySelector('#plus').addEventListener('click', () =>
             {
                 let price_total = basket.querySelector('#' + modal_form.name + '_price_total');
-                let result = price_total.value * 1;
+
+                /* Шаг увеличения/уменьшения кол-ва в форме оформления заказа */
+                let step = price_total.dataset.step * 1;
+
+                let result = price_total.value * 1 + step;
+
+                /* Максимальное */
                 let max = price_total.dataset.max * 1;
 
-                if(result < max)
+                if(result <= max)
                 {
-                    result = result + 1;
                     basket.querySelector('#' + modal_form.name + '_price_total').value = result;
                     orderModalSum(result);
                 }
@@ -100,11 +114,22 @@ basket.addEventListener('shown.bs.modal', function(event)
             basket.querySelector('#minus').addEventListener('click', () =>
             {
                 let price_total = basket.querySelector('#' + modal_form.name + '_price_total');
+
+                /* Шаг увеличения/уменьшения кол-ва в форме оформления заказа */
+                let step = price_total.dataset.step * 1;
+
+                /* Результат */
                 let result = price_total.value * 1;
 
                 if(result > 1)
                 {
-                    result = result - 1
+                    result = result - step;
+
+                    if(result <= 0)
+                    {
+                        return;
+                    }
+
                     basket.querySelector('#' + modal_form.name + '_price_total').value = result;
                     orderModalSum(result);
                 }
@@ -121,17 +146,45 @@ basket.addEventListener('shown.bs.modal', function(event)
 
 function orderModalCounter()
 {
-    let result = this.value * 1;
-    let max = this.dataset.max * 1;
 
+    /* Шаг увеличения/уменьшения кол-ва в форме оформления заказа */
+    let step = this.dataset.step * 1;
 
-    if(result > max)
+    /* Значение */
+    let total = this.value * 1;
+    if(total === 0)
     {
-        basket.querySelector('#' + modal_form.name + '_price_total').value = max;
-        result = max;
+        total = step;
+        this.value = step;
     }
 
-    orderModalSum(result);
+    /* Максимальное */
+    let max = this.dataset.max * 1;
+
+    let remainder = this.value % step;
+
+    /* Скорректировать значение если указано значение не кратное step */
+    if(remainder !== 0)
+    {
+        /* Если поль-ль указал значение меньше шага, то задать значение равное шагу */
+        if(total < step)
+        {
+            this.value = step;
+        }
+        /* Иначе указать значение с учетом остатка */
+        if(total > step)
+        {
+            this.value = total - remainder;
+        }
+    }
+
+    /* Если поль-ль указал значение больше максимального */
+    if(total > max)
+    {
+        this.value = max;
+    }
+
+    orderModalSum(total);
 
 }
 
@@ -149,7 +202,7 @@ function orderModalSum(result)
     result_product_sum = result_product_sum / 100;
     result_product_sum = new Intl.NumberFormat($locale, {
         style: 'currency',
-        currency : product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
+        currency: product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
         maximumFractionDigits: 0
     }).format(result_product_sum);
     product_summ.innerText = result_product_sum;

@@ -93,6 +93,7 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         private readonly int $category_minimal,
         private readonly int $category_input,
         private readonly int $category_threshold,
+        private readonly int $category_step,
 
         private readonly string $category_section_field,
 
@@ -415,6 +416,14 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
     public function getCategoryThreshold(): int
     {
         return $this->category_threshold;
+    }
+
+    /**
+     * CategoryStep
+     */
+    public function getCategoryStep(): ?int
+    {
+        return $this->category_step;
     }
 
     /**

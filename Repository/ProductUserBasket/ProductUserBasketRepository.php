@@ -674,6 +674,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ->addSelect('category_info.minimal AS category_minimal')
             ->addSelect('category_info.input AS category_input')
             ->addSelect('category_info.threshold AS category_threshold')
+            ->addSelect('category_info.step AS category_step')
             ->addSelect('category_info.url AS category_url');
 
         $dbal->leftJoin(

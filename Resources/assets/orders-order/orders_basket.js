@@ -146,7 +146,13 @@ document.querySelectorAll(".minus").forEach(function(btn)
 
         if(inpt)
         {
-            let result = inpt.value * 1 - 1;
+            /* Получить Шаг увеличения/уменьшения кол-ва */
+            let step = inpt.dataset.step * 1;
+
+            let result = inpt.value * 1;
+
+            /* Результат складывается из значения - Шаг */
+            result = result - step;
 
             if(result <= 0)
             {
@@ -195,31 +201,64 @@ document.querySelectorAll(".plus").forEach(function(btn)
 
         if(inpt)
         {
-            let result = inpt.value * 1 + 1;
+
+            /* Получить Шаг увеличения/уменьшения кол-ва */
+            let step = inpt.dataset.step * 1;
+
+            /* Результат складывается из значения + Шаг */
+            let result = inpt.value * 1 + step;
+
+            let max = inpt.dataset.max * 1;
+
             if(result > inpt.dataset.max)
             { return; }
+
             document.getElementById(this.dataset.id).value = result;
             orderSum(result, this.dataset.id);
             total();
+
         }
     });
 });
 
 function orderCounter()
 {
-    let result = this.value * 1;
-    let max = this.dataset.max * 1;
 
-    if(result < 1)
+    /* Шаг увеличения/уменьшения кол-ва в форме оформления заказа */
+    let step = this.dataset.step * 1;
+
+    /* Значение */
+    let result = this.value * 1;
+    if(result === 0)
     {
-        document.getElementById(this.id).value = 1;
-        result = 1;
+        result = step
+        this.value = step;
     }
 
+    /* Максимальное */
+    let max = this.dataset.max * 1
+
+    let remainder = this.value % step
+
+    /* Скорректировать значение если указано значение не кратное step */
+    if(remainder !== 0)
+    {
+        /* Если поль-ль указал значение меньше шага, то задать значение равное шагу */
+        if(result < step)
+        {
+            this.value = step
+        }
+        /* Иначе указать значение с учетом остатка */
+        if(result > step)
+        {
+            this.value = result - remainder
+        }
+    }
+
+    /* Если поль-ль указал значение больше максимального */
     if(result > max)
     {
-        document.getElementById(this.id).value = max;
-        result = max;
+        this.value = max
     }
 
     orderSum(result, this.id);

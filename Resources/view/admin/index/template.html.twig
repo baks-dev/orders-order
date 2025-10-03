@@ -16,6 +16,7 @@
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
+
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
     <div class="modal fade" tabindex="-1" id="modal_address" style="z-index: 9999;">

@@ -132,7 +132,7 @@ final class SalesInvoiceController extends AbstractController
                     {
                         $logger->warning(
                             'orders-order: Ошибка сохранения данных о печати накладной',
-                            [self::class.':'.__LINE__,]
+                            [self::class.':'.__LINE__,],
                         );
                     }
                 }
@@ -140,14 +140,13 @@ final class SalesInvoiceController extends AbstractController
                 // Отправляем сокет для скрытия заказа у других менеджеров
                 $socket = $publish
                     ->addData(['order' => (string) $OrderInfo->getOrderId()])
-                    ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+                    //->addData(['profile' => (string) $this->getCurrentProfileUid()])
                     ->send('orders');
 
                 if($socket && $socket->isError())
                 {
                     return new JsonResponse($socket->getMessage());
                 }
-
             }
         }
 

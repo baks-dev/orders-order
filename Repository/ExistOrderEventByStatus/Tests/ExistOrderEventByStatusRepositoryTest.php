@@ -48,7 +48,7 @@ class ExistOrderEventByStatusRepositoryTest extends KernelTestCase
 
         $isOtherExists = $ExistOrderEventByStatusRepository
             ->forOrder(new OrderUid())
-            ->forOrderEvent(new OrderEventUid())
+            ->excludeOrderEvent(new OrderEventUid())
             ->forStatus(OrderStatusCompleted::class)
             ->isOtherExists();
 

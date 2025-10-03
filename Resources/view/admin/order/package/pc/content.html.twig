@@ -11,7 +11,7 @@
 
             <h5 class="modal-title">
                 {# Заголовок модального окна #}
-                {{ 'Отправить заказ на упаковку'|trans }}
+                {{ 'Отправить заказы на упаковку'|trans }}
 
             </h5>
 
@@ -66,7 +66,10 @@
                 label: 'Склад для упаковки заказа', placeholder: 'Выберите ближайший Склад для упаковки заказа ...', attr: { 'data-select' : 'select2' }
             }) }}
 
-            {{ form_row(form.orders) }}
+            {% for orders in form.orders %}
+                {{ form_widget(orders.id) }}
+            {% endfor %}
+
 
             <div class="clearfix d-flex gap-3 align-items-center mb-3">
                 <div class="text-nowrap text-muted">Продукция в заказе</div>

@@ -56,7 +56,7 @@ final class ExistOrderEventByStatusRepository implements ExistOrderEventByStatus
         return $this;
     }
 
-    public function forOrderEvent(OrderEvent|OrderEventUid $event): self
+    public function excludeOrderEvent(OrderEvent|OrderEventUid $event): self
     {
 
         if($event instanceof OrderEvent)

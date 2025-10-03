@@ -60,7 +60,7 @@ final class PackageOrdersDTO
         return $this;
     }
 
-    public function addOrders(PackageOrdersOrderDTO $order): self
+    public function addOrder(PackageOrdersOrderDTO $order): self
     {
         $filter = $this->orders->filter(function(PackageOrdersOrderDTO $element) use ($order) {
             return $element->getId()->equals($order->getId());

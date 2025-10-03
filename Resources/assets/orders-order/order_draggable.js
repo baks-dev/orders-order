@@ -275,8 +275,6 @@ executeFunc(function P8X1I2diQ4()
     // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
     droppable.on("drag:start", (e) =>
     {
-
-
         document.body.style.overflow = "hidden";
 
         const draggedOrderId = e.originalSource.id;
@@ -317,7 +315,20 @@ executeFunc(function P8X1I2diQ4()
         {
             isDraggingSelected = false;
             draggedOrderIds = [draggedOrderId];
-            //console.log("Одиночное перетаскивание для:", draggedOrderId);
+
+            document.querySelectorAll(".draggable").forEach(draggable =>
+            {
+                if(draggable.id !== draggedOrderId)
+                {
+                    draggable.classList.add("opacity-50"); // полупрозрачный заказ
+                }
+                else
+                {
+                    // перетаскиваемуму заказа присваиваем высокий индекс позиционирования
+                    draggable.classList.replace("z-0", "z-3");
+                }
+
+            });
         }
 
     });
@@ -357,20 +368,12 @@ executeFunc(function P8X1I2diQ4()
             indicator.remove();
         }
 
-        //// Возвращаем нормальную прозрачность всем элементам
-        //if(isDraggingSelected)
-        //{
-        //    selectedOrders.forEach(orderId =>
-        //    {
-        //        const element = document.getElementById(orderId);
-        //
-        //        if(element)
-        //        {
-        //            element.classList.remove("d-none");
-        //        }
-        //    });
-        //}
-
+        // Возвращаем нормальную прозрачность всем элементам
+        document.querySelectorAll(".draggable").forEach(draggable =>
+        {
+            draggable.classList.remove("opacity-50"); // полупрозрачный заказ
+            draggable.classList.replace("z-3", "z-0");
+        });
 
         containers.forEach(c =>
         {
@@ -399,7 +402,7 @@ executeFunc(function P8X1I2diQ4()
                 //console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
             }
 
-            //console.log(`Из статуса ${level} в статус ${droppableLevel}`);
+            console.log(`Из статуса ${level} в статус ${droppableLevel}`);
 
 
             /** Включаем preload */

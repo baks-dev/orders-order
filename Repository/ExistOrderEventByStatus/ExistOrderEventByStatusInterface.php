@@ -36,7 +36,7 @@ interface ExistOrderEventByStatusInterface
 
     public function forStatus(OrderStatus|OrderStatusInterface|string $status): self;
 
-    public function forOrderEvent(OrderEvent|OrderEventUid $event): self;
+    public function excludeOrderEvent(OrderEvent|OrderEventUid $event): self;
 
     /**
      * Метод проверяет, имеется ли событие у заказа с указанным статусом

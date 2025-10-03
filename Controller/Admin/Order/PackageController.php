@@ -29,16 +29,15 @@ use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\DeliveryTransport\BaksDevDeliveryTransportBundle;
 use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Forms\Package\Orders\PackageOrdersOrderDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersForm;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
-use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
+use BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage\MultiplyOrdersPackageMessage;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
@@ -67,13 +66,17 @@ final class PackageController extends AbstractController
     public function package(
         Request $request,
         CentrifugoPublishInterface $publish,
+        CurrentOrderEventInterface $currentOrderEventRepository,
+        MessageDispatchInterface $messageDispatch,
+
+
         EntityManagerInterface $EntityManager,
         CurrentProductIdentifierInterface $CurrentProductIdentifier,
         PackageProductStockHandler $packageHandler,
         OrderStatusHandler $statusHandler,
         DeduplicatorInterface $deduplicator,
         ?ProductStocksTotalAccessInterface $ProductStocksTotalAccess = null,
-        ?PackageOrderProductsInterface $PackageOrderProducts = null
+        ?PackageOrderProductsInterface $PackageOrderProducts = null,
 
     ): Response
     {
@@ -101,10 +104,15 @@ final class PackageController extends AbstractController
             /** @var PackageOrdersOrderDTO $packageOrderDTO */
             foreach($packageOrdersDTO->getOrders() as $packageOrderDTO)
             {
+                /** Скрываем заказ у всех пользователей */
+                $publish
+                    ->addData(['order' => (string) $packageOrderDTO->getId()])
+                    ->send('orders');
+
                 $Deduplicator = $deduplicator
-                    ->namespace('module-name')
+                    ->namespace('orders-order')
                     ->deduplication([
-                        $packageOrderDTO->getId(),
+                        (string) $packageOrderDTO->getId(),
                         self::class,
                     ]);
 
@@ -113,180 +121,34 @@ final class PackageController extends AbstractController
                     continue;
                 }
 
-                $order = $EntityManager
-                    ->getRepository(Order::class)
-                    ->find($packageOrderDTO->getId());
+                $OrderEvent = $currentOrderEventRepository
+                    ->forOrder($packageOrderDTO->getId())
+                    ->find();
 
-                if(false === ($order instanceof Order))
+                if(false === ($OrderEvent instanceof OrderEvent))
                 {
-                    $unsuccessful[] = $packageOrderDTO->getId();
+                    $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;
                 }
 
-                $orderEvent = $EntityManager
-                    ->getRepository(OrderEvent::class)
-                    ->find($order->getEvent());
-
-                if(false === ($orderEvent instanceof OrderEvent))
-                {
-                    $unsuccessful[] = $packageOrderDTO->getId();
-                    continue;
-                }
-
-                $publish
-                    ->addData(['order' => (string) $order->getId()])
-                    ->addData(['profile' => (string) $this->getProfileUid()])
-                    ->send('orders');
-
-                $packageProductStockDTO = new PackageProductStockDTO();
-                $orderEvent->getDto($packageProductStockDTO);
-                $packageProductStockDTO->setProduct(new ArrayCollection());
-
-                $packageProductStockDTO
-                    ->getInvariable()
-                    ->setUsr($this->getCurrentUsr())
-                    ->setProfile($packageOrdersDTO->getProfile());
-
-
-                /**
-                 * Трансформируем идентификаторы продукта в константы
-                 *
-                 * @var OrderProduct $const
-                 */
-                foreach($orderEvent->getProduct() as $const)
-                {
-                    $ProductStockDTO = new ProductStockDTO();
-                    $ProductStockDTO->setTotal($const->getTotal());
-
-                    /** Получаем идентификаторы констант продукции  */
-                    $currentProductIdentifierResult = $CurrentProductIdentifier
-                        ->forEvent($const->getProduct())
-                        ->forOffer($const->getOffer())
-                        ->forVariation($const->getVariation())
-                        ->forModification($const->getModification())
-                        ->find();
-
-                    $ProductStockDTO
-                        ->setProduct($currentProductIdentifierResult->getProduct())
-                        ->setOffer($currentProductIdentifierResult->getOfferConst())
-                        ->setVariation($currentProductIdentifierResult->getVariationConst())
-                        ->setModification($currentProductIdentifierResult->getModificationConst());
-
-                    /** Проверяем наличие продукции с учетом резерва на любом складе */
-                    if($ProductStocksTotalAccess && class_exists(BaksDevProductsStocksBundle::class))
-                    {
-                        // Метод возвращает общее количество ДОСТУПНОЙ продукции на всех складах (за вычетом резерва)
-                        $isAccess = $ProductStocksTotalAccess
-                            ->forProfile($packageOrdersDTO->getProfile())
-                            ->forProduct($currentProductIdentifierResult->getProduct())
-                            ->forOfferConst($currentProductIdentifierResult->getOfferConst())
-                            ->forVariationConst($currentProductIdentifierResult->getVariationConst())
-                            ->forModificationConst($currentProductIdentifierResult->getModificationConst())
-                            ->get();
-
-                        if($isAccess <= 0)
-                        {
-                            $this->addFlash(
-                                'danger',
-                                'danger.update',
-                                'orders-order.admin',
-                                'Недостаточное количество на складе',
-                            );
-                            return $this->redirectToReferer();
-                        }
-                    }
-
-                    /** Проверяем, что все товары имеют параметры упаковки */
-                    if($PackageOrderProducts && class_exists(BaksDevDeliveryTransportBundle::class))
-                    {
-                        /* Параметры упаковки товара */
-                        $parameter = $PackageOrderProducts
-                            ->product($currentProductIdentifierResult->getProduct())
-                            ->offerConst($currentProductIdentifierResult->getOfferConst())
-                            ->variationConst($currentProductIdentifierResult->getVariationConst())
-                            ->modificationConst($currentProductIdentifierResult->getModificationConst())
-                            ->find();
-
-                        if(empty($parameter['size']) || empty($parameter['weight']))
-                        {
-                            // 'Для добавления товара в поставку необходимо указать параметры упаковки товара'
-                            $this->addFlash(
-                                'page.index',
-                                'danger.size',
-                                'delivery-transport.package',
-                            );
-                            return $this->redirectToReferer();
-                        }
-                    }
-
-                    $packageProductStockDTO->addProduct($ProductStockDTO);
-
-                }
-
-                /**
-                 * Создаем заявку на сборку заказа на "Целевой склад для упаковки заказа"
-                 */
-                // Присваиваем заявке склад для сборки
-                $packageProductStockDTO
-                    ->getInvariable()
-                    ->setUsr($this->getCurrentUsr())
-                    ->setProfile($packageOrdersDTO->getProfile())
-                    ->setNumber($orderEvent->getOrderNumber());
-
-
-                // Присваиваем заявке идентификатор заказа
-                $productStockOrderDTO = new ProductStockOrderDTO();
-                $productStockOrderDTO->setOrd($order->getId());
-
-                $packageProductStockDTO->setNumber($orderEvent->getOrderNumber());
-                $packageProductStockDTO->setOrd($productStockOrderDTO);
-
-
-                /** @var PackageProductStockHandler $packageHandler */
-                $PackageProductStock = $packageHandler->handle($packageProductStockDTO);
-
-                if(false === ($PackageProductStock instanceof ProductStock))
-                {
-                    $this->addFlash(
-                        'danger',
-                        'danger.update',
-                        'orders-order.admin',
-                        $PackageProductStock,
-                    );
-
-                    return $this->redirectToReferer();
-                }
-
-
-                /**
-                 * Обновляем статус заказа и присваиваем профиль склада упаковки.
-                 */
-                $OrderStatusDTO = new OrderStatusDTO(OrderStatusPackage::class, $order->getEvent());
-                $OrderStatusDTO->setProfile($packageOrdersDTO->getProfile());
-
-
-                /** @var OrderStatusHandler $statusHandler */
-                $OrderStatusHandler = $statusHandler->handle($OrderStatusDTO);
-
-                if(false === ($OrderStatusHandler instanceof Order))
-                {
-                    /* В случае ошибки удаляем заявку на упаковку */
-                    $EntityManager->remove($PackageProductStock);
-                    $EntityManager->flush();
-
-                    $this->addFlash('danger',
-                        'danger.update',
-                        'orders-order.admin',
-                        $OrderStatusHandler,
-                    );
-
-                    return $this->redirectToReferer();
-                }
-
-                $ordersNumbers[] = $orderEvent->getOrderNumber();
+                $ordersNumbers[] = $OrderEvent->getOrderNumber();
                 $Deduplicator->save();
-            }
 
+                /**
+                 * Отправляем заказ на упаковку через очередь сообщений
+                 */
+
+                $MultiplyOrdersPackageMessage = new MultiplyOrdersPackageMessage(
+                    $OrderEvent->getMain(),
+                    $packageOrdersDTO->getProfile(),
+                );
+
+                $messageDispatch->dispatch(
+                    message: $MultiplyOrdersPackageMessage,
+                    transport: 'orders-order',
+                );
+
+            }
 
             if(true === empty($unsuccessful))
             {
@@ -294,10 +156,19 @@ final class PackageController extends AbstractController
                     [
                         'type' => 'success',
                         'header' => 'Упаковка заказов',
-                        'message' => 'Статусы заказов '.implode(',', $unsuccessful).' успешно обновлены',
+                        'message' => 'Статусы заказов '.implode(',', $ordersNumbers).' успешно обновлены',
                         'status' => 200,
                     ],
                     200,
+                );
+            }
+
+            if(false === empty($ordersNumbers))
+            {
+                $this->addFlash('success',
+                    'Заказы #'.implode(', ', $ordersNumbers),
+                    'Статусы успешно обновлены',
+                    'orders-order.admin',
                 );
             }
 

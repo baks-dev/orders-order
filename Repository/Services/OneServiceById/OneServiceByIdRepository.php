@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -36,7 +35,7 @@ use BaksDev\Services\Entity\Event\Price\ServicePrice;
 use BaksDev\Services\Entity\Event\ServiceEvent;
 use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Exception;
+use RuntimeException;
 
 /** Возвращает информацию об услуге по ее идентификатору */
 final class OneServiceByIdRepository implements OneServiceByIdInterface
@@ -59,7 +58,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
     {
         if(false === class_exists(BaksDevServicesBundle::class))
         {
-            throw new Exception('Не установлен зависимый модуль services');
+            throw new RuntimeException('Не установлен зависимый модуль services');
         }
 
         $dbal = $this->DBALQueryBuilder
@@ -92,22 +91,22 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
          * Invariable, Profile
          */
 
-        if(false === $this->profile instanceof UserProfileUid)
-        {
-            $dbal
-                ->join(
-                    'service',
-                    ServiceInvariable::class,
-                    'service_invariable',
-                    '
-                        service_invariable.main = service.id
-                        AND
-                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
-                );
-
-            /** Биндим параметр PROJECT_PROFILE_KEY */
-            $dbal->isProjectProfile();
-        }
+        //        if(false === $this->profile instanceof UserProfileUid)
+        //        {
+        //            $dbal
+        //                ->join(
+        //                    'service',
+        //                    ServiceInvariable::class,
+        //                    'service_invariable',
+        //                    '
+        //                        service_invariable.main = service.id
+        //                        AND
+        //                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
+        //                );
+        //
+        //            /** Биндим параметр PROJECT_PROFILE_KEY */
+        //            $dbal->isProjectProfile();
+        //        }
 
         if(true === $this->profile instanceof UserProfileUid)
         {

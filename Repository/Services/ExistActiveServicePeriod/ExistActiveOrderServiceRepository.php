@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -74,14 +73,10 @@ final class ExistActiveOrderServiceRepository implements ExistActiveOrderService
         return $this;
     }
 
-    /** Проверяет наличие записи OrderService по дате и периоду */
+    /**
+     * Проверяет наличие записи OrderService по дате и периоду
+     */
     public function exist(): bool
-    {
-        $builder = $this->builder();
-        return $builder->fetchExist();
-    }
-
-    private function builder(): DBALQueryBuilder
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -101,14 +96,42 @@ final class ExistActiveOrderServiceRepository implements ExistActiveOrderService
             ->select('orders_service.id')
             ->from(OrderService::class, 'orders_service');
 
+
+        $dbal
+            ->where('orders_service.date = :date')
+            ->setParameter(
+                key: 'date',
+                value: $this->date,
+                type: Types::DATE_IMMUTABLE,
+            );
+
+        $dbal
+            ->andWhere('orders_service.period = :period')
+            ->setParameter(
+                key: 'period',
+                value: $this->period,
+                type: ServicePeriodUid::TYPE,
+            );
+
         /** Услуги только на активные заказы */
         $dbal
             ->join(
                 'orders_service',
                 Order::class,
                 'orders',
-                'orders.event = orders_service.event'
+                'orders.event = orders_service.event',
             );
+
+        if($this->event instanceof OrderEventUid)
+        {
+            $dbal
+                ->andWhere('orders_service.event != :event')
+                ->setParameter(
+                    key: 'event',
+                    value: $this->event,
+                    type: OrderEventUid::TYPE,
+                );
+        }
 
         $dbal
             ->join(
@@ -116,26 +139,15 @@ final class ExistActiveOrderServiceRepository implements ExistActiveOrderService
                 OrderEvent::class,
                 'orders_event',
 
-                'orders_event.id = orders.event AND orders_event.status != :status'
+                'orders_event.id = orders.event AND orders_event.status != :status',
+            )
+            ->setParameter(
+                key: 'status',
+                value: OrderStatusCanceled::class,
+                type: OrderStatus::TYPE,
             );
 
-        $dbal->setParameter(
-            key: 'status',
-            value: OrderStatusCanceled::STATUS,
-            type: OrderStatus::TYPE
-        );
 
-        $dbal->where('orders_service.date = :date AND orders_service.period = :period');
-
-        $dbal->setParameter('date', $this->date, Types::DATE_IMMUTABLE);
-        $dbal->setParameter('period', $this->period, ServicePeriodUid::TYPE);
-
-        if($this->event instanceof OrderEventUid)
-        {
-            $dbal->andWhere('orders_service.event != :event');
-            $dbal->setParameter('event', $this->event, OrderEventUid::TYPE);
-        }
-
-        return $dbal;
+        return $dbal->fetchExist();
     }
 }

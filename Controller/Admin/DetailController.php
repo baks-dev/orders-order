@@ -119,7 +119,7 @@ final class DetailController extends AbstractController
         foreach($OrderDTO->getServ() as $serv)
         {
             $serviceInfo = $oneServiceByIdRepository
-                ->byProfile($this->getProfileUid())
+                //->byProfile($this->getProfileUid())
                 ->find($serv->getServ());
 
             if(false === $serviceInfo)

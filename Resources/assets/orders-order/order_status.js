@@ -101,7 +101,6 @@ function changeObjectOrderStatus(id, status)
     });
 }
 
-
 function resolve()
 {
 

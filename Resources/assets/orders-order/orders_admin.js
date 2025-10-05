@@ -889,7 +889,6 @@ async function submitOrderForm(forms)
 
     return false;
 
-
     // .catch((error) => {
     //     console.error('Error:', error);
     // }); // parses JSON response into native JavaScript objects

@@ -124,5 +124,4 @@ function changeObjectPackageWarehouse()
     });
 
     requestModalName.send(formData);
-
 }

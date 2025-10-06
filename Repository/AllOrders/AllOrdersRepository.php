@@ -646,32 +646,57 @@ final class AllOrdersRepository implements AllOrdersInterface
                 ->leftJoin(
                     'product_event',
                     ProductStockTotal::class,
-                    'product_stock_total',
-                    'product_stock_total.product = product_event.main
-                    AND product_stock_total.offer = product_offer.const
-                    AND product_stock_total.variation = product_variation.const
-                    AND product_stock_total.modification = product_modification.const
-                    AND product_stock_total.profile = :profile',
-                )
+                    'stock',
+                    '
+                    
+                    stock.profile = :profile 
+                    AND stock.product = product_event.main
+                    
+                    AND
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END
+                            
+                    AND 
+                    
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END
+ 
+                ')
                 ->setParameter(
                     key: 'profile',
                     value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
                     type: UserProfileUid::TYPE,
                 );
 
+
             $dbal->addSelect("JSON_AGG
 			( DISTINCT
 					JSONB_BUILD_OBJECT
 					(
-						'id', product_stock_total.id,
+						'id', stock.id,
 						
-						'main', product_stock_total.product,
-						'offer', product_stock_total.offer,
-						'variation', product_stock_total.variation,
-						'modification', product_stock_total.modification,
+						'main', stock.product,
+						'offer', stock.offer,
+						'variation', stock.variation,
+						'modification', stock.modification,
 						
-						'total', product_stock_total.total,
-						'reserve', product_stock_total.reserve
+						'total', stock.total,
+						'reserve', stock.reserve
 					)
 			) AS stocks");
         }
@@ -721,6 +746,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'product_modification',
                 'product_modification.id = order_products.modification',
             );
+
         if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
             if(

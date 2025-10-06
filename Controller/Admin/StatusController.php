@@ -33,6 +33,7 @@ use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Status\StatusDTO;
+use BaksDev\Orders\Order\Forms\Status\StatusForm;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
@@ -44,11 +45,10 @@ use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use BaksDev\Orders\Order\Forms\Status\StatusForm;
-use Symfony\Component\HttpFoundation\Request;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -111,7 +111,7 @@ final class StatusController extends AbstractController
                  */
                 if($currentPriority >= $orderStatus->getOrderStatus()::priority())
                 {
-                    $unsuccessful[] = $order->getNumber();
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
                     continue;
                 }
 
@@ -119,15 +119,20 @@ final class StatusController extends AbstractController
                  * Обновляем статус заказа
                  */
 
-                /** Невозможно применить повторно статус */
+
+                /**
+                 * Невозможно применить повторно статус
+                 */
                 $isExistsStatus = $existOrderEventByStatus
                     ->forOrder($order->getId())
                     ->forStatus($orderStatusDTO->getStatus())
                     ->isExists();
 
-                if($isExistsStatus)
+
+                if(true === $isExistsStatus)
                 {
-                    $unsuccessful[] = $order->getNumber();
+
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
                     continue;
                 }
 
@@ -139,9 +144,9 @@ final class StatusController extends AbstractController
                     ->forStatus(OrderStatusCompleted::class)
                     ->isExists();
 
-                if($isExistsCompleted)
+                if(true === $isExistsCompleted)
                 {
-                    $unsuccessful[] = $order->getNumber();
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
                     continue;
                 }
 
@@ -160,7 +165,7 @@ final class StatusController extends AbstractController
 
                         if($isExists === false)
                         {
-                            $unsuccessful[] = $order->getNumber();
+                            $unsuccessful[] = $orderEvent->getOrderNumber();
                             continue;
                         }
                     }
@@ -168,7 +173,7 @@ final class StatusController extends AbstractController
                     /** Изменить статус на Статус Extradition «Готов к выдаче» можно только через склад */
                     if(true === $orderStatusDTO->getStatus()->equals(OrderStatusExtradition::class))
                     {
-                        $unsuccessful[] = $order->getNumber();
+                        $unsuccessful[] = $orderEvent->getOrderNumber();
                         continue;
                     }
                 }
@@ -178,7 +183,7 @@ final class StatusController extends AbstractController
                     /** Изменить статус на Статус Delivery «Доставка (погружен в транспорт)» можно только через Доставку */
                     if(true === $orderStatusDTO->getStatus()->equals(OrderStatusDelivery::class))
                     {
-                        $unsuccessful[] = $order->getNumber();
+                        $unsuccessful[] = $orderEvent->getOrderNumber();
                         continue;
                     }
                 }
@@ -187,7 +192,7 @@ final class StatusController extends AbstractController
 
                 if(false === $OrderStatusHandler instanceof Order)
                 {
-                    $unsuccessful[] = $order->getNumber();
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
                     continue;
                 }
 

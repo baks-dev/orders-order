@@ -39,7 +39,7 @@ function share()
             navigator.share({
                 title : document.title,
                 text : "Посмотри это!",
-                url : window.location.href.split('?')[0] + '?share=' + this.getAttribute('data-shared'),
+                url : window.location.href.split("?")[0] + "?share=" + this.getAttribute("data-shared"),
             }).catch(error => console.error("Ошибка: ", error));
         });
 
@@ -48,7 +48,7 @@ function share()
     {
         shareButton.addEventListener("click", function()
         {
-            const url = window.location.href.split('?')[0] + '?share=' + this.getAttribute('data-shared');
+            const url = window.location.href.split("?")[0] + "?share=" + this.getAttribute("data-shared");
             navigator.clipboard.writeText(url).then(() =>
             {
 
@@ -64,5 +64,5 @@ function share()
     }
 
     return true;
- 
+
 }

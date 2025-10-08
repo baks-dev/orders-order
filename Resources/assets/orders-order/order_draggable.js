@@ -74,6 +74,442 @@ executeFunc(function P8X1I2diQ4()
         return false;
     }
 
+
+    const modal = document.getElementById("modal");
+    const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
+
+    let droppable;
+
+    // Define draggable element variable for permissions level
+    let droppableOrigin;
+    let droppableLevel;
+    let droppableRestrict;
+
+    let toDroppable;
+    let isDraggingSelected = false;
+    let draggedOrderIds = [];
+
+
+    function initializeDroppable()
+    {
+        if(droppable)
+        {
+            droppable.destroy();
+        }
+
+        containers = document.querySelectorAll(".draggable-zone");
+
+        droppable = new Droppable.default(containers, {
+            draggable : ".draggable",
+            dropzone : ".draggable-zone",
+            handle : ".draggable .draggable-handle",
+            mirror : {
+                appendTo : "body",
+                //constrainDimensions : true,
+            },
+        });
+
+        containers.forEach(c =>
+        {
+            c.addEventListener("hover", (event) =>
+            {
+
+                console.log(event);  /* TODO: удалить !!! */
+
+            });
+        });
+
+
+        //console.log(droppable);  /* TODO: удалить !!! */
+        //
+        //droppable.on("drag:move", (e) =>
+        //{
+        //    //console.log('drag:move');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("drag:start", (e) =>
+        //{
+        //    console.log('drag:start');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("drag:stop", (e) =>
+        //{
+        //    console.log('drag:stop');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("draggable:destroy", (e) =>
+        //{
+        //    console.log('draggable:destroy');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("draggable:initialize", (e) =>
+        //{
+        //    console.log('draggable:initialize');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("mirror:created", (e) =>
+        //{
+        //    console.log('mirror:created');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("mirror:destroy", (e) =>
+        //{
+        //    console.log('mirror:destroy');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("mirror:move", (e) =>
+        //{
+        //    console.log('mirror:destroy');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("droppable:dropped", (e) =>
+        //{
+        //    console.log('droppable:dropped');  /* TODO: удалить !!! */
+        //});
+        //
+        //droppable.on("drag:pressure", (e) =>
+        //{
+        //    console.log('drag:pressure');  /* TODO: удалить !!! */
+        //});
+
+
+        // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
+        droppable.on("drag:start", (e) =>
+        {
+            document.body.style.overflow = "hidden";
+
+            const draggedOrderId = e.originalSource.id;
+
+            //console.log("Drag start для заказа:", draggedOrderId);
+            //console.log("Выбранные заказы:", Array.from(selectedOrders));
+            //console.log("Размер выбранных:", selectedOrders.size);
+
+            // Проверяем, является ли перетаскиваемый элемент частью выделенных
+            if(selectedOrders.has(draggedOrderId) && selectedOrders.size > 1)
+            {
+                isDraggingSelected = true;
+                draggedOrderIds = Array.from(selectedOrders);
+
+                //console.log("Групповое перетаскивание активировано для:", draggedOrderIds);
+
+                // Добавляем индикатор множественного перетаскивания
+                const indicator = createMultipleDragIndicator(selectedOrders.size);
+                e.originalSource.appendChild(indicator);
+
+
+                // Делаем все выбранные элементы полупрозрачными во время перетаскивания
+                selectedOrders.forEach(orderId =>
+                {
+                    const element = document.getElementById(orderId);
+
+                    if(element && element !== e.originalSource)
+                    {
+                        /** При перетаскивании скрываем остальные перетаскиваемые элементы кроме текущего */
+                        if(element.id !== draggedOrderId)
+                        {
+                            element.classList.add("d-none");
+                        }
+                    }
+                });
+            }
+            else
+            {
+                isDraggingSelected = false;
+                draggedOrderIds = [draggedOrderId];
+
+                document.querySelectorAll(".draggable").forEach(draggable =>
+                {
+                    if(draggable.id !== draggedOrderId)
+                    {
+                        draggable.classList.add("opacity-50"); // полупрозрачный заказ
+                    }
+                    else
+                    {
+                        // перетаскиваемуму заказа присваиваем высокий индекс позиционирования
+                        draggable.classList.replace("z-0", "z-2");
+                    }
+
+                });
+            }
+
+        });
+
+
+        // Handle drag over event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragOverEvent.html
+        droppable.on("drag:over", (e) =>
+        {
+            // const isRestricted = e.overContainer.closest('[data-kt-draggable-level="restricted"]');
+            // if (isRestricted) {
+            //     if (droppableOrigin !== "admin") {
+            //         restrcitedWrapper.classList.add("bg-light-danger");
+            //     } else {
+            //         restrcitedWrapper.classList.remove("bg-light-danger");
+            //     }
+            // } else {
+            //     restrcitedWrapper.classList.remove("bg-light-danger");
+            // }
+
+            //console.log('drag:over');
+            droppableLevel = e.overContainer.getAttribute("data-status");
+
+            // console.log(droppableLevel);
+
+        });
+
+        // Handle drag stop event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragStopEvent.html
+        droppable.on("drag:stop", async (e) =>
+        {
+
+
+            // Удаляем индикатор множественного перетаскивания
+            const indicator = e.originalSource.querySelector(".multiple-drag-indicator");
+
+            if(indicator)
+            {
+                indicator.remove();
+            }
+
+            // Возвращаем нормальную прозрачность всем элементам
+            document.querySelectorAll(".draggable").forEach(draggable =>
+            {
+                draggable.classList.remove("opacity-50"); // полупрозрачный заказ
+                draggable.classList.replace("z-2", "z-0");
+            });
+
+            containers.forEach(c =>
+            {
+                c.classList.remove("draggable-dropzone--occupied");
+            });
+
+            document.body.style.overflow = "auto";
+
+            let sourceLevel = e.sourceContainer.dataset.status;
+
+            //console.log(sourceLevel);  /* TODO: удалить !!! */
+            //console.log(droppableLevel);  /* TODO: удалить !!! */
+
+            if(sourceLevel !== droppableLevel && droppableRestrict !== "restricted")
+            {
+                // Универсальная логика для одиночного и группового перетаскивания
+                let ordersToProcess = [];
+
+                if(isDraggingSelected && draggedOrderIds.length > 1)
+                {
+                    // Групповое перетаскивание
+                    ordersToProcess = draggedOrderIds;
+                    //console.log(`Групповое перетаскивание ${ordersToProcess.length} заказов:`, ordersToProcess);
+                }
+                else
+                {
+                    // Одиночное перетаскивание
+                    ordersToProcess = [e.originalSource.id];
+                    //console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
+                }
+
+                console.log(`Из статуса ${sourceLevel} в статус ${droppableLevel}`);
+
+
+                /** Включаем preload */
+                modal.innerHTML = "<div class=\"modal-dialog modal-dialog-centered\"><div class=\"d-flex justify-content-center w-100\"><div class=\"spinner-border text-light\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div></div></div>";
+                modal_bootstrap.show();
+
+                // Единый запрос для всех заказов
+                try
+                {
+                    //const requestData = {
+                    //    status_form: {
+                    //        orders: ordersToProcess,
+                    //    }
+                    //};
+
+                    let formData = new FormData();
+
+                    ordersToProcess.forEach((id, index) =>
+                    {
+                        formData.append(`${droppableLevel}_orders_form[orders][${index}][id]`, id);
+                    });
+
+                    const response = await fetch("/admin/order/" + droppableLevel, {
+                        method : "POST",
+                        headers : {
+                            "X-Requested-With" : "XMLHttpRequest",
+                        },
+                        body : formData,
+                    });
+
+                    if(response.status === 302 || response.status === 404)
+                    {
+                        // Отправляем уведомления для всех заказов
+                        //await Promise.all(ordersToProcess.map(orderId =>
+                        //    fetch('/admin/order/status/' + orderId, {
+                        //        headers: {'X-Requested-With': 'XMLHttpRequest'}
+                        //    })
+                        //));
+
+
+                        formData = new FormData();
+
+                        ordersToProcess.forEach((id, index) =>
+                        {
+                            formData.append(`status_form[orders][${index}][id]`, id);
+                        });
+
+                        await fetch("/admin/order/status/" + droppableLevel, {
+                            method : "POST",
+                            headers : {
+                                "X-Requested-With" : "XMLHttpRequest",
+                            },
+                            body : formData,
+                        });
+
+                        // Очищаем список выбранных заказов и закрываем модал
+                        selectedOrders.clear();
+                        updateSelectedOrdersVisuals();
+                        modal_bootstrap.hide();
+
+                        createToast(JSON.parse(
+                            "{ \"type\":\"success\" , " +
+                            "\"header\" : \"Обновление заказов\"  , " +
+                            "\"message\" : \"Статус заказов успешно обновлен\" }",
+                        ));
+
+                        return;
+
+
+                    }
+
+                    if(response.status === 200)
+                    {
+                        const result = await response.text();
+
+                        // Очищаем список выбранных заказов
+                        selectedOrders.clear();
+                        updateSelectedOrdersVisuals();
+
+                        //if (result.requiresForm && ordersToProcess.length === 1) {
+                        // Только один заказ требует форму - показываем её
+                        modal.innerHTML = result;
+
+                        /** Инициируем LAZYLOAD */
+                        let lazy = document.createElement("script");
+                        lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
+                        document.head.appendChild(lazy);
+
+                        //modal.querySelectorAll('form').forEach(function(forms) {
+                        //    forms.addEventListener('submit', function(event) {
+                        //        event.preventDefault();
+                        //        submitModalForm(forms);
+                        //        return false;
+                        //    });
+                        //});
+
+                        //} else {
+                        //    // Обрабатываем успешные обновления
+                        //    if (result.success && result.success.length > 0) {
+                        //        result.success.forEach(orderId => {
+                        //            const orderElement = document.getElementById(orderId);
+                        //            if (orderElement) {
+                        //                const targetZone = document.querySelector(`[data-status="${droppableLevel}"]`);
+                        //                if (targetZone) {
+                        //                    orderElement.remove();
+                        //                    targetZone.appendChild(orderElement);
+                        //
+                        //                    // Снимаем выделение
+                        //                    const checkbox = orderElement.querySelector('input[type="checkbox"]');
+                        //                    if (checkbox) {
+                        //                        checkbox.checked = false;
+                        //                    }
+                        //                    orderElement.classList.remove('selected-order');
+                        //                }
+                        //            }
+                        //        });
+                        //    }
+                        //
+                        //    // Закрываем модальное окно и показываем результаты
+                        //    modal_bootstrap.hide();
+                        //
+                        //    let successCount = result.success ? result.success.length : 0;
+                        //    let errorCount = result.errors ? result.errors.length : 0;
+                        //    let requiresFormCount = result.requiresForm ? (result.requiresFormOrders ? result.requiresFormOrders.length : 0) : 0;
+                        //
+                        //    if (successCount > 0) {
+                        //        let message;
+                        //        if (ordersToProcess.length === 1) {
+                        //            message = 'Статус заказа успешно изменен!';
+                        //        } else {
+                        //            message = `Успешно обновлено ${successCount} из ${ordersToProcess.length} заказов`;
+                        //            if (errorCount > 0) {
+                        //                message += `. ${errorCount} заказов не удалось обновить`;
+                        //            }
+                        //            if (requiresFormCount > 0) {
+                        //                message += `. ${requiresFormCount} заказов требуют дополнительной формы`;
+                        //            }
+                        //        }
+                        //
+                        //        let toastType = 'success';
+                        //        if (errorCount > 0 || requiresFormCount > 0) {
+                        //            toastType = 'warning';
+                        //        }
+                        //
+                        //        let $successOrderToast = '{ "type":"' + toastType + '" , ' +
+                        //            '"header":"' + (ordersToProcess.length === 1 ? 'Статус изменен' : 'Групповое обновление') + '"  , ' +
+                        //            '"message" : "' + message + '" }';
+                        //        createToast(JSON.parse($successOrderToast));
+                        //
+                        //    } else {
+                        //        let message = ordersToProcess.length === 1 ?
+                        //            'Не удалось обновить статус заказа!' :
+                        //            'Не удалось обновить ни одного заказа!';
+                        //
+                        //        let $dangerOrderToast = '{ "type":"danger" , ' +
+                        //            '"header":"Ошибка"  , ' +
+                        //            '"message" : "' + message + '" }';
+                        //        createToast(JSON.parse($dangerOrderToast));
+                        //    }
+                        //}
+                    }
+                    else
+                    {
+                        throw new Error(`Unexpected status code ${response.status}`);
+                    }
+
+                }
+                catch(error)
+                {
+                    modal_bootstrap.hide();
+                    selectedOrders.clear();
+                    updateSelectedOrdersVisuals();
+                    console.error("Ошибка обновления:", error);
+
+                    let $dangerOrderToast = "{ \"type\":\"danger\" , " +
+                        "\"header\":\"Ошибка сети\"  , " +
+                        "\"message\" : \"Ошибка при отправке запроса на сервер!\" }";
+                    createToast(JSON.parse($dangerOrderToast));
+                }
+            }
+
+            // Сбрасываем флаги
+            isDraggingSelected = false;
+            draggedOrderIds = [];
+
+            /* Re-initialize Droppable to ensure it's aware of any DOM changes */
+            setTimeout(initializeDroppable, 0);
+        });
+
+
+        // Handle drop event -- https://shopify.github.io/draggable/docs/class/src/Droppable/DroppableEvent/DroppableEvent.js~DroppableDroppedEvent.html
+        droppable.on("droppable:dropped", (e) =>
+        {
+            droppableRestrict = e.dropzone.dataset.level;
+
+            if(droppableRestrict === "restricted")
+            {
+                e.cancel();
+            }
+        });
+    }
+
+
     // Добавляем обработчики для чекбоксов
     function initCheckboxHandlers()
     {
@@ -156,7 +592,7 @@ executeFunc(function P8X1I2diQ4()
             {
                 /** Показать полностью весь заказ */
                 draggable.classList.remove("opacity-50");
-                draggable.classList.replace("z-0", "z-3");
+                draggable.classList.replace("z-0", "z-2");
 
                 //draggable.classList.add("opacity-100");
 
@@ -249,361 +685,9 @@ executeFunc(function P8X1I2diQ4()
     // Инициализируем обработчики чекбоксов
     initCheckboxHandlers();
 
-    const modal = document.getElementById("modal");
-    const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
+    // Initial call to set up Droppable
+    initializeDroppable();
 
-    var droppable = new Droppable.default(containers, {
-        draggable : ".draggable",
-        dropzone : ".draggable-zone",
-        handle : ".draggable .draggable-handle",
-        mirror : {
-            //appendTo: selector,
-            appendTo : "body",
-            constrainDimensions : true,
-        },
-    });
-
-    // Define draggable element variable for permissions level
-    let droppableOrigin;
-    let droppableLevel;
-    let droppableRestrict;
-
-    let toDroppable;
-    let isDraggingSelected = false;
-    let draggedOrderIds = [];
-
-    // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
-    droppable.on("drag:start", (e) =>
-    {
-        document.body.style.overflow = "hidden";
-
-        const draggedOrderId = e.originalSource.id;
-
-        //console.log("Drag start для заказа:", draggedOrderId);
-        //console.log("Выбранные заказы:", Array.from(selectedOrders));
-        //console.log("Размер выбранных:", selectedOrders.size);
-
-        // Проверяем, является ли перетаскиваемый элемент частью выделенных
-        if(selectedOrders.has(draggedOrderId) && selectedOrders.size > 1)
-        {
-            isDraggingSelected = true;
-            draggedOrderIds = Array.from(selectedOrders);
-
-            //console.log("Групповое перетаскивание активировано для:", draggedOrderIds);
-
-            // Добавляем индикатор множественного перетаскивания
-            const indicator = createMultipleDragIndicator(selectedOrders.size);
-            e.originalSource.appendChild(indicator);
-
-
-            // Делаем все выбранные элементы полупрозрачными во время перетаскивания
-            selectedOrders.forEach(orderId =>
-            {
-                const element = document.getElementById(orderId);
-
-                if(element && element !== e.originalSource)
-                {
-                    /** При перетаскивании скрываем остальные перетаскиваемые элементы кроме текущего */
-                    if(element.id !== draggedOrderId)
-                    {
-                        element.classList.add("d-none");
-                    }
-                }
-            });
-        }
-        else
-        {
-            isDraggingSelected = false;
-            draggedOrderIds = [draggedOrderId];
-
-            document.querySelectorAll(".draggable").forEach(draggable =>
-            {
-                if(draggable.id !== draggedOrderId)
-                {
-                    draggable.classList.add("opacity-50"); // полупрозрачный заказ
-                }
-                else
-                {
-                    // перетаскиваемуму заказа присваиваем высокий индекс позиционирования
-                    draggable.classList.replace("z-0", "z-3");
-                }
-
-            });
-        }
-
-    });
-
-
-    // Handle drag over event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragOverEvent.html
-    droppable.on("drag:over", (e) =>
-    {
-
-
-        // const isRestricted = e.overContainer.closest('[data-kt-draggable-level="restricted"]');
-        // if (isRestricted) {
-        //     if (droppableOrigin !== "admin") {
-        //         restrcitedWrapper.classList.add("bg-light-danger");
-        //     } else {
-        //         restrcitedWrapper.classList.remove("bg-light-danger");
-        //     }
-        // } else {
-        //     restrcitedWrapper.classList.remove("bg-light-danger");
-        // }
-
-        //console.log('drag:over');
-        //droppableLevel = e.overContainer.getAttribute("data-status")
-
-        // console.log(droppableLevel);
-
-    });
-
-    // Handle drag stop event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragStopEvent.html
-    droppable.on("drag:stop", async (e) =>
-    {
-        // Удаляем индикатор множественного перетаскивания
-        const indicator = e.originalSource.querySelector(".multiple-drag-indicator");
-
-        if(indicator)
-        {
-            indicator.remove();
-        }
-
-        // Возвращаем нормальную прозрачность всем элементам
-        document.querySelectorAll(".draggable").forEach(draggable =>
-        {
-            draggable.classList.remove("opacity-50"); // полупрозрачный заказ
-            draggable.classList.replace("z-3", "z-0");
-        });
-
-        containers.forEach(c =>
-        {
-            c.classList.remove("draggable-dropzone--occupied");
-        });
-
-        document.body.style.overflow = "auto";
-
-        let level = e.sourceContainer.getAttribute("data-status");
-
-        if(e.sourceContainer.getAttribute("data-status") !== droppableLevel && droppableRestrict !== "restricted")
-        {
-            // Универсальная логика для одиночного и группового перетаскивания
-            let ordersToProcess = [];
-
-            if(isDraggingSelected && draggedOrderIds.length > 1)
-            {
-                // Групповое перетаскивание
-                ordersToProcess = draggedOrderIds;
-                //console.log(`Групповое перетаскивание ${ordersToProcess.length} заказов:`, ordersToProcess);
-            }
-            else
-            {
-                // Одиночное перетаскивание
-                ordersToProcess = [e.originalSource.id];
-                //console.log("Одиночное перетаскивание заказа:", ordersToProcess[0]);
-            }
-
-            console.log(`Из статуса ${level} в статус ${droppableLevel}`);
-
-
-            /** Включаем preload */
-            modal.innerHTML = "<div class=\"modal-dialog modal-dialog-centered\"><div class=\"d-flex justify-content-center w-100\"><div class=\"spinner-border text-light\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div></div></div>";
-            modal_bootstrap.show();
-
-            // Единый запрос для всех заказов
-            try
-            {
-                //const requestData = {
-                //    status_form: {
-                //        orders: ordersToProcess,
-                //    }
-                //};
-
-                let formData = new FormData();
-
-                ordersToProcess.forEach((id, index) =>
-                {
-                    formData.append(`${droppableLevel}_orders_form[orders][${index}][id]`, id);
-                });
-
-                const response = await fetch("/admin/order/" + droppableLevel, {
-                    method : "POST",
-                    headers : {
-                        "X-Requested-With" : "XMLHttpRequest",
-                    },
-                    body : formData,
-                });
-
-                if(response.status === 302 || response.status === 404)
-                {
-                    // Отправляем уведомления для всех заказов
-                    //await Promise.all(ordersToProcess.map(orderId =>
-                    //    fetch('/admin/order/status/' + orderId, {
-                    //        headers: {'X-Requested-With': 'XMLHttpRequest'}
-                    //    })
-                    //));
-
-
-                    formData = new FormData();
-
-                    ordersToProcess.forEach((id, index) =>
-                    {
-                        formData.append(`status_form[orders][${index}][id]`, id);
-                    });
-
-                    await fetch("/admin/order/status/" + droppableLevel, {
-                        method : "POST",
-                        headers : {
-                            "X-Requested-With" : "XMLHttpRequest",
-                        },
-                        body : formData,
-                    });
-
-                    // Очищаем список выбранных заказов и закрываем модал
-                    selectedOrders.clear();
-                    updateSelectedOrdersVisuals();
-                    modal_bootstrap.hide();
-
-                    createToast(JSON.parse(
-                        "{ \"type\":\"success\" , " +
-                        "\"header\" : \"Обновление заказов\"  , " +
-                        "\"message\" : \"Статус заказов успешно обновлен\" }",
-                    ));
-
-                    return;
-
-
-                }
-
-                if(response.status === 200)
-                {
-                    const result = await response.text();
-
-                    // Очищаем список выбранных заказов
-                    selectedOrders.clear();
-                    updateSelectedOrdersVisuals();
-
-                    //if (result.requiresForm && ordersToProcess.length === 1) {
-                    // Только один заказ требует форму - показываем её
-                    modal.innerHTML = result;
-
-                    /** Инициируем LAZYLOAD */
-                    let lazy = document.createElement("script");
-                    lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
-                    document.head.appendChild(lazy);
-
-                    //modal.querySelectorAll('form').forEach(function(forms) {
-                    //    forms.addEventListener('submit', function(event) {
-                    //        event.preventDefault();
-                    //        submitModalForm(forms);
-                    //        return false;
-                    //    });
-                    //});
-
-                    //} else {
-                    //    // Обрабатываем успешные обновления
-                    //    if (result.success && result.success.length > 0) {
-                    //        result.success.forEach(orderId => {
-                    //            const orderElement = document.getElementById(orderId);
-                    //            if (orderElement) {
-                    //                const targetZone = document.querySelector(`[data-status="${droppableLevel}"]`);
-                    //                if (targetZone) {
-                    //                    orderElement.remove();
-                    //                    targetZone.appendChild(orderElement);
-                    //
-                    //                    // Снимаем выделение
-                    //                    const checkbox = orderElement.querySelector('input[type="checkbox"]');
-                    //                    if (checkbox) {
-                    //                        checkbox.checked = false;
-                    //                    }
-                    //                    orderElement.classList.remove('selected-order');
-                    //                }
-                    //            }
-                    //        });
-                    //    }
-                    //
-                    //    // Закрываем модальное окно и показываем результаты
-                    //    modal_bootstrap.hide();
-                    //
-                    //    let successCount = result.success ? result.success.length : 0;
-                    //    let errorCount = result.errors ? result.errors.length : 0;
-                    //    let requiresFormCount = result.requiresForm ? (result.requiresFormOrders ? result.requiresFormOrders.length : 0) : 0;
-                    //
-                    //    if (successCount > 0) {
-                    //        let message;
-                    //        if (ordersToProcess.length === 1) {
-                    //            message = 'Статус заказа успешно изменен!';
-                    //        } else {
-                    //            message = `Успешно обновлено ${successCount} из ${ordersToProcess.length} заказов`;
-                    //            if (errorCount > 0) {
-                    //                message += `. ${errorCount} заказов не удалось обновить`;
-                    //            }
-                    //            if (requiresFormCount > 0) {
-                    //                message += `. ${requiresFormCount} заказов требуют дополнительной формы`;
-                    //            }
-                    //        }
-                    //
-                    //        let toastType = 'success';
-                    //        if (errorCount > 0 || requiresFormCount > 0) {
-                    //            toastType = 'warning';
-                    //        }
-                    //
-                    //        let $successOrderToast = '{ "type":"' + toastType + '" , ' +
-                    //            '"header":"' + (ordersToProcess.length === 1 ? 'Статус изменен' : 'Групповое обновление') + '"  , ' +
-                    //            '"message" : "' + message + '" }';
-                    //        createToast(JSON.parse($successOrderToast));
-                    //
-                    //    } else {
-                    //        let message = ordersToProcess.length === 1 ?
-                    //            'Не удалось обновить статус заказа!' :
-                    //            'Не удалось обновить ни одного заказа!';
-                    //
-                    //        let $dangerOrderToast = '{ "type":"danger" , ' +
-                    //            '"header":"Ошибка"  , ' +
-                    //            '"message" : "' + message + '" }';
-                    //        createToast(JSON.parse($dangerOrderToast));
-                    //    }
-                    //}
-                }
-                else
-                {
-                    throw new Error(`Unexpected status code ${response.status}`);
-                }
-
-            }
-            catch(error)
-            {
-                modal_bootstrap.hide();
-                selectedOrders.clear();
-                updateSelectedOrdersVisuals();
-                console.error("Ошибка обновления:", error);
-
-                let $dangerOrderToast = "{ \"type\":\"danger\" , " +
-                    "\"header\":\"Ошибка сети\"  , " +
-                    "\"message\" : \"Ошибка при отправке запроса на сервер!\" }";
-                createToast(JSON.parse($dangerOrderToast));
-            }
-        }
-
-        // Сбрасываем флаги
-        isDraggingSelected = false;
-        draggedOrderIds = [];
-    });
-
-
-    // Handle drop event -- https://shopify.github.io/draggable/docs/class/src/Droppable/DroppableEvent/DroppableEvent.js~DroppableDroppedEvent.html
-    droppable.on("droppable:dropped", (e) =>
-    {
-
-        toDroppable = e.dropzone;
-
-        droppableLevel = e.dropzone.getAttribute("data-status");
-        droppableRestrict = e.dropzone.getAttribute("data-level");
-
-        if(droppableRestrict === "restricted")
-        {
-            e.cancel();
-        }
-    });
 
     return true;
 });

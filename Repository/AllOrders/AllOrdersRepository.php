@@ -644,7 +644,7 @@ final class AllOrdersRepository implements AllOrdersInterface
             /** Получаем остаток и резерв на текущем складе */
             $dbal
                 ->leftJoin(
-                    'product_event',
+                    'product_modification',
                     ProductStockTotal::class,
                     'stock',
                     '

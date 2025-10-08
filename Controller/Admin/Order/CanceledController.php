@@ -55,6 +55,7 @@ final class CanceledController extends AbstractController
         OrderStatusHandler $OrderStatusHandler,
     ): Response
     {
+
         $canceledOrdersDTO = new CanceledOrdersDTO();
         $canceledOrdersForm = $this->createForm(
             CanceledOrdersForm::class,
@@ -73,6 +74,7 @@ final class CanceledController extends AbstractController
             $this->refreshTokenForm($canceledOrdersForm);
 
             $unsuccessful = [];
+
             foreach($canceledOrdersDTO->getOrders() as $order)
             {
                 /** Пробуем найти по идентификатору заказа */

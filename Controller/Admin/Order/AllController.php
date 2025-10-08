@@ -28,6 +28,7 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterDTO;
 use BaksDev\Orders\Order\Forms\OrderFilter\OrderFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
@@ -58,7 +59,7 @@ final class AllController extends AbstractController
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('orders-order:admin.order.all')]
+                options: ['action' => $this->generateUrl('orders-order:admin.order.all')],
             )
             ->handleRequest($request);
 
@@ -70,7 +71,7 @@ final class AllController extends AbstractController
             ->createForm(
                 type: OrderFilterForm::class,
                 data: $filter,
-                options: ['action' => $this->generateUrl('orders-order:admin.order.all')]
+                options: ['action' => $this->generateUrl('orders-order:admin.order.all')],
             )
             ->handleRequest($request);
 
@@ -87,7 +88,9 @@ final class AllController extends AbstractController
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
                 'search' => $searchForm->createView(),
                 'filter' => $filterForm->createView(),
-            ]
+
+                'cancel_order_form_name' => $this->createForm(type: CanceledOrdersForm::class)->getName(),
+            ],
         );
     }
 }

@@ -70,8 +70,11 @@ use BaksDev\Products\Promotion\Entity\Event\Period\ProductPromotionPeriod;
 use BaksDev\Products\Promotion\Entity\Event\Price\ProductPromotionPrice;
 use BaksDev\Products\Promotion\Entity\Event\ProductPromotionEvent;
 use BaksDev\Products\Promotion\Entity\ProductPromotion;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use InvalidArgumentException;
 
 final class ProductUserBasketRepository implements ProductUserBasketInterface
@@ -83,6 +86,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
     private ProductVariationUid|false $variation = false;
 
     private ProductModificationUid|false $modification = false;
+
+    private UserProfileUid|false $profile = false;
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
@@ -177,6 +182,25 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
         }
 
         $this->modification = $modification;
+
+        return $this;
+    }
+
+    public function profile(UserProfile|UserProfileUid|false|null $profile): self
+    {
+
+        if(empty($profile))
+        {
+            $this->profile = false;
+            return $this;
+        }
+
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
 
         return $this;
     }
@@ -623,7 +647,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             ->addGroupBy('product_modification_quantity.reserve');
 
 
-        /** Наличие продукта */
+        /** Наличие в карточке */
         $dbal->addSelect(
             "
 			CASE
@@ -642,8 +666,85 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
 
 			   ELSE 0
 			END AS product_quantity
-		",
-        );
+		");
+
+
+        /** Получаем остаток и резерв на текущем складе */
+
+        if(class_exists(BaksDevProductsStocksBundle::class) && true === ($this->profile instanceof UserProfileUid))
+        {
+
+            $dbal
+                ->addSelect("JSON_AGG ( 
+                        DISTINCT JSONB_BUILD_OBJECT (
+                            'total', stock.total, 
+                            'reserve', stock.reserve 
+                        )) FILTER (WHERE stock.total > stock.reserve)
+            
+                        AS stock_total",
+                )
+                ->leftJoin(
+                    'product_modification',
+                    ProductStockTotal::class,
+                    'stock',
+                    '
+                    
+                    stock.profile = :stock_profile 
+                    
+                    AND stock.product = product.id
+                    
+                    AND
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END
+                            
+                    AND 
+                    
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END
+ 
+                ')
+                ->setParameter(
+                    key: 'stock_profile',
+                    value: $this->profile,
+                    type: UserProfileUid::TYPE,
+                );
+        }
+
+
+        $dbal->addSelect(
+            "
+			CASE
+
+			    WHEN product_modification_quantity.quantity > 0 AND product_modification_quantity.quantity > product_modification_quantity.reserve 
+			   THEN (product_modification_quantity.quantity - product_modification_quantity.reserve)
+
+			   WHEN product_variation_quantity.quantity > 0 AND product_variation_quantity.quantity > product_variation_quantity.reserve  
+			   THEN (product_variation_quantity.quantity - product_variation_quantity.reserve)
+			
+			   WHEN product_offer_quantity.quantity > 0 AND product_offer_quantity.quantity > product_offer_quantity.reserve 
+			   THEN (product_offer_quantity.quantity - product_offer_quantity.reserve)
+
+			   WHEN product_price.quantity > 0 AND product_price.quantity > product_price.reserve 
+			   THEN (product_price.quantity - product_price.reserve)
+
+			   ELSE 0
+			END AS product_quantity
+		");
 
 
         /* Категория */
@@ -751,21 +852,30 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 ProductInvariable::class,
                 'product_invariable',
                 '
-                    product_invariable.product = product.id AND 
-                    (
-                        (product_offer.const IS NOT NULL AND product_invariable.offer = product_offer.const) OR 
-                        (product_offer.const IS NULL AND product_invariable.offer IS NULL)
-                    )
+                    product_invariable.product = product.id 
+                    
                     AND
-                    (
-                        (product_variation.const IS NOT NULL AND product_invariable.variation = product_variation.const) OR 
-                        (product_variation.const IS NULL AND product_invariable.variation IS NULL)
-                    )
-                   AND
-                   (
-                        (product_modification.const IS NOT NULL AND product_invariable.modification = product_modification.const) OR 
-                        (product_modification.const IS NULL AND product_invariable.modification IS NULL)
-                   )
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN product_invariable.offer = product_offer.const
+                            ELSE product_invariable.offer IS NULL
+                        END
+                        
+                    AND 
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN product_invariable.variation = product_variation.const
+                            ELSE product_invariable.variation IS NULL
+                        END
+                        
+                    AND
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN product_invariable.modification = product_modification.const
+                            ELSE product_invariable.modification IS NULL
+                        END
+                    
+                   
             ');
 
         /**

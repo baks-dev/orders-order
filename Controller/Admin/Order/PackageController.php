@@ -30,25 +30,12 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\DeliveryTransport\BaksDevDeliveryTransportBundle;
-use BaksDev\DeliveryTransport\Repository\Package\PackageOrderProducts\PackageOrderProductsInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Forms\Package\Orders\PackageOrdersOrderDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersForm;
 use BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage\MultiplyOrdersPackageMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
-use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
-use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
-use BaksDev\Products\Stocks\Entity\Stock\ProductStock;
-use BaksDev\Products\Stocks\Repository\ProductStocksTotalAccess\ProductStocksTotalAccessInterface;
-use BaksDev\Products\Stocks\UseCase\Admin\Package\Orders\ProductStockOrderDTO;
-use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockDTO;
-use BaksDev\Products\Stocks\UseCase\Admin\Package\PackageProductStockHandler;
-use BaksDev\Products\Stocks\UseCase\Admin\Package\Products\ProductStockDTO;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,16 +55,7 @@ final class PackageController extends AbstractController
         CentrifugoPublishInterface $publish,
         CurrentOrderEventInterface $currentOrderEventRepository,
         MessageDispatchInterface $messageDispatch,
-
-
-        EntityManagerInterface $EntityManager,
-        CurrentProductIdentifierInterface $CurrentProductIdentifier,
-        PackageProductStockHandler $packageHandler,
-        OrderStatusHandler $statusHandler,
         DeduplicatorInterface $deduplicator,
-        ?ProductStocksTotalAccessInterface $ProductStocksTotalAccess = null,
-        ?PackageOrderProductsInterface $PackageOrderProducts = null,
-
     ): Response
     {
         $packageOrdersDTO = new PackageOrdersDTO();

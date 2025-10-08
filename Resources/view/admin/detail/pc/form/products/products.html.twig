@@ -99,45 +99,45 @@
                 <span class="text-danger">Не указана</span>
             {% endif %} #}
 
-                {% if product.price.price is defined %}
+            {% if product.price.price is defined %}
 
-                    {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
+                {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
 
-                    <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+                <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
 
-                        <button type="button" class="btn btn-sm minus"
-                                title="Уменьшить количество"
-                                data-id='{{ product.price.price.vars.id }}'
-                                data-step='100'
-                        >
-                            <span class="h4 text-muted opacity-50">-</span>
-                        </button>
-
-
-                        {{ form_widget(product.price.price, { attr: {
-                            class: 'form-control-sm rounded-3 price',
-                            style: 'width: 75px;',
-                            disabled: false
-                        } }) }}
+                    <button type="button" class="btn btn-sm minus"
+                            title="Уменьшить количество"
+                            data-id='{{ product.price.price.vars.id }}'
+                            data-step='100'
+                    >
+                        <span class="h4 text-muted opacity-50">-</span>
+                    </button>
 
 
-                        <button type="button" class="btn btn-sm plus"
-                                title="Увеличить количество"
-                                data-id='{{ product.price.price.vars.id }}'
-                                data-step='100'
-                        >
-                            <span class="h5 text-muted opacity-50">+</span>
-                        </button>
-                    </div>
-
-                    {% if isNotEdit %}
-                        {{ money(product.vars.data.price.price, card.productCurrency) }}
-                    {% endif %}
+                    {{ form_widget(product.price.price, { attr: {
+                        class: 'form-control-sm rounded-3 price',
+                        style: 'width: 75px;',
+                        disabled: false
+                    } }) }}
 
 
-                {% else %}
+                    <button type="button" class="btn btn-sm plus"
+                            title="Увеличить количество"
+                            data-id='{{ product.price.price.vars.id }}'
+                            data-step='100'
+                    >
+                        <span class="h5 text-muted opacity-50">+</span>
+                    </button>
+                </div>
+
+                {% if isNotEdit %}
                     {{ money(product.vars.data.price.price, card.productCurrency) }}
                 {% endif %}
+
+
+            {% else %}
+                {{ money(product.vars.data.price.price, card.productCurrency) }}
+            {% endif %}
 
 
         </td>
@@ -162,9 +162,8 @@
                         'data-price' : ''~product.price.vars.data.price.value*100,
                         'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
                         'data-currency' : product.price.vars.data.currency|upper,
-                        'data-max' : card.productQuantity
+                        'data-max' : card.stockTotal
                     } } ) }}
-
 
                 <button type="button" class="btn btn-sm plus"
                         title="Увеличить количество"

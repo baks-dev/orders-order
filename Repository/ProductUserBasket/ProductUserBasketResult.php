@@ -104,6 +104,7 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
 
         private readonly string|null $profile_discount = null,
         private readonly string|null $project_discount = null,
+        private readonly string|null $stock_total = null,
     ) {}
 
     /**
@@ -376,6 +377,33 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
     {
         return $this->product_quantity;
     }
+
+
+    public function getStockTotal(): int
+    {
+        if(empty($this->stock_total))
+        {
+            return 0;
+        }
+
+        if(false === json_validate($this->stock_total))
+        {
+            return 0;
+        }
+
+        $decode = json_decode($this->stock_total, false, 512, JSON_THROW_ON_ERROR);
+
+        $quantity = 0;
+
+        foreach($decode as $item)
+        {
+            $quantity += (empty($item->total) ? 0 : $item->total);
+            $quantity -= (empty($item->reserve) ? 0 : $item->reserve);
+        }
+
+        return max($quantity, 0);
+    }
+
 
     /**
      * Category

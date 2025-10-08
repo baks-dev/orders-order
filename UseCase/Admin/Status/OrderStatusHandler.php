@@ -89,6 +89,7 @@ final class OrderStatusHandler extends AbstractHandler
         /* Отправляем сообщение в шину */
         $this->messageDispatch
             ->addClearCacheOther('products-product')
+            ->addClearCacheOther('products-stocks')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
                 transport: 'orders-order'.($this->event->isStatusEquals(OrderStatusMarketplace::class) ? '-low' : ''),

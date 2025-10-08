@@ -106,6 +106,7 @@ final class DetailController extends AbstractController
                 ->forOffer($product->getOffer())
                 ->forVariation($product->getVariation())
                 ->forModification($product->getModification())
+                ->profile($this->getProfileUid())
                 ->find();
 
             $product->setCard($ProductUserBasketResult);

@@ -109,16 +109,15 @@ executeFunc(function P8X1I2diQ4()
             },
         });
 
-        containers.forEach(c =>
+        droppable.on("drag:over:container", (e) =>
         {
-            c.addEventListener("hover", (event) =>
+            let status = e.overContainer.dataset.status;
+
+            if(droppableLevel !== status)
             {
-
-                console.log(event);  /* TODO: удалить !!! */
-
-            });
+                droppableLevel = status;
+            }
         });
-
 
         //console.log(droppable);  /* TODO: удалить !!! */
         //

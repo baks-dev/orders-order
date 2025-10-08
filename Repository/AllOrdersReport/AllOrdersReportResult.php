@@ -64,8 +64,8 @@ final class AllOrdersReportResult
         private readonly ?bool $danger,
         private readonly ?string $comment,
 
-        private ?string $profile_discount = null,
-        private ?string $project_discount = null
+        private string|null $profile_discount = null,
+        private string|null $project_discount = null
 
     ) {}
 

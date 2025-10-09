@@ -833,14 +833,14 @@ document.querySelectorAll('button.moving').forEach(function(movingButton)
     movingButton.addEventListener('click', async function(event)
     {
         const formData = new FormData();
-        formData.append('moving_product_stock_form[preProduct]', event.target.getAttribute('data-product'));
-        formData.append('moving_product_stock_form[preOffer]', event.target.getAttribute('data-offer'));
-        formData.append('moving_product_stock_form[preVariation]', event.target.getAttribute('data-variation'));
-        formData.append('moving_product_stock_form[preModification]', event.target.getAttribute('data-modification'));
-        formData.append('moving_product_stock_form[preTotal]', event.target.getAttribute('data-total'));
-        formData.append('moving_product_stock_form[destinationWarehouse]', event.target.getAttribute('data-profile'));
+        formData.append('moving_product_stock_form[preProduct]', event.target.dataset.product);
+        formData.append('moving_product_stock_form[preOffer]', event.target.dataset.offer);
+        formData.append('moving_product_stock_form[preVariation]', event.target.dataset.variation);
+        formData.append('moving_product_stock_form[preModification]', event.target.dataset.modification);
+        formData.append('moving_product_stock_form[preTotal]', event.target.dataset.total);
+        formData.append('moving_product_stock_form[destinationWarehouse]', event.target.dataset.profile);
 
-        await fetch('/admin/product/stock/moving/new', {
+        await fetch(event.target.dataset.href, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
             credentials: 'same-origin', // include, *same-origin, omit

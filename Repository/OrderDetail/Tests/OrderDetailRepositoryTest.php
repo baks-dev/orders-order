@@ -50,9 +50,5 @@ class OrderDetailRepositoryTest extends KernelTestCase
         $result = $OrderDetailInterface
             ->onOrder(new OrderUid($orderID))
             ->find();
-
-        dd($result);
-
-
     }
 }

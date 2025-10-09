@@ -206,18 +206,46 @@
 
             <li class="nav nav-item flex-grow-1 text-end" role="presentation">
 
+                {% set stockTotal = 0 %}
+
+                {% if order.order_status == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
+
+                    {% for stock in order.stocks|json_decode %}
+                        {% if stock.main == card.productId
+                            and stock.offer == card.productOfferConst
+                            and stock.variation == card.productVariationConst
+                            and stock.modification == card.productModificationConst %}
+                            {% set stockTotal = stockTotal + stock.total - stock.reserve %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% set stockTotal = stockTotal - product.price.vars.data.total %}
+
+                {% endif %}
+
 
                 <div class="dropdown">
 
-                    <button class="btn btn-link dropdown-toggle text-muted d-flex align-items-center"
+                    <button class="btn btn-link dropdown-toggle d-flex align-items-center {{ stockTotal < 0 ? 'text-danger' : 'text-muted' }}"
                             type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
-                             class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-                        </svg>
+
+
+                        {% if stockTotal < 0 %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+                            </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                                 class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                            </svg>
+                        {% endif %}
+
                     </button>
+
 
                     <ul class="dropdown-menu">
 
@@ -261,40 +289,30 @@
 
                         {% endif %}
 
-                        {% if order.order_status == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
-                            {% set stockTotal = 0 %}
-                            {% for stock in order.stocks|json_decode %}
-                                {% if stock.main == card.productId
-                                    and stock.offer == card.productOfferConst
-                                    and stock.variation == card.productVariationConst
-                                    and stock.modification == card.productModificationConst
-                                %}
-                                    {% set stockTotal = stockTotal + stock.total - stock.reserve %}
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if stockTotal - product.price.vars.data.total < 0 %}
+                        {% if stockTotal < 0 %}
                             <li>
                                 <button
-                                    data-href="{{ path('products-stocks:admin.moving.new') }}"
-                                    class="btn dropdown-item moving"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modal"
-                                    data-product="{{ card.productId }}"
-                                    data-offer="{{ card.productOfferConst }}"
-                                    data-variation="{{ card.productVariationConst }}"
-                                    data-modification="{{ card.productModificationConst }}"
-                                    data-total="{{ product.price.vars.data.total - stockTotal }}"
-                                    data-profile="{{ profile }}"
+                                        data-href="{{ path('products-stocks:admin.moving.new') }}"
+                                        class="btn dropdown-item moving"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modal"
+                                        data-product="{{ card.productId }}"
+                                        data-offer="{{ card.productOfferConst }}"
+                                        data-variation="{{ card.productVariationConst }}"
+                                        data-modification="{{ card.productModificationConst }}"
+                                        data-total="{{ product.price.vars.data.total - stockTotal }}"
+                                        data-profile="{{ profile }}"
                                 >
-                                        Создать заявку на перемещение
+                                    Создать заявку на перемещение
                                 </button>
                             </li>
-                            {% endif %}
+
                         {% endif %}
                     </ul>
                 </div>
+
             </li>
+
 
             {# УДАЛИТЬ #}
         </td>

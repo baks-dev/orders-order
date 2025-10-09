@@ -55,7 +55,7 @@ initDatepicker();
 
 function initDatepicker()
 {
-    var $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
+    let $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
 
     if($elementDeliveryDate)
     {
@@ -69,8 +69,6 @@ function initDatepicker()
 
             if(typeof MCDatepicker === 'object')
             {
-
-
                 const [day, month, year] = $elementDeliveryDate.value.split('.');
                 $selectedDate = new Date(+year, month - 1, +day);
 
@@ -144,9 +142,6 @@ function resolve(forms)
                 return false;
             }
         );
-
-        //forms.action = '/basket';
-
     }
 }
 
@@ -187,9 +182,6 @@ document.querySelectorAll('.plus').forEach(function(btn)
 
         let result = parseFloat(inpt.value.replace(",", "."));
         result = result + (this.dataset.step ? this.dataset.step * 1 : 1);
-
-        //let inpt = document.getElementById(this.dataset.id);
-        //let result = inpt.value * 1 + 1;
 
         if(inpt.dataset.max && result > inpt.dataset.max)
         {
@@ -297,7 +289,7 @@ function total()
 
     document.querySelectorAll('.total').forEach(function(total)
     {
-        // зменение в поле количество
+        // изменение в поле количество
 
         const price_id = total.id.replace(/price_total/g, "price_price");
         const input_price = document.getElementById(price_id);
@@ -333,9 +325,7 @@ function total()
 
 
         const total_value = total.value * 1;
-        //let price = total.dataset.price * 1;
         currency = total.dataset.currency === "RUR" ? "RUB" : total.dataset.currency;
-        const discount = total.dataset.discount * 1;
 
         if(total_value)
         {
@@ -390,7 +380,7 @@ function total()
         result_total = delivery.dataset.price * 1 + result_total;
     }
 
-    result_all_sum = new Intl.NumberFormat($locale, {
+    let result_all_sum = new Intl.NumberFormat($locale, {
         style: 'currency',
         currency: currency,
         maximumFractionDigits: 0
@@ -423,7 +413,7 @@ function deleteElement($row)
         /* TOAST */
         let header = "Редактирование заказа";
 
-        $errorFormHandler = "{ \"type\":\"danger\" , " +
+        let $errorFormHandler = "{ \"type\":\"danger\" , " +
             "\"header\":\"" + header + "\"  , " +
             "\"message\" : \"В заказе должен быть хотя бы один продукт\" }";
 
@@ -493,7 +483,6 @@ async function submitDeliveryForm(forms)
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        //mode: 'same-origin', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
@@ -503,8 +492,6 @@ async function submitDeliveryForm(forms)
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: data // body data type must match "Content-Type" header
     })
-
-        //.then((response) => response)
         .then((response) =>
         {
 
@@ -520,9 +507,8 @@ async function submitDeliveryForm(forms)
         {
             if(data)
             {
-
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(data, 'text/html');
 
                 let user_delivery = doc.getElementById('user_delivery');
                 document.getElementById('user_delivery').replaceWith(user_delivery);
@@ -554,7 +540,7 @@ async function submitDeliveryForm(forms)
 
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                let tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -592,9 +578,6 @@ async function submitDeliveryForm(forms)
 
                 }, 100);
 
-                /** Определяем поле с адресом */
-                //initAdddress();
-
                 initDatepicker();
 
             }
@@ -602,11 +585,6 @@ async function submitDeliveryForm(forms)
 
 
     return false;
-
-
-    // .catch((error) => {
-    //     console.error('Error:', error);
-    // }); // parses JSON response into native JavaScript objects
 }
 
 async function submitRegionForm(forms, id)
@@ -619,20 +597,15 @@ async function submitRegionForm(forms, id)
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        //mode: 'same-origin', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         },
-
-
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: data // body data type must match "Content-Type" header
     })
-
-        //.then((response) => response)
         .then((response) =>
         {
 
@@ -644,14 +617,13 @@ async function submitRegionForm(forms, id)
             return response.text();
 
         })
-
         .then((data) =>
         {
 
             if(data)
             {
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(data, 'text/html');
 
                 let callId = id.replace(/_region/g, '_call');
                 let call = doc.getElementById(callId);
@@ -692,23 +664,15 @@ async function submitRegionForm(forms, id)
 
 
     return false;
-
-
-    // .catch((error) => {
-    //     console.error('Error:', error);
-    // }); // parses JSON response into native JavaScript objects
 }
 
 async function submitPaymentForm(forms)
 {
-
-
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        //mode: 'same-origin', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
@@ -718,11 +682,8 @@ async function submitPaymentForm(forms)
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: data // body data type must match "Content-Type" header
     })
-
-        //.then((response) => response)
         .then((response) =>
         {
-
             if(response.status !== 200)
             {
                 return false;
@@ -731,20 +692,15 @@ async function submitPaymentForm(forms)
             return response.text();
 
         })
-
         .then((data) =>
         {
-
             if(data)
             {
-
-
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(data, 'text/html');
 
                 let user_payment = doc.getElementById('user_payment');
                 document.getElementById('user_payment').replaceWith(user_payment);
-
 
                 document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(user_payment)
                 {
@@ -761,33 +717,25 @@ async function submitPaymentForm(forms)
                 /** Пересобираем поля для способа оплаты */
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                let tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-
             }
         });
 
 
     return false;
-
-
-    // .catch((error) => {
-    //     console.error('Error:', error);
-    // }); // parses JSON response into native JavaScript objects
 }
 
 async function submitOrderForm(forms)
 {
-
     const data = new FormData(forms);
     data.delete(forms.name + '[_token]');
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        //mode: 'same-origin', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
@@ -797,11 +745,8 @@ async function submitOrderForm(forms)
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: data // body data type must match "Content-Type" header
     })
-
-        //.then((response) => response)
         .then((response) =>
         {
-
             if(response.status !== 200)
             {
                 return false;
@@ -810,17 +755,12 @@ async function submitOrderForm(forms)
             return response.text();
 
         })
-
         .then((data) =>
         {
-
-
             if(data)
             {
-
-
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(data, 'text/html');
 
                 /** Блок профиля пользователя */
                 let user_profile = doc.getElementById('user_profile');
@@ -875,7 +815,7 @@ async function submitOrderForm(forms)
 
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -883,13 +823,55 @@ async function submitOrderForm(forms)
 
                 initDatepicker();
             }
-
         });
 
-
     return false;
-
-    // .catch((error) => {
-    //     console.error('Error:', error);
-    // }); // parses JSON response into native JavaScript objects
 }
+
+document.querySelectorAll('button.moving').forEach(function(movingButton)
+{
+    movingButton.addEventListener('click', async function(event)
+    {
+        const formData = new FormData();
+        formData.append('moving_product_stock_form[preProduct]', event.target.dataset.product);
+        formData.append('moving_product_stock_form[preOffer]', event.target.dataset.offer);
+        formData.append('moving_product_stock_form[preVariation]', event.target.dataset.variation);
+        formData.append('moving_product_stock_form[preModification]', event.target.dataset.modification);
+        formData.append('moving_product_stock_form[preTotal]', event.target.dataset.total);
+        formData.append('moving_product_stock_form[destinationWarehouse]', event.target.dataset.profile);
+
+        await fetch(event.target.dataset.href, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: formData // body data type must match "Content-Type" header
+        })
+        .then((response) =>
+        {
+            if(response.status !== 200)
+            {
+                return false;
+            }
+
+            return response.text();
+        })
+        .then((data) =>
+        {
+            if(data)
+            {
+                const modal = document.getElementById('modal');
+                modal.innerHTML = data;
+
+                modal.querySelectorAll("[data-select=\"select2\"]").forEach(function(item)
+                {
+                    new NiceSelect(item, {searchable : true});
+                });
+            }
+        });
+    });
+})

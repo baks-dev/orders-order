@@ -24,6 +24,7 @@
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface OrderDetailInterface
 {
@@ -31,6 +32,11 @@ interface OrderDetailInterface
      * Фильтр по заказу
      */
     public function onOrder(OrderUid $order): self;
+
+    /**
+     * Фильтр по профилю
+     */
+    public function forProfile(UserProfileUid $profile): self;
 
     /**
      * Метод возвращает Result с информацией об заказе

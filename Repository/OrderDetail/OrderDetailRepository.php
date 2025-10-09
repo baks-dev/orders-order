@@ -67,11 +67,11 @@ use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Services\Entity\Event\Info\ServiceInfo;
 use BaksDev\Services\Entity\Event\Period\ServicePeriod;
 use BaksDev\Services\Entity\Event\Price\ServicePrice;
-use BaksDev\Services\Entity\Event\ServiceEvent;
 use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
@@ -82,14 +82,19 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorage;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use InvalidArgumentException;
 
 final class OrderDetailRepository implements OrderDetailInterface
 {
     private OrderUid|false $order = false;
 
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorage $UserProfileTokenStorage,
     ) {}
 
     /**
@@ -98,6 +103,15 @@ final class OrderDetailRepository implements OrderDetailInterface
     public function onOrder(OrderUid $order): self
     {
         $this->order = $order;
+        return $this;
+    }
+
+    /**
+     * Фильтр по профилю
+     */
+    public function forProfile(UserProfileUid $profile): self
+    {
+        $this->profile = $profile;
         return $this;
     }
 
@@ -226,7 +240,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         );
 
 
-        $dbal->leftJoin(
+        $dbal->join(
             'order_product',
             ProductEvent::class,
             'product_event',
@@ -276,8 +290,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 
 
         /** Множественный вариант */
-
-
         $dbal->leftJoin(
             'product_offer',
             ProductVariation::class,
@@ -695,6 +707,43 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'stock_event.id = orders.id',
             );
 
+            /** Получаем остаток и резерв на текущем складе */
+            $dbal
+                ->leftJoin(
+                    'product_modification',
+                    ProductStockTotal::class,
+                    'product_stock_total',
+                    'product_stock_total.product = product_event.main
+                        AND product_stock_total.offer = product_offer.const
+                        AND product_stock_total.variation = product_variation.const
+                        AND product_stock_total.modification = product_modification.const
+                        AND product_stock_total.profile = :profile',
+                )
+                ->setParameter(
+                    key: 'profile',
+                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                    type: UserProfileUid::TYPE,
+                );
+
+            $dbal->addSelect("JSON_AGG
+            	( DISTINCT
+            			JSONB_BUILD_OBJECT
+            			(
+            				'id', product_stock_total.id,
+            
+            				'main', product_stock_total.product,
+            				'offer', product_stock_total.offer,
+            				'variation', product_stock_total.variation,
+            				'modification', product_stock_total.modification,
+            
+            				'total', product_stock_total.total,
+            				'reserve', product_stock_total.reserve
+            			)
+            	) AS stocks");
+        }
+        else
+        {
+            $dbal->addSelect('NULL AS stocks');
         }
 
         $dbal->addSelect(
@@ -714,9 +763,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 			)
 			AS order_user",
         );
-
-        /** Получаем информацию о складской заявке */
-
 
         $dbal->allGroupByExclude();
 

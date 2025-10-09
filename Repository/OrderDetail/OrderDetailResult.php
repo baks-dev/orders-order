@@ -65,6 +65,7 @@ final readonly class OrderDetailResult
         private ?string $profile_avatar_cdn,
         private string $order_user,
         private ?bool $printed,
+        private ?string $stocks,
         private ?string $order_services = null,
     ) {}
 

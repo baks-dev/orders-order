@@ -141,7 +141,7 @@ final  class AllOrdersResult
         {
             return true;
         }
-
+        
         if(
             class_exists(BaksDevProductsStocksBundle::class)
             && $this->getOrderStatus()->equals(OrderStatusNew::class)

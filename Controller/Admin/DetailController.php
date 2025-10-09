@@ -269,7 +269,8 @@ final class DetailController extends AbstractController
                 'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
                 'statuses' => $collection,
                 'materials_sign' => $MaterialSign,
-                'products_sign' => $ProductSign
+                'products_sign' => $ProductSign,
+                'profile' => $this->getProfileUid()
             ]
         );
     }

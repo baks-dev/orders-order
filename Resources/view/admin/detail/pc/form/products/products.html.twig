@@ -261,11 +261,39 @@
 
                         {% endif %}
 
+                        {% if order.order_status == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
+                            {% set stockTotal = 0 %}
+                            {% for stock in order.stocks|json_decode %}
+                                {% if stock.main == card.productId
+                                    and stock.offer == card.productOfferUid
+                                    and stock.variation == card.productVariationUid
+                                    and stock.modification == card.productModificationUid
+                                %}
+                                    {% set stockTotal = stockTotal + stock.total - stock.reserve %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if stockTotal - product.price.vars.data.total < 0 %}
+                            <li>
+                                <button
+                                    data-href="{{ path('products-stocks:admin.moving.new') }}"
+                                    class="btn dropdown-item moving"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal"
+                                    data-product="{{ card.productId }}"
+                                    data-offer="{{ card.productOfferConst }}"
+                                    data-variation="{{ card.productVariationConst }}"
+                                    data-modification="{{ card.productModificationConst }}"
+                                    data-total="{{ product.price.vars.data.total }}"
+                                    data-profile="{{ profile }}"
+                                >
+                                        Создать заявку на перемещение
+                                </button>
+                            </li>
+                            {% endif %}
+                        {% endif %}
                     </ul>
-
                 </div>
-
-
             </li>
 
             {# УДАЛИТЬ #}

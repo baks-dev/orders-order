@@ -32,6 +32,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[Group('orders-order')]
+#[Group('orders-order-repository')]
 #[When(env: 'test')]
 class OrderDetailRepositoryTest extends KernelTestCase
 {
@@ -50,7 +51,7 @@ class OrderDetailRepositoryTest extends KernelTestCase
             ->onOrder(new OrderUid($orderID))
             ->find();
 
-        dd();
+        dd($result);
 
 
     }

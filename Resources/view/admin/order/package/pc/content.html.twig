@@ -111,7 +111,7 @@
                         <strong class="text-primary">( {{ product.vars.data.total }} шт. )
                         </strong>
 
-                        &nbsp;
+
 
                         {# TODO: возможно пригодится в дальнейшем #}
 {#                        {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.total > card.stock %}#}
@@ -191,10 +191,15 @@
                         {{ form_widget(product.total) }}
                         {{ form_widget(product.stock) }}
 
+
 {#                        {% endif %}#}
 
                     </div>
-
+                    {% if product.move is defined %}
+                        {{ form_widget(product.move, { attr: {
+                            'data-bs-target': '#modal'
+                        }, label: 'Перемещение'|trans({}, '') }) }}
+                    {% endif %}
                 </div>
 
 

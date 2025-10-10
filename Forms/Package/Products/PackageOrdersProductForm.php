@@ -32,19 +32,24 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class PackageOrdersProductForm extends AbstractType
 {
     public function __construct(
         private readonly ProductUserBasketInterface $ProductUserBasketRepository,
-        private readonly ProductWarehouseTotalInterface $WarehouseTotal
+        private readonly ProductWarehouseTotalInterface $WarehouseTotal,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorageRepository,
+        private readonly UrlGeneratorInterface $UrlGenerator,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -58,8 +63,8 @@ final class PackageOrdersProductForm extends AbstractType
                 },
                 function($product) {
                     return new ProductEventUid($product);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('offer', HiddenType::class);
@@ -71,8 +76,8 @@ final class PackageOrdersProductForm extends AbstractType
                 },
                 function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('variation', HiddenType::class);
@@ -84,8 +89,8 @@ final class PackageOrdersProductForm extends AbstractType
                 },
                 function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('modification', HiddenType::class);
@@ -98,23 +103,26 @@ final class PackageOrdersProductForm extends AbstractType
                 function($modification) {
 
                     return $modification ? new ProductModificationUid($modification) : null;
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('total', HiddenType::class, ['attr' => ['class' => 'product-total']]);
 
         $builder->add('stock', HiddenType::class, ['attr' => ['class' => 'product-stock']]);
 
+
         $builder->addEventListener(
             FormEvents::POST_SET_DATA,
             function(FormEvent $event) use ($options): void {
+
                 /** @var PackageOrdersProductDTO $data */
                 $data = $event->getData();
+                $builder = $event->getForm();
 
                 if($data)
                 {
-                    $warehouse = $options['warehouse'];
+                    $warehouse = $builder->getParent()->getParent()->getData()->getProfile();
 
                     if(is_null($warehouse))
                     {
@@ -122,7 +130,6 @@ final class PackageOrdersProductForm extends AbstractType
                     }
 
                     /** Получаем информацию о продукте */
-
                     $ProductUserBasketResult = $this->ProductUserBasketRepository
                         ->forEvent($data->getProduct())
                         ->forOffer($data->getOffer())
@@ -143,8 +150,33 @@ final class PackageOrdersProductForm extends AbstractType
                         $ProductUserBasketResult->getProductModificationConst(), //$ProductModificationConst
                     );
 
-                    $data->setStock($totalStock);
-                    $data->setCard($ProductUserBasketResult);
+                    if(
+                        $this->UserProfileTokenStorageRepository->getProfile()->equals($warehouse)
+                        && $data->getTotal() > $totalStock
+                    )
+                    {
+                        /* Добавить перемещение */
+                        $builder->add(
+                            'move',
+                            ButtonType::class,
+                            [
+                                'attr' =>
+                                    [
+                                        'data-href' => $this->UrlGenerator->generate('products-stocks:admin.moving.new'),
+                                        'data-profile' => $this->UserProfileTokenStorageRepository->getProfile(),
+                                        'data-product' => $ProductUserBasketResult->getProductId(),
+                                        'data-offer' => $ProductUserBasketResult->getProductOfferConst(),
+                                        'data-variation' => $ProductUserBasketResult->getProductVariationConst(),
+                                        'data-modification' => $ProductUserBasketResult->getProductModificationConst(),
+                                        'data-total' => $data->getTotal() - $totalStock,
+                                        'class' => 'btn btn-danger modal-link moving w-25'
+                                    ],
+                                'label' => 'Move',
+                                'label_html' => true,
+                            ],
+                        );
+
+                    }
                 }
             });
     }

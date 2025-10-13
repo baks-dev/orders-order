@@ -296,12 +296,15 @@
                                         class="btn dropdown-item moving"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal"
-                                        data-product="{{ card.productId }}"
-                                        data-offer="{{ card.productOfferConst }}"
-                                        data-variation="{{ card.productVariationConst }}"
-                                        data-modification="{{ card.productModificationConst }}"
-                                        data-total="{{ product.price.vars.data.total - stockTotal }}"
-                                        data-profile="{{ profile }}"
+                                        data-pre-product="{{ card.productId }}"
+                                        data-pre-offer="{{ card.productOfferConst }}"
+                                        data-pre-variation="{{ card.productVariationConst }}"
+                                        data-pre-modification="{{ card.productModificationConst }}"
+                                        data-pre-total="{{ product.price.vars.data.total - stockTotal }}"
+                                        data-destination-warehouse="{{ profile }}"
+                                        data-method="post"
+                                        data-formname="moving_product_stock_form"
+                                        data-post-class="add-one-to-collection"
                                 >
                                     Создать заявку на перемещение
                                 </button>

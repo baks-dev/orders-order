@@ -691,7 +691,10 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
 
-        if(class_exists(BaksDevProductsStocksBundle::class))
+        if(
+            class_exists(BaksDevProductsStocksBundle::class)
+            && (true === $this->UserProfileTokenStorage->isUser() || $this->profile instanceof UserProfileUid)
+        )
         {
             $dbal->leftJoin(
                 'orders',
@@ -717,7 +720,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                         AND product_stock_total.offer = product_offer.const
                         AND product_stock_total.variation = product_variation.const
                         AND product_stock_total.modification = product_modification.const
-                        AND product_stock_total.profile = :profile'
+                        AND product_stock_total.profile = :profile',
                 )
                 ->setParameter(
                     key: 'profile',

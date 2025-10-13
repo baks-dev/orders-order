@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
@@ -390,6 +391,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                     OrderStatusNew::STATUS,
                     OrderStatusPhone::STATUS,
                     OrderStatusUnpaid::STATUS,
+                    OrderStatusPackage::STATUS,
                 ],
                 type: ArrayParameterType::STRING,
             );

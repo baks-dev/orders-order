@@ -58,11 +58,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
     private UserProfileUid|false $profile = false;
 
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
-    ) {}
-
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     public function from(DateTimeImmutable $from): self
     {
@@ -101,16 +97,13 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
         $dbal->from(Order::class, "orders");
 
-        $dbal
-            //->addSelect('order_invariable.number')
-            //->addSelect('order_invariable.number')
-            ->join(
-                "orders",
-                OrderInvariable::class,
-                "order_invariable",
-                "order_invariable.main = orders.id"
-                .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
-            );
+        $dbal->join(
+            "orders",
+            OrderInvariable::class,
+            "order_invariable",
+            "order_invariable.main = orders.id"
+            .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
+        );
 
         if($this->profile instanceof UserProfileUid)
         {
@@ -128,8 +121,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
-                ",
-        );
+                ");
 
 
         $dbal->join(
@@ -152,7 +144,6 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
     
                 AS total
             ")
-
             ->join(
                 "orders_product",
                 OrderPrice::class,
@@ -291,8 +282,8 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 'product_modification',
                 ProductStockTotal::class,
                 'stock',
-                '
-                    stock.profile = :stock_profile  AND
+                ($this->profile instanceof UserProfileUid ? 'stock.profile = :profile  AND ' : '')
+                .'
                     stock.product = product_event.main 
                     
                     AND
@@ -318,12 +309,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                             THEN stock.modification = product_modification.const
                             ELSE stock.modification IS NULL
                         END 
-                ')
-            ->setParameter(
-                key: 'stock_profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
-            );
+                ');
 
 
         $dbal->allGroupByExclude();

@@ -62,7 +62,8 @@ final readonly class OrderDetailResult
         private string $order_profile,
         private string $profile_avatar_name,
         private ?string $profile_avatar_ext,
-        private ?string $profile_avatar_cdn,
+        private ?bool $profile_avatar_cdn,
+
         private string $order_user,
         private ?bool $printed,
         private ?string $stocks,
@@ -187,9 +188,9 @@ final readonly class OrderDetailResult
         return $this->profile_avatar_ext;
     }
 
-    public function getProfileAvatarCdn(): ?string
+    public function getProfileAvatarCdn(): ?bool
     {
-        return $this->profile_avatar_cdn;
+        return $this->profile_avatar_cdn === true;
     }
 
     public function getOrderUser(): string

@@ -133,10 +133,10 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
             ->addSelect('service_price.price')
             ->addSelect('service_price.currency')
             ->join(
-                'service_event',
+                'service',
                 ServicePrice::class,
                 'service_price',
-                'service_price.event = service_event.id'
+                'service_price.event = service.event'
             );
 
         /** Info */
@@ -144,10 +144,10 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
             ->addSelect('service_info.name')
             ->addSelect('service_info.preview')
             ->join(
-                'service_event',
+                'service',
                 ServiceInfo::class,
                 'service_info',
-                'service_info.event = service_event.id'
+                'service_info.event = service.event'
             );
 
         /** Period */
@@ -155,10 +155,10 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
             ->addSelect('service_period.frm')
             ->addSelect('service_period.upto')
             ->join(
-                'service_event',
+                'service',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = service_event.id'
+                'service_period.event = service.event'
             );
 
         return $dbal->fetchHydrate(OneServiceByIdResult::class);

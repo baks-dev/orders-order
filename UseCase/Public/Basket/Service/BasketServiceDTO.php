@@ -46,6 +46,8 @@ final class BasketServiceDTO implements OrderServiceInterface
     #[Assert\NotBlank]
     private string $name;
 
+    private ?string $preview;
+
     /** Стоимость */
     #[Assert\NotBlank]
     private Money $money;
@@ -153,4 +155,16 @@ final class BasketServiceDTO implements OrderServiceInterface
         $this->price->setPrice($money);
         return $this;
     }
+
+    public function getPreview(): ?string
+    {
+        return $this->preview;
+    }
+
+    public function setPreview(?string $preview): self
+    {
+        $this->preview = $preview;
+        return $this;
+    }
+
 }

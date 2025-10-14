@@ -120,7 +120,8 @@ final class OrderStatusDTO implements OrderEventInterface
             return $this;
         }
 
-        $this->comment .= ($this->comment ? ', ' : '').$comment;
+        $this->comment = trim(str_replace($comment, '', $this->comment));
+        $this->comment .= (empty($this->comment) ? '' : ', ').$comment;
 
         return $this;
     }

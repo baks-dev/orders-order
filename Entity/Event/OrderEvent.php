@@ -282,4 +282,9 @@ class OrderEvent extends EntityEvent
     {
         return $this->serv->isEmpty() === true;
     }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
 }

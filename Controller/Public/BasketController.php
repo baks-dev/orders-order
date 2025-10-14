@@ -212,7 +212,8 @@ class BasketController extends AbstractController
                     $BasketServiceDTO->setServ(new ServiceUid($serviceUId))
                         ->setPrice($OrderServicePriceDTO)
                         ->setMoney(new Money($service->getPrice()->getValue()))
-                        ->setName($service->getName());
+                        ->setName($service->getName())
+                        ->setPreview($service->getPreview());
                     $OrderDTO->addServ($BasketServiceDTO);
                 }
             }

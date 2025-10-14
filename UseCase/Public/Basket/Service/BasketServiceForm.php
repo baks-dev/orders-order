@@ -74,6 +74,10 @@ class BasketServiceForm extends AbstractType
             'required' => true,
         ]);
 
+        $builder->add('preview', HiddenType::class, [
+            'required' => true,
+        ]);
+
         $builder->add('money', HiddenType::class, [
             'required' => true,
         ]);

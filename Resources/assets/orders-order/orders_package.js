@@ -25,12 +25,20 @@ executeFunc(initOrderPackage);
 
 function initOrderPackage()
 {
-    let orderpackageWarehouse = document.getElementById("package_orders_form_profile");
+    const modal = document.getElementById("modal");
+    const frm = modal.querySelector("form");
+
+    let orderpackageWarehouse = document.getElementById(`${frm.name}_profile`);
 
     if(orderpackageWarehouse === null)
     {
         return false;
     }
+
+    modal.querySelectorAll("[data-bs-target=\"#modal\"]").forEach(function(item, i, arr)
+    {
+        modalLink(item);
+    });
 
     orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
 
@@ -40,15 +48,14 @@ function initOrderPackage()
     // Блокируем кнопку сабмита, если на складе недостаточно остатка
     for(let key = 0; key < productsCount; key++)
     {
-        let total = parseInt(document.getElementById(`package_orders_form_products_${key}_total`).value);
-        let stock = parseInt(document.getElementById(`package_orders_form_products_${key}_stock`).value);
+        let total = parseInt(document.getElementById(`${frm.name}_products_${key}_total`).value);
+        let stock = parseInt(document.getElementById(`${frm.name}_products_${key}_stock`).value);
 
-        let submitButton = document.getElementById("package_orders_form_package");
+        let submitButton = document.getElementById(`${frm.name}_package`);
 
         if(total > stock && false === submitButton.classList.contains("disabled"))
         {
             submitButton.classList.add("disabled");
-            return false;
         }
 
         if(total <= stock && true === submitButton.classList.contains("disabled"))
@@ -58,18 +65,13 @@ function initOrderPackage()
         }
     }
 
-    /* Имя формы */
-    let forms = document.forms.package_orders_form;
 
-    /* событие отправки формы */
-    forms.addEventListener("submit", function(event)
+    frm.addEventListener("submit", function(event)
     {
         event.preventDefault();
-        submitModalForm(forms);
-        return true;
+        submitModalForm(frm);
+        return false;
     });
-
-    movingModalSetEvent();
 
     return true;
 }
@@ -81,12 +83,12 @@ function changeObjectPackageWarehouse()
 
     requestModalName.responseType = "document";
 
+    const modal = document.getElementById("modal");
+    const PackageOrderForm = modal.querySelector("form");
 
-    /* Имя формы */
-    let PackageOrderForm = document.forms.package_orders_form;
     disabledElementsForm(PackageOrderForm);
 
-
+    /** Удаляем токен из отпарвки данных */
     let formData = new FormData(PackageOrderForm);
     formData.delete(PackageOrderForm.name + "[_token]");
 
@@ -115,68 +117,11 @@ function changeObjectPackageWarehouse()
 
             initOrderPackage();
 
-            movingModalSetEvent();
+            //movingModalSetEvent();
         }
 
         return false;
     });
 
     requestModalName.send(formData);
-}
-
-function movingModalSetEvent()
-{
-    /** Кнопка создания нового перемещения */
-    document.querySelectorAll('button.moving').forEach(function(movingButton)
-    {
-        movingButton.addEventListener('click', async function(event)
-        {
-            const formData = new FormData();
-            formData.append('moving_product_stock_form[preProduct]', event.target.dataset.product);
-            formData.append('moving_product_stock_form[preOffer]', event.target.dataset.offer);
-            formData.append('moving_product_stock_form[preVariation]', event.target.dataset.variation);
-            formData.append('moving_product_stock_form[preModification]', event.target.dataset.modification);
-            formData.append('moving_product_stock_form[preTotal]', event.target.dataset.total);
-            formData.append('moving_product_stock_form[destinationWarehouse]', event.target.dataset.profile);
-
-            await fetch(event.target.dataset.href, {
-                method: 'POST', // *GET, POST, PUT, DELETE, etc.
-                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-                credentials: 'same-origin', // include, *same-origin, omit
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                redirect: 'follow', // manual, *follow, error
-                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                body: formData // body data type must match "Content-Type" header
-            })
-                .then((response) =>
-                {
-                    if(response.status !== 200)
-                    {
-                        return false;
-                    }
-
-                    return response.text();
-                })
-                .then((data) =>
-                {
-                    if(data)
-                    {
-                        const modal = document.getElementById('modal');
-                        modal.innerHTML = data;
-
-                        /** Перезапускаем lazyload */
-                        let lazy = document.createElement('script');
-                        lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
-                        document.head.appendChild(lazy);
-
-                        modal.querySelectorAll("[data-select=\"select2\"]").forEach(function(item)
-                        {
-                            new NiceSelect(item, {searchable : true});
-                        });
-                    }
-                });
-        });
-    })
 }

@@ -122,7 +122,7 @@ final class PackageOrdersProductForm extends AbstractType
 
                 if($data)
                 {
-                    $warehouse = $builder->getParent()->getParent()->getData()->getProfile();
+                    $warehouse = $builder->getParent()?->getParent()?->getData()->getProfile();
 
                     if(is_null($warehouse))
                     {
@@ -151,8 +151,8 @@ final class PackageOrdersProductForm extends AbstractType
                     );
 
                     if(
-                        $this->UserProfileTokenStorageRepository->getProfile()->equals($warehouse)
-                        && $data->getTotal() > $totalStock
+                        $data->getTotal() > $totalStock
+                        && $this->UserProfileTokenStorageRepository->getProfile()->equals($warehouse)
                     )
                     {
                         /* Добавить перемещение */
@@ -163,13 +163,16 @@ final class PackageOrdersProductForm extends AbstractType
                                 'attr' =>
                                     [
                                         'data-href' => $this->UrlGenerator->generate('products-stocks:admin.moving.new'),
-                                        'data-profile' => $this->UserProfileTokenStorageRepository->getProfile(),
-                                        'data-product' => $ProductUserBasketResult->getProductId(),
-                                        'data-offer' => $ProductUserBasketResult->getProductOfferConst(),
-                                        'data-variation' => $ProductUserBasketResult->getProductVariationConst(),
-                                        'data-modification' => $ProductUserBasketResult->getProductModificationConst(),
+                                        'data-destination-warehouse' => $this->UserProfileTokenStorageRepository->getProfile(),
+                                        'data-pre-product' => $ProductUserBasketResult->getProductId(),
+                                        'data-pre-offer' => $ProductUserBasketResult->getProductOfferConst(),
+                                        'data-pre-variation' => $ProductUserBasketResult->getProductVariationConst(),
+                                        'data-pre-modification' => $ProductUserBasketResult->getProductModificationConst(),
                                         'data-total' => $data->getTotal() - $totalStock,
-                                        'class' => 'btn btn-danger modal-link moving w-25'
+                                        'data-method' => "post",
+                                        'data-formname' => 'moving_product_stock_form',
+                                        'data-post-class' => 'add-one-to-collection',
+                                        'class' => 'btn btn-sm btn-danger modal-link moving',
                                     ],
                                 'label' => 'Move',
                                 'label_html' => true,

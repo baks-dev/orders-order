@@ -44,7 +44,7 @@ final class OrderStatusDTO implements OrderEventInterface
      * Статус заказа
      */
     #[Assert\NotBlank]
-    private OrderStatus $status;
+    private readonly OrderStatus $status;
 
     /**
      * Модификатор

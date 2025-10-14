@@ -93,7 +93,7 @@
                         ></div>
                     </div>
 
-                    <div>
+                    <div class="w-100 d-flex align-items-center gap-1">
                         <strong>
                             {{ card.productName }}
 
@@ -105,83 +105,19 @@
                             {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
                         </strong>
 
-                        &nbsp;
-
                         {# Количество в заказе #}
-                        <strong class="text-primary">( {{ product.vars.data.total }} шт. )
+                        <strong class="text-primary">
+                            ( {{ product.vars.data.total }} шт. )
                         </strong>
 
 
-
-                        {# TODO: возможно пригодится в дальнейшем #}
-{#                        {% if form.vars.data.usr.delivery.pickup == false and product.vars.data.total > card.stock %}#}
-{#                            {% if card.stock > 0 %}#}
-{#                                <span class="text-danger"> В наличии на складе <strong>{{ card.stock }}</strong> шт. </span>#}
-{#                            {% else %}#}
-{#                                <span class="badge rounded-pill text-bg-danger">Нет в наличии на складе упаковки заказа</span>#}
-{#                                {% set disabled = { disabled : true } %}#}
-{#                            {% endif %}#}
-
-
-{#                            <div class="mt-1">#}
-
-{#                                #}{# Перемещение  #}
-{#                                {% if product.move.product is defined %}#}
-
-{#                                    {% for move_product in product.move.product %}#}
-
-{#                                        {{ form_row(move_product.product) }}#}
-{#                                        {{ form_row(move_product.offer) }}#}
-{#                                        {{ form_row(move_product.variation) }}#}
-{#                                        {{ form_row(move_product.modification) }}#}
-
-{#                                    {% endfor %}#}
-
-{#                                    <div class="small text-danger mb-1 text-nowrap">#}
-{#                                        Выберите для упаковки иной склад, либо переместите недостаток с другого#}
-{#                                        склада на склад упаковки#}
-{#                                        #}{# Вы можете переместить на указанный склад недостаток с другого, либо выбрать для сборки заказа #}
-{#                                    </div>#}
-
-{#                                    <div class="d-flex gap-3 align-items-center ">#}
-{#                                        {% if product.move.profile is defined %}#}
-
-{#                                            <span>Переместить недостоток {{ (product.vars.data.price.total - card.stock) }} шт. со склада:</span>#}
-
-{#                                            <div class="w-50">#}
-{#                                                {{ form_widget(product.move.profile, {#}
-{#                                                    placeholder: 'Выберите целевой Склад для перемещения ...',#}
-{#                                                    attr: { 'data-select' : 'select2', class: 'm-0' },#}
-{#                                                }) }}#}
-{#                                            </div>#}
-
-{#                                        {% else %}#}
-
-
-{#                                            #}{# {% if form.vars.data.profile %} #}
-{#                                            <strong class="text-danger">#}
-{#                                                Нет в наличии для перемещения#}
-{#                                            </strong>#}
-{#                                            #}{# {% endif %} #}
-
-{#                                        {% endif %}#}
-{#                                    </div>#}
-
-{#                                    {{ form_row(product.move.move.destination ) }}#}
-
-{#                                {% endif %}#}
-
-
-{#                            </div>#}
-{#                        {% else %}#}
-
-                            {% if card.stock > 0 %}
-                                &nbsp; <span
-                                    class={{ card.stock < product.vars.data.total ? "text-danger" : "text-success" }}>В наличии  <strong>{{ card.stock }}</strong> шт. </span>
-                            {% else %}
-                                <span class="badge rounded-pill text-bg-danger">Нет в наличии</span>
-                                {% set disabled = { disabled : true } %}
-                            {% endif %}
+                        {% if card.stock > 0 %}
+                            &nbsp; <span
+                                class={{ card.stock < product.vars.data.total ? "text-danger" : "text-success" }}>В наличии  <strong>{{ card.stock }}</strong> шт. </span>
+                        {% else %}
+                            <span class="badge rounded-pill text-bg-danger ms-1">Нет в наличии</span>
+                            {% set disabled = { disabled : true } %}
+                        {% endif %}
 
 
                         {{ form_widget(product.product) }}
@@ -192,13 +128,14 @@
                         {{ form_widget(product.stock) }}
 
 
-{#                        {% endif %}#}
+                        {#                        {% endif %} #}
 
                     </div>
+
                     {% if product.move is defined %}
                         {{ form_widget(product.move, { attr: {
                             'data-bs-target': '#modal'
-                        }, label: 'Перемещение'|trans({}, '') }) }}
+                        }, label: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5"></path></svg>' }) }}
                     {% endif %}
                 </div>
 
@@ -212,19 +149,19 @@
 
             {% endfor %}
 
-{#            {% if form.vars.data.usr.delivery.address %}#}
+            {#            {% if form.vars.data.usr.delivery.address %} #}
 
-{#                <div class="clearfix d-flex gap-3 align-items-center my-3">#}
-{#                    <div class="text-nowrap text-muted">Адрес доставки (выдачи) заказа:</div>#}
-{#                    <div class="w-100">#}
-{#                        <hr class="clearfix">#}
-{#                    </div>#}
-{#                </div>#}
+            {#                <div class="clearfix d-flex gap-3 align-items-center my-3"> #}
+            {#                    <div class="text-nowrap text-muted">Адрес доставки (выдачи) заказа:</div> #}
+            {#                    <div class="w-100"> #}
+            {#                        <hr class="clearfix"> #}
+            {#                    </div> #}
+            {#                </div> #}
 
-{#                <div class="alert alert-warning" role="alert">#}
-{#                    {{ form.vars.data.usr.delivery.address }}#}
-{#                </div>#}
-{#            {% endif %}#}
+            {#                <div class="alert alert-warning" role="alert"> #}
+            {#                    {{ form.vars.data.usr.delivery.address }} #}
+            {#                </div> #}
+            {#            {% endif %} #}
         </div>
 
 

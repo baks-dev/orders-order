@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ final class MovingProductStockForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if(!$data->getProduct()->isEmpty())
+                if(false === $data->getProduct()->isEmpty())
                 {
                     /** @var Products\ProductStockDTO $product */
                     $product = $data->getProduct()->current();
@@ -73,7 +73,7 @@ final class MovingProductStockForm extends AbstractType
                     {
                         $warehouses = iterator_to_array($warehouses);
 
-                        $warehouses = array_filter($warehouses, function($v, $k) use ($Destination) {
+                        $warehouses = array_filter($warehouses, static function($v) use ($Destination) {
                             return !$v->equals($Destination);
                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -95,12 +95,12 @@ final class MovingProductStockForm extends AbstractType
                                 },
 
                                 'label' => false,
-                                'required' => true
-                            ]
+                                'required' => true,
+                            ],
                         );
                     }
                 }
-            }
+            },
         );
 
         /* Склад назначения при перемещении */
@@ -118,7 +118,7 @@ final class MovingProductStockForm extends AbstractType
                 'allow_delete' => true,
                 'allow_add' => true,
                 'prototype_name' => '__product__',
-            ]
+            ],
         );
     }
 
@@ -129,7 +129,7 @@ final class MovingProductStockForm extends AbstractType
                 'data_class' => MovingProductStockDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
-                'usr' => null
+                'usr' => null,
             ],
         );
     }

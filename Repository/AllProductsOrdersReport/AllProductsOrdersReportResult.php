@@ -48,6 +48,8 @@ final readonly class AllProductsOrdersReportResult
         private ?string $product_modification_value,
         private ?string $product_modification_reference,
         private ?string $product_modification_postfix,
+
+        private ?int $product_price,
     ) {}
 
     public function getProductName(): string
@@ -193,5 +195,11 @@ final readonly class AllProductsOrdersReportResult
     {
         return $this->product_modification_reference;
     }
+
+    public function getProductPrice(): Money
+    {
+        return new Money(($this->product_price ?: 0), true);
+    }
+
 
 }

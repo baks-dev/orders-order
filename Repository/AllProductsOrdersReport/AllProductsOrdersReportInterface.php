@@ -38,6 +38,11 @@ interface AllProductsOrdersReportInterface
 
     public function forProfile(UserProfileUid|UserProfile $profile): self;
 
+    /**
+     * Метод возвращает информацию о заказах по продуктам
+     *
+     * @return Generator<AllProductsOrdersReportResult>|false
+     */
     public function findAll(): Generator|false;
 
 }

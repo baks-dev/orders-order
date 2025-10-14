@@ -37,9 +37,14 @@ use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Price\ProductPrice;
+use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
@@ -88,6 +93,8 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
     /**
      * Метод возвращает информацию о заказах по продуктам
+     *
+     * @return Generator<AllProductsOrdersReportResult>|false
      */
     public function findAll(): Generator|false
     {
@@ -189,6 +196,8 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "product_info.event = product_event.id",
         );
 
+        /** ProductOffer */
+
         $dbal
             ->addSelect("product_offer.value AS product_offer_value")
             ->addSelect('product_offer.postfix as product_offer_postfix')
@@ -266,6 +275,108 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "product_trans",
                 "product_trans.event = product_event.id AND product_trans.local = :local",
             );
+
+
+        /** Получаем текущую стоимость продукта */
+
+        $dbal->leftJoin(
+            'product_event',
+            Product::class,
+            'product',
+            'product.id = product_event.main',
+        );
+
+
+        $dbal->leftJoin(
+            'product_offer',
+            ProductOffer::class,
+            'current_product_offer',
+            '
+                        current_product_offer.event = product.event 
+                        AND current_product_offer.const = product_offer.const
+                    ');
+
+
+        $dbal->leftJoin(
+            'product_variation',
+            ProductVariation::class,
+            'current_product_variation',
+            '
+                        current_product_variation.offer = current_product_offer.id 
+                        AND current_product_variation.const = product_variation.const
+                    ');
+
+        $dbal->leftJoin(
+            'product_modification',
+            ProductModification::class,
+            'current_product_modification',
+            '
+                        current_product_modification.variation = current_product_variation.id 
+                        AND current_product_modification.const = product_modification.const
+                    ');
+
+
+        /**
+         * Базовая Цена товара
+         */
+        $dbal->leftJoin(
+            'product',
+            ProductPrice::class,
+            'product_price',
+            'product_price.event = product.event',
+        );
+
+        /**
+         * Цена торгового предо жения
+         */
+        $dbal->leftJoin(
+            'current_product_offer',
+            ProductOfferPrice::class,
+            'product_offer_price',
+            'product_offer_price.offer = current_product_offer.id',
+        );
+
+        /**
+         * Цена множественного варианта
+         */
+        $dbal->leftJoin(
+            'current_product_variation',
+            ProductVariationPrice::class,
+            'product_variation_price',
+            'product_variation_price.variation = current_product_variation.id',
+        );
+
+        /**
+         * Цена модификации множественного варианта
+         */
+        $dbal->leftJoin(
+            'current_product_modification',
+            ProductModificationPrice::class,
+            'product_modification_price',
+            'product_modification_price.modification = current_product_modification.id',
+        );
+
+        /**
+         * Стоимость продукта
+         */
+        $dbal->addSelect(
+            '
+			CASE
+			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 
+			   THEN product_modification_price.price
+			   
+			   WHEN product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 
+			   THEN product_variation_price.price
+			   
+			   WHEN product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 
+			   THEN product_offer_price.price
+			   
+			   WHEN product_price.price IS NOT NULL AND product_price.price > 0 
+			   THEN product_price.price
+			   
+			   ELSE NULL
+			END AS product_price',
+        );
 
 
         $dbal

@@ -103,9 +103,10 @@ final class ReportProductsController extends AbstractController
                 ->setCellValue('A1', 'Наименование товара')
                 ->setCellValue('B1', 'Торговое предложение')
                 ->setCellValue('C1', 'Артикул товара')
-                ->setCellValue('D1', 'Общее количество за период')
-                ->setCellValue('E1', 'Суммарная стоимость за период')
-                ->setCellValue('F1', 'Остаток');
+                ->setCellValue('D1', 'Стоимость')
+                ->setCellValue('E1', 'Общее количество за период')
+                ->setCellValue('F1', 'Суммарная стоимость за период')
+                ->setCellValue('G1', 'Остаток');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
@@ -172,9 +173,10 @@ final class ReportProductsController extends AbstractController
                     ->setCellValue('A'.$key, $data->getProductName())
                     ->setCellValue('B'.$key, str_replace(' /', '/', $strOffer))
                     ->setCellValue('C'.$key, $data->getProductArticle())
-                    ->setCellValue('D'.$key, $data->getTotal())
-                    ->setCellValue('E'.$key, $money->getValue())
-                    ->setCellValue('F'.$key, $data->getStockTotal());
+                    ->setCellValue('D'.$key, $data->getProductPrice()->getValue())
+                    ->setCellValue('E'.$key, $data->getTotal())
+                    ->setCellValue('F'.$key, $money->getValue())
+                    ->setCellValue('G'.$key, $data->getStockTotal());
 
                 $allTotal += $data->getTotal();
                 $allStock += $data->getStockTotal();
@@ -185,9 +187,9 @@ final class ReportProductsController extends AbstractController
             // Общее количество и общая стоимость
             $sheet
                 ->setCellValue('A'.$key, "Итого")
-                ->setCellValue('D'.$key, $allTotal)
-                ->setCellValue('E'.$key, $allPrice)
-                ->setCellValue('F'.$key, $allStock);
+                ->setCellValue('E'.$key, $allTotal)
+                ->setCellValue('F'.$key, $allPrice)
+                ->setCellValue('G'.$key, $allStock);
 
             $filename =
                 'Отчёт о заказах по продуктам ('.

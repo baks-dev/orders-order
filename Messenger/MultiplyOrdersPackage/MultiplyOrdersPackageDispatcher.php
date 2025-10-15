@@ -106,7 +106,7 @@ final readonly class MultiplyOrdersPackageDispatcher
          * Обновляем статус заказа и присваиваем профиль склада упаковки.
          */
         $OrderStatusDTO = new OrderStatusDTO(OrderStatusPackage::class, $OrderEvent->getId());
-        $OrderStatusDTO->setProfile($message->getUserProfile());
+        $OrderStatusDTO->setProfile($message->getUserProfile())->setComment($OrderEvent->getComment());
 
         $Order = $this->OrderStatusHandler->handle($OrderStatusDTO);
 

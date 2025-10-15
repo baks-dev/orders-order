@@ -32,6 +32,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -77,6 +78,8 @@ final class OrderForm extends AbstractType
                 if(!$data->getProduct()->isEmpty())
                 {
                     $form->add('usr', User\OrderUserForm::class, ['label' => false]);
+
+                    $form->add('comment', TextareaType::class);
 
                     /* Сохранить ******************************************************/
                     $form->add(

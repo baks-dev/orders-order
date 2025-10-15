@@ -125,4 +125,10 @@ final class OrderStatusDTO implements OrderEventInterface
 
         return $this;
     }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+        return $this;
+    }
 }

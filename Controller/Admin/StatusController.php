@@ -103,7 +103,8 @@ final class StatusController extends AbstractController
                     $orderStatus,
                     $orderEvent->getId()
                 )
-                ->setProfile($this->getProfileUid());
+                    ->setProfile($this->getProfileUid())
+                    ->setComment($orderEvent->getComment());
 
 
                 /**
@@ -119,7 +120,6 @@ final class StatusController extends AbstractController
                  * Обновляем статус заказа
                  */
 
-
                 /**
                  * Невозможно применить повторно статус
                  */
@@ -131,7 +131,6 @@ final class StatusController extends AbstractController
 
                 if(true === $isExistsStatus)
                 {
-
                     $unsuccessful[] = $orderEvent->getOrderNumber();
                     continue;
                 }

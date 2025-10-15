@@ -116,8 +116,6 @@ function changeObjectPackageWarehouse()
             document.getElementById("modal-body").replaceWith(result);
 
             initOrderPackage();
-
-            //movingModalSetEvent();
         }
 
         return false;

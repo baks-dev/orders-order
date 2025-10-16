@@ -21,6 +21,8 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Controller\Admin;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
@@ -152,7 +154,7 @@ final class DetailController extends AbstractController
 
             $this->addFlash(
                 'danger',
-                'admin.danger.update',
+                'danger.update',
                 'orders-order.admin',
             );
 

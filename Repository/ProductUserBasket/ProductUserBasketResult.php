@@ -305,8 +305,9 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
 
     /**
      * ProductPrice
+     * @param $userDiscount - условие, учитывать ли скидку клиента
      */
-    public function getProductPrice(): Money|false
+    public function getProductPrice(bool $userDiscount = true): Money|false
     {
         if(empty($this->product_price))
         {
@@ -329,7 +330,7 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         }
 
         /** Скидка пользователя */
-        if(false === empty($this->profile_discount))
+        if(true === $userDiscount && false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);
         }

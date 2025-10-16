@@ -37,6 +37,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderPriceForm extends AbstractType
 {
@@ -68,6 +69,9 @@ final class OrderPriceForm extends AbstractType
                 'currency' => false,
                 'auto_initialize' => false,
                 'disabled' => $this->discount === false,
+                'constraints' => [
+                    new Assert\Range(min: $min),
+                ]
             ]);
 
 
@@ -113,7 +117,8 @@ final class OrderPriceForm extends AbstractType
                             return;
                         }
 
-                        $productPrice = $card->getProductPrice();
+
+                        $productPrice = $card->getProductPrice(false);
                         $percent = $productPrice->percent($this->discount);
                         $min = $productPrice->sub($percent);
 
@@ -128,10 +133,17 @@ final class OrderPriceForm extends AbstractType
                                     'price',
                                     MoneyType::class,
                                     [
-                                        'attr' => ['min' => $min],
+                                        'attr' => ['min' => $min->getValue() > $OrderPriceDTO->getPrice()->getValue() ? $OrderPriceDTO->getPrice() : $min],
                                         'required' => true,
                                         'currency' => false,
                                         'auto_initialize' => false,
+                                        'disabled' => $this->discount === false,
+                                        'constraints' => [
+                                            new Assert\Range(min: min(
+                                                $min->getValue(),
+                                                $OrderPriceDTO->getPrice()->getValue())
+                                            ),
+                                        ],
                                     ],
                                 )
                                 ->addModelTransformer(

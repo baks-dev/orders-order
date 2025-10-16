@@ -36,6 +36,7 @@ final class OrderPriceDTO implements OrderPriceInterface
 {
     /** Количество в заказе */
     #[Assert\NotBlank]
+    #[Assert\Range(min: 1)]
     private int $total = 1;
 
     /** Стоимость */

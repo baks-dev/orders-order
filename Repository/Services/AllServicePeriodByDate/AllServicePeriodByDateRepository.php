@@ -100,11 +100,11 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
     /** Убирает дублирующийся неактивный период */
     private function unique(array $periods): array
     {
-        $activePeriods = array_filter($periods, function($element) {
+        $activePeriods = array_filter($periods, static function($element) {
             return $element['active_event'] === true;
         });
 
-        $reservePeriods = array_filter($periods, function($element) {
+        $reservePeriods = array_filter($periods, static function($element) {
             return $element['active_event'] !== true && $element['order_service_active'];
         });
 

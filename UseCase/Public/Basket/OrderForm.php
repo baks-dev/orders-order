@@ -54,6 +54,8 @@ final class OrderForm extends AbstractType
             'prototype_name' => '__product__',
         ]);
 
+        $builder->add('comment', TextareaType::class, ['required' => false]);
+
         $has_services = class_exists(BaksDevServicesBundle::class);
 
         if($has_services)
@@ -79,7 +81,6 @@ final class OrderForm extends AbstractType
                 {
                     $form->add('usr', User\OrderUserForm::class, ['label' => false]);
 
-                    $form->add('comment', TextareaType::class);
 
                     /* Сохранить ******************************************************/
                     $form->add(

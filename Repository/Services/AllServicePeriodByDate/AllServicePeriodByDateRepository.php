@@ -100,30 +100,33 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
     /** Убирает дублирующийся неактивный период */
     private function unique(array $periods): array
     {
-        $result = array_reduce($periods, function($prev, $item) {
-            $key = $item['period_id'];
-
-            // если уже есть true — не затираем его
-            if(isset($prev[$key]) && $prev[$key]['order_service_active'] === true)
-            {
-                return $prev;
-            }
-
-            // если текущий true — заменяем
-            if($item['order_service_active'] === true)
-            {
-                $prev[$key] = $item;
-            }
-            else
-            {
-                // если ещё нет записи для ключа
-                $prev[$key] ??= $item;
-            }
-
-            return $prev;
+        $activePeriods = array_filter($periods, function($element) {
+            return $element['active_event'] === true;
         });
 
-        return $result;
+        $reservePeriods = array_filter($periods, function($element) {
+            return $element['active_event'] !== true && $element['order_service_active'];
+        });
+
+        foreach($activePeriods as $key => $period)
+        {
+            foreach($reservePeriods as $reserve)
+            {
+                $periodFrm = new DateTimeImmutable($period['frm'])->format('H-s-i');
+                $reserveFrm = new DateTimeImmutable($reserve['frm'])->format('H-s-i');
+
+                $periodUpto = new DateTimeImmutable($period['upto'])->format('H-s-i');
+                $reserveUpto = new DateTimeImmutable($reserve['upto'])->format('H-s-i');
+
+                if($periodFrm === $reserveFrm && $periodUpto === $reserveUpto)
+                {
+                    $activePeriods[$key]['order_service_active'] = true;
+                    break;
+                }
+            }
+        }
+
+        return $activePeriods;
     }
 
     /** Возвращает массив периодов на переданную дату с информацией об их использовании */
@@ -144,14 +147,14 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
 
         /** Активное событие */
         $dbal
+            ->addSelect('(service_event.id::text = service.event::text) AS active_event')
             ->join(
                 'service',
                 ServiceEvent::class,
                 'service_event',
                 '
                     service_event.main = :serv
-                    AND
-                    service_event.id = service.event'
+                    '
             )
             ->setParameter(
                 key: 'serv',
@@ -163,22 +166,22 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
          * Invariable, Profile
          */
 
-        //        if(false === $this->profile instanceof UserProfileUid)
-        //        {
-        //            $dbal
-        //                ->join(
-        //                    'service',
-        //                    ServiceInvariable::class,
-        //                    'service_invariable',
-        //                    '
-        //                        service_invariable.main = service.id
-        //                        AND
-        //                        service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY
-        //                );
-        //
-        //            /** Биндим параметр PROJECT_PROFILE_KEY */
-        //            $dbal->isProjectProfile();
-        //        }
+        if(false === $this->profile instanceof UserProfileUid)
+        {
+            $dbal
+                ->join(
+                    'service',
+                    ServiceInvariable::class,
+                    'service_invariable',
+                    '
+                                service_invariable.main = service.id
+                                AND
+                                service_invariable.profile = :'.$dbal::PROJECT_PROFILE_KEY,
+                );
+
+            /** Биндим параметр PROJECT_PROFILE_KEY */
+            $dbal->isProjectProfile();
+        }
 
         if(true === $this->profile instanceof UserProfileUid)
         {

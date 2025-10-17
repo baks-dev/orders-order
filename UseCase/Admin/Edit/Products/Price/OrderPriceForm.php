@@ -69,9 +69,6 @@ final class OrderPriceForm extends AbstractType
                 'currency' => false,
                 'auto_initialize' => false,
                 'disabled' => $this->discount === false,
-                'constraints' => [
-                    new Assert\Range(min: $min),
-                ]
             ]);
 
 
@@ -138,12 +135,6 @@ final class OrderPriceForm extends AbstractType
                                         'currency' => false,
                                         'auto_initialize' => false,
                                         'disabled' => $this->discount === false,
-                                        'constraints' => [
-                                            new Assert\Range(min: min(
-                                                $min->getValue(),
-                                                $OrderPriceDTO->getPrice()->getValue())
-                                            ),
-                                        ],
                                     ],
                                 )
                                 ->addModelTransformer(

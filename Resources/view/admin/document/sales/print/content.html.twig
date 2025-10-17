@@ -2,6 +2,7 @@
 
 
 {# @var profile \BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult #}
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
      style="overflow-y:hidden;">
@@ -9,11 +10,18 @@
     {% for order in orders %}
 
         {% set money =  0 %}
+        {% set service_money =  0 %}
 
         {% set products = order.orderProducts %}
 
+        {% set services = order.orderServices %}
+
         {% for product in products %}
             {% set money = (product.product_total * product.product_price) + money %}
+        {% endfor %}
+
+        {% for service in services %}
+            {% set service_money = service.service_price + service_money %}
         {% endfor %}
 
         {% set order_user = order.orderUser|json_decode %}
@@ -137,6 +145,9 @@
 
                     {% endfor %}
 
+
+
+
                     {% if order.orderDeliveryPrice.value > 0 %}
 
                     {% set counter = counter + 1 %}
@@ -176,8 +187,45 @@
         </table>
 
 
+        {# services #}
+        {% set service_counter = 0 %}
+        {% if services and services|first.service_id %}
+            <table class="table w-100 mb-2">
+                <thead>
+
+                <tr>
+                    <th scope="col"> №
+                    <th scope="col"> Услуга
+                    <th scope="col"> Кол-во
+                        {#                            <th scope="col"> Ед. #}
+                    <th scope="col"> Цена
+                    <th scope="col"> Сумма
+                <tbody>
+
+                {% for service in services %}
+                {#        {% set service_money = 0 %} #}
+                <tr>
+                    <th scope="row"> {{ loop.index }}
+                    <td>  {#  {{ service.service_name }} Шиномонтаж #}
+                        <strong class="h6">{{ service.service_name }}</strong> &nbsp;
+                    <td> 1
+
+                    <td> {{ money(service.service_price) }}
+                    <td> {{ money(service.service_price) }}
+
+                        {% set service_counter = loop.index %}
+                        {% endfor %}
+                <tfoot>
+                <tr>
+                    <td colspan="6" class="text-end">Итого: {{ money(service_money) }}
+
+            </table>
+        {% endif %}
+
+
         <div class="small">
-            Всего наименований {{ counter }}, на сумму {{ money(money) }} ({{ money_word(money / 100) }})
+            Всего наименований {{ counter + service_counter }}, на сумму {{ money(money + service_money) }}
+            ({{ money_word( (money + service_money) / 100) }})
         </div>
 
         <hr>

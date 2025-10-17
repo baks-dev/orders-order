@@ -61,7 +61,7 @@ final class OrderServiceDTO implements OrderServiceInterface
 
     public OrderServicePriceDTO $price;
 
-    public int $minPrice = 0;
+    public int|float $minPrice = 0;
 
     public function __construct()
     {
@@ -146,12 +146,12 @@ final class OrderServiceDTO implements OrderServiceInterface
         return $this;
     }
 
-    public function getMinPrice(): int
+    public function getMinPrice(): int|float
     {
         return $this->minPrice;
     }
 
-    public function setMinPrice(int $minPrice): void
+    public function setMinPrice(int|float $minPrice): void
     {
         $this->minPrice = $minPrice;
     }

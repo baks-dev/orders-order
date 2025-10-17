@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\Services\OrderService;
+use BaksDev\Orders\Order\Entity\Services\Price\OrderServicePrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
@@ -499,6 +500,13 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
             $dbal->leftJoin(
+                'orders',
+                OrderServicePrice::class,
+                'order_service_price',
+                'order_service_price.serv = order_service.id',
+            );
+
+            $dbal->leftJoin(
                 'order_service',
                 Service::class,
                 'service',
@@ -537,7 +545,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 						
 						'service_name', service_info.name,
 						'service_preview', service_info.preview,
-						'service_price', service_price.price,	
+						'service_price', order_service_price.price,	
 						'service_date', order_service.date,	
 						'service_currency', service_price.currency
 					)

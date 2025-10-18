@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Stocks\Messenger\Orders\MultiplyProductStocksPackage\MultiplyProductStocksPackageMessage;
+use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -53,6 +54,7 @@ final readonly class MultiplyOrdersPackageDispatcher
         private CentrifugoPublishInterface $publish,
         private OrderStatusHandler $OrderStatusHandler,
         private MessageDispatchInterface $messageDispatch,
+        private UserTokenStorageInterface $UserTokenStorage
     ) {}
 
     public function __invoke(MultiplyOrdersPackageMessage $message): void
@@ -101,6 +103,12 @@ final readonly class MultiplyOrdersPackageDispatcher
         $this->publish
             ->addData(['order' => (string) $message->getOrderId()])
             ->send('orders');
+
+        /** Авторизуем текущего пользователя для лога изменений если сообщение обрабатывается из очереди */
+        if(false === $this->UserTokenStorage->isUser())
+        {
+            $this->UserTokenStorage->authorization($message->getCurrent());
+        }
 
         /**
          * Обновляем статус заказа и присваиваем профиль склада упаковки.

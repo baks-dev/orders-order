@@ -79,6 +79,8 @@ final class PackageController extends AbstractController
             $unsuccessful = [];
             $ordersNumbers = [];
 
+            $CurrentUserUid = $this->getCurrentUsr();
+
             /** @var PackageOrdersOrderDTO $packageOrderDTO */
             foreach($packageOrdersDTO->getOrders() as $packageOrderDTO)
             {
@@ -119,6 +121,7 @@ final class PackageController extends AbstractController
                 $MultiplyOrdersPackageMessage = new MultiplyOrdersPackageMessage(
                     $OrderEvent->getMain(),
                     $packageOrdersDTO->getProfile(),
+                    $CurrentUserUid, // передаем текущего пользователя
                 );
 
                 $messageDispatch->dispatch(

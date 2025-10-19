@@ -104,17 +104,18 @@ final readonly class MultiplyOrdersPackageDispatcher
             ->addData(['order' => (string) $message->getOrderId()])
             ->send('orders');
 
-        /** Авторизуем текущего пользователя для лога изменений если сообщение обрабатывается из очереди */
-        if(false === $this->UserTokenStorage->isUser())
-        {
-            $this->UserTokenStorage->authorization($message->getCurrent());
-        }
-
         /**
          * Обновляем статус заказа и присваиваем профиль склада упаковки.
          */
         $OrderStatusDTO = new OrderStatusDTO(OrderStatusPackage::class, $OrderEvent->getId());
         $OrderStatusDTO->setProfile($message->getUserProfile())->setComment($OrderEvent->getComment());
+
+
+        /** Авторизуем текущего пользователя для лога изменений если сообщение обрабатывается из очереди */
+        if(false === $this->UserTokenStorage->isUser())
+        {
+            $this->UserTokenStorage->authorization($message->getCurrentUser());
+        }
 
         $Order = $this->OrderStatusHandler->handle($OrderStatusDTO);
 
@@ -135,6 +136,7 @@ final readonly class MultiplyOrdersPackageDispatcher
             $MultiplyProductStocksPackageMessage = new MultiplyProductStocksPackageMessage(
                 $message->getOrderId(),
                 $message->getUserProfile(),
+                $message->getCurrentUser(),
             );
 
             $this->messageDispatch->dispatch(

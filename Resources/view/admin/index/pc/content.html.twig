@@ -163,7 +163,7 @@
                             <label class="btn p-1 border-dotted rounded-3 w-100 ">
                                 <div class="d-flex">
                                     {{ form_widget(filter.all, { label: false }) }}
-                                    <div class="form-check ps-0"> Все </div>
+                                    <div class="form-check ps-0"> Все</div>
                                 </div>
                             </label>
                         </div>
@@ -178,7 +178,7 @@
                 </div>
             </div>
 
-            {% if filter.delivery is defined and filter.delivery.vars.data %}
+            {% if filter.delivery is defined and filter.delivery.vars.data and filter.delivery.vars.data.attr %}
                 <div class="d-flex gap-3 m-2">
                     <div><small class="text-muted">Способ доставки:</small>&nbsp;
                         <strong>{{ filter.delivery.vars.data.attr }}</strong>
@@ -208,6 +208,8 @@
                              stats.getValue() == 'completed'
                              ? 'restricted' }}"
                         >
+
+
                             {% set href = null %}
 
                             {% if stats.getValue() == 'package' and (is_granted('ROLE_PRODUCT_STOCK_PACKAGE') or is_granted('ROLE_ADMIN')) %}
@@ -219,12 +221,29 @@
                             {% if href %}
                                 <a href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-3"
                                    style="top: 5rem; background-color: {{ color }};">
+
                                     {{ stats.getValue()|trans({}, 'status.order') }}
                                 </a>
                             {% else %}
 
-                                <div class="w-100 badge p-2 sticky-top z-3"
+                                <div class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
                                      style="top: 5rem; background-color: {{ color }};">
+
+                                    {% if stats.getValue() == 'new' and filter.delivery.vars.data %}
+
+                                        <label for="check-all">
+                                            <input class="form-check-input m-0"
+                                                   type="checkbox"
+                                                   value="all"
+                                                   id="check-all"
+                                                   style="width: 11px; height: 11px;"
+                                            >
+                                        </label>
+
+                                    {% endif %}
+
+
+
                                     {{ stats.getValue()|trans({}, 'status.order') }}
                                 </div>
 
@@ -306,7 +325,6 @@
 
         {# </div> #}
 
-       
 
     </div>
 
@@ -314,7 +332,7 @@
     {% if constant('BaksDev\\Support\\BaksDevSupportBundle::NAMESPACE') is defined %}
         {{ render_support_widget() }}
     {% endif %}
-    
+
 
     {# БЫСТРАЯ СДЕЛКА #}
     {# {{ include(_self|replace({ "content.html.twig": "_fast.order.html.twig" })) }} #}

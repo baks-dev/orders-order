@@ -226,16 +226,16 @@
 
                 <div class="dropdown">
 
-                    <button class="btn btn-link dropdown-toggle d-flex align-items-center {{ stockTotal < 0 ? 'text-danger' : 'text-muted' }}"
+                    <button class="btn btn-link dropdown-toggle d-flex align-items-center text-decoration-none {{ stockTotal < 0 ? 'text-danger' : 'text-muted' }}"
                             type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
 
 
                         {% if stockTotal < 0 %}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16">
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
-                            </svg>
+
+                            <span class="badge text-bg-danger">{{ stockTotal }}</span>
+
+
                         {% else %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                  class="bi bi-list" viewBox="0 0 16 16">
@@ -301,13 +301,13 @@
                                         data-pre-offer="{{ card.productOfferConst }}"
                                         data-pre-variation="{{ card.productVariationConst }}"
                                         data-pre-modification="{{ card.productModificationConst }}"
-                                        data-pre-total="{{ product.price.vars.data.total - stockTotal }}"
+                                        data-pre-total="{{ stockTotal|abs }}"
                                         data-destination-warehouse="{{ profile }}"
                                         data-method="post"
                                         data-formname="moving_product_stock_form"
                                         data-post-class="add-one-to-collection"
                                 >
-                                    Создать заявку на перемещение
+                                    Создать перемещение на {{ stockTotal|abs }} шт.
                                 </button>
                             </li>
 

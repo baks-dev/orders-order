@@ -64,7 +64,10 @@ final class MultiplyOrdersPackageMessage
         return new UserProfileUid($this->profile);
     }
 
-    public function getCurrent(): UserUid
+    /**
+     * Идентификатор текущего пользователя
+     */
+    public function getCurrentUser(): UserUid
     {
         return new UserUid($this->current);
     }

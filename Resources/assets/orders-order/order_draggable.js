@@ -30,6 +30,7 @@ let status = null;
 
 
 const form = document.forms.order_delivery_filter_form;
+
 form.addEventListener("change", () =>
 {
     setTimeout(() =>
@@ -512,6 +513,10 @@ executeFunc(function P8X1I2diQ4()
     // Добавляем обработчики для чекбоксов
     function initCheckboxHandlers()
     {
+
+        const all = document.getElementById("check-all");
+
+
         const checkboxes = document.querySelectorAll(".draggable input[type=\"checkbox\"]");
         //console.log("Найдено чекбоксов:", checkboxes.length);
 
@@ -574,6 +579,43 @@ executeFunc(function P8X1I2diQ4()
                 updateSelectedOrdersVisuals();
             });
         });
+
+        if(all)
+        {
+            /** снимаем чек при обновлении */
+            all.checked = false;
+
+            all.addEventListener("change", function(all)
+            {
+                checkboxes.forEach(checkbox =>
+                {
+
+                    if(checkbox.dataset.status === "new")
+                    {
+                        const orderId = checkbox.closest(".draggable").id;
+                        const draggableElement = checkbox.closest(".draggable");
+
+                        checkbox.checked = this.checked;
+
+                        if(this.checked)
+                        {
+                            selectedOrders.add(orderId);
+                            draggableElement.classList.add("selected-order");
+
+                        }
+                        else
+                        {
+                            selectedOrders.delete(orderId);
+                            draggableElement.classList.remove("selected-order");
+                        }
+                    }
+
+                });
+
+                updateSelectedOrdersVisuals();
+            });
+        }
+
     }
 
     // Функция для обновления визуального состояния выбранных карточек

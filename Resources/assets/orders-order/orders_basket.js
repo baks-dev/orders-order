@@ -446,6 +446,7 @@ async function submitDeliveryForm(forms)
 {
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
+    data.delete(forms.name + "[usr][delivery][deliveryDate]");
 
     await fetch(forms.action, {
         method : forms.method,

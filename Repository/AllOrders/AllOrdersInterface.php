@@ -34,6 +34,8 @@ use BaksDev\Users\User\Type\Id\UserUid;
 
 interface AllOrdersInterface
 {
+    public function setLimit(int $limit): self;
+
     public function search(SearchDTO $search): self;
 
     public function filter(OrderFilterDTO $filter): self;

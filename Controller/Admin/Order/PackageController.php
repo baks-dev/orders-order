@@ -36,6 +36,8 @@ use BaksDev\Orders\Order\Forms\Package\PackageOrdersDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersForm;
 use BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage\MultiplyOrdersPackageMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,6 +56,7 @@ final class PackageController extends AbstractController
         Request $request,
         CentrifugoPublishInterface $publish,
         CurrentOrderEventInterface $currentOrderEventRepository,
+        ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
         MessageDispatchInterface $messageDispatch,
         DeduplicatorInterface $deduplicator,
     ): Response
@@ -106,6 +109,19 @@ final class PackageController extends AbstractController
                     ->find();
 
                 if(false === ($OrderEvent instanceof OrderEvent))
+                {
+                    $unsuccessful[] = $OrderEvent->getOrderNumber();
+                    continue;
+                }
+
+                /** Проверяем, что заказ не был отменен */
+                $isOtherExists = $ExistOrderEventByStatusRepository
+                    ->forOrder($OrderEvent->getMain())
+                    ->excludeOrderEvent($OrderEvent->getId())
+                    ->forStatus(OrderStatusCanceled::class)
+                    ->isOtherExists();
+
+                if($isOtherExists)
                 {
                     $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;

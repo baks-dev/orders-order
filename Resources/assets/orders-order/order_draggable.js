@@ -629,6 +629,7 @@ executeFunc(function P8X1I2diQ4()
             const draggableHandle = draggable.querySelector(".draggable-handle");
             const draggableCheckbox = draggable.querySelector("input[type=\"checkbox\"]");
 
+
             if(selectedOrders.has(orderId))
             {
                 /** Показать полностью весь заказ */
@@ -670,7 +671,7 @@ executeFunc(function P8X1I2diQ4()
                         draggableHandle.style.pointerEvents = "none";
 
                         /** получаем элемент chekbox */
-                        if(draggableCheckbox.dataset.status !== status)
+                        if(draggableCheckbox && draggableCheckbox.dataset.status !== status)
                         {
                             //draggableCheckbox.classList.add("invisible");
                             draggableCheckbox.disabled = true;
@@ -687,7 +688,7 @@ executeFunc(function P8X1I2diQ4()
                         draggableHandle.style.pointerEvents = "auto";
 
                         //draggableCheckbox.classList.remove("disabled");
-                        draggableCheckbox.disabled = false;
+                        draggableCheckbox ? draggableCheckbox.disabled = false : false;
 
                         status = null;
                     }

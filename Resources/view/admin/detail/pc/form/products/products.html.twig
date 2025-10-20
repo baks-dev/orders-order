@@ -162,7 +162,7 @@
                         'data-price' : ''~product.price.vars.data.price.value*100,
                         'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
                         'data-currency' : product.price.vars.data.currency|upper,
-                        'data-max' : card.productQuantity
+                        'data-max' : card.stockTotal
                     } } ) }}
 
                 <button type="button" class="btn btn-sm plus"

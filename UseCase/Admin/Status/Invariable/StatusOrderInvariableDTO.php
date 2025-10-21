@@ -32,14 +32,14 @@ use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariableDTO */
-final class StatusOrderInvariableDTO implements OrderInvariableInterface
+final readonly class StatusOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
      * ID профиля ответственного
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    private readonly ?UserProfileUid $profile;
+    private ?UserProfileUid $profile;
 
     /**
      * Profile

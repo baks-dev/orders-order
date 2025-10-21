@@ -55,7 +55,7 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
 
     public function getNumber(): ?string
     {
-        if(!(new ReflectionProperty(self::class, 'number'))->isInitialized($this))
+        if(false === (new ReflectionProperty(self::class, 'number')->isInitialized($this)))
         {
             $this->number = number_format((microtime(true) * 100), 0, '.', '.');
         }
@@ -66,6 +66,16 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
     public function getProfile(): ?UserProfileUid
     {
         return $this->profile;
+    }
+
+    public function setProfile(?UserProfileUid $profile): self
+    {
+        if(false === (new ReflectionProperty(self::class, 'profile')->isInitialized($this)))
+        {
+            $this->profile = $profile;
+        }
+
+        return $this;
     }
 
     public function getUsr(): ?UserUid

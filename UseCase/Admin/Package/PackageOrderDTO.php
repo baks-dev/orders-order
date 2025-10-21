@@ -28,6 +28,9 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\UseCase\Admin\Package\Invariable\PackageOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Package\Products\PackageOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Package\User\OrderUserDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
@@ -46,7 +49,7 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private Invariable\PackageOrderInvariableDTO $invariable;
+    private PackageOrderInvariableDTO $invariable;
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -54,12 +57,12 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Пользовательские данные заказа */
     #[Assert\Valid]
-    private User\OrderUserDTO $usr;
+    private OrderUserDTO $usr;
 
     public function __construct()
     {
         $this->product = new ArrayCollection();
-        $this->invariable = new Invariable\PackageOrderInvariableDTO();
+        $this->invariable = new PackageOrderInvariableDTO();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -79,7 +82,7 @@ final class PackageOrderDTO implements OrderEventInterface
         $this->product = $product;
     }
 
-    public function addProduct(Products\PackageOrderProductDTO $product): void
+    public function addProduct(PackageOrderProductDTO $product): void
     {
         if(!$this->product->contains($product))
         {
@@ -94,11 +97,11 @@ final class PackageOrderDTO implements OrderEventInterface
 
     /** Пользовательские данные заказа */
 
-    public function getUsr(): User\OrderUserDTO
+    public function getUsr(): OrderUserDTO
     {
-        if(false === (new ReflectionProperty(self::class, 'usr'))->isInitialized($this))
+        if(false === (new ReflectionProperty(self::class, 'usr')->isInitialized($this)))
         {
-            $this->usr = new User\OrderUserDTO();
+            $this->usr = new OrderUserDTO();
         }
 
         return $this->usr;
@@ -115,7 +118,7 @@ final class PackageOrderDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\PackageOrderInvariableDTO
+    public function getInvariable(): PackageOrderInvariableDTO
     {
         return $this->invariable;
     }

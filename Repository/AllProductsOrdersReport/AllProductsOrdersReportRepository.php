@@ -193,7 +193,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "orders_product",
             ProductInfo::class,
             "product_info",
-            "product_info.event = product_event.id",
+            "product_info.event = product_event.main",
         );
 
         /** ProductOffer */

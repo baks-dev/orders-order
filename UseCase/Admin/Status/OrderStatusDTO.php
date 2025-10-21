@@ -27,6 +27,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Invariable\StatusOrderInvariableDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -54,7 +55,7 @@ final class OrderStatusDTO implements OrderEventInterface
     #[Assert\Valid]
     private Modify\ModifyDTO $modify;
 
-    private Invariable\StatusOrderInvariableDTO $invariable;
+    private StatusOrderInvariableDTO $invariable;
 
 
     /** Комментарий к заказу */
@@ -69,7 +70,7 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->id = $id;
         $this->status = new OrderStatus($status);
         $this->modify = new Modify\ModifyDTO();
-        $this->invariable = new Invariable\StatusOrderInvariableDTO();
+        $this->invariable = new StatusOrderInvariableDTO();
     }
 
     /** Идентификатор события */
@@ -101,7 +102,7 @@ final class OrderStatusDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\StatusOrderInvariableDTO
+    public function getInvariable(): StatusOrderInvariableDTO
     {
         return $this->invariable;
     }

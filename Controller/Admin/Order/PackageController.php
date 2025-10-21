@@ -31,6 +31,7 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Package\Orders\PackageOrdersOrderDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersForm;
@@ -38,6 +39,10 @@ use BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage\MultiplyOrdersPackageMe
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,6 +64,7 @@ final class PackageController extends AbstractController
         ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
         MessageDispatchInterface $messageDispatch,
         DeduplicatorInterface $deduplicator,
+        OrderStatusHandler $OrderStatusHandler
     ): Response
     {
         $packageOrdersDTO = new PackageOrdersDTO();
@@ -129,6 +135,41 @@ final class PackageController extends AbstractController
 
                 $ordersNumbers[] = $OrderEvent->getOrderNumber();
                 $Deduplicator->save();
+
+
+                /** Если заказ перенаправляется на другой склад - только указываем новый склад */
+                if(
+                    $OrderEvent->getOrderProfile() instanceof UserProfileUid
+                    && false === $OrderEvent->getOrderProfile()->equals($packageOrdersDTO->getProfile())
+                )
+                {
+
+                    $OrderStatusDTO = new OrderStatusDTO(
+                        OrderStatusNew::class,
+                        $OrderEvent->getId(),
+                    );
+
+                    /** Применяем новый профиль склада для сборки */
+                    $OrderStatusDTO->getInvariable()->setProfile($packageOrdersDTO->getProfile());
+
+                    $OrderEvent->getDto($OrderStatusDTO);
+
+                    $OrderStatusDTO
+                        ->addComment(sprintf('Важно! Заказ отправлен на сборку с другого магазина региона (%s)', $request->getHost()));
+
+                    $Order = $OrderStatusHandler->handle(
+                        command: $OrderStatusDTO,
+                        deduplicator: false,
+                    );
+
+                    if(false === $Order instanceof Order)
+                    {
+                        $unsuccessful[] = $OrderEvent->getOrderNumber();
+                    }
+
+                    continue;
+                }
+
 
                 /**
                  * Отправляем заказ на упаковку через очередь сообщений

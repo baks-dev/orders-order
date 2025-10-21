@@ -28,9 +28,7 @@ function initOrderPackage()
     const modal = document.getElementById("modal");
     const frm = modal.querySelector("form");
 
-    let orderpackageWarehouse = document.getElementById(`${frm.name}_profile`);
-
-    if(orderpackageWarehouse === null)
+    if(false === listenerObjectPackageWarehouse(frm))
     {
         return false;
     }
@@ -39,8 +37,6 @@ function initOrderPackage()
     {
         modalLink(item);
     });
-
-    orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
 
     // Подсчёт продуктов в форме
     let productsCount = document.querySelectorAll(".product-total").length;
@@ -65,16 +61,36 @@ function initOrderPackage()
         }
     }
 
-
-    frm.addEventListener("submit", function(event)
-    {
-        event.preventDefault();
-        submitModalForm(frm);
-        return false;
-    });
+    frm.addEventListener(
+        "submit",
+        function(event)
+        {
+            event.preventDefault();
+            submitModalForm(frm);
+            return false;
+        },
+        {
+            once : true,
+        });
 
     return true;
 }
+
+
+function listenerObjectPackageWarehouse(frm)
+{
+    let orderpackageWarehouse = document.getElementById(`${frm.name}_profile`);
+
+    if(orderpackageWarehouse === null)
+    {
+        return false;
+    }
+
+    orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
+
+    return true;
+}
+
 
 function changeObjectPackageWarehouse()
 {
@@ -115,7 +131,7 @@ function changeObjectPackageWarehouse()
 
             document.getElementById("modal-body").replaceWith(result);
 
-            initOrderPackage();
+            listenerObjectPackageWarehouse(PackageOrderForm);
         }
 
         return false;

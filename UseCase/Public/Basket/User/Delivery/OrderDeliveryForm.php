@@ -154,6 +154,7 @@ final class OrderDeliveryForm extends AbstractType
                 /** @var DeliveryUid $currentDelivery */
                 $currentDelivery = current($deliveryChoice);
 
+
                 if(false === ($currentDelivery instanceof DeliveryUid))
                 {
                     return;
@@ -183,8 +184,26 @@ final class OrderDeliveryForm extends AbstractType
                         $data->setEvent($deliveryChecked->getEvent());
 
                         $deliveryHelp = $deliveryChecked?->getOption();
+
                     }
                 }
+
+                $term = $deliveryChecked->getTerm();
+                $deliveryDate = $data->getDeliveryDate();
+
+                $deliveryDate = $deliveryDate->modify(sprintf('+%s day', $term));
+
+                $data->setDeliveryDate($deliveryDate);
+
+                $form->add('deliveryDate', DateType::class, [
+                    'widget' => 'single_text',
+                    'html5' => false,
+                    'required' => false,
+                    'format' => 'dd.MM.yyyy',
+                    'input' => 'datetime_immutable',
+                    'attr' => ['data-value' => $deliveryDate->format('d.m.Y')],
+                ]);
+
 
                 $form
                     ->add('delivery', ChoiceType::class, [
@@ -203,6 +222,7 @@ final class OrderDeliveryForm extends AbstractType
                                 'data-price' => $choice->getPrice()?->getValue(),
                                 'data-excess' => $choice->getExcess()?->getValue(),
                                 'data-currency' => $choice->getCurrency(),
+                                'data-term' => $choice->getTerm(),
                             ];
                         },
 

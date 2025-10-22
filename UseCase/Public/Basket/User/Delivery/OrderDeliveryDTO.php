@@ -74,8 +74,6 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
         $delivery = (new DateTimeImmutable())->setTime(0, 0, 0);
 
-        $delivery = $delivery->modify('+1 day');
-
         /**
          * Если заказ после 18:00 - заказ на после завтра
          */

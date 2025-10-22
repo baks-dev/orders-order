@@ -206,7 +206,6 @@ final class OrderDeliveryForm extends AbstractType
 
                 $data->setDeliveryDate($deliveryDate);
 
-
                 $form->add('deliveryDate', DateType::class, [
                     'widget' => 'single_text',
                     'html5' => false,
@@ -232,10 +231,23 @@ final class OrderDeliveryForm extends AbstractType
 
                             $terms = $choice->getTerm();
 
+                            $delivery = new DateTimeImmutable();
+                            $weekDay = (int) $delivery->format('N');
+
                             /**
-                             * Если заказ после 18:00 - заказ на после завтра
+                             * Если дата доставки воскресенье - указываем дату понедельника
                              */
-                            if(empty($terms) && (new DateTimeImmutable())->format('H') >= 18)
+                            if(false === empty($terms) && $weekDay === 7)
+                            {
+                                $terms = 1;
+                            }
+
+                            $hourDay = (int) $delivery->format('H');
+
+                            /**
+                             * Если заказ после 18:00 - заказ на завтра
+                             */
+                            if(true === empty($terms) && $hourDay >= 18)
                             {
                                 $terms = 1;
                             }

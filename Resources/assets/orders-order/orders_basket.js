@@ -78,14 +78,21 @@ function initDatepicker()
         return false;
     }
 
+
+    let currentDate = new Date;
+
+    /* Получить nextDay (день "ОТ" в календаре MCDatepicker )  */
+    const [nday, nmonth, nyear] = $elementDeliveryDate.dataset.value.split(".");
+    const nextDay = new Date(+nyear, nmonth - 1, +nday);
+
+
+    /* Скорректировать значение поле даты доставки */
+    $elementDeliveryDate.value = $elementDeliveryDate.dataset.value;
+
     const [day, month, year] = $elementDeliveryDate.value.split(".");
     $selectedDate = new Date(+year, month - 1, +day);
 
-    let currentDate = new Date;
-    const nextDay = new Date(currentDate.setDate(currentDate.getDate() + 1));
-
-    currentDate = new Date;
-    const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
+    const limitDay = new Date(currentDate.setDate(nextDay.getDate() + 6));
 
     MCDatepicker.create({
         el : "#" + $elementDeliveryDate.id,

@@ -186,6 +186,22 @@ final class OrderDeliveryForm extends AbstractType
                     }
                 }
 
+                /* Получить Дату исходя из term - Отсрочка доставки */
+                $term = $deliveryChecked->getTerm();
+
+                $deliveryDate = $data->getDeliveryDate();
+                $deliveryDate = $deliveryDate->modify("+$term day");
+
+                $form->add('deliveryDate', DateType::class, [
+                    'widget' => 'single_text',
+                    'html5' => false,
+                    'required' => false,
+                    'format' => 'dd.MM.yyyy',
+                    'input' => 'datetime_immutable',
+                    'attr' => ['data-value' => $deliveryDate->format('d.m.Y')],
+                ]);
+
+
                 $form
                     ->add('delivery', ChoiceType::class, [
                         'choices' => $deliveryChoice,

@@ -4,15 +4,26 @@
 
 <script nonce='{{ csp_nonce() }}' class='lazy'>
 
-    /* Имя формы */
-    let forms = document.forms.canceled_orders_form;
-
-    /* событие отправки формы */
-    forms.addEventListener("submit", function(event)
+    executeFunc(function()
     {
-        event.preventDefault();
-        submitModalForm(forms);
+        /* Имя формы */
+        let forms = document.forms.canceled_orders_form;
+
+        if(!forms)
+        {
+            return false;
+        }
+
+        /* событие отправки формы */
+        forms.addEventListener("submit", function(event)
+        {
+            event.preventDefault();
+            submitModalForm(forms);
+            return true;
+        });
+
         return true;
     });
+
 
 </script>

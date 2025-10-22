@@ -32,6 +32,7 @@ use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileCho
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -170,7 +171,7 @@ final class OrderDeliveryForm extends AbstractType
 
                 if($Delivery)
                 {
-                    $deliveryCheckedFilter = array_filter($deliveryChoice, function($v, $k) use ($Delivery) {
+                    $deliveryCheckedFilter = array_filter($deliveryChoice, static function($v) use ($Delivery) {
                         return $v->equals($Delivery);
                     }, ARRAY_FILTER_USE_BOTH);
 
@@ -189,11 +190,22 @@ final class OrderDeliveryForm extends AbstractType
                 }
 
                 $term = $deliveryChecked->getTerm();
+
+                $data->setDeliveryDate(new DateTimeImmutable());
                 $deliveryDate = $data->getDeliveryDate();
+
+                /**
+                 * Если заказ после 18:00 - заказ на после завтра
+                 */
+                if(empty($term) && (new DateTimeImmutable())->format('H') >= 18)
+                {
+                    $deliveryDate = $deliveryDate->modify('+1 day');
+                }
 
                 $deliveryDate = $deliveryDate->modify(sprintf('+%s day', $term));
 
                 $data->setDeliveryDate($deliveryDate);
+
 
                 $form->add('deliveryDate', DateType::class, [
                     'widget' => 'single_text',
@@ -217,12 +229,23 @@ final class OrderDeliveryForm extends AbstractType
                         },
 
                         'choice_attr' => function(DeliveryUid $choice) use ($deliveryChecked) {
+
+                            $terms = $choice->getTerm();
+
+                            /**
+                             * Если заказ после 18:00 - заказ на после завтра
+                             */
+                            if(empty($terms) && (new DateTimeImmutable())->format('H') >= 18)
+                            {
+                                $terms = 1;
+                            }
+
                             return [
                                 'checked' => ($choice->equals($deliveryChecked)),
                                 'data-price' => $choice->getPrice()?->getValue(),
                                 'data-excess' => $choice->getExcess()?->getValue(),
                                 'data-currency' => $choice->getCurrency(),
-                                'data-term' => $choice->getTerm(),
+                                'data-term' => $terms,
                             ];
                         },
 

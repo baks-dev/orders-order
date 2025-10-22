@@ -154,6 +154,7 @@ final class OrderDeliveryForm extends AbstractType
                 /** @var DeliveryUid $currentDelivery */
                 $currentDelivery = current($deliveryChoice);
 
+
                 if(false === ($currentDelivery instanceof DeliveryUid))
                 {
                     return;
@@ -183,14 +184,16 @@ final class OrderDeliveryForm extends AbstractType
                         $data->setEvent($deliveryChecked->getEvent());
 
                         $deliveryHelp = $deliveryChecked?->getOption();
+
                     }
                 }
 
-                /* Получить Дату исходя из term - Отсрочка доставки */
                 $term = $deliveryChecked->getTerm();
-
                 $deliveryDate = $data->getDeliveryDate();
-                $deliveryDate = $deliveryDate->modify("+$term day");
+
+                $deliveryDate = $deliveryDate->modify(sprintf('+%s day', $term));
+
+                $data->setDeliveryDate($deliveryDate);
 
                 $form->add('deliveryDate', DateType::class, [
                     'widget' => 'single_text',
@@ -219,6 +222,7 @@ final class OrderDeliveryForm extends AbstractType
                                 'data-price' => $choice->getPrice()?->getValue(),
                                 'data-excess' => $choice->getExcess()?->getValue(),
                                 'data-currency' => $choice->getCurrency(),
+                                'data-term' => $choice->getTerm(),
                             ];
                         },
 

@@ -134,7 +134,6 @@ final class PackageController extends AbstractController
                 }
 
                 $ordersNumbers[] = $OrderEvent->getOrderNumber();
-                $Deduplicator->save();
 
 
                 /** Если заказ перенаправляется на другой склад - только указываем новый склад */
@@ -186,6 +185,7 @@ final class PackageController extends AbstractController
                     transport: 'orders-order',
                 );
 
+                $Deduplicator->save();
             }
 
             if(true === empty($unsuccessful))

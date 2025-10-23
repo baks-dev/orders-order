@@ -33,34 +33,6 @@ function initOrderPackage()
         return false;
     }
 
-    modal.querySelectorAll("[data-bs-target=\"#modal\"]").forEach(function(item, i, arr)
-    {
-        modalLink(item);
-    });
-
-    // Подсчёт продуктов в форме
-    let productsCount = document.querySelectorAll(".product-total").length;
-
-    // Блокируем кнопку сабмита, если на складе недостаточно остатка
-    for(let key = 0; key < productsCount; key++)
-    {
-        let total = parseInt(document.getElementById(`${frm.name}_products_${key}_total`).value);
-        let stock = parseInt(document.getElementById(`${frm.name}_products_${key}_stock`).value);
-
-        let submitButton = document.getElementById(`${frm.name}_package`);
-
-        if(total > stock && false === submitButton.classList.contains("disabled"))
-        {
-            submitButton.classList.add("disabled");
-        }
-
-        if(total <= stock && true === submitButton.classList.contains("disabled"))
-        {
-            submitButton.classList.remove("disabled");
-            submitButton.disabled = false;
-        }
-    }
-
     frm.addEventListener(
         "submit",
         function(event)
@@ -87,6 +59,37 @@ function listenerObjectPackageWarehouse(frm)
     }
 
     orderpackageWarehouse.addEventListener("change", changeObjectPackageWarehouse, false);
+
+    // Подсчёт продуктов в форме
+    let productsCount = document.querySelectorAll(".product-total").length;
+
+    // Блокируем кнопку сабмита, если на складе недостаточно остатка
+    for(let key = 0; key < productsCount; key++)
+    {
+        let total = parseInt(document.getElementById(`${frm.name}_products_${key}_total`).value);
+        let stock = parseInt(document.getElementById(`${frm.name}_products_${key}_stock`).value);
+
+        let submitButton = document.getElementById(`${frm.name}_package`);
+
+        if(total > stock && false === submitButton.classList.contains("disabled"))
+        {
+            submitButton.classList.add("disabled");
+            //submitButton.disabled = true;
+        }
+
+        if(total <= stock && true === submitButton.classList.contains("disabled"))
+        {
+            submitButton.classList.remove("disabled");
+            submitButton.disabled = false;
+        }
+    }
+
+    /** Вешаем события но новые кнопки */
+    modal.querySelectorAll("[data-bs-target=\"#modal\"]").forEach(function(item, i, arr)
+    {
+        modalLink(item);
+    });
+
 
     return true;
 }

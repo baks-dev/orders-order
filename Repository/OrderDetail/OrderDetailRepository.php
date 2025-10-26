@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
+use BaksDev\Auth\Email\Entity\Account;
+use BaksDev\Auth\Email\Entity\Event\AccountEvent;
+use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
@@ -612,6 +615,26 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude',
             );
 
+
+        /** Аккаунт пользователя */
+
+        $dbal->leftJoin(
+            'order_user',
+            Account::class,
+            'account',
+            'account.id = order_user.usr',
+        );
+
+        $dbal
+            ->addSelect('account_event.email AS account_email')
+            ->leftJoin(
+                'account',
+                AccountEvent::class,
+                'account_event',
+                'account_event.id = account.event AND account_event.account = account.id',
+            );
+
+
         /* Профиль пользователя */
 
         $dbal->leftJoin(
@@ -645,7 +668,11 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'type_section_field_client',
                 '
                         type_section_field_client.id = user_profile_value.field AND
-                        (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
+                        (
+                            type_section_field_client.type = :field_phone 
+                            OR type_section_field_client.type = :field_contact
+                            OR type_section_field_client.type = :field_email
+                        )
                     ')
             ->setParameter(
                 key: 'field_phone',
@@ -654,6 +681,9 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->setParameter(
                 key: 'field_contact',
                 value: ContactField::TYPE,
+            )->setParameter(
+                key: 'field_email',
+                value: AccountEmail::TYPE,
             );
 
         $dbal->leftJoin(

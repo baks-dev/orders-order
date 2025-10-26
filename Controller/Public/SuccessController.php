@@ -44,9 +44,11 @@ class SuccessController extends AbstractController
     {
 
         /** Информация о заказе */
-        $OrderInfo = $orderDetail->fetchDetailOrderAssociative($Order->getId());
+        $OrderDetailResult = $orderDetail
+            ->onOrder($Order->getId())
+            ->find();
 
-        $diff = new DateTimeImmutable($OrderInfo['order_data'])->diff(new DateTimeImmutable('now'));
+        $diff = $OrderDetailResult->getOrderData()->diff(new DateTimeImmutable('now'));
 
         if($diff->d > 1 || $diff->i > 1 || $diff->m > 1)
         {
@@ -54,8 +56,7 @@ class SuccessController extends AbstractController
         }
 
         return $this->render([
-            'number' => $Order->getNumber(),
-            'info' => $OrderInfo,
+            'order' => $OrderDetailResult,
         ]);
     }
 }

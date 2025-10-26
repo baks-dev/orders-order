@@ -373,13 +373,13 @@ final  class AllOrdersResult
         return current($filter) ?: null;
     }
 
-    public function getClientName(): ?object
+    public function getClientName(): array|false
     {
         $filter = array_filter($this->getOrderUser(), static function(object $element) {
             return $element->profile_type === ContactField::TYPE;
         });
 
-        return current($filter) ?: null;
+        return empty($filter) ? false : $filter;
     }
 
     public function getClientPhone(): ?object

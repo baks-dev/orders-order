@@ -1,10 +1,9 @@
-{% set products = info.order_products|json_decode %}
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
-    {% for card in products %}
 
+    {% for card in order.orderProducts %}
 
         <div class="d-flex border-bottom mb-3 pb-3">
-
 
             {# Обложка #}
             {% set image_path = '/assets/'~version~'/img/blank.svg' %}

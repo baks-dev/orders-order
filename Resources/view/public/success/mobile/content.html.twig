@@ -1,11 +1,10 @@
-{# {{ include(_self|replace({ "content.html.twig": "header.html.twig" })) }} #}
-
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
 <main class="main">
 
     <section id="orders" class='container shadow p-3 mb-3'>
 
-        <h1 class="h4 text-uppercase fw-bolder mb-3 my-4">Заказ {{ number }}</h1>
+        <h1 class="h4 text-uppercase fw-bolder mb-3 my-4">Заказ {{ order.orderNumber }}</h1>
 
         <div class="alert alert-warning" role="alert">
 
@@ -31,6 +30,7 @@
 
     <section id="products" class='container'>
         <h1 class="h6 text-uppercase fw-bolder py-2">Детали заказа</h1>
+
         {{ include(_self|replace({ "content.html.twig": "products.html.twig" })) }}
 
         <div class="py-3">

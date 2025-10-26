@@ -92,7 +92,7 @@
 
         {% for delivery_field in form.usr.delivery.field %}
 
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mb-3">
                 <div class="w-50 d-flex gap-3">
 
                     {% if delivery_field.value is defined %}
@@ -134,9 +134,9 @@
                     {{ form_widget(delivery_field.field) }}
 
                     {% if delivery_field.value is defined %}
-                        {{ form_widget(delivery_field.value, { attr: { class : 'rounded-4' }}) }}
+                        {{ form_widget(delivery_field.value) }}
                     {% else %}
-                        {{ form_widget(delivery_field.call, { attr: { class : 'rounded-4' }}) }}
+                        {{ form_widget(delivery_field.call) }}
                     {% endif %}
 
                 </div>
@@ -144,8 +144,6 @@
 
         {% endfor %}
     {% endif %}
-
-
 
 
     {# {{ form_row(form.users.delivery.geocode) }} #}

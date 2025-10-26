@@ -34,6 +34,7 @@
 
 {# @var product \BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderResult #}
 
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
 {% if order %}
 
@@ -170,7 +171,7 @@
                                data-bs-toggle="modal"
                                data-bs-target="#modal">
 
-                            Приходный ордер
+                                Приходный ордер
                             </a>
                         </li>
 
@@ -179,7 +180,7 @@
                            data-bs-toggle="modal"
                            data-bs-target="#modal">
 
-                        Стикеры маркировки заказа
+                            Стикеры маркировки заказа
                         </a>
 
                         {% if materials_sign %}
@@ -384,7 +385,6 @@
                     <div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
 
                         <div>
-
                             {# Обложка  #}
                             {% set image_path = '/assets/'~version~'/img/blank.svg' %}
 
@@ -403,9 +403,15 @@
                         {% set organization_field = constant('BaksDev\\Field\\Pack\\Organization\\Type\\OrganizationField::TYPE') %}
                         {% set contact_field = constant('BaksDev\\Field\\Pack\\Contact\\Type\\ContactField::TYPE') %}
                         {% set phone_field = constant('BaksDev\\Field\\Pack\\Phone\\Type\\PhoneField::TYPE') %}
+                        {% set email_field = constant('BaksDev\\Auth\\Email\\Type\\Email\\AccountEmail::TYPE') %}
 
-                        {% for user in users|filter(v => v.profile_type == organization_field or v.profile_type == contact_field or v.profile_type == phone_field) %}
-                            <div class='d-flex flex-column small'>
+                        {% for user in users|filter(v =>
+                            v.profile_type == organization_field
+                            or v.profile_type == contact_field
+                            or v.profile_type == phone_field
+                            or v.profile_type == email_field
+                        ) %}
+                            <div class='d-flex flex-column small w-100'>
                                 <small class="small text-muted">{{ user.profile_name }}</small>
                                 <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>
                             </div>

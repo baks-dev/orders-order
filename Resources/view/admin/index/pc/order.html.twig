@@ -170,21 +170,27 @@
                          data-bs-delay='{"show":200,"hide":100}'
                          title='{{ order.getOrganizationName.profile_value }}'
                     >
-                        {{ order.getOrganizationName.profile_value|call_twig_func(order.clientName.profile_type~'_template') }}
+                        {{ order.getOrganizationName.profile_value|call_twig_func(order.getOrganizationName.profile_type~'_template') }}
                     </div>
                 {% endif %}
 
                 {% if order.clientName %}
+
                     <div class='mb-1 text-truncate pointer fw-bolder'
                          style="max-width: 140px;"
                          role="tooltip"
                          data-bs-toggle="tooltip"
                          data-bs-placement="bottom"
                          data-bs-delay='{"show":200,"hide":100}'
-                         title='{{ order.clientName.profile_value }}'
+                         title='{% for client in order.clientName %}
+                            {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
+                        {% endfor %}'
                     >
-                        {{ order.clientName.profile_value|call_twig_func(order.clientName.profile_type~'_template') }}
+                        {% for client in order.clientName %}
+                            {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
+                        {% endfor %}
                     </div>
+
                 {% endif %}
 
                 {% if order.clientPhone %}

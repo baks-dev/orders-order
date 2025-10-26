@@ -119,7 +119,7 @@ final class NewOrderHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order'
+                transport: 'orders-order',
             );
 
         return $this->main;

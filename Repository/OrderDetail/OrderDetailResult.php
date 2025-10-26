@@ -25,11 +25,14 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
+use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use DateMalformedStringException;
+use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 /** @see OrderDetailRepository */
@@ -60,6 +63,8 @@ final readonly class OrderDetailResult
 
         private ?string $order_profile_discount,
         private string $order_profile,
+        private ?string $account_email,
+
         private string $profile_avatar_name,
         private ?string $profile_avatar_ext,
         private ?bool $profile_avatar_cdn,
@@ -90,9 +95,12 @@ final readonly class OrderDetailResult
         return $this->order_status;
     }
 
-    public function getOrderData(): string
+    /**
+     * @throws DateMalformedStringException
+     */
+    public function getOrderData(): DateTimeImmutable
     {
-        return $this->order_data;
+        return new DateTimeImmutable($this->order_data);
     }
 
     public function getOrderComment(): ?string
@@ -238,5 +246,10 @@ final readonly class OrderDetailResult
         }
 
         return $services;
+    }
+
+    public function getAccountEmail(): AccountEmail|false
+    {
+        return $this->account_email ? new AccountEmail($this->account_email) : false;
     }
 }

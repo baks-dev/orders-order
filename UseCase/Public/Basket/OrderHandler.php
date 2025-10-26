@@ -25,6 +25,14 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
+use BaksDev\Auth\Email\Entity\Account;
+use BaksDev\Auth\Email\Entity\Event\AccountEvent;
+use BaksDev\Auth\Email\Repository\AccountEventActiveByEmail\AccountEventActiveByEmailInterface;
+use BaksDev\Auth\Email\Repository\AccountEventNotBlock\AccountEventNotBlockByEmail\AccountEventNotBlockByEmailInterface;
+use BaksDev\Auth\Email\Type\Email\AccountEmail;
+use BaksDev\Auth\Email\UseCase\User\Edit\AccountDTO;
+use BaksDev\Auth\Email\UseCase\User\Edit\AccountHandler;
+use BaksDev\Auth\Email\UseCase\User\Registration\RegistrationDTO;
 use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;
@@ -33,20 +41,26 @@ use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\UseCase\Public\Basket\User\Delivery\Field\OrderDeliveryFieldDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\UserProfile\UserProfileDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\User\UserProfile\Value\ValueDTO;
 use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfileUser;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
+use Random\Engine\Secure;
 
 final class OrderHandler extends AbstractHandler
 {
     public function __construct(
         private readonly UserProfileHandler $profileHandler,
         private readonly CurrentUserProfileEventInterface $currentUserProfileEvent,
+        private readonly AccountHandler $AccountHandler,
+        private readonly AccountEventNotBlockByEmailInterface $AccountEventNotBlockByEmailRepository,
 
         EntityManagerInterface $entityManager,
         MessageDispatchInterface $messageDispatch,
@@ -63,10 +77,10 @@ final class OrderHandler extends AbstractHandler
     {
         $OrderUserDTO = $command->getUsr();
 
+
         /** Создаем профиль пользователя если отсутствует */
         if($OrderUserDTO->getProfile() === null)
         {
-
             $UserProfileDTO = $OrderUserDTO->getUserProfile();
 
             $this->validatorCollection->add($UserProfileDTO);
@@ -102,6 +116,78 @@ final class OrderHandler extends AbstractHandler
             }
 
             $OrderUserDTO->setProfile($UserProfileEvent);
+
+            /**
+             * AccountEmail
+             */
+
+            $AccountEmail = false;
+
+            /** Если в свойствах профиля имеется тип AccountEmail - создаем аккаунт */
+            if(false === $UserProfileDTO->getValue()->isEmpty())
+            {
+                $filter = $UserProfileDTO->getValue()->filter(function(ValueDTO $element) {
+                    return $element->getType() === AccountEmail::TYPE;
+                });
+
+                /** создаем AccountEmail */
+                if($filter->current() instanceof ValueDTO)
+                {
+                    $AccountEmail = new AccountEmail($filter->current()->getValue());
+                }
+            }
+
+            /** Если в свойствах доставки имеется тип AccountEmail - создаем аккаунт */
+            if(false === $AccountEmail)
+            {
+                $OrderDeliveryDTO = $OrderUserDTO->getDelivery();
+
+                if(false === $OrderDeliveryDTO->getField()->isEmpty())
+                {
+                    $filter = $OrderDeliveryDTO->getField()->filter(function(OrderDeliveryFieldDTO $element) {
+                        return filter_var($element->getValue(), FILTER_VALIDATE_EMAIL);
+                    });
+
+                    /** создаем AccountEmail  */
+                    if($filter->current() instanceof OrderDeliveryFieldDTO)
+                    {
+                        $AccountEmail = new AccountEmail($filter->current()->getValue());
+                    }
+                }
+            }
+
+            /**
+             * Если в свойствах доставки имеется тип AccountEmail - создаем аккаунт
+             */
+            if($AccountEmail instanceof AccountEmail)
+            {
+                $Account = $this->createAccountEmail($OrderUserDTO->getUsr(), $AccountEmail);
+
+                /** Если аккаунт уже создан - устанавливаем профиль пользователя */
+                if(false === ($Account instanceof Account))
+                {
+                    /** Поиск аккаунта по email */
+                    $AccountEvent = $this->AccountEventNotBlockByEmailRepository
+                        ->forEmail($AccountEmail)
+                        ->find();
+
+                    if($AccountEvent instanceof AccountEvent && $AccountEvent->getAccount() instanceof UserUid)
+                    {
+                        /** Присваиваем аккаунт заказу */
+                        $OrderUserDTO->setUsr($AccountEvent->getAccount());
+
+                        /** Пробуем найти активный профиль пользователя */
+                        $UserProfileEvent = $this->currentUserProfileEvent
+                            ->findByUser($OrderUserDTO->getUsr());
+
+                        if($UserProfileEvent instanceof UserProfileEvent)
+                        {
+                            $UserProfileEvent = $UserProfileEvent->getId();
+                            $OrderUserDTO->setProfile($UserProfileEvent);
+                        }
+                    }
+                }
+            }
         }
 
         /** Если профиль пользователя добавлен, но имеются незаполненные поля - присваиваем */
@@ -111,7 +197,7 @@ final class OrderHandler extends AbstractHandler
             $UserProfileDTO = new UserProfileDTO();
             $UserProfileEvent->getDto($UserProfileDTO);
 
-            if(!$profileValues->isEmpty())
+            if(false === $profileValues->isEmpty())
             {
                 /** Добавляем профилю пользователя незаполненные свойства */
                 foreach($profileValues as $value)
@@ -138,6 +224,7 @@ final class OrderHandler extends AbstractHandler
         }
 
         $this->setCommand($command);
+
         $this->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /* Валидация всех объектов */
@@ -153,10 +240,23 @@ final class OrderHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order'
+                transport: 'orders-order',
             );
 
         return $this->main;
+    }
+
+
+    private function createAccountEmail(UserUid $user, AccountEmail $email): Account|string
+    {
+        $password = new Secure()->generate();
+
+        $AccountDTO = new AccountDTO()
+            ->setUsr($user)
+            ->setEmail($email)
+            ->setPasswordPlain(md5($password));
+
+        return $this->AccountHandler->handle($AccountDTO);
     }
 
 }

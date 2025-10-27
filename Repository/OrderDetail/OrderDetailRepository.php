@@ -539,21 +539,23 @@ final class OrderDetailRepository implements OrderDetailInterface
 
             $dbal->addSelect(
                 "JSON_AGG ( DISTINCT
-				
-					JSONB_BUILD_OBJECT
-					(
-						/* свойства для сортирвоки JSON */
-						'service_id', service.id,
-						'service_event', service.event,
-						
-						'service_name', service_info.name,
-						'service_preview', service_info.preview,
-						'service_price', order_service_price.price,	
-						'service_date', order_service.date,	
-						'service_currency', service_price.currency
-					)
-			
+                    CASE
+                        WHEN service.id IS NOT NULL
+                        THEN JSONB_BUILD_OBJECT
+                            (
+                                /* свойства для сортировки JSON */
+                                'service_id', service.id,
+                                'service_event', service.event,
+                                'service_name', service_info.name,
+                                'service_preview', service_info.preview,
+                                'service_price', order_service_price.price,
+                                'service_date', order_service.date,
+                                'service_currency', service_price.currency
+                            )
+                        ELSE NULL
+                    END
 			) AS order_services");
+
         }
 
         /* Доставка */

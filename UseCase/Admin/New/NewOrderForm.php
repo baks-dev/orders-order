@@ -49,7 +49,7 @@ final class NewOrderForm extends AbstractType
             $NewOrderDTO = $event->getData();
 
             /** Присваиваем ответственного пользователя */
-            $NewOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
+            //$NewOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
 
             /**
              * Новому заказу присваиваем только пользователя

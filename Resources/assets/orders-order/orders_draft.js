@@ -28,26 +28,26 @@ async function changeObjectCategory(forms)
 {
     disabledElementsForm(forms);
 
-    document.getElementById('preProduct')?.classList.add('d-none');
-    document.getElementById('preOffer')?.classList.add('d-none');
-    document.getElementById('preVariation')?.classList.add('d-none');
-    document.getElementById('preModification')?.classList.add('d-none');
+    document.getElementById("preProduct")?.classList.add("d-none");
+    document.getElementById("preOffer")?.classList.add("d-none");
+    document.getElementById("preVariation")?.classList.add("d-none");
+    document.getElementById("preModification")?.classList.add("d-none");
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
 
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -61,60 +61,56 @@ async function changeObjectCategory(forms)
 
             return response.text();
 
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
             {
 
                 var parser = new DOMParser();
-                var result = parser.parseFromString(data, 'text/html');
+                var result = parser.parseFromString(data, "text/html");
 
-                let preProduct = result.getElementById('preProduct');
+                let preProduct = result.getElementById("preProduct");
 
-                document.getElementById('preProduct').replaceWith(preProduct);
+                document.getElementById("preProduct").replaceWith(preProduct);
 
                 preProduct ?
-                    document
-                        ?.getElementById('product')
-                        ?.replaceWith(preProduct) :
-                    preProduct.innerHTML = '';
+                    document?.getElementById("product")?.replaceWith(preProduct) :
+                    preProduct.innerHTML = "";
 
                 /** SELECT2 */
-                let replacer = document.getElementById(forms.name + '_preProduct_preProduct');
-                replacer && replacer.type !== 'hidden' ? preProduct.classList.remove('d-none') : null;
+                let replacer = document.getElementById(forms.name + "_preProduct_preProduct");
+                replacer && replacer.type !== "hidden" ? preProduct.classList.remove("d-none") : null;
 
                 /** Событие на изменение модификации */
                 if(replacer)
                 {
 
-                    if(replacer.tagName === 'SELECT')
+                    if(replacer.tagName === "SELECT")
                     {
-                        new NiceSelect(replacer, {searchable: true});
+                        new NiceSelect(replacer, {searchable : true});
 
-                        let focus = document.getElementById(forms.name + '_preProduct_preProduct_select2');
+                        let focus = document.getElementById(forms.name + "_preProduct_preProduct_select2");
                         focus ? focus.click() : null;
                     }
                 }
 
                 /** сбрасываем зависимые поля */
-                let preOffer = document.getElementById('preOffer');
-                preOffer ? preOffer.innerHTML = '' : null;
+                let preOffer = document.getElementById("preOffer");
+                preOffer ? preOffer.innerHTML = "" : null;
 
                 /** сбрасываем зависимые поля */
-                let preVariation = document.getElementById('preVariation');
-                preVariation ? preVariation.innerHTML = '' : null;
+                let preVariation = document.getElementById("preVariation");
+                preVariation ? preVariation.innerHTML = "" : null;
 
-                let preModification = document.getElementById('preModification');
-                preModification ? preModification.innerHTML = '' : null;
+                let preModification = document.getElementById("preModification");
+                preModification ? preModification.innerHTML = "" : null;
 
 
                 if(replacer)
                 {
 
-                    replacer.addEventListener('change', function(event)
+                    replacer.addEventListener("change", function(event)
                     {
                         changeObjectProduct(forms);
                         return false;
@@ -131,25 +127,25 @@ async function changeObjectProduct(forms)
 {
     disabledElementsForm(forms);
 
-    document.getElementById('preOffer')?.classList.add('d-none');
-    document.getElementById('preVariation')?.classList.add('d-none');
-    document.getElementById('preModification')?.classList.add('d-none');
+    document.getElementById("preOffer")?.classList.add("d-none");
+    document.getElementById("preVariation")?.classList.add("d-none");
+    document.getElementById("preModification")?.classList.add("d-none");
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
 
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -163,61 +159,60 @@ async function changeObjectProduct(forms)
 
             return response.text();
 
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
             {
 
                 var parser = new DOMParser();
-                var result = parser.parseFromString(data, 'text/html');
+                var result = parser.parseFromString(data, "text/html");
 
 
-                let preOffer = result.getElementById('preOffer');
-                preOffer ? document.getElementById('preOffer').replaceWith(preOffer) : preOffer.innerHTML = '';
+                let preOffer = result.getElementById("preOffer");
+                preOffer ? document.getElementById("preOffer").replaceWith(preOffer) : preOffer.innerHTML = "";
 
                 if(preOffer)
                 {
 
                     /** SELECT2 */
 
-                    let replaceOfferId = forms.name + '_preProduct_preOffer';
+                    let replaceOfferId = forms.name + "_preProduct_preOffer";
 
                     let replacer = document.getElementById(replaceOfferId);
-                    replacer && replacer.type !== 'hidden' ? preOffer.classList.remove('d-none') : null;
+                    replacer && replacer.type !== "hidden" ? preOffer.classList.remove("d-none") : null;
 
-                    if(replacer.tagName === 'SELECT')
+                    if(replacer.tagName === "SELECT")
                     {
-                        new NiceSelect(replacer, {searchable: true});
+                        new NiceSelect(replacer, {searchable : true});
 
-                        let focus = document.getElementById(forms.name + '_preProduct_preOffer_select2');
+                        let focus = document.getElementById(forms.name + "_preProduct_preOffer_select2");
                         focus ? focus.click() : null;
 
-                    } else
+                    }
+                    else
                     {
-                        selectTotal(document.getElementById(forms.name + '_preProduct_preProduct'))
+                        selectTotal(document.getElementById(forms.name + "_preProduct_preProduct"));
                     }
 
                 }
 
 
                 /** сбрасываем зависимые поля */
-                let preVariation = document.getElementById('preVariation');
-                preVariation ? preVariation.innerHTML = '' : null;
+                let preVariation = document.getElementById("preVariation");
+                preVariation ? preVariation.innerHTML = "" : null;
 
-                let preModification = document.getElementById('preModification');
-                preModification ? preModification.innerHTML = '' : null;
+                let preModification = document.getElementById("preModification");
+                preModification ? preModification.innerHTML = "" : null;
 
 
                 /** Событие на изменение торгового предложения */
-                let offerChange = document.getElementById(forms.name + '_preProduct_preOffer');
+                let offerChange = document.getElementById(forms.name + "_preProduct_preOffer");
 
                 if(offerChange)
                 {
 
-                    offerChange.addEventListener('change', function(event)
+                    offerChange.addEventListener("change", function(event)
                     {
                         changeObjectOffer(forms);
                         return false;
@@ -235,25 +230,25 @@ async function changeObjectOffer(forms)
 {
     disabledElementsForm(forms);
 
-    document.getElementById('preVariation')?.classList.add('d-none');
-    document.getElementById('preModification')?.classList.add('d-none');
+    document.getElementById("preVariation")?.classList.add("d-none");
+    document.getElementById("preModification")?.classList.add("d-none");
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
 
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -267,76 +262,76 @@ async function changeObjectOffer(forms)
 
             return response.text();
 
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
             {
 
                 var parser = new DOMParser();
-                var result = parser.parseFromString(data, 'text/html');
+                var result = parser.parseFromString(data, "text/html");
 
 
-                let preVariation = result.getElementById('preVariation');
+                let preVariation = result.getElementById("preVariation");
 
                 if(preVariation)
                 {
 
-                    document.getElementById('preVariation').replaceWith(preVariation);
+                    document.getElementById("preVariation").replaceWith(preVariation);
 
                     /** SELECT2 */
 
-                    let replacer = document.getElementById(forms.name + '_preProduct_preVariation');
-                    replacer && replacer.type !== 'hidden' ? preVariation.classList.remove('d-none') : null;
+                    let replacer = document.getElementById(forms.name + "_preProduct_preVariation");
+                    replacer && replacer.type !== "hidden" ? preVariation.classList.remove("d-none") : null;
 
                     if(replacer)
                     {
 
-                        if(replacer.tagName === 'SELECT')
+                        if(replacer.tagName === "SELECT")
                         {
-                            new NiceSelect(replacer, {searchable: true});
+                            new NiceSelect(replacer, {searchable : true});
 
-                            let focus = document.getElementById(forms.name + '_preProduct_preVariation_select2');
+                            let focus = document.getElementById(forms.name + "_preProduct_preVariation_select2");
                             focus ? focus.click() : null;
 
-                            replacer.addEventListener('change', function(event)
+                            replacer.addEventListener("change", function(event)
                             {
                                 changeObjectVariation(forms);
                                 return false;
                             });
-                        } else
+                        }
+                        else
                         {
-                            selectTotal(document.getElementById(forms.name + '_preProduct_preOffer'))
+                            selectTotal(document.getElementById(forms.name + "_preProduct_preOffer"));
                         }
 
                     }
 
-                } else
+                }
+                else
                 {
 
-                    let targetWarehouse = result.getElementById('targetWarehouse');
+                    let targetWarehouse = result.getElementById("targetWarehouse");
 
                     if(targetWarehouse)
                     {
 
-                        document.getElementById('targetWarehouse').replaceWith(targetWarehouse);
+                        document.getElementById("targetWarehouse").replaceWith(targetWarehouse);
 
                         /** SELECT2 */
-                        let replacerWarehouse = document.getElementById(forms.name + '_preProduct_targetWarehouse');
-                        replacer.addEventListener('change', changeObjectWarehause, false);
+                        let replacerWarehouse = document.getElementById(forms.name + "_preProduct_targetWarehouse");
+                        replacer.addEventListener("change", changeObjectWarehause, false);
 
-                        if(replacerWarehouse && replacerWarehouse.tagName === 'SELECT')
+                        if(replacerWarehouse && replacerWarehouse.tagName === "SELECT")
                         {
-                            new NiceSelect(replacerWarehouse, {searchable: true});
+                            new NiceSelect(replacerWarehouse, {searchable : true});
                         }
                     }
                 }
 
 
-                let preModification = document.getElementById('preModification');
-                preModification ? preModification.innerHTML = '' : null;
+                let preModification = document.getElementById("preModification");
+                preModification ? preModification.innerHTML = "" : null;
 
 
             }
@@ -351,24 +346,24 @@ async function changeObjectVariation(forms)
 
     disabledElementsForm(forms);
 
-    document.getElementById('preModification')?.classList.add('d-none');
+    document.getElementById("preModification")?.classList.add("d-none");
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
 
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -382,49 +377,48 @@ async function changeObjectVariation(forms)
 
             return response.text();
 
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
             {
 
                 var parser = new DOMParser();
-                var result = parser.parseFromString(data, 'text/html');
+                var result = parser.parseFromString(data, "text/html");
 
 
-                let preModification = result.getElementById('preModification');
+                let preModification = result.getElementById("preModification");
 
                 if(preModification)
                 {
 
-                    document.getElementById('preModification').replaceWith(preModification);
+                    document.getElementById("preModification").replaceWith(preModification);
 
                     /** SELECT2 */
-                    let replacer = document.getElementById(forms.name + '_preProduct_preModification');
-                    replacer && replacer.type !== 'hidden' ? preModification.classList.remove('d-none') : null;
+                    let replacer = document.getElementById(forms.name + "_preProduct_preModification");
+                    replacer && replacer.type !== "hidden" ? preModification.classList.remove("d-none") : null;
 
                     /** Событие на изменение модификации */
                     if(replacer)
                     {
 
-                        if(replacer.tagName === 'SELECT')
+                        if(replacer.tagName === "SELECT")
                         {
-                            new NiceSelect(replacer, {searchable: true});
+                            new NiceSelect(replacer, {searchable : true});
 
-                            let focus = document.getElementById(forms.name + '_preProduct_preModification_select2');
+                            let focus = document.getElementById(forms.name + "_preProduct_preModification_select2");
                             focus ? focus.click() : null;
 
-                            replacer.addEventListener('change', function(event)
+                            replacer.addEventListener("change", function(event)
                             {
-                                selectTotal(this)
+                                selectTotal(this);
                                 return false;
                             });
 
-                        } else
+                        }
+                        else
                         {
-                            selectTotal(document.getElementById(forms.name + '_preProduct_preVariation'))
+                            selectTotal(document.getElementById(forms.name + "_preProduct_preVariation"));
                         }
                     }
                 }
@@ -439,16 +433,16 @@ function selectTotal(element)
 {
     let index = element.selectedIndex;
 
-    let preProduct_preTotal = document.getElementById('new_order_form_preProduct_preTotal');
+    let preProduct_preTotal = document.getElementById("new_order_form_preProduct_preTotal");
 
-    preProduct_preTotal.setAttribute('max', element.options[index].dataset.max);
+    preProduct_preTotal.setAttribute("max", element.options[index].dataset.max);
 
     // preProduct_preTotal.addEventListener('input', addProductOrder.debounce(3000));
 
     setTimeout(function()
     {
-        let focusTotal = document.getElementById('new_order_form_preProduct_preTotal');
-        focusTotal.value = '';
+        let focusTotal = document.getElementById("new_order_form_preProduct_preTotal");
+        focusTotal.value = "";
         focusTotal ? focusTotal.focus() : null;
     }, 0);
 }
@@ -458,40 +452,40 @@ var collectionProductOrder = new Map();
 
 function addProductOrder()
 {
-    document.getElementById('preOffer')?.classList.add('d-none');
-    document.getElementById('preVariation')?.classList.add('d-none');
-    document.getElementById('preModification')?.classList.add('d-none');
+    document.getElementById("preOffer")?.classList.add("d-none");
+    document.getElementById("preVariation")?.classList.add("d-none");
+    document.getElementById("preModification")?.classList.add("d-none");
 
     /* Блок для новой коллекции КАТЕГОРИИ */
-    let $blockCollectionProducts = document.getElementById('collectionProductOrder');
+    let $blockCollectionProducts = document.getElementById("collectionProductOrder");
 
     /* Добавляем новую коллекцию */
     //$addButtonStock.addEventListener('click', function () {
 
     let $errorFormHandler = null;
 
-    let header = 'Добавить продукцию в заказ';
+    let header = "Добавить продукцию в заказ";
 
 
-    let $preTotal = document.getElementById('new_order_form_preProduct_preTotal');
+    let $preTotal = document.getElementById("new_order_form_preProduct_preTotal");
     let $TOTAL = $preTotal.value * 1;
 
-    let $totalMax = $preTotal.getAttribute('max');
+    let $totalMax = $preTotal.getAttribute("max");
 
     if($TOTAL === undefined || $TOTAL < 1 || $TOTAL > $totalMax)
     {
 
         if($TOTAL === undefined)
         {
-            $errorFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
-                '"message" : "Ошибка при заполнение количество" }';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
+                "\"message\" : \"Ошибка при заполнение количество\" }";
         }
 
         if($TOTAL > $totalMax)
         {
-            $warninfFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
+            $warninfFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
                 "\"message\" : \"На складе отстутсвует необходимое количество продукции\" }";
 
 
@@ -501,9 +495,9 @@ function addProductOrder()
 
         if($TOTAL < 1)
         {
-            $errorFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
-                '"message" : "Не указано количество продукции" }';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
+                "\"message\" : \"Не указано количество продукции\" }";
         }
 
 
@@ -531,54 +525,54 @@ function addProductOrder()
     //}
 
 
-    let $preProduct = document.getElementById('new_order_form_preProduct_preProduct');
+    let $preProduct = document.getElementById("new_order_form_preProduct_preProduct");
 
     if($preProduct.value.length === 0)
     {
 
-        $errorFormHandler = '{ "type":"danger" , ' +
-            '"header":"' + header + '"  , ' +
-            '"message" : "' + $preProduct.options[0].textContent + '" }';
+        $errorFormHandler = "{ \"type\":\"danger\" , " +
+            "\"header\":\"" + header + "\"  , " +
+            "\"message\" : \"" + $preProduct.options[0].textContent + "\" }";
 
     }
 
 
-    let $preOffer = document.getElementById('new_order_form_preProduct_preOffer');
+    let $preOffer = document.getElementById("new_order_form_preProduct_preOffer");
 
     if($preOffer)
     {
-        if($preOffer.tagName === 'SELECT' && $preOffer.value.length === 0)
+        if($preOffer.tagName === "SELECT" && $preOffer.value.length === 0)
         {
 
-            $errorFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
-                '"message" : "' + $preOffer.options[0].textContent + '" }';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
+                "\"message\" : \"" + $preOffer.options[0].textContent + "\" }";
         }
     }
 
 
-    let $preVariation = document.getElementById('new_order_form_preProduct_preVariation');
+    let $preVariation = document.getElementById("new_order_form_preProduct_preVariation");
 
     if($preVariation)
     {
-        if($preVariation.tagName === 'SELECT' && $preVariation.value.length === 0)
+        if($preVariation.tagName === "SELECT" && $preVariation.value.length === 0)
         {
 
-            $errorFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
-                '"message" : "' + $preVariation.options[0].textContent + '" }';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
+                "\"message\" : \"" + $preVariation.options[0].textContent + "\" }";
         }
     }
 
-    let $preModification = document.getElementById('new_order_form_preProduct_preModification');
+    let $preModification = document.getElementById("new_order_form_preProduct_preModification");
     if($preModification)
     {
-        if($preModification.tagName === 'SELECT' && $preModification.value.length === 0)
+        if($preModification.tagName === "SELECT" && $preModification.value.length === 0)
         {
 
-            $errorFormHandler = '{ "type":"danger" , ' +
-                '"header":"' + header + '"  , ' +
-                '"message" : "' + $preModification.options[0].textContent + '" }';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"" + header + "\"  , " +
+                "\"message\" : \"" + $preModification.options[0].textContent + "\" }";
         }
     }
 
@@ -590,16 +584,16 @@ function addProductOrder()
     //        '"message" : "Внутренее перемещение! Выберите другой склад назначения либо отгрузки" }';
     //}
 
-    let mapKey = $preProduct ? $preProduct.value : '';
-    mapKey += $preOffer ? $preOffer.value : '';
-    mapKey += $preVariation ? $preVariation.value : '';
-    mapKey += $preModification ? $preModification.value : '';
+    let mapKey = $preProduct ? $preProduct.value : "";
+    mapKey += $preOffer ? $preOffer.value : "";
+    mapKey += $preVariation ? $preVariation.value : "";
+    mapKey += $preModification ? $preModification.value : "";
 
     if(collectionProductOrder.has(mapKey))
     {
-        $errorFormHandler = '{ "type":"danger" , ' +
-            '"header":"' + header + '"  , ' +
-            '"message" : "Продукция уже добавлена в список" }';
+        $errorFormHandler = "{ \"type\":\"danger\" , " +
+            "\"header\":\"" + header + "\"  , " +
+            "\"message\" : \"Продукция уже добавлена в список\" }";
     }
 
 
@@ -621,7 +615,7 @@ function addProductOrder()
     }
 
     /* получаем прототип коллекции  */
-    let $addButtonStock = document.getElementById('new_order_form_addProduct');
+    let $addButtonStock = document.getElementById("new_order_form_addProduct");
 
     let newForm = $addButtonStock.dataset.prototype;
     let index = $addButtonStock.dataset.index * 1;
@@ -633,16 +627,16 @@ function addProductOrder()
 
 
     /* Вставляем новую коллекцию */
-    let stockDiv = document.createElement('div');
+    let stockDiv = document.createElement("div");
 
-    stockDiv.classList.add('item-collection-product');
-    stockDiv.classList.add('w-100');
+    stockDiv.classList.add("item-collection-product");
+    stockDiv.classList.add("w-100");
     stockDiv.innerHTML = newForm;
     $blockCollectionProducts.append(stockDiv);
 
 
     let productIndex = $preProduct.selectedIndex;
-    let $productName = '<b>' + $preProduct.options[$preProduct.selectedIndex].dataset.name + '</b>';
+    let $productName = "<b>" + $preProduct.options[$preProduct.selectedIndex].dataset.name + "</b>";
 
 
     //let targetWarehouseIndex = $targetWarehouse.selectedIndex;
@@ -652,44 +646,44 @@ function addProductOrder()
     //let $destinationWarehouseName = $destinationWarehouse.options[destinationWarehouseIndex].textContent;
 
     //let variationIndex = $preVariation.selectedIndex;
-    let $variationName = $preVariation?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preVariation.id + '"]').textContent + '</small> <b>' + $preVariation.options[$preVariation.selectedIndex].dataset.name + '</b>' : '';
+    let $variationName = $preVariation?.tagName === "SELECT" ? "<small class=\"text-muted\">" + document.querySelector("label[for=\"" + $preVariation.id + "\"]").textContent + "</small> <b>" + $preVariation.options[$preVariation.selectedIndex].dataset.name + "</b>" : "";
 
     //let modificationIndex = $preModification.selectedIndex;
-    let $modificationName = $preModification?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preModification.id + '"]').textContent + '</small> <b>' + $preModification.options[$preModification.selectedIndex].dataset.name + '</b>' : '';
+    let $modificationName = $preModification?.tagName === "SELECT" ? "<small class=\"text-muted\">" + document.querySelector("label[for=\"" + $preModification.id + "\"]").textContent + "</small> <b>" + $preModification.options[$preModification.selectedIndex].dataset.name + "</b>" : "";
 
     //let offerIndex = $preOffer.selectedIndex;
-    let $offerName = $preOffer?.tagName === 'SELECT' ? '<small class="text-muted">' + document.querySelector('label[for="' + $preOffer.id + '"]').textContent + '</small> <b>' + $preOffer.options[$preOffer.selectedIndex].dataset.name + '</b>' : '';
+    let $offerName = $preOffer?.tagName === "SELECT" ? "<small class=\"text-muted\">" + document.querySelector("label[for=\"" + $preOffer.id + "\"]").textContent + "</small> <b>" + $preOffer.options[$preOffer.selectedIndex].dataset.name + "</b>" : "";
 
 
-    let $productTextBlock = stockDiv.querySelector('#product-text-' + index);
-    $productTextBlock.innerHTML = $productName + ' ' + $offerName + ' ' + $variationName + ' ' + $modificationName + '&nbsp; : &nbsp;<b>' + $TOTAL + ' шт.</b>';
+    let $productTextBlock = stockDiv.querySelector("#product-text-" + index);
+    $productTextBlock.innerHTML = $productName + " " + $offerName + " " + $variationName + " " + $modificationName + "&nbsp; : &nbsp;<b>" + $TOTAL + " шт.</b>";
 
     /** Заполняем значения скрытых элементо */
 
-    let $product = stockDiv.querySelector('#new_order_form_product_' + index + '_product');
+    let $product = stockDiv.querySelector("#new_order_form_product_" + index + "_product");
 
-    let $offer = stockDiv.querySelector('#new_order_form_product_' + index + '_offer');
+    let $offer = stockDiv.querySelector("#new_order_form_product_" + index + "_offer");
 
-    let $variation = stockDiv.querySelector('#new_order_form_product_' + index + '_variation');
+    let $variation = stockDiv.querySelector("#new_order_form_product_" + index + "_variation");
 
-    let $modification = stockDiv.querySelector('#new_order_form_product_' + index + '_modification');
+    let $modification = stockDiv.querySelector("#new_order_form_product_" + index + "_modification");
 
-    let $total = stockDiv.querySelector('#new_order_form_product_' + index + '_price_total')
+    let $total = stockDiv.querySelector("#new_order_form_product_" + index + "_price_total");
 
 
     //$warehouse.value = $targetWarehouse.value;
     //$destination.value = $destinationWarehouse.value;
 
-    $product.value = $preProduct ? $preProduct.value : '';
-    $offer.value = $preOffer ? $preOffer.value : '';
-    $variation.value = $preVariation ? $preVariation.value : '';
-    $modification.value = $preModification ? $preModification.value : '';
+    $product.value = $preProduct ? $preProduct.value : "";
+    $offer.value = $preOffer ? $preOffer.value : "";
+    $variation.value = $preVariation ? $preVariation.value : "";
+    $modification.value = $preModification ? $preModification.value : "";
     $total.value = $preTotal.value;
 
     /* Удаляем при клике колекцию СЕКЦИЙ */
-    stockDiv.querySelector('.del-item-product').addEventListener('click', function()
+    stockDiv.querySelector(".del-item-product").addEventListener("click", function()
     {
-        this.closest('.item-collection-product').remove();
+        this.closest(".item-collection-product").remove();
         index = $addButtonStock.dataset.index * 1;
         $addButtonStock.dataset.index = (index - 1).toString();
 
@@ -705,30 +699,30 @@ function addProductOrder()
 
     collectionProductOrder.set(mapKey, $total.value);
 
-    document.getElementById('new_order_form_preProduct_preOffer_select2')?.remove();
-    document.querySelector('label[for="new_order_form_preProduct_preOffer"]')?.remove();
+    document.getElementById("new_order_form_preProduct_preOffer_select2")?.remove();
+    document.querySelector("label[for=\"new_order_form_preProduct_preOffer\"]")?.remove();
 
-    document.getElementById('new_order_form_preProduct_preVariation_select2')?.remove();
-    document.querySelector('label[for="new_order_form_preProduct_preVariation"]')?.remove();
+    document.getElementById("new_order_form_preProduct_preVariation_select2")?.remove();
+    document.querySelector("label[for=\"new_order_form_preProduct_preVariation\"]")?.remove();
 
-    document.getElementById('new_order_form_preProduct_preModification_select2')?.remove();
-    document.querySelector('label[for="new_order_form_preProduct_preModification"]')?.remove();
+    document.getElementById("new_order_form_preProduct_preModification_select2")?.remove();
+    document.querySelector("label[for=\"new_order_form_preProduct_preModification\"]")?.remove();
 
     setTimeout(() =>
     {
-        document.getElementById('new_order_form_preProduct_preProduct_select2').click();
+        document.getElementById("new_order_form_preProduct_preProduct_select2").click();
     }, 100);
 
 }
 
 
-userProfileType = document.getElementById('new_order_form_usr_userProfile_type');
+userProfileType = document.getElementById("new_order_form_usr_userProfile_type");
 
 if(userProfileType)
 {
-    userProfileType.addEventListener('change', function(event)
+    userProfileType.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
 
         submitProfileForm(forms);
         return false;
@@ -746,31 +740,31 @@ if(userProfileType)
 // });
 
 
-document.querySelectorAll('input[name="new_order_form[usr][payment][payment]"]').forEach(function(userPayment)
+document.querySelectorAll("input[name=\"new_order_form[usr][payment][payment]\"]").forEach(function(userPayment)
 {
-    userPayment.addEventListener('change', function(event)
+    userPayment.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitPaymentForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(userPayment)
+document.querySelectorAll("input[name=\"new_order_form[usr][delivery][delivery]\"]").forEach(function(userDelivery)
 {
-    userPayment.addEventListener('change', function(event)
+    userDelivery.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitDeliveryForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
 {
-    userRegion.addEventListener('change', function(event)
+    userRegion.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitRegionForm(forms, userRegion.id);
         return false;
     });
@@ -784,20 +778,30 @@ async function submitDeliveryForm(forms)
     disabledElementsForm(forms);
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+
+    const remove = [
+        forms.name + "[_token]",
+        forms.name + "[usr][delivery][field]",
+    ];
+
+    remove.forEach(pattern =>
+    {
+        [...data.keys()].filter(key => key.startsWith(pattern)).forEach(key => data.delete(key));
+    });
+
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
             // 'X-Requested-With': 'XMLHttpChange'
-            'X-Requested-With': 'XMLHttpRequest'
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -810,38 +814,36 @@ async function submitDeliveryForm(forms)
             }
 
             return response.text();
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
             {
 
                 var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                var doc = parser.parseFromString(data, "text/html");
 
-                let user_delivery_new = doc.getElementById('user_delivery_new');
-                document.getElementById('user_delivery_new').replaceWith(user_delivery_new);
+                let user_delivery_new = doc.getElementById("user_delivery_new");
+                document.getElementById("user_delivery_new").replaceWith(user_delivery_new);
 
                 /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery_new)
+                document.querySelectorAll("input[name=\"new_order_form[usr][delivery][delivery]\"]").forEach(function(user_delivery_new)
                 {
-                    user_delivery_new.addEventListener('change', function(event)
+                    user_delivery_new.addEventListener("change", function(event)
                     {
 
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         submitDeliveryForm(forms);
                         return false;
                     });
                 });
 
 
-                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+                document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
                 {
-                    userRegion.addEventListener('change', function(event)
+                    userRegion.addEventListener("change", function(event)
                     {
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         submitRegionForm(forms, userRegion.id);
                         return false;
                     });
@@ -852,7 +854,7 @@ async function submitDeliveryForm(forms)
 
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_delivery_new.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(user_delivery_new.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -860,11 +862,11 @@ async function submitDeliveryForm(forms)
 
 
                 /** Инициируем календарь */
-                document.querySelectorAll('.js-datepicker').forEach((datepicker) =>
+                document.querySelectorAll(".js-datepicker").forEach((datepicker) =>
                 {
 
                     let $elementDate = document.getElementById(datepicker.id).value;
-                    const [day, month, year] = $elementDate.split('.');
+                    const [day, month, year] = $elementDate.split(".");
                     $selectedDate = new Date(+year, month - 1, +day);
 
 
@@ -875,37 +877,37 @@ async function submitDeliveryForm(forms)
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                     MCDatepicker.create({
-                        el: '#' + datepicker.id,
-                        bodyType: 'modal', // ‘modal’, ‘inline’, or ‘permanent’.
-                        autoClose: false,
-                        closeOndblclick: true,
-                        closeOnBlur: false,
-                        customOkBTN: 'OK',
-                        customClearBTN: datapickerLang[$locale].customClearBTN,
-                        customCancelBTN: datapickerLang[$locale].customCancelBTN,
-                        firstWeekday: datapickerLang[$locale].firstWeekday,
-                        dateFormat: 'DD.MM.YYYY',
-                        customWeekDays: datapickerLang[$locale].customWeekDays,
-                        customMonths: datapickerLang[$locale].customMonths,
-                        selectedDate: $selectedDate === 'Invalid Date' ? new Date() : $selectedDate,
-                        minDate: nextDay,
-                        maxDate: limitDay,
+                        el : "#" + datepicker.id,
+                        bodyType : "modal", // ‘modal’, ‘inline’, or ‘permanent’.
+                        autoClose : false,
+                        closeOndblclick : true,
+                        closeOnBlur : false,
+                        customOkBTN : "OK",
+                        customClearBTN : datapickerLang[$locale].customClearBTN,
+                        customCancelBTN : datapickerLang[$locale].customCancelBTN,
+                        firstWeekday : datapickerLang[$locale].firstWeekday,
+                        dateFormat : "DD.MM.YYYY",
+                        customWeekDays : datapickerLang[$locale].customWeekDays,
+                        customMonths : datapickerLang[$locale].customMonths,
+                        selectedDate : $selectedDate === "Invalid Date" ? new Date() : $selectedDate,
+                        minDate : nextDay,
+                        maxDate : limitDay,
                     });
                 });
 
 
                 /** Сбрасываем значения геолокации */
-                document.querySelector('[data-latitude]').value = '';
-                document.querySelector('[data-longitude]').value = '';
+                document.querySelector("[data-latitude]").value = "";
+                document.querySelector("[data-longitude]").value = "";
 
 
-                let dataUserAddress = document.querySelectorAll('[data-address]');
+                let dataUserAddress = document.querySelectorAll("[data-address]");
 
                 if(dataUserAddress)
                 {
                     dataUserAddress.forEach(function(area)
                     {
-                        area.value = '';
+                        area.value = "";
                     });
                 }
 
@@ -915,7 +917,7 @@ async function submitDeliveryForm(forms)
                 setTimeout(function OxMvRIBczY()
                 {
 
-                    if(typeof initAdddress == 'function')
+                    if(typeof initAdddress == "function")
                     {
 
                         initAdddress();
@@ -957,23 +959,23 @@ async function submitRegionForm(forms, id)
     disabledElementsForm(forms);
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
             // 'X-Requested-With': 'XMLHttpChange'
-            'X-Requested-With': 'XMLHttpRequest'
+            "X-Requested-With" : "XMLHttpRequest",
         },
 
 
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -986,9 +988,7 @@ async function submitRegionForm(forms, id)
             }
 
             return response.text();
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
@@ -996,9 +996,9 @@ async function submitRegionForm(forms, id)
 
 
                 var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                var doc = parser.parseFromString(data, "text/html");
 
-                let callId = id.replace(/_region/g, '_call');
+                let callId = id.replace(/_region/g, "_call");
                 let call = doc.getElementById(callId);
 
 
@@ -1006,15 +1006,15 @@ async function submitRegionForm(forms, id)
 
 
                 /** Сбрасываем значения геолокации */
-                document.querySelector('[data-latitude]').value = '';
-                document.querySelector('[data-longitude]').value = '';
+                document.querySelector("[data-latitude]").value = "";
+                document.querySelector("[data-longitude]").value = "";
 
 
                 /** Определяем поле с адресом */
 
                 executeFunc(function ordersDraftAddres()
                 {
-                    if(typeof initAdddress !== 'function')
+                    if(typeof initAdddress !== "function")
                     {
                         return false;
                     }
@@ -1066,20 +1066,20 @@ async function submitPaymentForm(forms)
     disabledElementsForm(forms);
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
             // 'X-Requested-With': 'XMLHttpChange'
-            'X-Requested-With': 'XMLHttpRequest'
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -1092,9 +1092,7 @@ async function submitPaymentForm(forms)
             }
 
             return response.text();
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
             if(data)
@@ -1102,18 +1100,18 @@ async function submitPaymentForm(forms)
 
 
                 var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                var doc = parser.parseFromString(data, "text/html");
 
-                let user_payment_new = doc.getElementById('user_payment_new');
-                document.getElementById('user_payment_new').replaceWith(user_payment_new);
+                let user_payment_new = doc.getElementById("user_payment_new");
+                document.getElementById("user_payment_new").replaceWith(user_payment_new);
 
 
-                document.querySelectorAll('input[name="new_order_form[usr][payment][payment]"]').forEach(function(user_payment_new)
+                document.querySelectorAll("input[name=\"new_order_form[usr][payment][payment]\"]").forEach(function(user_payment_new)
                 {
-                    user_payment_new.addEventListener('change', function(event)
+                    user_payment_new.addEventListener("change", function(event)
                     {
 
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         submitPaymentForm(forms);
                         return false;
                     });
@@ -1123,7 +1121,7 @@ async function submitPaymentForm(forms)
                 /** Пересобираем поля для способа оплаты */
 
                 /** Пересобирваем tooltip */
-                var tooltipTriggerList = [].slice.call(user_payment_new.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(user_payment_new.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -1149,20 +1147,20 @@ async function submitProfileForm(forms)
     disabledElementsForm(forms);
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
             // 'X-Requested-With': 'XMLHttpChange'
-            'X-Requested-With': 'XMLHttpRequest'
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
     })
 
         //.then((response) => response)
@@ -1176,9 +1174,7 @@ async function submitProfileForm(forms)
 
             return response.text();
 
-        })
-
-        .then((data) =>
+        }).then((data) =>
         {
 
 
@@ -1186,49 +1182,49 @@ async function submitProfileForm(forms)
             {
 
                 var parser = new DOMParser();
-                var doc = parser.parseFromString(data, 'text/html');
+                var doc = parser.parseFromString(data, "text/html");
 
                 /** Блок профиля пользователя */
-                let user_profile = doc.getElementById('user_profile');
-                document.getElementById('user_profile').replaceWith(user_profile);
+                let user_profile = doc.getElementById("user_profile");
+                document.getElementById("user_profile").replaceWith(user_profile);
 
 
-                userProfileType = document.getElementById('new_order_form_usr_userProfile_type');
+                userProfileType = document.getElementById("new_order_form_usr_userProfile_type");
 
-                if(userProfileType.tagName === 'SELECT')
+                if(userProfileType.tagName === "SELECT")
                 {
                     new NiceSelect(userProfileType);
                 }
 
-                userProfileType.addEventListener('change', function(event)
+                userProfileType.addEventListener("change", function(event)
                 {
-                    let forms = this.closest('form');
+                    let forms = this.closest("form");
                     submitProfileForm(forms);
                     return false;
                 });
 
 
                 /** Блок продукции */
-                let user_products_new = doc.getElementById('user_products_new');
-                document.getElementById('user_products_new').replaceWith(user_products_new);
+                let user_products_new = doc.getElementById("user_products_new");
+                document.getElementById("user_products_new").replaceWith(user_products_new);
 
 
-                var object_category = document.getElementById('new_order_form_preProduct_category');
+                var object_category = document.getElementById("new_order_form_preProduct_category");
 
                 if(object_category)
                 {
                     //object_product.addEventListener('change', changeObjectProduct, false);
-                    object_category.addEventListener('change', function(event)
+                    object_category.addEventListener("change", function(event)
                     {
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         changeObjectCategory(forms);
                         return false;
                     });
 
 
-                    if(object_category.tagName === 'SELECT')
+                    if(object_category.tagName === "SELECT")
                     {
-                        new NiceSelect(object_category, {searchable: true});
+                        new NiceSelect(object_category, {searchable : true});
                     }
 
                     //let $addButtonStock = document.getElementById('new_order_form_addProduct');
@@ -1240,73 +1236,73 @@ async function submitProfileForm(forms)
                 }
 
 
-                var object_product = document.getElementById('new_order_form_preProduct_preProduct');
+                var object_product = document.getElementById("new_order_form_preProduct_preProduct");
 
                 if(object_product)
                 {
-                    let focus = document.getElementById('new_order_form_preProduct_preProduct_select2');
+                    let focus = document.getElementById("new_order_form_preProduct_preProduct_select2");
                     focus ? focus.click() : null;
 
 
                     //object_product.addEventListener('change', changeObjectProduct, false);
-                    object_product.addEventListener('change', function(event)
+                    object_product.addEventListener("change", function(event)
                     {
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         changeObjectProduct(forms);
                         return false;
                     });
 
 
-                    if(object_product.tagName === 'SELECT')
+                    if(object_product.tagName === "SELECT")
                     {
-                        new NiceSelect(object_product, {searchable: true});
+                        new NiceSelect(object_product, {searchable : true});
                     }
 
-                    let $addButtonStock = document.getElementById('new_order_form_addProduct');
+                    let $addButtonStock = document.getElementById("new_order_form_addProduct");
 
                     if($addButtonStock)
                     {
-                        $addButtonStock.addEventListener('click', addProductOrder, false);
+                        $addButtonStock.addEventListener("click", addProductOrder, false);
                     }
                 }
 
                 /** Блок услуг */
 
-                let service_collection = document.getElementById('add_new_order_service_collection')
+                let service_collection = document.getElementById("add_new_order_service_collection");
 
                 if(service_collection)
                 {
-                    service_collection.replaceWith(doc.getElementById('add_new_order_service_collection'))
+                    service_collection.replaceWith(doc.getElementById("add_new_order_service_collection"));
                 }
 
                 /** Блок способа оплаты */
-                let user_payment_new = doc.getElementById('user_payment_new');
-                document.getElementById('user_payment_new').replaceWith(user_payment_new);
+                let user_payment_new = doc.getElementById("user_payment_new");
+                document.getElementById("user_payment_new").replaceWith(user_payment_new);
 
 
                 /** Пересобираем события способа оплаты */
-                document.querySelectorAll('input[name="new_order_form[usr][payment][payment]"]').forEach(function(userPayment)
+                document.querySelectorAll("input[name=\"new_order_form[usr][payment][payment]\"]").forEach(function(userPayment)
                 {
-                    userPayment.addEventListener('change', function(event)
+                    userPayment.addEventListener("change", function(event)
                     {
-                        let replaceId = 'user_profile';
-                        let forms = this.closest('form');
+                        let replaceId = "user_profile";
+                        let forms = this.closest("form");
                         submitPaymentForm(forms);
                         return false;
                     });
                 });
 
                 /** Блок способа Добавки */
-                let user_delivery_new = doc.getElementById('user_delivery_new');
-                document.getElementById('user_delivery_new').replaceWith(user_delivery_new);
+                let user_delivery_new = doc.getElementById("user_delivery_new");
+                document.getElementById("user_delivery_new").replaceWith(user_delivery_new);
 
                 /** Пересобираем поля для способа доставки */
-                document.querySelectorAll('input[name="new_order_form[usr][delivery][delivery]"]').forEach(function(user_delivery_new)
+                document.querySelectorAll("input[name=\"new_order_form[usr][delivery][delivery]\"]").forEach(function(user_delivery_new)
                 {
-                    user_delivery_new.addEventListener('change', function(event)
+                    user_delivery_new.addEventListener("change", function(event)
                     {
 
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         submitDeliveryForm(forms);
                         return false;
                     });
@@ -1315,11 +1311,11 @@ async function submitProfileForm(forms)
 
                 //total();
 
-                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+                document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
                 {
-                    userRegion.addEventListener('change', function(event)
+                    userRegion.addEventListener("change", function(event)
                     {
-                        let forms = this.closest('form');
+                        let forms = this.closest("form");
                         submitRegionForm(forms, userRegion.id);
                         return false;
                     });
@@ -1327,23 +1323,23 @@ async function submitProfileForm(forms)
 
 
                 /** Пересобираем tooltip */
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
                 tooltipTriggerList.map(function(tooltipTriggerEl)
                 {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 
                 /** Перезапускаем lazyload */
-                let lazy = document.createElement('script');
+                let lazy = document.createElement("script");
                 lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
                 document.head.appendChild(lazy);
 
                 /** Инициируем календарь */
-                document.querySelectorAll('.js-datepicker').forEach((datepicker) =>
+                document.querySelectorAll(".js-datepicker").forEach((datepicker) =>
                 {
 
                     let $elementDate = document.getElementById(datepicker.id).value;
-                    const [day, month, year] = $elementDate.split('.');
+                    const [day, month, year] = $elementDate.split(".");
                     $selectedDate = new Date(+year, month - 1, +day);
 
 
@@ -1354,21 +1350,21 @@ async function submitProfileForm(forms)
                     let limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                     MCDatepicker.create({
-                        el: '#' + datepicker.id,
-                        bodyType: 'modal', // ‘modal’, ‘inline’, or ‘permanent’.
-                        autoClose: false,
-                        closeOndblclick: true,
-                        closeOnBlur: false,
-                        customOkBTN: 'OK',
-                        customClearBTN: datapickerLang[$locale].customClearBTN,
-                        customCancelBTN: datapickerLang[$locale].customCancelBTN,
-                        firstWeekday: datapickerLang[$locale].firstWeekday,
-                        dateFormat: 'DD.MM.YYYY',
-                        customWeekDays: datapickerLang[$locale].customWeekDays,
-                        customMonths: datapickerLang[$locale].customMonths,
-                        selectedDate: $selectedDate === 'Invalid Date' ? nextDay : $selectedDate,
-                        minDate: nextDay, //  Огранчииваем указаной датой (на завтра)
-                        maxDate: limitDay, // ограничиваем 7 дней
+                        el : "#" + datepicker.id,
+                        bodyType : "modal", // ‘modal’, ‘inline’, or ‘permanent’.
+                        autoClose : false,
+                        closeOndblclick : true,
+                        closeOnBlur : false,
+                        customOkBTN : "OK",
+                        customClearBTN : datapickerLang[$locale].customClearBTN,
+                        customCancelBTN : datapickerLang[$locale].customCancelBTN,
+                        firstWeekday : datapickerLang[$locale].firstWeekday,
+                        dateFormat : "DD.MM.YYYY",
+                        customWeekDays : datapickerLang[$locale].customWeekDays,
+                        customMonths : datapickerLang[$locale].customMonths,
+                        selectedDate : $selectedDate === "Invalid Date" ? nextDay : $selectedDate,
+                        minDate : nextDay, //  Огранчииваем указаной датой (на завтра)
+                        maxDate : limitDay, // ограничиваем 7 дней
                     });
                 });
 

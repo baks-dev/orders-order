@@ -53,12 +53,7 @@
             {% endif %}
 
 
-
-            {% set client = order_user|filter(v => v.profile_name is not empty and v.profile_value is not empty ) %}
-
-            {# <li class="list-group-item">Получатель:</li> #}
-
-            {% for user in client %}
+            {% for user in order.orderClient %}
                 <li class="list-group-item">
                     {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
                 </li>
@@ -70,6 +65,7 @@
                 </li>
             {% endif %}
 
+
             <li class="list-group-item">
                 Способ оплаты:
 
@@ -77,7 +73,7 @@
                     &nbsp; <strong>Оплачено на сайте</strong>
                     &nbsp; <span class="small">({{ order.paymentName }})</span>
                 {% else %}
-                    {{ order.paymentName }}
+                    <strong>{{ order.paymentName }}</strong>
                 {% endif %}
             </li>
 
@@ -255,9 +251,20 @@
                 <div class="small"><small>подпись</small></div>
             </div>
 
-            <div class="w-25">
+            <div class="w-100">
                 <div class="border-bottom">&nbsp;</div>
-                <div class="small"><small>расшифровка подписи</small></div>
+                <div class="small">
+                    <small>
+                        {% if order.orderDelivery %}
+                            Получатель: &nbsp;
+                            {% for delivery in order.orderDelivery %}
+                                <strong>{{ delivery.delivery_value }}</strong>&nbsp;
+                            {% endfor %}
+                        {% else %}
+                            расшифровка подписи
+                        {% endif %}
+                    </small>
+                </div>
             </div>
         </div>
 

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field;
 
 use BaksDev\Contacts\Region\Form\ContactRegionChoice\ContactRegionFieldForm;
 use BaksDev\Core\Services\Fields\FieldsChoice;
+use BaksDev\Core\Services\Fields\FieldsChoiceInterface;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -53,8 +54,8 @@ final class OrderDeliveryFieldForm extends AbstractType
                 },
                 function($field) {
                     return new DeliveryFieldUid($field);
-                }
-            )
+                },
+            ),
         );
 
 
@@ -63,7 +64,7 @@ final class OrderDeliveryFieldForm extends AbstractType
 
         $builder->add(
             'call',
-            ContactRegionFieldForm::class
+            ContactRegionFieldForm::class,
         );
 
 
@@ -78,51 +79,48 @@ final class OrderDeliveryFieldForm extends AbstractType
                 if($data)
                 {
                     /** @var DeliveryFieldUid $DeliveryField */
-                    $DeliveryField = $data->getField();
+                    $DeliveryFieldUid = $data->getField();
 
-                    if($DeliveryField->getType())
+                    if($DeliveryFieldUid->getType())
                     {
+                        $fieldType = $this->fieldsChoice->getChoice($DeliveryFieldUid->getType());
 
-                        $fieldType = $this->fieldsChoice->getChoice($DeliveryField->getType());
+                        $form->remove('call');
+                        $form->remove('value');
 
+                        /** Удаляем элементы с контактной информацией по регионам */
 
-                        if($fieldType->form() === ContactRegionFieldForm::class)
+                        if(
+                            false === ($fieldType instanceof FieldsChoiceInterface)
+                            || $fieldType->form() !== ContactRegionFieldForm::class
+                        )
                         {
-                            //$form->add('value', HiddenType::class, ['required' => false]);
-                            $form->remove('value');
-
-                            $form->add(
-                                'call',
-                                $fieldType->form(),
-                                [
-                                    'label' => $DeliveryField->getAttr(),
-                                    'help' => $DeliveryField->getOption(),
-                                    'required' => $DeliveryField->getRequired(),
-                                    'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-                                ]
-                            );
-                        }
-                        else
-                        {
-                            //$form->add('call', HiddenType::class, ['required' => false]);
-
-                            $form->remove('call');
-
                             $form->add(
                                 'value',
                                 $fieldType->form(),
                                 [
-                                    'label' => $DeliveryField->getAttr(),
-                                    'help' => $DeliveryField->getOption(),
-                                    'required' => $DeliveryField->getRequired(),
-                                    'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-                                ]
+                                    'label' => $DeliveryFieldUid->getAttr(),
+                                    'help' => $DeliveryFieldUid->getOption(),
+                                    'required' => $DeliveryFieldUid->getRequired(),
+                                    'constraints' => $DeliveryFieldUid->getRequired() ? [new NotBlank()] : [],
+                                ],
                             );
                         }
 
+                        $form->add(
+                            'call',
+                            $fieldType->form(),
+                            [
+                                'label' => $DeliveryFieldUid->getAttr(),
+                                'help' => $DeliveryFieldUid->getOption(),
+                                'required' => $DeliveryFieldUid->getRequired(),
+                                'constraints' => $DeliveryFieldUid->getRequired() ? [new NotBlank()] : [],
+                            ],
+                        );
+
                     }
                 }
-            }
+            },
         );
 
     }

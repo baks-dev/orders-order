@@ -57,6 +57,7 @@ final readonly class OrderDetailResult
         private ?int $delivery_price,
         private ?int $order_delivery_price,
 
+        private ?string $order_delivery,
         private ?string $delivery_geocode_longitude,
         private ?string $delivery_geocode_latitude,
         private ?string $delivery_geocode_address,
@@ -73,6 +74,8 @@ final readonly class OrderDetailResult
         private ?bool $printed,
         private ?string $stocks,
         private ?string $order_services = null,
+
+
     ) {}
 
     public function getOrderId(): OrderUid
@@ -247,6 +250,52 @@ final readonly class OrderDetailResult
 
         return $services;
     }
+
+
+    public function getOrderClient(): array|null
+    {
+        if(is_null($this->order_user))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->order_user))
+        {
+            return null;
+        }
+
+        $client = json_decode($this->order_user, true, 512, JSON_THROW_ON_ERROR);
+
+        if(null === current($client))
+        {
+            return null;
+        }
+
+        return $client;
+    }
+
+    public function getOrderDelivery(): array|null
+    {
+        if(is_null($this->order_delivery))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->order_delivery))
+        {
+            return null;
+        }
+
+        $delivery = json_decode($this->order_delivery, true, 512, JSON_THROW_ON_ERROR);
+
+        if(null === current($delivery))
+        {
+            return null;
+        }
+
+        return $delivery;
+    }
+
 
     public function getAccountEmail(): AccountEmail|false
     {

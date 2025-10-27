@@ -30,6 +30,8 @@ use BaksDev\Auth\Email\Entity\Event\AccountEvent;
 use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
+use BaksDev\Delivery\Entity\Fields\DeliveryField;
+use BaksDev\Delivery\Entity\Fields\Trans\DeliveryFieldTrans;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
@@ -41,6 +43,7 @@ use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\Services\OrderService;
 use BaksDev\Orders\Order\Entity\Services\Price\OrderServicePrice;
+use BaksDev\Orders\Order\Entity\User\Delivery\Field\OrderDeliveryField;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
@@ -171,7 +174,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal
             ->addSelect('event.status AS order_status')
-            ->addSelect('event.created AS order_data')
             ->addSelect('event.comment AS order_comment')
             ->join(
                 'orders',
@@ -558,11 +560,52 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         /* Доставка */
 
+        $dbal
+            ->addSelect('order_delivery.delivery_date AS order_data')
+            ->leftJoin(
+                'order_user',
+                OrderDelivery::class,
+                'order_delivery',
+                'order_delivery.usr = order_user.id',
+            );
+
         $dbal->leftJoin(
-            'order_user',
-            OrderDelivery::class,
             'order_delivery',
-            'order_delivery.usr = order_user.id',
+            OrderDeliveryField::class,
+            'order_delivery_fields',
+            'order_delivery_fields.delivery = order_delivery.id',
+        );
+
+        $dbal->leftJoin(
+            'order_delivery',
+            DeliveryField::class,
+            'delivery_field',
+            'delivery_field.id = order_delivery_fields.field',
+        );
+
+        $dbal->leftJoin(
+            'delivery_field',
+            DeliveryFieldTrans::class,
+            'delivery_field_trans',
+            'delivery_field_trans.field = delivery_field.id AND delivery_field_trans.local = :local',
+        );
+
+        $dbal->addSelect(
+            "JSON_AGG
+			( DISTINCT
+				
+					JSONB_BUILD_OBJECT
+					(
+						/* свойства для сортирвоки JSON */
+						'0', delivery_field.sort,
+
+						'delivery_name', delivery_field_trans.name,
+						'delivery_type', delivery_field.type,
+						'delivery_value', order_delivery_fields.value
+					)
+				
+			) FILTER ( WHERE delivery_field.type = :field_contact ) 
+			AS order_delivery",
         );
 
 
@@ -662,7 +705,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         /** Выбираем только контактный номер и телефон */
         $dbal
-            ->leftJoin(
+            ->join(
                 'user_profile_value',
                 TypeProfileSectionField::class,
                 'type_section_field_client',
@@ -671,7 +714,6 @@ final class OrderDetailRepository implements OrderDetailInterface
                         (
                             type_section_field_client.type = :field_phone 
                             OR type_section_field_client.type = :field_contact
-                            OR type_section_field_client.type = :field_email
                         )
                     ')
             ->setParameter(
@@ -681,9 +723,6 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->setParameter(
                 key: 'field_contact',
                 value: ContactField::TYPE,
-            )->setParameter(
-                key: 'field_email',
-                value: AccountEmail::TYPE,
             );
 
         $dbal->leftJoin(

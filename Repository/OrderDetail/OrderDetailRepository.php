@@ -553,7 +553,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 						'service_currency', service_price.currency
 					)
 			
-			) AS order_services");
+			) FILTER (WHERE service.id IS NOT NULL) AS order_services");
         }
 
         /* Доставка */

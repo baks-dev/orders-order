@@ -20,7 +20,6 @@
  *  THE SOFTWARE.
  */
 
-
 executeFunc(initOrderPackage);
 
 function initOrderPackage()

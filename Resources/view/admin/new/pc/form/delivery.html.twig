@@ -123,6 +123,11 @@
 
                         <label for="{{ delivery_field.value.vars.id }}" class="form-label">
                             {{ field_label(delivery_field.value) }}
+
+                            {% if delivery_field.value.vars.required %}
+                                <span class="text-danger">*</span>
+                            {% endif %}
+
                         </label>
 
                     {% else %}
@@ -136,13 +141,13 @@
 
                 </div>
 
-                <div class="w-100">
+                <div class="w-75">
                     {{ form_widget(delivery_field.field) }}
 
                     {% if delivery_field.value is defined %}
-                        {{ form_widget(delivery_field.value, { attr: { class : 'rounded-4' }}) }}
+                        {{ form_widget(delivery_field.value) }}
                     {% else %}
-                        {{ form_widget(delivery_field.call, { attr: { class : 'rounded-4' }}) }}
+                        {{ form_widget(delivery_field.call) }}
                     {% endif %}
 
                 </div>

@@ -379,6 +379,8 @@ final  class AllOrdersResult
             return $element->profile_type === ContactField::TYPE;
         });
 
+        /** Возвращаем массив, т.к. может быть несколько полей для заполнения */
+
         return empty($filter) ? false : $filter;
     }
 

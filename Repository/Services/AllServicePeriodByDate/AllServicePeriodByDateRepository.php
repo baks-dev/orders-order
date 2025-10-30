@@ -110,7 +110,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
 
         foreach($activePeriods as $key => $period)
         {
-            foreach($reservePeriods as $reserve)
+            foreach($reservePeriods as $del => $reserve)
             {
                 $periodFrm = new DateTimeImmutable($period['frm'])->format('H-s-i');
                 $reserveFrm = new DateTimeImmutable($reserve['frm'])->format('H-s-i');
@@ -121,8 +121,13 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 if($periodFrm === $reserveFrm && $periodUpto === $reserveUpto)
                 {
                     $activePeriods[$key]['order_service_active'] = true;
+
+                    /** Удаляем ключ на случай повторяющихся периодов */
+                    unset($reservePeriods[$del]);
+
                     break;
                 }
+
             }
         }
 

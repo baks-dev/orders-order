@@ -26,6 +26,7 @@ namespace BaksDev\Orders\Order\Controller\Public;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use DateTimeImmutable;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,11 @@ class SuccessController extends AbstractController
         $OrderDetailResult = $orderDetail
             ->onOrder($Order->getId())
             ->find();
+
+        if(false === ($OrderDetailResult instanceof OrderDetailResult))
+        {
+            return $this->redirectToRoute('core:public.homepage');
+        }
 
         $diff = $OrderDetailResult->getOrderData()->diff(new DateTimeImmutable('now'));
 

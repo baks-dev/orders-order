@@ -125,6 +125,11 @@ final readonly class SendClientEmailOrderNewsDispatcher
 
         $AccountEmail = $AccountEvent->getEmail();
 
+        if(empty($AccountEmail->getValue()))
+        {
+            return;
+        }
+
         $TemplatedEmail = new TemplatedEmail();
 
         $OrderDetailResult = $this->orderDetail
@@ -151,7 +156,11 @@ final readonly class SendClientEmailOrderNewsDispatcher
         // Отправляем письмо пользователю
         $this->mailer->send($email);
 
-        $this->logger->info(sprintf('Оправили уведомление о заказе клиенту на Email %s', $AccountEmail->getValue()));
+        $this->logger->info(
+            sprintf('Оправили уведомление о заказе %s клиенту на Email %s',
+                $OrderDetailResult->getOrderNumber(),
+                $AccountEmail->getValue()),
+        );
 
         $Deduplicator->save();
     }

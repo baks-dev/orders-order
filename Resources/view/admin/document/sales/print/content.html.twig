@@ -59,6 +59,12 @@
                 </li>
             {% endfor %}
 
+            {% for delivery in order.orderDelivery %}
+                <li class="list-group-item">
+                    {{ delivery.delivery_name }}: <strong>{{ delivery.delivery_value }}</strong>
+                </li>
+            {% endfor %}
+
             {% if order.deliveryGeocodeAddress %}
                 <li class="list-group-item">
                     Адрес доставки:<strong> {{ order.deliveryGeocodeAddress }}</strong>
@@ -251,19 +257,10 @@
                 <div class="small"><small>подпись</small></div>
             </div>
 
-            <div class="w-100">
+            <div class="w-25">
                 <div class="border-bottom">&nbsp;</div>
                 <div class="small">
-                    <small>
-                        {% if order.orderDelivery %}
-                            Получатель: &nbsp;
-                            {% for delivery in order.orderDelivery %}
-                                <strong>{{ delivery.delivery_value }}</strong>&nbsp;
-                            {% endfor %}
-                        {% else %}
-                            расшифровка подписи
-                        {% endif %}
-                    </small>
+                    <small>расшифровка подписи</small>
                 </div>
             </div>
         </div>

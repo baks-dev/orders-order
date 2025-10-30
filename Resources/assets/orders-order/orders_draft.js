@@ -852,7 +852,6 @@ async function submitDeliveryForm(forms)
 
                 /** Делаем перерасчет */
 
-
                 /** Пересобирваем tooltip */
                 var tooltipTriggerList = [].slice.call(user_delivery_new.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
                 tooltipTriggerList.map(function(tooltipTriggerEl)

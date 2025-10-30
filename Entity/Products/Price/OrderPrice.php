@@ -96,4 +96,9 @@ class OrderPrice extends EntityEvent
     {
         return $this->total;
     }
+
+    public function getPrice(): Money
+    {
+        return $this->price;
+    }
 }

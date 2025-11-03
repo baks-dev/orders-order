@@ -51,6 +51,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use BaksDev\Products\Sign\BaksDevProductsSignBundle;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -249,7 +250,7 @@ final class DetailController extends AbstractController
 
         $ProductSign = false;
 
-        if($GroupProductSignsByOrder)
+        if($GroupProductSignsByOrder instanceof GroupProductSignsByOrderInterface)
         {
             $ProductSign = $GroupProductSignsByOrder
                 ->forOrder($Order)
@@ -272,6 +273,7 @@ final class DetailController extends AbstractController
                 'statuses' => $collection,
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign,
+                'is_products_sign' => class_exists(BaksDevProductsSignBundle::class),
                 'profile' => $this->getProfileUid()
             ]
         );

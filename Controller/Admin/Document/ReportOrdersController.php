@@ -68,20 +68,9 @@ final class ReportOrdersController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $allOrdersReportRepository
-                ->from($ordersReportDTO->getFrom())
-                ->to($ordersReportDTO->getTo());
-
-            if(
-                false === $this->isGranted('ROLE_ORDERS_REPORT_ORDERS_ALL')
-                || false === $ordersReportDTO->isAll()
-            )
-            {
-                $allOrdersReportRepository->forProfile($this->getProfileUid());
-            }
-
-            $result = $allOrdersReportRepository->findAll();
-
+            $result = $allOrdersReportRepository
+                ->date($ordersReportDTO->getDate())
+                ->findAll();
 
             if(false === $result || false === $result->valid())
             {

@@ -64,9 +64,7 @@ use InvalidArgumentException;
 
 final class AllOrdersReportRepository implements AllOrdersReportInterface
 {
-    private DateTimeImmutable $from;
-
-    private DateTimeImmutable $to;
+    private DateTimeImmutable|false $date = false;
 
     private UserProfileUid|false $profile = false;
 
@@ -75,16 +73,9 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
-    public function from(DateTimeImmutable $from): self
+    public function date(DateTimeImmutable $date): self
     {
-        $this->from = $from;
-
-        return $this;
-    }
-
-    public function to(DateTimeImmutable $to): self
-    {
-        $this->to = $to;
+        $this->date = $date;
 
         return $this;
     }
@@ -123,14 +114,14 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->addSelect('orders_event.danger')
             ->addSelect('orders_event.comment')
             ->join(
-                'orders',
-                OrderEvent::class,
-                "orders_event",
-                "
+            'orders',
+            OrderEvent::class,
+            "orders_event",
+            "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
                 ",
-            );
+        );
 
         $dbal
             ->addSelect("orders_modify.mod_date AS mod_date")
@@ -152,19 +143,13 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders",
                 OrderInvariable::class,
                 "orders_invariable",
-                "orders_invariable.main = orders.id"
-                .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
-            );
-
-        if($this->profile instanceof UserProfileUid)
-        {
-            $dbal->setParameter(
+                "orders_invariable.main = orders.id AND orders_invariable.profile = :profile",
+            )
+            ->setParameter(
                 key: 'profile',
-                value: $this->profile,
+                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
-        }
-
 
         $dbal->join(
             "orders",

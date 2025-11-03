@@ -28,9 +28,7 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceForm;
 use BaksDev\Services\BaksDevServicesBundle;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -42,7 +40,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrderForm extends AbstractType
 {
-    public function __construct(#[Autowire(env: 'PROJECT_PROFILE')] private readonly ?string $projectProfile = null) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -89,16 +86,11 @@ final class OrderForm extends AbstractType
                     $form->add(
                         'order',
                         SubmitType::class,
-                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
+                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
                     );
                 }
 
-                /** Присваиваем идентификатор проекта в качестве ответственного */
-                if($this->projectProfile)
-                {
-                    $data->getProject()->setValue(new UserProfileUid($this->projectProfile));
-                }
-            },
+            }
         );
 
 

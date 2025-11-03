@@ -24,7 +24,6 @@
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
@@ -105,9 +104,6 @@ class OrderEvent extends EntityEvent
     #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
     private ?UserProfileUid $profile = null;
 
-    /** OrderProject */
-    #[ORM\OneToOne(targetEntity: OrderProject::class, mappedBy: 'event', cascade: ['all'])]
-    private ?OrderProject $project = null;
 
     /** Модификатор */
     #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]

@@ -30,49 +30,25 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrdersReportDTO
 {
-    private ?DateTimeImmutable $from = null;
-
-    private ?DateTimeImmutable $to = null;
-
-    private bool $all = false;
-
     /**
-     * From
+     * Дата, за которую будет получен отчет
      */
-    public function getFrom(): DateTimeImmutable
+    #[Assert\NotBlank]
+    private DateTimeImmutable $date;
+
+    public function __construct()
     {
-        return $this->from ?: new DateTimeImmutable('now');
+        $this->date = new DateTimeImmutable();
     }
 
-    public function setFrom(DateTimeImmutable $from): self
+    public function getDate(): DateTimeImmutable
     {
-        $this->from = $from;
-        return $this;
+        return $this->date;
     }
 
-    /**
-     * To
-     */
-    public function getTo(): DateTimeImmutable
+    public function setDate(DateTimeImmutable $date): self
     {
-        return $this->to ?: new DateTimeImmutable('now');
-    }
-
-    public function setTo(DateTimeImmutable $to): self
-    {
-        $this->to = $to;
-
-        return $this;
-    }
-
-    public function isAll(): bool
-    {
-        return $this->all;
-    }
-
-    public function setAll(bool $all): self
-    {
-        $this->all = $all;
+        $this->date = $date;
         return $this;
     }
 }

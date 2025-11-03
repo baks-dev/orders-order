@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class DeleteOrderForm extends AbstractType
 {
+    public function __construct(private readonly UserProfileTokenStorageInterface $userProfileTokenStorage) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
+
+            /** @var DeleteOrderDTO $DeleteOrderDTO */
+            $DeleteOrderDTO = $event->getData();
+            $DeleteOrderDTO->setProfile($this->userProfileTokenStorage->getProfile());
+
+        });
+
         $builder->add(
             'order_delete',
             SubmitType::class,

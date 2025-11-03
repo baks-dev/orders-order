@@ -38,6 +38,7 @@ use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
@@ -155,6 +156,44 @@ final class AllOrdersRepository implements AllOrdersInterface
                 OrderInvariable::class,
                 'order_invariable',
                 'order_invariable.main = orders.id',
+            );
+
+
+        /** Информация о проекте */
+
+        if(false === $dbal->bindProjectProfile())
+        {
+            $dbal->addSelect('FALSE AS is_other_project');
+        }
+        else
+        {
+            $dbal->addSelect('order_project.value != :'.$dbal::PROJECT_PROFILE_KEY.' AS is_other_project');
+        }
+
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderProject::class,
+                'order_project',
+                'order_project.event = orders.event',
+            );
+
+
+        $dbal
+            ->leftJoin(
+                'order_project',
+                UserProfile::class,
+                'order_project_profile',
+                'order_project_profile.id = order_project.value',
+            );
+
+        $dbal
+            ->addSelect('order_project_personal.username AS project_profile_username')
+            ->leftJoin(
+                'order_project_profile',
+                UserProfilePersonal::class,
+                'order_project_personal',
+                'order_project_personal.event = order_project_profile.event',
             );
 
 
@@ -529,7 +568,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
 
         // если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта
-        if(class_exists(DeliveryTransport::class))
+        if(false || class_exists(DeliveryTransport::class))
         {
             $dbalExistMoveError = $this->DBALQueryBuilder->createQueryBuilder(self::class);
             $dbalExistMoveError->select('1');

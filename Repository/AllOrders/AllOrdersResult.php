@@ -88,6 +88,11 @@ final  class AllOrdersResult
         private readonly string $modify, //  "2025-08-02 12:50:20"
 
         private readonly ?string $stocks,
+
+
+        private readonly ?bool $is_other_project,
+        private readonly ?string $project_profile_username,
+
         //  "[{
         //      "price": 495000,
         //      "total": 1,
@@ -412,4 +417,16 @@ final  class AllOrdersResult
     {
         return new DateTimeImmutable($this->modify);
     }
+
+    public function getIsOtherProject(): ?bool
+    {
+        return $this->is_other_project === true;
+    }
+
+    public function getProjectProfileUsername(): ?string
+    {
+        return $this->project_profile_username;
+    }
+
+
 }

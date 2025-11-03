@@ -27,7 +27,11 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Invariable\OrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Project\OrderProjectDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\User\OrderUserDTO;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -40,7 +44,7 @@ final class OrderDTO implements OrderEventInterface
 
     /** Постоянная величина */
     #[Assert\Valid]
-    private readonly Invariable\OrderInvariableDTO $invariable;
+    private readonly OrderInvariableDTO $invariable;
 
     /** Коллекция продукции в заказе */
     #[Assert\Valid]
@@ -48,7 +52,11 @@ final class OrderDTO implements OrderEventInterface
 
     /** Пользователь */
     #[Assert\Valid]
-    private User\OrderUserDTO $usr;
+    private OrderUserDTO $usr;
+
+    /** Идентификатор проекта */
+    #[Assert\Valid]
+    private OrderProjectDTO $project;
 
     /** Коллекция услуг в заказе */
     #[Assert\Valid]
@@ -57,12 +65,14 @@ final class OrderDTO implements OrderEventInterface
     /** Комментарий к заказу */
     private ?string $comment = null;
 
+
     public function __construct()
     {
         $this->product = new ArrayCollection();
         $this->serv = new ArrayCollection();
-        $this->usr = new User\OrderUserDTO();
-        $this->invariable = new Invariable\OrderInvariableDTO();
+        $this->usr = new OrderUserDTO();
+        $this->invariable = new OrderInvariableDTO();
+        $this->project = new OrderProjectDTO();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -78,7 +88,7 @@ final class OrderDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\OrderInvariableDTO
+    public function getInvariable(): OrderInvariableDTO
     {
         return $this->invariable;
     }
@@ -94,7 +104,7 @@ final class OrderDTO implements OrderEventInterface
         $this->product = $product;
     }
 
-    public function addProduct(Add\OrderProductDTO $product): void
+    public function addProduct(OrderProductDTO $product): void
     {
         if(!$this->product->contains($product))
         {
@@ -102,18 +112,18 @@ final class OrderDTO implements OrderEventInterface
         }
     }
 
-    public function removeProduct(Add\OrderProductDTO $product): void
+    public function removeProduct(OrderProductDTO $product): void
     {
         $this->product->removeElement($product);
     }
 
     /** Пользователь */
-    public function getUsr(): User\OrderUserDTO
+    public function getUsr(): OrderUserDTO
     {
         return $this->usr;
     }
 
-    public function setUsr(User\OrderUserDTO $users): void
+    public function setUsr(OrderUserDTO $users): void
     {
         $this->usr = $users;
     }
@@ -156,6 +166,11 @@ final class OrderDTO implements OrderEventInterface
     public function removeServ(BasketServiceDTO $serv): void
     {
         $this->serv->removeElement($serv);
+    }
+
+    public function getProject(): OrderProjectDTO
+    {
+        return $this->project;
     }
 
 }

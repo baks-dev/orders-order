@@ -26,7 +26,9 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 
+use BaksDev\Orders\Order\UseCase\Public\Basket\Project\OrderProjectForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceForm;
+use BaksDev\Orders\Order\UseCase\Public\Basket\User\OrderUserForm;
 use BaksDev\Services\BaksDevServicesBundle;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
@@ -54,6 +56,8 @@ final class OrderForm extends AbstractType
             'prototype_name' => '__product__',
         ]);
 
+        $builder->add('project', OrderProjectForm::class, ['label' => false]);
+
         $builder->add('comment', TextareaType::class, ['required' => false]);
 
         $has_services = class_exists(BaksDevServicesBundle::class);
@@ -79,18 +83,18 @@ final class OrderForm extends AbstractType
 
                 if(!$data->getProduct()->isEmpty())
                 {
-                    $form->add('usr', User\OrderUserForm::class, ['label' => false]);
+                    $form->add('usr', OrderUserForm::class, ['label' => false]);
 
 
                     /* Сохранить ******************************************************/
                     $form->add(
                         'order',
                         SubmitType::class,
-                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
                     );
                 }
 
-            }
+            },
         );
 
 

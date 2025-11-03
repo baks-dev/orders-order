@@ -108,8 +108,8 @@ final class OrderNewTest extends KernelTestCase
 
         self::assertTrue($OrderDTO->getStatus()->equals(OrderStatusNew::class));
 
-        $OrderDTO->setProfile($UserProfileUid = new  UserProfileUid());
-        self::assertSame($UserProfileUid, $OrderDTO->getProfile());
+        //        $OrderDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        //        self::assertSame($UserProfileUid, $OrderDTO->getProfile());
 
         /** OrderProductDTO */
 

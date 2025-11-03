@@ -29,7 +29,6 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -71,13 +70,6 @@ final class NewOrderDTO implements OrderEventInterface
 
     /** Комментарий к заказу */
     private ?string $comment = null;
-
-    /**
-     * Ответственный
-     *
-     * @depricate переносится в invariable
-     */
-    private UserProfileUid $profile;
 
     public function __construct()
     {
@@ -207,18 +199,5 @@ final class NewOrderDTO implements OrderEventInterface
     public function getInvariable(): Invariable\NewOrderInvariableDTO
     {
         return $this->invariable;
-    }
-
-    /** @deprecated */
-    public function getProfile(): UserProfileUid
-    {
-        return $this->profile;
-    }
-
-    /** @deprecated */
-    public function setProfile(UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
     }
 }

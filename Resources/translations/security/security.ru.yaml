@@ -86,3 +86,7 @@ ROLE_ORDERS_STATUS_DELIVERY:
 ROLE_ORDERS_STATUS_DECOMMISSION:
   name: 'Списание'
   desc: ''
+
+ROLE_ORDERS_REPORT_ORDERS_ALL:
+  name: 'Отчет заказов по всем регионам'
+  desc: ''

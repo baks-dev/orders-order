@@ -31,7 +31,6 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\UseCase\Admin\Package\Invariable\PackageOrderInvariableDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\Products\PackageOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Package\User\OrderUserDTO;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;

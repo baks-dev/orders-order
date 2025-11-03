@@ -56,7 +56,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
-            ->date(new DateTimeImmutable())
+            ->from(new DateTimeImmutable())
+            ->to(new DateTimeImmutable())
             ->forProfile(new UserProfileUid())
             ->findAll();
 

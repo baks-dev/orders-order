@@ -76,6 +76,11 @@ ROLE_ORDERS_STATUS_DELIVERY:
   name: 'Delivery'
   desc: 'Front to the delivery service'
 
-  ROLE_ORDERS_STATUS_DECOMMISSION:
-    name: 'Decommission'
-    desc: ''
+ROLE_ORDERS_STATUS_DECOMMISSION:
+  name: 'Decommission'
+  desc: ''
+
+ROLE_ORDERS_REPORT_ORDERS_ALL:
+  name: 'Orders report for all regions'
+  desc: ''
+

@@ -60,11 +60,12 @@ use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Generator;
-use InvalidArgumentException;
 
 final class AllOrdersReportRepository implements AllOrdersReportInterface
 {
-    private DateTimeImmutable|false $date = false;
+    private DateTimeImmutable $from;
+
+    private DateTimeImmutable $to;
 
     private UserProfileUid|false $profile = false;
 
@@ -73,9 +74,16 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
-    public function date(DateTimeImmutable $date): self
+    public function from(DateTimeImmutable $from): self
     {
-        $this->date = $date;
+        $this->from = $from;
+
+        return $this;
+    }
+
+    public function to(DateTimeImmutable $to): self
+    {
+        $this->to = $to;
 
         return $this;
     }
@@ -99,10 +107,6 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
      */
     public function findAll(): Generator|false
     {
-        if(false === ($this->date instanceof DateTimeImmutable))
-        {
-            throw new InvalidArgumentException('Invalid Argument Date');
-        }
 
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -114,26 +118,32 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->addSelect('orders_event.danger')
             ->addSelect('orders_event.comment')
             ->join(
-            'orders',
-            OrderEvent::class,
-            "orders_event",
-            "
+                'orders',
+                OrderEvent::class,
+                "orders_event",
+                "
                     orders_event.id = orders.event AND
                     orders_event.status = 'completed'
                 ",
-        );
+            );
+
 
         $dbal
-            ->addSelect("orders_modify.mod_date AS mod_date")
+            ->addSelect('orders_modify.mod_date AS mod_date')
             ->join(
-                "orders",
+                'orders',
                 OrderModify::class,
-                "orders_modify",
-                "orders_modify.event = orders.event AND DATE(orders_modify.mod_date) = :date",
+                'orders_modify',
+                'orders_modify.event = orders.event AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
             )
             ->setParameter(
-                key: "date",
-                value: $this->date,
+                key: 'date_from',
+                value: $this->from,
+                type: Types::DATE_IMMUTABLE,
+            )
+            ->setParameter(
+                key: 'date_to',
+                value: $this->to,
                 type: Types::DATE_IMMUTABLE,
             );
 
@@ -143,13 +153,19 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "orders",
                 OrderInvariable::class,
                 "orders_invariable",
-                "orders_invariable.main = orders.id AND orders_invariable.profile = :profile",
-            )
-            ->setParameter(
+                "orders_invariable.main = orders.id"
+                .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
+            );
+
+        if($this->profile instanceof UserProfileUid)
+        {
+            $dbal->setParameter(
                 key: 'profile',
-                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
+                value: $this->profile,
                 type: UserProfileUid::TYPE,
             );
+        }
+
 
         $dbal->join(
             "orders",
@@ -418,15 +434,4 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         return $result->valid() ? $result : false;
     }
 
-    public function toArray(): array|false
-    {
-        $result = $this->findAll();
-
-        if(false === $result || false === $result->valid())
-        {
-            return false;
-        }
-
-        return iterator_to_array($result);
-    }
 }

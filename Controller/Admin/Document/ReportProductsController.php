@@ -104,13 +104,16 @@ final class ReportProductsController extends AbstractController
                 ->setCellValue('B1', 'Торговое предложение')
                 ->setCellValue('C1', 'Артикул товара')
                 ->setCellValue('D1', 'Стоимость')
-                ->setCellValue('E1', 'Общее количество за период')
-                ->setCellValue('F1', 'Суммарная стоимость за период')
-                ->setCellValue('G1', 'Остаток');
+                ->setCellValue('E1', 'Предыдущая')
+                ->setCellValue('F1', 'Общее количество за период')
+                ->setCellValue('G1', 'Суммарная стоимость за период')
+                ->setCellValue('H1', 'Остаток');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
             $sheet->getColumnDimension('C')->setAutoSize(true);
+            $sheet->getColumnDimension('D')->setAutoSize(true);
+            $sheet->getColumnDimension('E')->setAutoSize(true);
 
             $allTotal = 0;
             $allStock = 0;
@@ -173,10 +176,12 @@ final class ReportProductsController extends AbstractController
                     ->setCellValue('A'.$key, $data->getProductName())
                     ->setCellValue('B'.$key, str_replace(' /', '/', $strOffer))
                     ->setCellValue('C'.$key, $data->getProductArticle())
-                    ->setCellValue('D'.$key, $data->getProductPrice()->getValue())
-                    ->setCellValue('E'.$key, $data->getTotal())
-                    ->setCellValue('F'.$key, $money->getValue())
-                    ->setCellValue('G'.$key, $data->getStockTotal());
+                    ->setCellValue('D'.$key, $data->getProductPrice()->getValue()) // стоимость
+                    ->setCellValue('E'.$key, $data->getProductOldPrice() ? $data->getProductOldPrice()->getValue() : '') // предыдущая стоимость
+
+                    ->setCellValue('F'.$key, $data->getTotal())
+                    ->setCellValue('G'.$key, $money->getValue())
+                    ->setCellValue('H'.$key, $data->getStockTotal());
 
                 $allTotal += $data->getTotal();
                 $allStock += $data->getStockTotal();
@@ -187,9 +192,9 @@ final class ReportProductsController extends AbstractController
             // Общее количество и общая стоимость
             $sheet
                 ->setCellValue('A'.$key, "Итого")
-                ->setCellValue('E'.$key, $allTotal)
-                ->setCellValue('F'.$key, $allPrice)
-                ->setCellValue('G'.$key, $allStock);
+                ->setCellValue('F'.$key, $allTotal)
+                ->setCellValue('G'.$key, $allPrice)
+                ->setCellValue('H'.$key, $allStock);
 
             $filename =
                 'Отчёт о заказах по продуктам ('.

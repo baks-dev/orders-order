@@ -50,6 +50,7 @@ final readonly class AllProductsOrdersReportResult
         private ?string $product_modification_postfix,
 
         private ?int $product_price,
+        private ?int $product_old_price,
     ) {}
 
     public function getProductName(): string
@@ -201,5 +202,8 @@ final readonly class AllProductsOrdersReportResult
         return new Money(($this->product_price ?: 0), true);
     }
 
-
+    public function getProductOldPrice(): Money|false
+    {
+        return empty($this->product_old_price) ? false : new Money($this->product_price, true);
+    }
 }

@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Forms\OrdersReport;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,9 +35,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class OrdersReportForm extends AbstractType
 {
+    public function __construct(private readonly Security $security) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('date', DateType::class, [
+        $builder->add('from', DateType::class, [
             'widget' => 'single_text',
             'html5' => false,
             'attr' => ['class' => 'js-datepicker'],
@@ -44,11 +48,30 @@ final class OrdersReportForm extends AbstractType
             'input' => 'datetime_immutable',
         ]);
 
+
+        $builder->add('to', DateType::class, [
+            'widget' => 'single_text',
+            'html5' => false,
+            'attr' => ['class' => 'js-datepicker'],
+            'required' => false,
+            'format' => 'dd.MM.yyyy',
+            'input' => 'datetime_immutable',
+        ]);
+
+        if(
+            $this->security->isGranted('ROLE_ORDERS_REPORT_ORDERS_ALL')
+            || $this->security->isGranted('ROLE_ADMIN')
+        )
+        {
+            /** Отчет по всем регионам */
+            $builder->add('all', CheckboxType::class, ['required' => false]);
+        }
+
         /* Сохранить ******************************************************/
         $builder->add(
             'orders_report',
             SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
 
     }

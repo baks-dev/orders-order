@@ -159,23 +159,20 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             );
 
         $dbal
+            //->addSelect('orders_modify.mod_date AS mod_date')
             ->join(
-                "orders",
+                'orders',
                 OrderModify::class,
-                "orders_modify",
-                "
-                    orders_modify.event = orders.event AND
-                    DATE(orders_modify.mod_date) >= :from AND
-                    DATE(orders_modify.mod_date) <= :to
-                ",
+                'orders_modify',
+                'orders_modify.event = orders.event AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
             )
             ->setParameter(
-                key: "from",
+                key: 'date_from',
                 value: $this->from,
                 type: Types::DATE_IMMUTABLE,
             )
             ->setParameter(
-                key: "to",
+                key: 'date_to',
                 value: $this->to,
                 type: Types::DATE_IMMUTABLE,
             );
@@ -356,27 +353,29 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             'product_modification_price.modification = current_product_modification.id',
         );
 
-        /**
-         * Стоимость продукта
-         */
-        $dbal->addSelect(
-            '
-			CASE
-			   WHEN product_modification_price.price IS NOT NULL AND product_modification_price.price > 0 
-			   THEN product_modification_price.price
-			   
-			   WHEN product_variation_price.price IS NOT NULL AND product_variation_price.price > 0 
-			   THEN product_variation_price.price
-			   
-			   WHEN product_offer_price.price IS NOT NULL AND product_offer_price.price > 0 
-			   THEN product_offer_price.price
-			   
-			   WHEN product_price.price IS NOT NULL AND product_price.price > 0 
-			   THEN product_price.price
-			   
-			   ELSE NULL
-			END AS product_price',
-        );
+        /* Стоимость продукта */
+
+        $dbal->addSelect('
+			COALESCE(
+                NULLIF(product_modification_price.price, 0), 
+                NULLIF(product_variation_price.price, 0), 
+                NULLIF(product_offer_price.price, 0), 
+                NULLIF(product_price.price, 0),
+                0
+            ) AS product_price
+		');
+
+        /* Предыдущая стоимость продукта */
+
+        $dbal->addSelect("
+			COALESCE(
+                NULLIF(product_modification_price.old, 0),
+                NULLIF(product_variation_price.old, 0),
+                NULLIF(product_offer_price.old, 0),
+                NULLIF(product_price.old, 0),
+                0
+            ) AS product_old_price
+		");
 
 
         $dbal

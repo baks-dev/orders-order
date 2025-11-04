@@ -68,9 +68,16 @@ final class ReportOrdersController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $result = $allOrdersReportRepository
-                ->date($ordersReportDTO->getDate())
-                ->findAll();
+            $allOrdersReportRepository
+                ->to($ordersReportDTO->getTo())
+                ->from($ordersReportDTO->getFrom());
+
+            if(false === $ordersReportDTO->isAll())
+            {
+                $allOrdersReportRepository->forProfile($this->getProfileUid());
+            }
+
+            $result = $allOrdersReportRepository->findAll();
 
             if(false === $result || false === $result->valid())
             {

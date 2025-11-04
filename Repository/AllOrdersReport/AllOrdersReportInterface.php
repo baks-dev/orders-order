@@ -32,7 +32,9 @@ use Generator;
 
 interface AllOrdersReportInterface
 {
-    public function date(DateTimeImmutable $date): self;
+    public function from(DateTimeImmutable $from): self;
+
+    public function to(DateTimeImmutable $to): self;
 
     public function forProfile(UserProfile|UserProfileUid $profile): self;
 
@@ -42,7 +44,5 @@ interface AllOrdersReportInterface
      * @return Generator<int, AllOrdersReportResult>|false
      */
     public function findAll(): Generator|false;
-
-    public function toArray(): array|false;
 
 }

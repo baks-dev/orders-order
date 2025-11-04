@@ -266,18 +266,21 @@
                                     <hr class="dropdown-divider">
                                 </li>
 
+                            <li>
+                                <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
+                                    <h6 class="dropdown-header">Честный знак</h6>
+                                </div>
+                            </li>
 
                             {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCTS_SIGN_REISSUE') %}
                                 {% if order.order_status != 'new' and order.order_status != 'completed' %}
                                     <li>
-                                        <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
-                                            <h6 class="dropdown-header">Честный знак</h6>
-
+                                        <div class="dropdown-item">
                                             <a
-                                                class="btn btn-sm btn-light disabled text-muted text-nowrap"
+                                                    class="btn btn-sm btn-light disabled text-muted text-nowrap w-100"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modal"
-                                                href="{{ path('products-sign:admin.reissue', { order: order.order_id }) }}">
+                                                    href="{{ path('products-sign:admin.reissue', { id: order.order_event }) }}">
                                                 Перевыпустить честные знаки &nbsp;
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                                     <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
@@ -293,10 +296,10 @@
                             {% if products_sign %}
 
                                 <li>
-                                    <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
 
+                                    <div class="dropdown-item">
                                         <a
-                                                class="btn btn-sm btn-light disabled prnt text-muted text-nowrap"
+                                                class="btn btn-sm btn-light disabled prnt text-muted text-nowrap w-100"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modal"
                                                 href="{{ path('products-sign:document.print.orders', { order: order.order_id }) }}">
@@ -309,6 +312,7 @@
                                                     </svg>
                                         </a>
                                     </div>
+
                                 </li>
 
 

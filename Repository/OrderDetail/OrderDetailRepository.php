@@ -606,7 +606,11 @@ final class OrderDetailRepository implements OrderDetailInterface
 				
 			) FILTER ( WHERE delivery_field.type = :field_contact ) 
 			AS order_delivery",
-        );
+        )
+            ->setParameter(
+                key: 'field_contact',
+                value: ContactField::TYPE,
+            );
 
 
         $dbal
@@ -704,26 +708,23 @@ final class OrderDetailRepository implements OrderDetailInterface
         );
 
         /** Выбираем только контактный номер и телефон */
-        $dbal
-            ->join(
-                'user_profile_value',
-                TypeProfileSectionField::class,
-                'type_section_field_client',
-                '
-                        type_section_field_client.id = user_profile_value.field AND
-                        (
-                            type_section_field_client.type = :field_phone 
-                            OR type_section_field_client.type = :field_contact
-                        )
-                    ')
-            ->setParameter(
-                key: 'field_phone',
-                value: PhoneField::TYPE,
-            )
-            ->setParameter(
-                key: 'field_contact',
-                value: ContactField::TYPE,
-            );
+        //        $dbal
+        //            ->leftJoin(
+        //                'user_profile_value',
+        //                TypeProfileSectionField::class,
+        //                'type_section_field_client',
+        //                '
+        //                        type_section_field_client.id = user_profile_value.field AND
+        //                        (
+        //                            type_section_field_client.type = :field_phone
+        //                            OR type_section_field_client.type = :field_contact
+        //                        )
+        //                    ')
+        //            ->setParameter(
+        //                key: 'field_phone',
+        //                value: PhoneField::TYPE,
+        //            )
+        //            ;
 
         $dbal->leftJoin(
             'user_profile',

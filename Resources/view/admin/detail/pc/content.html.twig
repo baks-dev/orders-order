@@ -62,10 +62,10 @@
 
         <hr>
 
-        <ul class="nav nav-pills d-flex gap-3 pb-4 sticky-top bg-body" id="pills-tab" role="tablist">
+        <ul class="nav nav-pills d-flex gap-3 pb-4 sticky-top bg-body me-5" id="pills-tab" role="tablist">
 
             <li class="nav-item" role="presentation">
-                <button class="btn nav-link fw-bolder rounded-3 border active"
+                <button class="btn nav-link fw-bolder rounded-3 border active position-relative"
                         id="order"
                         data-bs-toggle="pill"
                         data-bs-target="#pills-order"
@@ -262,107 +262,155 @@
 
                         {% if is_products_sign %}
 
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
+                            {% set total = 0 %}
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
 
                             <li>
                                 <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
-                                    <h6 class="dropdown-header">Честный знак</h6>
-                                </div>
-                            </li>
-
-                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCTS_SIGN_REISSUE') %}
-                                {% if order.order_status != 'new' and order.order_status != 'completed' %}
-                                    <li>
-                                        <div class="dropdown-item">
-                                            <a
-                                                    class="btn btn-sm btn-light disabled text-muted text-nowrap w-100"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modal"
-                                                    href="{{ path('products-sign:admin.reissue', { id: order.order_event }) }}">
-                                                Перевыпустить честные знаки &nbsp;
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
-                                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                                                </svg>
-                                            </a>
-                                        </div>
-                                    </li>
-                                {% endif %}
-                            {% endif %}
+                                    <h6 class="dropdown-header w-100">Честный знак</h6>
 
 
-                            {% if products_sign %}
-
-                                <li>
-
-                                    <div class="dropdown-item">
+                                    <span
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom"
+                                            data-bs-delay='{"show":600,"hide":100}'
+                                            title="Печать всех честных знаков"
+                                    >
                                         <a
-                                                class="btn btn-sm btn-light disabled prnt text-muted text-nowrap w-100"
+                                                class="btn btn-sm btn-light disabled prnt text-muted text-nowrap"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modal"
                                                 href="{{ path('products-sign:document.print.orders', { order: order.order_id }) }}">
-                                                    Печать всех честных знаков &nbsp;
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                         fill="currentColor"
-                                                         class="bi bi-printer" viewBox="0 0 16 16">
-                                                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
-                                                    </svg>
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                 fill="currentColor"
+                                                 class="bi bi-printer" viewBox="0 0 16 16">
+                                                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                                                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+                                            </svg>
                                         </a>
-                                    </div>
 
-                                </li>
+                                    </span>
 
 
-                                {% for product in products_sign %}
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCTS_SIGN_REISSUE') %}
+                                        {% if order.order_status != 'new' and order.order_status != 'completed' %}
+                                            <span
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="bottom"
+                                                    data-bs-delay='{"show":600,"hide":100}'
+                                                    title="Перевыпуск честных знаков"
+                                            >
+                                            <a
+                                                    class="btn btn-sm btn-light disabled text-muted text-nowrap"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modal"
+                                                    href="{{ path('products-sign:admin.reissue', { id: order.order_event }) }}">
 
-                                    {% set parameters = {
-                                        part: product.signPart,
-                                        article: product.productArticle,
-                                        order: order.order_id,
-                                        product: product.productId,
-                                        offer: product.productOfferConst,
-                                        variation: product.productVariationConst,
-                                        modification: product.productModificationConst
-                                    } %}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                     fill="currentColor" class="bi bi-arrow-clockwise"
+                                                     viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd"
+                                                          d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                                </svg>
+                                            </a>
+                                    </span>
 
-                                    <li>
-                                        <div class="dropdown-item">
-                                            <div class="d-flex gap-3 align-items-center small">
-                                                <div class="w-100">
+                                        {% endif %}
+                                    {% endif %}
 
-                                                    {{ product.getCounter }} шт. &nbsp;
 
-                                                    {{ product.productName }}
+                                </div>
+                            </li>
 
-                                                    {# Значение множественного варианта ТП #}
-                                                    {{ product.productVariationValue|call_twig_func(product.productVariationReference~'_render') ~
-                                                    product.productModificationValue|call_twig_func(product.productModificationReference~'_render') }}
 
-                                                    {# Значение торгового предложения #}
-                                                    {{ product.productOfferValue|call_twig_func(product.productOfferReference~'_render') }}
+                            {# <li>
 
-                                                    {{ product.productOfferPostfix }}
-                                                    {{ product.productVariationPostfix }}
-                                                    {{ product.productModificationPostfix }}
+                                <div class="dropdown-item">
+                                    <a
+                                            class="btn btn-sm btn-light disabled prnt text-muted text-nowrap w-100"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modal"
+                                            href="{{ path('products-sign:document.print.orders', { order: order.order_id }) }}">
+                                        Печать всех честных знаков &nbsp;
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                             fill="currentColor"
+                                             class="bi bi-printer" viewBox="0 0 16 16">
+                                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+                                        </svg>
+                                    </a>
+                                </div>
 
-                                                </div>
+                            </li> #}
 
-                                                <div class="d-flex gap-3 align-items-center ">
 
+                            {% for product in products_sign %}
+
+                                {% set total = total + product.getCounter %}
+
+                                {% set parameters = {
+                                    part: product.signPart,
+                                    article: product.productArticle,
+                                    order: order.order_id,
+                                    product: product.productId,
+                                    offer: product.productOfferConst,
+                                    variation: product.productVariationConst,
+                                    modification: product.productModificationConst
+                                } %}
+
+                                <li>
+                                    <div class="dropdown-item">
+                                        <div class="d-flex gap-3 align-items-center small">
+                                            <div class="w-100">
+
+                                                {{ product.getCounter }} шт. &nbsp;
+
+                                                {{ product.productName }}
+
+                                                {# Значение множественного варианта ТП #}
+                                                {{ product.productVariationValue|call_twig_func(product.productVariationReference~'_render') ~
+                                                product.productModificationValue|call_twig_func(product.productModificationReference~'_render') }}
+
+                                                {# Значение торгового предложения #}
+                                                {{ product.productOfferValue|call_twig_func(product.productOfferReference~'_render') }}
+
+                                                {{ product.productOfferPostfix }}
+                                                {{ product.productVariationPostfix }}
+                                                {{ product.productModificationPostfix }}
+
+                                            </div>
+
+                                            <div class="d-flex gap-3 align-items-center ">
+
+                                                <span
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="bottom"
+                                                        data-bs-delay='{"show":600,"hide":100}'
+                                                        title="Скачать стикеры маркировки"
+                                                >
+                                                <a class="text-muted"
+                                                   href="{{ path('products-sign:document.pdf.orders', parameters) }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                         fill="currentColor" class="bi bi-filetype-pdf"
+                                                         viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd"
+                                                              d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                                                    </svg>
+                                                </a>
+                                                </span>
+
+                                                <span
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="bottom"
+                                                        data-bs-delay='{"show":600,"hide":100}'
+                                                        title="Скачать TXT c короткой кодировкой"
+                                                >
                                                     <a class="text-muted"
-                                                       href="{{ path('products-sign:document.pdf.orders', parameters) }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                             fill="currentColor" class="bi bi-filetype-pdf"
-                                                             viewBox="0 0 16 16">
-                                                            <path fill-rule="evenodd"
-                                                                  d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                                        </svg>
-                                                    </a>
-
-                                                    <a class="text-muted" title="Скачать TXT c короткой кодировкой"
                                                        href="{{ path('products-sign:document.small.orders', parameters) }}">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                              fill="currentColor" class="bi bi-filetype-txt"
@@ -371,32 +419,51 @@
                                                                   d="M14 4.5V14a2 2 0 0 1-2 2h-2v-1h2a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.928 15.849v-3.337h1.136v-.662H0v.662h1.134v3.337zm4.689-3.999h-.894L4.9 13.289h-.035l-.832-1.439h-.932l1.228 1.983-1.24 2.016h.862l.853-1.415h.035l.85 1.415h.907l-1.253-1.992zm1.93.662v3.337h-.794v-3.337H6.619v-.662h3.064v.662H8.546Z"/>
                                                         </svg>
                                                     </a>
+                                                </span>
 
-                                                    <a class="text-muted" title="Скачать TXT c полной кодировкой"
-                                                       href="{{ path('products-sign:document.big.orders', parameters) }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                             fill="currentColor"
-                                                             class="bi bi-file-earmark-text" viewBox="0 0 16 16">
-                                                            <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
-                                                            <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-                                                        </svg>
-                                                    </a>
-                                                </div>
-
+                                                <span
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="bottom"
+                                                        data-bs-delay='{"show":600,"hide":100}'
+                                                        title="Скачать TXT c полной кодировкой"
+                                                >
+                                                <a class="text-muted"
+                                                   href="{{ path('products-sign:document.big.orders', parameters) }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                         fill="currentColor"
+                                                         class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+                                                        <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                                                        <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                                    </svg>
+                                                </a>
+                                                </span>
                                             </div>
 
                                         </div>
-                                    </li>
 
-                                {% endfor %}
+                                    </div>
+                                </li>
 
-                            {% endif %}
+                            {% endfor %}
+
                         {% endif %}
 
                     </ul>
                 </div>
-
             </li>
+
+            {% if total %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      data-bs-delay='{"show":600,"hide":100}'
+                      title="Количество маркируемых товаров"
+                >
+                {{ total }}
+                <span class="visually-hidden">Количество маркируемых товаров</span>
+            </span>
+            {% endif %}
+
 
         </ul>
 
@@ -413,7 +480,7 @@
                 {% if users %}
 
                     {# Клиент #}
-                    <div class="d-flex align-items-end bg-light gap-5 p-3 rounded-3 my-3">
+                    <div class="d-flex align-items-end bg-light gap-3 p-3 rounded-3 my-3">
 
                         <div>
                             {# Обложка  #}
@@ -444,7 +511,9 @@
                         ) %}
                             <div class='d-flex flex-column small w-100'>
                                 <small class="small text-muted">{{ user.profile_name }}</small>
-                                <span class="h5 {{ loop.first ? "fw-bolder" }} ">{{ user.profile_value|call_twig_func(user.profile_type~'_template') }}</span>
+                                <span class="h5 {{ loop.first ? "fw-bolder" }} ">
+                                    {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                                </span>
                             </div>
                         {% endfor %}
 
@@ -647,6 +716,7 @@
 
     {# Калькуляция стоимости продуктов в заказе #}
     {% set total_summ = 0 %}
+    {% set total_counter = 0 %}
     {% set total_summ_currency = null %}
 
     {% for product in form.product %}
@@ -656,6 +726,7 @@
 
         {% if card %}
             {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
+            {% set total_counter = total_counter + product.price.vars.data.total %}
             {% set total_summ = total_summ + summ %}
             {% set total_summ_currency = card.productCurrency %}
         {% endif %}
@@ -668,9 +739,18 @@
         <div class="w-100">
 
             {# Сумма за продукцию #}
-            <span class="small">Товаров на сумму: &nbsp;
+            <span class="small">{{ total_counter }} товаров на сумму: &nbsp;
                 <span id='total_product_sum'>{{ money(total_summ, total_summ_currency) ?: 0 }}</span>
             </span>
+
+            {# {% if total %}
+                <span class="text-nowrap">
+                    из них маркированных
+                    <span class="badge {{ total_counter == total ? 'text-bg-success' : 'text-bg-danger' }}">
+                        {{ total }}
+                    </span>
+                </span>
+            {% endif %} #}
 
             <br>
 

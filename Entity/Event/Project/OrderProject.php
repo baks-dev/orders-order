@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /* OrderProject */
 
 #[ORM\Entity]
-#[ORM\Table(name: 'order_project')]
+#[ORM\Table(name: 'orders_project')]
 class OrderProject extends EntityReadonly
 {
     /**

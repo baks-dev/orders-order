@@ -346,7 +346,6 @@ executeFunc(function P8X1I2diQ4()
                         //    })
                         //));
 
-
                         formData = new FormData();
 
                         ordersToProcess.forEach((id, index) =>
@@ -386,96 +385,50 @@ executeFunc(function P8X1I2diQ4()
                         selectedOrders.clear();
                         updateSelectedOrdersVisuals();
 
-                        //if (result.requiresForm && ordersToProcess.length === 1) {
-                        // Только один заказ требует форму - показываем её
-                        modal.innerHTML = result;
+                        try
+                        {
+                            /** Пробуем распарсить строку JSON */
+                            createToast(JSON.parse(result));
+                            modal_bootstrap.hide();
+                            return;
+                        }
+                        catch(e)
+                        {
 
-                        /** Инициируем LAZYLOAD */
-                        let lazy = document.createElement("script");
-                        lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
-                        document.head.appendChild(lazy);
+                            //if (result.requiresForm && ordersToProcess.length === 1) {
+                            // Только один заказ требует форму - показываем её
+                            modal.innerHTML = result;
 
-                        //modal.querySelectorAll('form').forEach(function(forms) {
-                        //    forms.addEventListener('submit', function(event) {
-                        //        event.preventDefault();
-                        //        submitModalForm(forms);
-                        //        return false;
-                        //    });
-                        //});
+                            /** Инициируем LAZYLOAD */
+                            let lazy = document.createElement("script");
+                            lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
+                            document.head.appendChild(lazy);
 
-                        //} else {
-                        //    // Обрабатываем успешные обновления
-                        //    if (result.success && result.success.length > 0) {
-                        //        result.success.forEach(orderId => {
-                        //            const orderElement = document.getElementById(orderId);
-                        //            if (orderElement) {
-                        //                const targetZone = document.querySelector(`[data-status="${droppableLevel}"]`);
-                        //                if (targetZone) {
-                        //                    orderElement.remove();
-                        //                    targetZone.appendChild(orderElement);
-                        //
-                        //                    // Снимаем выделение
-                        //                    const checkbox = orderElement.querySelector('input[type="checkbox"]');
-                        //                    if (checkbox) {
-                        //                        checkbox.checked = false;
-                        //                    }
-                        //                    orderElement.classList.remove('selected-order');
-                        //                }
-                        //            }
-                        //        });
-                        //    }
-                        //
-                        //    // Закрываем модальное окно и показываем результаты
-                        //    modal_bootstrap.hide();
-                        //
-                        //    let successCount = result.success ? result.success.length : 0;
-                        //    let errorCount = result.errors ? result.errors.length : 0;
-                        //    let requiresFormCount = result.requiresForm ? (result.requiresFormOrders ? result.requiresFormOrders.length : 0) : 0;
-                        //
-                        //    if (successCount > 0) {
-                        //        let message;
-                        //        if (ordersToProcess.length === 1) {
-                        //            message = 'Статус заказа успешно изменен!';
-                        //        } else {
-                        //            message = `Успешно обновлено ${successCount} из ${ordersToProcess.length} заказов`;
-                        //            if (errorCount > 0) {
-                        //                message += `. ${errorCount} заказов не удалось обновить`;
-                        //            }
-                        //            if (requiresFormCount > 0) {
-                        //                message += `. ${requiresFormCount} заказов требуют дополнительной формы`;
-                        //            }
-                        //        }
-                        //
-                        //        let toastType = 'success';
-                        //        if (errorCount > 0 || requiresFormCount > 0) {
-                        //            toastType = 'warning';
-                        //        }
-                        //
-                        //        let $successOrderToast = '{ "type":"' + toastType + '" , ' +
-                        //            '"header":"' + (ordersToProcess.length === 1 ? 'Статус изменен' : 'Групповое обновление') + '"  , ' +
-                        //            '"message" : "' + message + '" }';
-                        //        createToast(JSON.parse($successOrderToast));
-                        //
-                        //    } else {
-                        //        let message = ordersToProcess.length === 1 ?
-                        //            'Не удалось обновить статус заказа!' :
-                        //            'Не удалось обновить ни одного заказа!';
-                        //
-                        //        let $dangerOrderToast = '{ "type":"danger" , ' +
-                        //            '"header":"Ошибка"  , ' +
-                        //            '"message" : "' + message + '" }';
-                        //        createToast(JSON.parse($dangerOrderToast));
-                        //    }
-                        //}
+                        }
+
                     }
                     else
                     {
-                        throw new Error(`Unexpected status code ${response.status}`);
+                        /** Если возвращается статус с телом ответа JSON */
+
+                        try
+                        {
+                            const result = await response.text();
+                            createToast(JSON.parse(result));
+                            modal_bootstrap.hide();
+                            return;
+                        }
+                        catch(e)
+                        {
+                            throw new Error(`Unexpected status code ${response.status}`);
+                        }
+
                     }
 
                 }
                 catch(error)
                 {
+
                     modal_bootstrap.hide();
                     selectedOrders.clear();
                     updateSelectedOrdersVisuals();
@@ -484,6 +437,7 @@ executeFunc(function P8X1I2diQ4()
                     let $dangerOrderToast = "{ \"type\":\"danger\" , " +
                         "\"header\":\"Ошибка сети\"  , " +
                         "\"message\" : \"Ошибка при отправке запроса на сервер!\" }";
+
                     createToast(JSON.parse($dangerOrderToast));
                 }
             }

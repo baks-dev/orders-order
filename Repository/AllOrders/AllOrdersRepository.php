@@ -175,7 +175,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'orders',
                 OrderProject::class,
                 'order_project',
-                'order_project.event = orders.event',
+                'order_project.main = orders.id',
             );
 
 

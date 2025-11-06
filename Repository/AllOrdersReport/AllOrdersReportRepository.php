@@ -154,7 +154,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 OrderInvariable::class,
                 "orders_invariable",
                 "orders_invariable.main = orders.id"
-                .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
+                .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ''),
             );
 
         if($this->profile instanceof UserProfileUid)

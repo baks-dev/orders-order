@@ -30,7 +30,7 @@ interface OrderProjectInterface
     /**
      * Значение свойства
      *
-     * @see OrderProject
+     * @see OrderProjectReadonly
      */
     public function getValue(): ?UserProfileUid;
 

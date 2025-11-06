@@ -296,7 +296,7 @@
                                     </span>
 
 
-                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCTS_SIGN_REISSUE') %}
+                                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCT_SIGN_REISSUE') %}
                                         {% if order.order_status != 'new' and order.order_status != 'completed' %}
                                             <span
                                                     data-bs-toggle="tooltip"

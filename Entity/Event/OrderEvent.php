@@ -74,17 +74,15 @@ class OrderEvent extends EntityEvent
 
     /** Товары в заказе */
     #[Assert\When(expression: 'this.isServiceEmpty() === true', constraints: new Assert\Count(min: 1))]
-    #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
     private Collection $product;
 
     #[Assert\When(expression: 'this.isProductEmpty() === true', constraints: new Assert\Count(min: 1))]
-    #[ORM\OneToMany(targetEntity: OrderService::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToMany(targetEntity: OrderService::class, mappedBy: 'event', cascade: ['all'])]
     private Collection $serv;
 
-    /**
-     * Постоянная величина
-     */
-    #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    /** Постоянная величина Invariable */
+    #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderInvariable $invariable = null;
 
     /** Дата заказа */
@@ -106,21 +104,20 @@ class OrderEvent extends EntityEvent
     private ?UserProfileUid $profile = null;
 
 
-    /** OrderProject */
+    /** Идентификатор проекта */
     #[ORM\OneToOne(targetEntity: OrderProject::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderProject $project = null;
 
-
     /** Модификатор */
-    #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToOne(targetEntity: OrderModify::class, mappedBy: 'event', cascade: ['all'])]
     private OrderModify $modify;
 
     /** Пользователь (Клиент) */
-    #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
     private OrderUser $usr;
 
     /** Флаг о печати */
-    #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderPrint $printed = null;
 
     /** Комментарий к заказу */

@@ -206,7 +206,7 @@ final class StatusController extends AbstractController
                     return new JsonResponse($socket->getMessage());
                 }
 
-                $orders[] = $order->getId();
+                $orders[] = $orderEvent->getOrderNumber();
             }
 
             if(true === empty($unsuccessful))
@@ -214,8 +214,8 @@ final class StatusController extends AbstractController
                 return new JsonResponse(
                     [
                         'type' => 'success',
-                        'header' => 'Заказы #'.implode(',', $orders),
-                        'message' => 'Статусы успешно обновлены',
+                        'header' => 'Статусы успешно обновлены',
+                        'message' => 'Заказы #'.implode(', ', $orders),
                         'status' => 200,
                     ],
                     200
@@ -228,8 +228,8 @@ final class StatusController extends AbstractController
             return new JsonResponse(
                 [
                     'type' => 'danger',
-                    'header' => 'Заказы #'.implode(',', $unsuccessful),
-                    'message' => 'Ошибка обновления заказов',
+                    'header' => 'Ошибка обновления заказов',
+                    'message' => 'Заказы #'.implode(', ', $unsuccessful),
                     'status' => 400,
                 ],
                 400,

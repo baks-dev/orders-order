@@ -28,21 +28,18 @@ namespace BaksDev\Orders\Order\Controller\Admin\Order;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Delivery\BaksDevDeliveryBundle;
-use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Forms\Status\StatusDTO;
-use BaksDev\Orders\Order\Forms\Status\StatusForm;
+use BaksDev\Orders\Order\Forms\Unpaid\UnpaidOrdersDTO;
+use BaksDev\Orders\Order\Forms\Unpaid\UnpaidOrdersForm;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
-use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,24 +64,25 @@ final class UnpaidController extends AbstractController
         OrderStatusHandler $handler,
         CentrifugoPublishInterface $publish,
         ExistOrderEventByStatusInterface $existOrderEventByStatus,
-        string $status,
     ): Response
     {
-        $statusDTO = new StatusDTO();
-        $statusForm = $this->createForm(StatusForm::class, $statusDTO, [
-            'action' => $this->generateUrl('orders-order:admin.status', ['status' => $status]),
-        ]);
+
+        $UnpaidStatusForm = $this
+            ->createForm(
+                type: UnpaidOrdersForm::class,
+                data: $statusDTO = new UnpaidOrdersDTO(),
+                options: ['action' => $this->generateUrl('orders-order:admin.order.unpaid')],
+            )
+            ->handleRequest($request);
 
         /**
          * TODO: Если у статуса нет упаковки - отправляем в начале на упаковку
          */
 
-        $statusForm->handleRequest($request);
-
         $unsuccessful = [];
         $orders = [];
 
-        if($statusForm->isSubmitted())
+        if($UnpaidStatusForm->isSubmitted())
         {
             foreach($statusDTO->getOrders() as $order)
             {
@@ -101,7 +99,7 @@ final class UnpaidController extends AbstractController
                 $editOrderDTO = $orderEvent->getDto(new EditOrderDTO());
                 $currentPriority = $editOrderDTO->getStatus()->getOrderStatus()::priority();
 
-                $orderStatus = $orderStatusCollection->from($status);
+                $orderStatus = $orderStatusCollection->from('unpaid');
 
                 $orderStatusDTO = new OrderStatusDTO(
                     $orderStatus,
@@ -109,7 +107,6 @@ final class UnpaidController extends AbstractController
                 )
                     ->setProfile($this->getProfileUid())
                     ->setComment($orderEvent->getComment());
-
 
                 /**
                  * Статус заказа можно двигать только вперед
@@ -120,9 +117,21 @@ final class UnpaidController extends AbstractController
                     continue;
                 }
 
+
                 /**
-                 * Обновляем статус заказа
+                 * Невозможно применить статус без упаковки
                  */
+                $isExistsStatusPackage = $existOrderEventByStatus
+                    ->forOrder($order->getId())
+                    ->forStatus(OrderStatusPackage::class)
+                    ->isExists();
+
+                if(false === $isExistsStatusPackage)
+                {
+                    $unsuccessful[] = $orderEvent->getOrderNumber();
+                    continue;
+                }
+
 
                 /**
                  * Невозможно применить повторно статус
@@ -131,7 +140,6 @@ final class UnpaidController extends AbstractController
                     ->forOrder($order->getId())
                     ->forStatus($orderStatusDTO->getStatus())
                     ->isExists();
-
 
                 if(true === $isExistsStatus)
                 {
@@ -153,43 +161,9 @@ final class UnpaidController extends AbstractController
                     continue;
                 }
 
-                if(class_exists(BaksDevProductsStocksBundle::class))
-                {
-                    /**
-                     * Если имеется модуль склада - в статус Completed «Выполнен» можно только после сборки
-                     * Extradition «Готов к выдаче»
-                     */
-                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusCompleted::class))
-                    {
-                        $isExists = $existOrderEventByStatus
-                            ->forOrder($order->getId())
-                            ->forStatus(OrderStatusExtradition::class)
-                            ->isExists();
-
-                        if($isExists === false)
-                        {
-                            $unsuccessful[] = $orderEvent->getOrderNumber();
-                            continue;
-                        }
-                    }
-
-                    /** Изменить статус на Статус Extradition «Готов к выдаче» можно только через склад */
-                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusExtradition::class))
-                    {
-                        $unsuccessful[] = $orderEvent->getOrderNumber();
-                        continue;
-                    }
-                }
-
-                if(class_exists(BaksDevDeliveryBundle::class))
-                {
-                    /** Изменить статус на Статус Delivery «Доставка (погружен в транспорт)» можно только через Доставку */
-                    if(true === $orderStatusDTO->getStatus()->equals(OrderStatusDelivery::class))
-                    {
-                        $unsuccessful[] = $orderEvent->getOrderNumber();
-                        continue;
-                    }
-                }
+                /**
+                 * Обновляем статус заказа
+                 */
 
                 $OrderStatusHandler = $handler->handle($orderStatusDTO);
 
@@ -210,7 +184,7 @@ final class UnpaidController extends AbstractController
                     return new JsonResponse($socket->getMessage());
                 }
 
-                $orders[] = $order->getId();
+                $orders[] = $orderEvent->getOrderNumber();
             }
 
             if(true === empty($unsuccessful))
@@ -218,8 +192,8 @@ final class UnpaidController extends AbstractController
                 return new JsonResponse(
                     [
                         'type' => 'success',
-                        'header' => 'Заказы #'.implode(',', $orders),
-                        'message' => 'Статусы успешно обновлены',
+                        'header' => 'Статусы успешно обновлены',
+                        'message' => 'Заказы #'.implode(', ', $orders),
                         'status' => 200,
                     ],
                     200,
@@ -232,8 +206,8 @@ final class UnpaidController extends AbstractController
             return new JsonResponse(
                 [
                     'type' => 'danger',
-                    'header' => 'Заказы #'.implode(',', $unsuccessful),
-                    'message' => 'Ошибка обновления заказов',
+                    'header' => 'Ошибка обновления заказов',
+                    'message' => 'Заказы #'.implode(', ', $unsuccessful),
                     'status' => 400,
                 ],
                 400,

@@ -1,177 +1,124 @@
-{# @var item \BaksDev\Manufacture\Part\Application\Repository\AllManufacturePartApplication\AllManufacturePartApplicationResult #}
-{% set identifier = item.id %}
+{# @var item \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
 
-{# @var opens \BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult #}
+<tr class="vertical-middle">
 
-<div id="{{ identifier }}" class="col-2 p-1 ">
 
-    {% set priority_style = item.priority ? 'border-danger bg-danger' : 'border-primary bg-primary' %}
+    <td class="text-nowrap">
+        {# Пользовательское меню #}
+        {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }}
+    </td>
 
-    <div class="border-bottom border-4 rounded-4 {{ priority_style }} ">
-        <div class="card bg-light-primary rounded-4">
+    <td class="text-center">
+        <span
+                role="tooltip"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                data-bs-delay='{"show":600,"hide":100}'
+                title='QR заказа'
+        >
+                <a
+                        href="{{ path('orders-order:admin.order.qrcode', { id : item.orderId }) }}"
+                        class="btn-link btn p-0 modal-link disabled icon"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal"
+                        style="width: 55px; height: 55px;"
+                >
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor"
+                            class="bi bi-qr-code" viewBox="0 0 16 16"><path d="M2 2h2v2H2V2Z"></path><path
+                                d="M6 0v6H0V0h6ZM5 1H1v4h4V1ZM4 12H2v2h2v-2Z"></path><path
+                                d="M6 10v6H0v-6h6Zm-5 1v4h4v-4H1Zm11-9h2v2h-2V2Z"></path><path
+                                d="M10 0v6h6V0h-6Zm5 1v4h-4V1h4ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Z"></path><path
+                                d="M7 12h1v3h4v1H7v-4Zm9 2v2h-3v-1h2v-1h1Z"></path>
+                    </svg>
+                </a>
+            </span>
+    </td>
 
-            {% set product_image = item.ProductRootImages %}
+    <td class="w-100">
 
-            {% set image_path = '/assets/'~version~'/img/blank.svg' %}
-            {% if product_image.img_ext is defined and product_image.img_ext is not null %}
-                {% set image_path = cdn_image_path(product_image.img, product_image.img_ext, product_image.img_cdn, 'small') %}
+        <button data-href='{{ path('orders-order:admin.detail', { id: item.orderId }) }}'
+                data-id='{{ item.orderId }}'
+                class="btn btn-sm btn-link fw-bolder mb-1 text-decoration-none product-name offcanvas-link"
+        >
+            {{ item.orderNumber }}
+            <span class="badge bg-light text-dark fw-bolder p1 text-start ms-3">
+                {{ item.orderProfile }}
+            </span>
+        </button>
+
+
+        &nbsp;
+        <div class="d-flex gap-3">
+
+            {# {% set users = item.order_user|json_decode %}
+
+            {% for user in users %}
+                <div class='{{ loop.first ? "fw-bolder" }}'>
+                    {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                </div>
+            {% endfor %} #}
+
+            {% if item.clientName %}
+                {% for client in item.clientName %}
+                    <div class='mb-1 text-truncate pointer'
+                         style="max-width: calc(100%);"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='{{ client.profile_value }}'
+                    >
+                        {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if item.clientPhone %}
+                <div class='mb-1 text-truncate pointer {{ loop.first ? "fw-bolder" }}'
+                     style="max-width: calc(100%);"
+                     role="tooltip"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     data-bs-delay='{"show":200,"hide":100}'
+                     title='{{ item.clientPhone.profile_value }}'
+                >
+                    {{ item.clientPhone.profile_value|call_twig_func(item.clientPhone.profile_type~'_template') }}
+                </div>
             {% endif %}
 
 
-            <div class="card-body p-2 d-flex justify-content-between">
-                {# <div class="d-flex align-items-center small" style="justify-content: end;">
-                #}{#                    {{ item.status }} #}{#
-                {% set output_status =  item.status == 'new' ? 'открыта' : 'завершена' %}
-                {% set output_bg =  item.status == 'new' ? 'bg-primary' : 'bg-secondary' %}
-
-                <div></div>
-
-                <div class="fw-bolder m-1 {{ output_bg }} px-1 rounded-1" style="color: #fff;">
-                   <span>{{ output_status }}</span>&nbsp;
-
-                    <span>{{ item.productTotalCompleted ? '(' ~ item.productTotalCompleted ~ ')' : '' }}</span>
-                </div>
-
-            </div> #}
-
-                <div>
-                    &nbsp;
-                </div>
-
-                <div class="d-flex align-items-center gap-1 text-primary pointer copy"
-                     data-copy="{{ item.productArticle }}">
-
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
-                         height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
-                        <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
-                    </svg>
-
-                    <small>{{ item.productArticle }}</small>
-                </div>
-            </div>
-
-            <div class="d-flex flex-column small gap-1 p-2 bg-cover lazy col-2 w-100"
-                 style=" height: 200px;"
-                 data-bg="{{ image_path }}"
-            >
-            </div>
-
-            <div class="card-body d-flex flex-column p-2">
-
-                <span class="fw-bolder mb-1 text-dark text-decoration-none product-name text-truncate pointer"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="bottom"
-                      data-bs-delay='{"show":100,"hide":100}'
-                      title="{{ item.productName }}"
-                >
-                    {{ item.productName }}
-                </span>
-
-
-                <div class="text-muted fw-bolder mb-1">
-                    {# Значение множественного варианта ТП #}
-                    {{ item.productVariationValue|call_twig_func(item.productVariationReference~'_render') ~
-                    item.productModificationValue|call_twig_func(item.productModificationReference~'_render') }}
-
-                    {# Значение торгового предложения #}
-                    {{ item.productOfferValue|call_twig_func(item.productOfferReference~'_render') }}
-
-                    {# Постфикс торгового предложения #}
-                    {{ item.productOfferPostfix }}
-                    {# Постфикс множественного варианта #}
-                    {{ item.productVariationPostfix }}
-                    {# Постфикс модификации #}
-                    {{ item.productModificationPostfix }}
-
-                </div>
-
-
-                {# {{ card.productOfferValue|call_twig_func(card.productOfferReference) }} {{ card.productOfferPostfix }} #}
-
-
-                {# <div class="mb-1 mt-2">
-                    <span class="opacity-50 fw-normal">Производство:</span> &nbsp;
-                    <strong>{{ item.actionName }}</strong>
-                </div> #}
-
-
-                <div class="mb-1">
-                    <span class="opacity-50 small">Ответственный:</span> &nbsp;
-                    <strong> {{ item.usersProfileUsername }}</strong>
-                </div>
-
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-                        <span class="opacity-50 small">Количество:</span> &nbsp;
-                        <strong>{{ item.productTotal }}</strong> шт.
-                    </div>
-
-                    {% if is_granted('ROLE_MANUFACTURE_PART_ADD') or  is_granted('ROLE_ADMIN') %}
-
-                        {% if opens and item.status == 'new' %}
-
-                            <span
-                                    role="tooltip"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    data-bs-delay='{"show":600,"hide":100}'
-                                    title='Добавить в партию производства'
-                            >
-
-                        {# Для возможности открытия модвльного окна в script.js через POST добавлены data-атрибуты #}
-                                {# data-formname - для хранения отправляемых данных  #}
-                                {# data-method - опредеяем метод METHOD для указания в request.open  #}
-                        <a href="{{ path('manufacture-part:admin.selected-products.add') }}"
-
-{#                           class="btn btn-sm {{ item.exist_manufacture ? 'btn-secondary' : 'btn-primary' }} modal-link disabled" #}
-                           class="btn btn-sm btn-primary modal-link disabled"
-                           data-bs-toggle="modal"
-                           data-bs-target="#modal"
-
-                           data-method="post"
-                           data-formname="{{ add_selected_product_form_name }}"
-                           data-product="{{ item.productId }}"
-
-{#                           data-offer="{{ opens.actionsOfferOffer ? item.productOfferId : '' }}" #}
-                                {#                           data-variation="{{ opens.actionsOfferVariation ? item.productVariationId : '' }}" #}
-                                {#                           data-modification="{{ opens.actionsOfferModification ? item.productModificationId : '' }}" #}
-
-
-                                {% if opens.actionsOfferOffer %}
-                                    data-offer="{{ item.productOfferId }}"
-                                {% endif %}
-                                {% if opens.actionsOfferVariation %}
-                                    data-variation="{{ item.productVariationId }}"
-                                {% endif %}
-                                {% if opens.actionsOfferModification %}
-                                    data-modification="{{ item.productModificationId }}"
-                                {% endif %}
-
-                           data-manufacture_application_product_event="{{ item.ManufactureApplicationEvent }}"
-
-                           data-collection-form="product_form_data"
-                           data-total="{{ item.productTotal }}"
-
-                           data-post-class="add-one-to-collection"
-
-                        >
-                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                class="bi bi-folder-plus" viewBox="0 0 16 16">
-                              <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2Zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672Z"/>
-                              <path d="M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5Z"/>
-                            </svg>
-                        </a>
-
-                    </span>
-
-                        {% endif %}
-                    {% endif %}
-                </div>
-
-            </div>
-
         </div>
-    </div>
-</div>
+
+        {# Комментарий  #}
+        {% if item.orderComment %}
+            <div class="text-danger fw-bolder">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.3"
+                          d="M20 3H4C2.89543 3 2 3.89543 2 5V16C2 17.1046 2.89543 18 4 18H4.5C5.05228 18 5.5 18.4477 5.5 19V21.5052C5.5 22.1441 6.21212 22.5253 6.74376 22.1708L11.4885 19.0077C12.4741 18.3506 13.6321 18 14.8167 18H20C21.1046 18 22 17.1046 22 16V5C22 3.89543 21.1046 3 20 3Z"
+                          fill="currentColor"></path>
+                    <rect x="6" y="12" width="7" height="2" rx="1" fill="currentColor"></rect>
+                    <rect x="6" y="7" width="12" height="2" rx="1" fill="currentColor"></rect>
+                </svg>
+                &nbsp; {{ item.orderComment }}
+            </div>
+        {% endif %}
+    </td>
+
+    <td class="text-nowrap ">
+        {{ item.stockProfileUsername }}
+    </td>
+    <td class="text-center">
+        {{ order_status(item.orderStatus) }}
+    </td>
+
+    <td class="text-center text-nowrap">
+        {{ item.orderCreated|date('d.m.Y H:i') }}
+    </td>
+    <td class="text-nowrap">
+        {{ item.dateModify|date('d.m.Y H:i') }}
+    </td>
+</tr>
+
+

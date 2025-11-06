@@ -25,34 +25,42 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\Event\Project;
 
-
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Files\Resources\Upload\UploadEntityInterface;
+use BaksDev\Core\Entity\EntityReadonly;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * OrderProject
- *
- * @see OrderEvent
- */
+/* OrderProject */
+
 #[ORM\Entity]
-#[ORM\Table(name: 'orders_project')]
-class OrderProject extends EntityEvent
+#[ORM\Table(name: 'order_project')]
+class OrderProject extends EntityReadonly
 {
-    /** Связь на событие */
+    /**
+     * Идентификатор Main
+     */
     #[Assert\NotBlank]
+    #[Assert\Uuid]
     #[ORM\Id]
+    #[ORM\Column(type: OrderUid::TYPE)]
+    private OrderUid $main;
+
+    /**
+     * Идентификатор События
+     */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
     #[ORM\OneToOne(targetEntity: OrderEvent::class, inversedBy: 'project')]
     #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
     private OrderEvent $event;
 
-    /** Идентификатор проекта */
+    /**
+     * Идентификатор проекта
+     */
     #[Assert\NotBlank]
     #[ORM\Column(type: UserProfileUid::TYPE)]
     private UserProfileUid $value;
@@ -60,20 +68,28 @@ class OrderProject extends EntityEvent
     public function __construct(OrderEvent $event)
     {
         $this->event = $event;
+        $this->main = $event->getMain();
     }
 
     public function __toString(): string
     {
-        return (string) $this->event;
+        return (string) $this->main;
     }
 
-    /** @return OrderProjectInterface */
+    public function setEvent(OrderEvent $event): self
+    {
+        $this->event = $event;
+        return $this;
+    }
+
+    public function getValue(): UserProfileUid
+    {
+        return $this->value;
+    }
+
     public function getDto($dto): mixed
     {
-        if(is_string($dto) && class_exists($dto))
-        {
-            $dto = new $dto();
-        }
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
         if($dto instanceof OrderProjectInterface)
         {
@@ -83,10 +99,10 @@ class OrderProject extends EntityEvent
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
-    /** @var OrderProjectInterface $dto */
+
     public function setEntity($dto): mixed
     {
-        if($dto instanceof OrderProjectInterface)
+        if($dto instanceof OrderProjectInterface || $dto instanceof self)
         {
             if(false === ($dto->getValue() instanceof UserProfileUid))
             {
@@ -99,8 +115,4 @@ class OrderProject extends EntityEvent
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
-    public function getValue(): UserProfileUid
-    {
-        return $this->value;
-    }
 }

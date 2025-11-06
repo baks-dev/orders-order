@@ -43,6 +43,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
+use BaksDev\Products\Sign\BaksDevProductsSignBundle;
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use BaksDev\Products\Sign\BaksDevProductsSignBundle;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
@@ -100,6 +100,7 @@ final class DetailController extends AbstractController
 
         /**
          * Продукты в заказе
+         *
          * @var OrderProductDTO $product
          */
         foreach($OrderDTO->getProduct() as $product)
@@ -146,7 +147,7 @@ final class DetailController extends AbstractController
             ->createForm(
                 type: EditOrderForm::class,
                 data: $OrderDTO,
-                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])]
+                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])],
             )
             ->handleRequest($request);
 
@@ -192,7 +193,7 @@ final class DetailController extends AbstractController
                         sprintf('Услуга <b>"%s"</b> на <b>%s</b> в период <b>%s</b> УЖЕ ЗАБРОНИРОВАНА',
                             $service->getName(),
                             $service->getDate()->format('Y-m-d'),
-                            $service->getPeriod()->getParams('time')
+                            $service->getPeriod()->getParams('time'),
                         ),
                     );
 
@@ -274,8 +275,8 @@ final class DetailController extends AbstractController
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign,
                 'is_products_sign' => class_exists(BaksDevProductsSignBundle::class),
-                'profile' => $this->getProfileUid()
-            ]
+                'profile' => $this->getProfileUid(),
+            ],
         );
     }
 }

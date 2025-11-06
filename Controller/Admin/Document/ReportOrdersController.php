@@ -229,7 +229,9 @@ final class ReportOrdersController extends AbstractController
 
             $filename =
                 'Отчёт о заказах ('.
-                $ordersReportDTO->getDate()->format(('d.m.Y')).').xlsx';
+                $ordersReportDTO->getFrom()->format('d.m.Y')
+                .($ordersReportDTO->getFrom()->format('d.m.Y') !== $ordersReportDTO->getTo()->format('d.m.Y') ? '-'.$ordersReportDTO->getTo()->format('d.m.Y') : '')
+                .').xlsx';
 
             $response->headers->set('Content-Type', 'application/vnd.ms-excel');
             $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');

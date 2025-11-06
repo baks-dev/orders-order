@@ -79,3 +79,7 @@ ROLE_ORDERS_STATUS_DELIVERY:
   ROLE_ORDERS_STATUS_DECOMMISSION:
     name: 'Decommission'
     desc: ''
+
+ROLE_ORDERS_REPORT_ORDERS_ALL:
+  name: 'About all warehouses'
+  desc: ''

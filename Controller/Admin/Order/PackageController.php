@@ -121,13 +121,12 @@ final class PackageController extends AbstractController
                 }
 
                 /** Проверяем, что заказ не был отменен */
-                $isOtherExists = $ExistOrderEventByStatusRepository
+                $isExists = $ExistOrderEventByStatusRepository
                     ->forOrder($OrderEvent->getMain())
-                    ->excludeOrderEvent($OrderEvent->getId())
                     ->forStatus(OrderStatusCanceled::class)
-                    ->isOtherExists();
+                    ->isExists();
 
-                if($isOtherExists)
+                if($isExists)
                 {
                     $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;

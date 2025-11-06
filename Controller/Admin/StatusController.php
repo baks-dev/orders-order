@@ -101,7 +101,7 @@ final class StatusController extends AbstractController
 
                 $orderStatusDTO = new OrderStatusDTO(
                     $orderStatus,
-                    $orderEvent->getId()
+                    $orderEvent->getId(),
                 )
                     ->setProfile($this->getProfileUid())
                     ->setComment($orderEvent->getComment());
@@ -218,7 +218,7 @@ final class StatusController extends AbstractController
                         'message' => 'Заказы #'.implode(', ', $orders),
                         'status' => 200,
                     ],
-                    200
+                    200,
                 );
             }
         }

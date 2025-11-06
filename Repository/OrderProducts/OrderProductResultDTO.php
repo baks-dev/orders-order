@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -52,6 +53,7 @@ final readonly class OrderProductResultDTO
         private ?string $product_modification,
         private ?string $product_modification_const,
         private ?string $product_modification_value,
+        private ?string $product_invariable,
     ) {}
 
     /**
@@ -143,6 +145,11 @@ final readonly class OrderProductResultDTO
     public function getProductModificationValue(): ?string
     {
         return $this->product_modification_value;
+    }
+
+    public function getProductInvariable(): ProductInvariableUid|false
+    {
+        return $this->product_invariable ? new ProductInvariableUid($this->product_invariable) : false;
     }
 
 }

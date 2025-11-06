@@ -33,6 +33,7 @@ use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCard;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardVariation;
 use Generator;
@@ -135,8 +136,44 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'products',
                 ProductModification::class,
                 'product_modification',
-                'product_variation.id = products.modification'
+                'product_modification.id = products.modification'
             );
+
+
+        /**
+         * Product Invariable
+         */
+        $dbal
+            ->addSelect('product_invariable.id AS product_invariable')
+            ->leftJoin(
+                'product_modification',
+                ProductInvariable::class,
+                'product_invariable',
+                '
+                    product_invariable.product = product_event.main
+
+                    AND
+                        CASE
+                            WHEN product_offer.const IS NOT NULL
+                            THEN product_invariable.offer = product_offer.const
+                            ELSE product_invariable.offer IS NULL
+                        END
+
+                    AND
+                        CASE
+                            WHEN product_variation.const IS NOT NULL
+                            THEN product_invariable.variation = product_variation.const
+                            ELSE product_invariable.variation IS NULL
+                        END
+
+                    AND
+                        CASE
+                            WHEN product_modification.const IS NOT NULL
+                            THEN product_invariable.modification = product_modification.const
+                            ELSE product_invariable.modification IS NULL
+                        END
+
+            ');
 
         $result = $dbal
             ->enableCache('orders-order', 3600)

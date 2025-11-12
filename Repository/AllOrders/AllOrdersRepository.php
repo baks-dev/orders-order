@@ -52,7 +52,6 @@ use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
@@ -819,8 +818,7 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         if(
             false === ($this->status instanceof OrderStatus) ||
-            $this->status->equals(OrderStatusCompleted::class) ||
-            $this->status->equals(OrderStatusMarketplace::class)
+            $this->status->equals(OrderStatusCompleted::class)
         )
         {
             $dbal->orderBy('orders_modify.mod_date', 'DESC');

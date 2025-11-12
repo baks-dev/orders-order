@@ -6,6 +6,8 @@
     </button>
 </div>
 
+{% set total = 0 %}
+
 {% set product_prototype = form.product.vars.prototype %}
 
 {% set price_price_widget = form_widget(product_prototype.price.price, { attr: {
@@ -262,7 +264,7 @@
 
                         {% if is_products_sign %}
 
-                            {% set total = 0 %}
+
 
                             <li>
                                 <hr class="dropdown-divider">

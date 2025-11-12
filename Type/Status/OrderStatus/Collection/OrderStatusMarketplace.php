@@ -33,6 +33,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Статус Marketplace «Передан службе маркетплейса»
+ *
+ * @deprecated Не оптимально !!!
  */
 #[AutoconfigureTag('baks.order.status')]
 #[AutoconfigureTag('baks.security.voter')]

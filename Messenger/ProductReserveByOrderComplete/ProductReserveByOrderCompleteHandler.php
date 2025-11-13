@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderComplete;
 
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Psr\Log\LoggerInterface;

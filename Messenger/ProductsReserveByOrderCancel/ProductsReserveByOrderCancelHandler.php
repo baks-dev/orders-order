@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
 use Psr\Log\LoggerInterface;
@@ -43,7 +43,7 @@ final readonly class ProductsReserveByOrderCancelHandler
     public function __construct(
         #[Target('productsProductLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
-        private CurrentProductIdentifierInterface $CurrentProductIdentifier,
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductsReserveByOrderCancelMessage $message): void

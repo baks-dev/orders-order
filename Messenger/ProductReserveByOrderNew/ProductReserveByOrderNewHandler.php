@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
 use Psr\Log\LoggerInterface;
@@ -42,7 +42,7 @@ final readonly class ProductReserveByOrderNewHandler
     public function __construct(
         #[Target('productsProductLogger')] private LoggerInterface $logger,
         private AddProductQuantityInterface $addProductQuantity,
-        private CurrentProductIdentifierInterface $CurrentProductIdentifier,
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void

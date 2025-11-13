@@ -541,6 +541,7 @@
                     {# Запрет на изменение заказа (стоимости, количество и пр.)  #}
                     {% set isNotEdit =
                         order.order_status == 'package' or
+                        order.order_status == 'unpaid' or
                         order.order_status == 'extradition' or
                         order.order_status == 'delivery' or
                         order.order_status == 'completed' %}

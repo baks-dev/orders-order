@@ -31,6 +31,9 @@ use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Repository\DeliveryByProfileChoice\DeliveryByProfileChoiceInterface;
 use BaksDev\Orders\Order\Repository\FieldByDeliveryChoice\FieldByDeliveryChoiceInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceForm;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -42,9 +45,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceForm;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldForm;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
 
 final class OrderDeliveryForm extends AbstractType
 {
@@ -223,7 +223,7 @@ final class OrderDeliveryForm extends AbstractType
                     $setField = new ArrayCollection();
 
                     /** @var DeliveryFieldUid $field */
-                    foreach($fields as $field)
+                    foreach($fields as $k => $field)
                     {
                         $OrderDeliveryFieldDTO = new OrderDeliveryFieldDTO();
                         $OrderDeliveryFieldDTO->setField($field);
@@ -240,9 +240,18 @@ final class OrderDeliveryForm extends AbstractType
                             return $field->equals($element->getField());
                         });
 
-                        if(!$dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
+                        if(false === $dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
                         {
                             $OrderDeliveryFieldDTO->setValue($dataFieldFilter->current()->getValue());
+                        }
+
+                        /**
+                         * Если имеется заполненное значение, но оно не найдено по фильтру
+                         * (например при изменении условия доставки) - заполняем по ключу
+                         */
+                        else
+                        {
+                            $OrderDeliveryFieldDTO->setValue($dataFields->get($k)?->getValue());
                         }
 
                         $setField->add($OrderDeliveryFieldDTO);

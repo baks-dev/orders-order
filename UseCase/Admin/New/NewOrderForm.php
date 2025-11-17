@@ -60,11 +60,12 @@ final class NewOrderForm extends AbstractType
 
         });
 
-        /** Коллекция продуктов в заказе */
+        /**
+         * Коллекция продуктов в заказе
+         */
 
         $builder->add('preProduct', preProduct\PreProductForm::class, ['label' => false]);
 
-        /* Коллекция продукции */
         $builder->add('product', CollectionType::class, [
             'entry_type' => Products\NewOrderProductForm::class,
             'entry_options' => ['label' => false],

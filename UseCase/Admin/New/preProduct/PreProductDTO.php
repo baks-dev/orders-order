@@ -31,7 +31,7 @@ use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
-/** @see PreFproduct */
+/** @see OrderProduct */
 final class PreProductDTO
 {
     /** Категория */
@@ -51,6 +51,9 @@ final class PreProductDTO
 
     /** Количество */
     private ?int $preTotal = null;
+
+    /** Персональная скидка пользователя */
+    private ?int $discount = null;
 
     /**
      * Category
@@ -136,4 +139,17 @@ final class PreProductDTO
         return $this;
     }
 
+    /**
+     * Discount
+     */
+    public function setDiscount(?int $discount): PreProductDTO
+    {
+        $this->discount = $discount;
+        return $this;
+    }
+
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
 }

@@ -31,7 +31,6 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
@@ -74,8 +73,8 @@ final class NewController extends AbstractController
         {
             $this->refreshTokenForm($NewOrderForm);
 
-            /** Если без продукта и услуг */
-            if($OrderDTO->getProduct()->isEmpty() && $OrderDTO->getServ()->isEmpty())
+            /** Если заказ без продукта и услуг */
+            if(true === $OrderDTO->getProduct()->isEmpty() && true === $OrderDTO->getServ()->isEmpty())
             {
                 $this->addFlash(
                     'page.new',
@@ -88,9 +87,8 @@ final class NewController extends AbstractController
 
             /**
              * Услуги
-             *
-             * @var OrderServiceDTO $service
              */
+
             foreach($OrderDTO->getServ() as $service)
             {
 
@@ -118,6 +116,7 @@ final class NewController extends AbstractController
              * Продукты
              */
 
+
             foreach($OrderDTO->getProduct() as $product)
             {
                 $ProductUserBasketResult = $userBasket
@@ -126,6 +125,7 @@ final class NewController extends AbstractController
                     ->forVariation($product->getVariation())
                     ->forModification($product->getModification())
                     ->find();
+
 
                 /** Редирект, если продукции не найдено */
                 if(false === ($ProductUserBasketResult instanceof ProductUserBasketResult))
@@ -152,10 +152,15 @@ final class NewController extends AbstractController
                 //                    return $this->redirectToRoute('orders-order:admin.index');
                 //                }
 
-                /** Присваиваем стоимость продукта в заказе */
-                $product
-                    ->getPrice()
-                    ->setPrice($ProductUserBasketResult->getProductPrice())
+                /**
+                 * Присваиваем стоимость продукта в заказе
+                 */
+
+                /** С учетом персональной скидки из формы */
+                $basketPrice = $ProductUserBasketResult->getProductPrice()->applyPercent($OrderDTO->getPreProduct()->getDiscount());
+
+                $product->getPrice()
+                    ->setPrice($basketPrice)
                     ->setCurrency($ProductUserBasketResult->getProductCurrency());
             }
 

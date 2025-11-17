@@ -35,28 +35,31 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Reference\Money\Type\Money;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class PreProductForm extends AbstractType
 {
+    private false|int $discount = false;
+
     public function __construct(
+        private readonly Security $security,
         private readonly CategoryChoiceInterface $categoryChoice,
         private readonly ProductChoiceInterface $productChoice,
         private readonly ProductOfferChoiceInterface $productOfferChoice,
         private readonly ProductVariationChoiceInterface $productVariationChoice,
         private readonly ProductModificationChoiceInterface $productModificationChoice,
-        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -210,13 +213,25 @@ final class PreProductForm extends AbstractType
             },
         );
 
-
-        // Количество
+        /** Количество */
         $builder->add('preTotal', IntegerType::class, ['required' => false]);
 
+        /** Персональная скидка */
+        $this->discount = match (true)
+        {
+            $this->security->isGranted('ROLE_ADMIN') => 100,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_20') => 20,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
+            default => false,
+        };
 
+        $builder->add('discount', IntegerType::class, [
+            'disabled' => $this->discount === false,
+            'required' => false
+        ]);
     }
-
 
     private function formProductModifier(FormInterface $form, ?CategoryProductUid $category): void
     {
@@ -250,12 +265,12 @@ final class PreProductForm extends AbstractType
 
     private function formOfferModifier(FormInterface $form, ProductEventUid $product): void
     {
-        /* Список торговых предложений продукции */
+        /** Список торговых предложений продукции */
         $offer = $this->productOfferChoice
             ->findOnlyExistsByProductEvent($product);
 
         // Если у продукта нет ТП
-        if(!$offer?->valid())
+        if(false === $offer->valid())
         {
             $form->add(
                 'preOffer',
@@ -303,7 +318,7 @@ final class PreProductForm extends AbstractType
             ->fetchProductVariationExistsByOffer($offer);
 
         // Если у продукта нет ТП
-        if(!$variations?->valid())
+        if(false === $variations->valid())
         {
             $form->add(
                 'preVariation',
@@ -348,7 +363,7 @@ final class PreProductForm extends AbstractType
         $modifications = $this->productModificationChoice->fetchProductModificationExistsByVariation($variation);
 
         // Если у продукта нет ТП
-        if(!$modifications?->valid())
+        if(false === $modifications->valid())
         {
             $form->add(
                 'preModification',

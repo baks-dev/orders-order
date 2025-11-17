@@ -80,35 +80,39 @@
             #}{# {{ form_row(form.destinationWarehouse, { label: 'Склад назначения', placeholder: 'Выберите Cклад назначения...', attr: { 'data-select' : 'select2' } }) }} #}{#
             </div> #}
 
+            {# Количество продукции #}
             <div class="w-100">
                 {{ form_row(form.preProduct.preTotal, { label: 'Количество', attr: { min : 1 } }) }}
             </div>
 
+            {# Кнопка "Добавить в заказ" #}
             <div class="mb-3 w-25 text-end">
 
                 <button type="button" id="new_order_form_addProduct"
                         class="btn btn-outline-primary border-0 text-nowrap"
                         data-index="0"
-                        data-prototype="{{ include(_self|replace({ "products.html.twig": "prototype.product.html.twig"}))|e('html_attr') }}"
-                >
+                        data-prototype="{{ include(_self|replace({ "products.html.twig": "prototype.product.html.twig"}))|e('html_attr') }}">
                     <span class="svg-icon svg-icon-2">
-                        <svg
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none"><rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1"
-                                                  transform="rotate(-90 11 18)" fill="currentColor">
 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect opacity="0.5" x="11" y="18" width="12" height="2" rx="1" transform="rotate(-90 11 18)"
+                                  fill="currentColor">
                             </rect>
                             <rect x="6"
                                   y="11"
                                   width="12"
                                   height="2"
                                   rx="1"
-                                  fill="currentColor"></rect>
+                                  fill="currentColor">
+                            </rect>
                         </svg>
+
                     </span>
+
                     Добавить в заказ
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -121,6 +125,5 @@
     <div class="modal-footer" id="collectionProductOrder">
 
     </div>
-
 
 </div>

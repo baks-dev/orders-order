@@ -479,7 +479,17 @@ document.querySelectorAll('select.change_region_field').forEach(function(userReg
 async function submitDeliveryForm(forms)
 {
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+
+    const remove = [
+        forms.name + "[_token]",
+        forms.name + "[usr][delivery][field]",
+    ];
+
+    remove.forEach(pattern =>
+    {
+        [...data.keys()].filter(key => key.startsWith(pattern)).forEach(key => data.delete(key));
+    });
+
 
     await fetch(forms.action, {
         method: forms.method, // *GET, POST, PUT, DELETE, etc.

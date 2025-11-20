@@ -157,7 +157,12 @@ final class NewController extends AbstractController
                  */
 
                 /** С учетом персональной скидки из формы */
-                $basketPrice = $ProductUserBasketResult->getProductPrice()->applyPercent($OrderDTO->getPreProduct()->getDiscount());
+                $basketPrice = $ProductUserBasketResult->getProductPrice();
+
+                if(false === empty($OrderDTO->getPreProduct()->getDiscount()))
+                {
+                    $basketPrice = $basketPrice->applyPercent($OrderDTO->getPreProduct()->getDiscount());
+                }
 
                 $product->getPrice()
                     ->setPrice($basketPrice)

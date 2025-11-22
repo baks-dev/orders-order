@@ -6,9 +6,6 @@
 
     {% if baks_profile.user_profile_profiles is defined %}
 
-        {% set authProfiles = baks_profile.user_profile_profiles|sort((a, b) => a.user_profile_username <=> b.user_profile_username) %}
-
-
         <div class="btn-group">
 
             <button class="btn btn-outline-secondary border-light btn-sm disabled d-flex text-dark gap-3 pe-3"
@@ -24,23 +21,24 @@
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
 
+
             <ul class="dropdown-menu leader p-3">
-                {% for profil in authProfiles %}
+                {% for profil in baks_profile.user_profile_profiles %}
 
                     {% if baks_profile.id is defined %}
 
-                        {% if baks_profile.id != profil.user_profile_id %}
-                            <li class="p-1 w-100 list-group-item rounded-5">
-                                <a class="d-block text-decoration-none w-100 px-1 text-nowrap"
-                                   href="{{ path('users-profile-user:user.activate', { id: profil.user_profile_event }) }}">
-                                    {{ profil.user_profile_username }}
-                                </a>
-                            </li>
-                        {% else %}
+                        {% if profil.equals(baks_profile.id) %}
                             <li class="p-1 w-100 disabled">
                                 <div class="px-1 text-nowrap text-muted fw-normal">
-                                    &bull; &nbsp; {{ profil.user_profile_username }}
+                                    &bull; &nbsp; {{ profil.params.username }}
                                 </div>
+                            </li>
+                        {% else %}
+                            <li class="p-1 w-100 list-group-item rounded-5">
+                                <a class="d-block text-decoration-none w-100 px-1 text-nowrap"
+                                   href="{{ path('users-profile-user:user.activate', { id: profil.params.event }) }}">
+                                    {{ profil.params.username }}
+                                </a>
                             </li>
                         {% endif %}
 

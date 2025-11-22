@@ -41,6 +41,8 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Services\Repository\AllServicesByProjectProfile\AllServicesByProjectProfileInterface;
@@ -72,6 +74,7 @@ class BasketController extends AbstractController
         GeocodeDistance $GeocodeDistance,
         UserProfileByRegionInterface $UserProfileByRegionRepository,
         OneServiceByIdInterface $oneServiceRepository,
+        CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventInterface,
         ?AllServicesByProjectProfileInterface $AllServicesByProjectProfile = null,
         #[MapQueryParameter] string|null $share = null,
         #[Autowire(env: 'PROJECT_USER')] string|null $projectUser = null,
@@ -118,26 +121,29 @@ class BasketController extends AbstractController
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if(false === $this->products->isEmpty())
         {
+            $isRemove = false;
+
             /** @var OrderProductDTO $product */
             foreach($this->products as $product)
             {
-                /** @var ProductUserBasketResult|false $ProductUserBasketResult */
-                $ProductDetail = $userBasket
+                /**
+                 * Пробуем найти активные идентификаторы продукта на случай изменения
+                 */
+                $CurrentProductIdentifierResult = $CurrentProductIdentifierByEventInterface
                     ->forEvent($product->getProduct())
                     ->forOffer($product->getOffer())
                     ->forVariation($product->getVariation())
                     ->forModification($product->getModification())
                     ->find();
 
-                if(false === $ProductDetail)
+                if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
                 {
                     /**
                      * Удаляем из корзины, если карточка товара не найдена
-                     *
                      * @var OrderProductDTO $element
                      */
 
-                    $predicat = function($key, OrderProductDTO $element) use ($product) {
+                    $predicat = static function($key, OrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 
@@ -156,9 +162,29 @@ class BasketController extends AbstractController
                             return $this->products;
                         });
 
-                        return $this->redirectToReferer();
+                        $isRemove = $isRemove ?: true;
+
+                        continue;
                     }
                 }
+
+                /**
+                 * Присваиваем актуальные значения товара
+                 */
+
+                $product
+                    ->setProduct($CurrentProductIdentifierResult->getEvent())
+                    ->setOffer($CurrentProductIdentifierResult->getOffer())
+                    ->setVariation($CurrentProductIdentifierResult->getVariation())
+                    ->setModification($CurrentProductIdentifierResult->getModification());
+
+                /** @var ProductUserBasketResult|false $ProductUserBasketResult */
+                $ProductDetail = $userBasket
+                    ->forEvent($CurrentProductIdentifierResult->getEvent())
+                    ->forOffer($CurrentProductIdentifierResult->getOffer())
+                    ->forVariation($CurrentProductIdentifierResult->getVariation())
+                    ->forModification($CurrentProductIdentifierResult->getModification())
+                    ->find();
 
                 $product->setCard($ProductDetail);
 
@@ -171,14 +197,27 @@ class BasketController extends AbstractController
                     ->find();
 
                 $OrderPriceDTO = $product->getPrice();
-                $OrderPriceDTO->setPrice($ProductUserBasketResult->getProductPrice());
-                $OrderPriceDTO->setCurrency($ProductUserBasketResult->getProductCurrency());
+                $OrderPriceDTO
+                    ->setPrice($ProductUserBasketResult->getProductPrice())
+                    ->setCurrency($ProductUserBasketResult->getProductCurrency());
 
             }
 
+            /**
+             * Если произошло удаление - делаем редирект в корзину с сообщением
+             */
+
+            if(true === $isRemove)
+            {
+                $this->addFlash(
+                    type: 'danger',
+                    message: 'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
+                );
+
+                return $this->redirectToReferer();
+            }
+
             $OrderDTO->setProduct($this->products);
-
-
         }
 
         /* Данные по услугам */
@@ -264,34 +303,26 @@ class BasketController extends AbstractController
             $OrderInvariable = $OrderDTO->getInvariable();
             $OrderInvariable->setUsr($projectUser);
 
-            $profiles = $UserProfileByRegionRepository
-                ->onlyOrders()
-                ->findAll();
 
-            if(true === $profiles->valid())
+            /** Если пользователь зарегистрирован - всегда присваиваем склад проекта для упаковки заказа */
+            if($this->getUsr())
             {
+                $OrderInvariable->setProfile($projectProfile);
+            }
 
-                if(
-                    (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
-                    && empty($projectProfile)
-                )
+            /**
+             * Если пользователь не авторизован - определяем ближайший к клиенту склад для упаковки заказа
+             * без учета региональности
+             */
+            else
+            {
+                $profiles = $UserProfileByRegionRepository
+                    ->onlyOrders()
+                    ->findAll();
+
+                if(true === $profiles->valid())
                 {
-                    /**
-                     * Если геоданные адреса доставки не определены
-                     * и НЕ УКАЗАН профиль проекта - указываем координаты склада Current
-                     *
-                     * @var UserProfileByRegionResult $UserProfileByRegionResult
-                     */
-                    $UserProfileByRegionResult = $profiles->current();
-                    $Latitude = $UserProfileByRegionResult->getLatitude();
-                    $Longitude = $UserProfileByRegionResult->getLongitude();
-                }
 
-
-                $warehouse = null;
-
-                foreach($profiles as $profile)
-                {
                     if(
                         (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
                         && empty($projectProfile)
@@ -299,38 +330,63 @@ class BasketController extends AbstractController
                     {
                         /**
                          * Если геоданные адреса доставки не определены
-                         * УКАЗАН профиль проекта - указываем координаты склада проекта
+                         * и НЕ УКАЗАН профиль проекта - указываем координаты склада Current
                          *
                          * @var UserProfileByRegionResult $UserProfileByRegionResult
                          */
-
-                        if(false === $profile->getId()->equals($projectProfile))
-                        {
-                            continue;
-                        }
-
-                        $Latitude = $profile->getLatitude();
-                        $Longitude = $profile->getLongitude();
+                        $UserProfileByRegionResult = $profiles->current();
+                        $Latitude = $UserProfileByRegionResult->getLatitude();
+                        $Longitude = $UserProfileByRegionResult->getLongitude();
                     }
 
 
-                    $distance = $GeocodeDistance
-                        ->fromLatitude($profile->getLatitude())
-                        ->fromLongitude($profile->getLongitude())
-                        ->toLatitude($Latitude)
-                        ->toLongitude($Longitude)
-                        ->getDistanceRound();
+                    $warehouse = null;
 
-                    $warehouse[$distance] = $profile->getId();
-                }
+                    foreach($profiles as $profile)
+                    {
+                        if(
+                            (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
+                            && empty($projectProfile)
+                        )
+                        {
+                            /**
+                             * Если геоданные адреса доставки не определены
+                             * УКАЗАН профиль проекта - указываем координаты склада проекта
+                             *
+                             * @var UserProfileByRegionResult $UserProfileByRegionResult
+                             */
 
-                /** Если имеется склады, выбираем ближайший к клиенту */
-                if(false === is_null($warehouse))
-                {
-                    $minDistance = min(array_keys($warehouse));
-                    $OrderInvariable->setProfile($warehouse[$minDistance]);
+                            if(false === $profile->getId()->equals($projectProfile))
+                            {
+                                continue;
+                            }
+
+                            $Latitude = $profile->getLatitude();
+                            $Longitude = $profile->getLongitude();
+                        }
+
+
+                        $distance = $GeocodeDistance
+                            ->fromLatitude($profile->getLatitude())
+                            ->fromLongitude($profile->getLongitude())
+                            ->toLatitude($Latitude)
+                            ->toLongitude($Longitude)
+                            ->getDistanceRound();
+
+                        $warehouse[$distance] = $profile->getId();
+                    }
+
+                    /** Если имеется склады, выбираем ближайший к клиенту */
+                    if(false === is_null($warehouse))
+                    {
+                        $minDistance = min(array_keys($warehouse));
+                        $OrderInvariable->setProfile($warehouse[$minDistance]);
+                    }
                 }
             }
+
+
+
 
             /**
              * Проверяем, что продукция в наличии в карточке

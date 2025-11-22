@@ -90,9 +90,10 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setProduct(ProductEventUid $product): void
+    public function setProduct(ProductEventUid $product): self
     {
         $this->product = $product;
+        return $this;
     }
 
 
@@ -104,9 +105,10 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setOffer(?ProductOfferUid $offer): void
+    public function setOffer(ProductOfferUid|null|false $offer): self
     {
-        $this->offer = $offer;
+        $this->offer = $offer ?: null;
+        return $this;
     }
 
 
@@ -118,9 +120,10 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setVariation(?ProductVariationUid $variation): void
+    public function setVariation(ProductVariationUid|null|false $variation): self
     {
-        $this->variation = $variation;
+        $this->variation = $variation ?: null;
+        return $this;
     }
 
 
@@ -132,9 +135,10 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
 
-    public function setModification(?ProductModificationUid $modification): void
+    public function setModification(ProductModificationUid|null|false $modification): self
     {
-        $this->modification = $modification;
+        $this->modification = $modification ?: null;
+        return $this;
     }
 
 
@@ -145,9 +149,10 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->price;
     }
 
-    public function setPrice(Price\OrderPriceDTO $price): void
+    public function setPrice(Price\OrderPriceDTO $price): self
     {
         $this->price = $price;
+        return $this;
     }
 
 
@@ -158,9 +163,10 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->card;
     }
 
-    public function setCard(ProductUserBasketResult|array $card): void
+    public function setCard(ProductUserBasketResult|array $card): self
     {
         $this->card = $card;
+        return $this;
     }
 
 }

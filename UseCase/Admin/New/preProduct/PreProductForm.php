@@ -228,8 +228,8 @@ final class PreProductForm extends AbstractType
         };
 
         $builder->add('discount', IntegerType::class, [
-            'disabled' => $this->discount === false,
-            'required' => false
+            'attr' => ['min' => $this->discount ? $this->discount * -1 : 0],
+            'required' => false,
         ]);
     }
 

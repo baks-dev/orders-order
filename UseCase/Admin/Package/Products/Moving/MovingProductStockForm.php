@@ -24,6 +24,7 @@
 namespace BaksDev\Orders\Order\UseCase\Admin\Package\Products\Moving;
 
 use BaksDev\Products\Stocks\Repository\ProductWarehouseChoice\ProductWarehouseChoiceInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -35,7 +36,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class MovingProductStockForm extends AbstractType
 {
-    public function __construct(private readonly ProductWarehouseChoiceInterface $productWarehouseChoice) {}
+    public function __construct(
+        private readonly ProductWarehouseChoiceInterface $productWarehouseChoice,
+        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
+    ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -56,27 +60,33 @@ final class MovingProductStockForm extends AbstractType
 
                     if($product->getUsr())
                     {
-                        $this->productWarehouseChoice
-                            ->user($product->getUsr())
-                            ->product($product->getProduct());
+                        /** Список складов (профилей пользователя) кроме текущего, на которых имеется данный вид продукта  */
+                        $result = $this->productWarehouseChoice
+                            ->forUser($product->getUsr())
+                            ->product($product->getProduct())
+                            ->offerConst($product->getOffer())
+                            ->variationConst($product->getVariation())
+                            ->modificationConst($product->getModification())
+                            ->fetchWarehouseByProduct();
 
-                        $product->getOffer() ? $this->productWarehouseChoice->offerConst($product->getOffer()) : null;
-                        $product->getVariation() ? $this->productWarehouseChoice->variationConst($product->getVariation()) : null;
-                        $product->getModification() ? $this->productWarehouseChoice->modificationConst($product->getModification()) : null;
+                        if($result->valid())
+                        {
+                            $warehouses = iterator_to_array($result);
 
-                        $warehouses = $this->productWarehouseChoice->fetchWarehouseByProduct();
+                            $warehouses = array_filter($warehouses, function($v) {
+                                return $v->equals($this->userProfileTokenStorage->getProfile()) === false;
+                            }, ARRAY_FILTER_USE_BOTH);
+                        }
+
                     }
 
                     $Destination = $data->getMove()->getDestination();
 
                     if($warehouses)
                     {
-                        $warehouses = iterator_to_array($warehouses);
-
                         $warehouses = array_filter($warehouses, static function($v) use ($Destination) {
-                            return !$v->equals($Destination);
+                            return false === $v->equals($Destination);
                         }, ARRAY_FILTER_USE_BOTH);
-
                     }
 
                     if($warehouses)

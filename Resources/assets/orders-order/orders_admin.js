@@ -418,7 +418,7 @@ function deleteElement($row)
             "\"message\" : \"В заказе должен быть хотя бы один продукт\" }";
 
         createToast(JSON.parse($errorFormHandler));
-        
+
         return;
     }
 
@@ -837,3 +837,52 @@ async function submitOrderForm(forms)
 
     return false;
 }
+
+
+/** Скидка заказа */
+/* Получить поле по скидке заказа */
+var order_discount = document.querySelector('#edit_order_form_discount');
+
+order_discount.addEventListener('input', function()
+{
+
+    const discount = this.value;
+
+    let products_discounts = document.querySelectorAll('.product-discount').forEach(function(product_discount) {
+
+        if (product_discount.disabled == false)
+        {
+            product_discount.value = discount;
+            product_discount.dispatchEvent(new Event('input'));
+        }
+    });
+
+});
+
+
+/** Скидка товара */
+var product_discounts =  document.querySelectorAll('.product-discount');
+
+product_discounts.forEach(function(product_discount){
+    product_discount.addEventListener('input', function(event){
+
+        const discount = this.value * -1;
+
+        /* Родительский td */
+        let td = this.closest('td');
+
+        /* найти элемент с ценой в родельской td */
+        let price = td.querySelector('.price');
+        let current_price = price.dataset.price;
+
+        /* Сделать расчет скидки товара */
+        let product_price = parseFloat(current_price);
+        let discount_product_price = product_price - product_price / 100 * discount // TODO
+
+        /* Изменить значение input поля Цены товара */
+        price.value = discount_product_price;
+
+        /* Пересчетать всего */
+        total();
+    })
+})

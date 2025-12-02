@@ -15,7 +15,17 @@
     style: 'width: 75px;',
     min: '__product_min_price__',
     disabled: false,
-    value: '__product_price__'
+    value: '__product_price__',
+    'data-price': '__product_price__'
+} }) %}
+
+{# Product Discount #}
+{% set product_discount_widget = form_widget(product_prototype.discount, { attr: {
+    class: 'form-control-sm rounded-3 product-discount',
+    style: 'width: 81px;',
+    min:  '__order_product_discount__',
+    disabled: false,
+    placeholder: "Скидка товара, %",
 } }) %}
 
 
@@ -523,20 +533,36 @@
 
                 {% endif %}
 
-                {# ПРОДУКЦИЯ  #}
 
-                <div class="d-flex flex-column gap-3 my-3">
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="text-uppercase fw-bolder py-2">Продукция</h5>
-                        <div class="small">
-						<span class="me-3 pt-3"> Позиций: &nbsp;
-							<span class="text-primary">
-								{{ form.product.count }} {{ 'num_of_products'|trans({'count': form.product.count }, 'messages') }}
-							</span>
-						</span>
+                {# Продукция и скидка заказа #}
+                <div class="d-flex align-items-center">
+                    <h5 class="text-uppercase fw-bolder py-2 w-75">Продукция</h5>
+                    <div class="fw-bold w-100">
+                        <div class="ms-2 w-50">
+                            {{ form_widget(form.discount, {
+                                label: '<span class="text-nowrap fw-bold">'~ 'Скидка по заказу' ~'</span>',
+                                attr: {
+                                    placeholder : 'Скидка по заказу, %',
+                                }
+                            }
+
+                            ) }}
+
                         </div>
                     </div>
+
+                    <div class="small text-nowrap">
+                        <span class="me-3 pt-3"> Позиций: &nbsp;
+                            <span class="text-primary">
+								{{ form.product.count }} {{ 'num_of_products'|trans({'count': form.product.count }, 'messages') }}
+							</span>
+							</span>
+                    </div>
+                </div>
+
+
+                <div class="d-flex flex-column gap-3 my-3">
 
                     {# Запрет на изменение заказа (стоимости, количество и пр.)  #}
                     {% set isNotEdit =

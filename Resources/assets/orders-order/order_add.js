@@ -677,6 +677,9 @@ async function submitAddToOrderForm(forms)
 
     prototype = prototype.replaceAll("__product_discount__", discount);
 
+    // Product Discount
+    prototype = prototype.replaceAll("__order_product_discount__", discount * -1);
+
     prototype = prototype.replaceAll("__product_total__", $totalAmount);
     prototype = prototype.replaceAll("__product_total_max__", $totalAmountMax);
 
@@ -691,6 +694,35 @@ async function submitAddToOrderForm(forms)
     document.getElementById(elementFormName + "_product_" + elementCount + "_modification").setAttribute("value", modification);
 
     total();
+
+
+    /* Навесить слушатель события для обработки cкидки товара */
+    var product_discounts =  document.querySelectorAll('.product-discount');
+
+    product_discounts.forEach(function(product_discount){
+        product_discount.addEventListener('input', function(event){
+
+            const discount = this.value * -1;
+
+            /* Родительский td */
+            let td = this.closest('td');
+
+            /* найти элемент с ценой в родельской td */
+            let price = td.querySelector('.price');
+            let current_price = price.dataset.price;
+
+            /* Сделать расчет скидки товара */
+            let product_price = parseFloat(current_price);
+            let discount_product_price = product_price - product_price / 100 * discount // TODO
+
+            /* Изменить значение input Цены */
+            price.value = discount_product_price;
+
+            /* Пересчетать всего */
+            total();
+        })
+    })
+
 
     /** Уменьшаем число продукции */
     document.querySelectorAll(".minus").forEach(function(btn)

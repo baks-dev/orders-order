@@ -40,6 +40,9 @@
 
         <div class="d-flex justify-content-center align-items-center text-center">
 
+            {# Скидка товара #}
+            {{ product_discount_widget|raw }}
+
             <button type="button" class="btn btn-sm minus"
                     title="Уменьшить количество"
                     data-id="{{ product_prototype.price.price.vars.id }}"

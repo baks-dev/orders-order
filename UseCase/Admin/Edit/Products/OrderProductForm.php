@@ -27,8 +27,10 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -45,10 +47,13 @@ final class OrderProductForm extends AbstractType
 
     private bool $error = false;
 
+    private false|int $discount = false;
+
     public function __construct(
         private readonly RequestStack $request,
         private readonly AddProductQuantityInterface $AddProductQuantity,
         private readonly SubProductQuantityInterface $SubProductQuantity,
+        private readonly Security $security,
 
     ) {}
 
@@ -60,6 +65,22 @@ final class OrderProductForm extends AbstractType
         $builder->add('offer', HiddenType::class);
         $builder->add('variation', HiddenType::class);
         $builder->add('modification', HiddenType::class);
+
+        /* Процент скидки для товара */
+        $this->discount = match (true)
+        {
+            $this->security->isGranted('ROLE_ADMIN') => 100,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_20') => 20,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
+            default => false,
+        };
+
+        $builder->add('discount', IntegerType::class, [
+            'attr' => ['min' => $this->discount ? $this->discount * -1 : 0],
+            'required' => false,
+        ]);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
 

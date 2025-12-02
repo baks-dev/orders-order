@@ -74,8 +74,12 @@ final class OrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private ArrayCollection $posting;
 
+    /** Персональная скидка пользователя для товара */
+    private ?int $discount = null;
+
     /** Карточка товара */
     private ProductUserBasketResult|null $card = null;
+
 
     public function __construct()
     {
@@ -210,5 +214,16 @@ final class OrderProductDTO implements OrderProductInterface
     public function removePosting(OrderProductPostingDTO $posting): void
     {
         $this->posting->removeElement($posting);
+    }
+
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(?int $discount): self
+    {
+        $this->discount = $discount;
+        return $this;
     }
 }

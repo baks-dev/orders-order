@@ -28,8 +28,10 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserForm;
 use BaksDev\Services\BaksDevServicesBundle;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -39,6 +41,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class EditOrderForm extends AbstractType
 {
+
+    private false|int $discount = false;
+
+    public function __construct(
+        private readonly Security $security,
+    ) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /* Коллекция продукции */
@@ -73,6 +82,22 @@ final class EditOrderForm extends AbstractType
         $builder->add('usr', OrderUserForm::class, ['label' => false]);
 
         $builder->add('comment', TextareaType::class, ['required' => false]);
+
+        /* Процент скидки для заказа */
+        $this->discount = match (true)
+        {
+            $this->security->isGranted('ROLE_ADMIN') => 100,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_20') => 20,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_15') => 15,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_10') => 10,
+            $this->security->isGranted('ROLE_ORDERS_DISCOUNT_5') => 5,
+            default => false,
+        };
+
+        $builder->add('discount', IntegerType::class, [
+            'attr' => ['min' => $this->discount ? $this->discount * -1 : 0],
+            'required' => false,
+        ]);
 
 
         $builder->addEventListener(

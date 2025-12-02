@@ -58,6 +58,7 @@ final class EditOrderDTO implements OrderEventInterface
     /** Статус заказа */
     private OrderStatus $status;
 
+
     /**
      * Коллекция продукции в заказе
      *
@@ -86,6 +87,9 @@ final class EditOrderDTO implements OrderEventInterface
 
     /** Комментарий к заказу */
     private ?string $comment = null;
+
+    /** Персональная скидка пользователя для заказа */
+    private ?int $discount = null;
 
     public function __construct(?OrderUid $order = null)
     {
@@ -250,5 +254,16 @@ final class EditOrderDTO implements OrderEventInterface
     public function getInvariable(): EditOrderInvariableDTO
     {
         return $this->invariable;
+    }
+
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(?int $discount): self
+    {
+        $this->discount = $discount;
+        return $this;
     }
 }

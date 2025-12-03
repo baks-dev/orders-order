@@ -115,8 +115,6 @@ final readonly class ProductReserveByOrderNewDispatcher
             }
         }
 
-
-        /** Проверяем, является ли данный профиль логистическим складом */
         $UserProfileUid = $OrderEvent->getOrderProfile();
 
         if(false === ($UserProfileUid instanceof UserProfileUid))
@@ -124,6 +122,8 @@ final readonly class ProductReserveByOrderNewDispatcher
             return;
         }
 
+
+        /** Проверяем, является ли данный профиль логистическим складом */
         $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
             ->forProfile($UserProfileUid)
             ->isLogisticWarehouse();
@@ -147,13 +147,15 @@ final readonly class ProductReserveByOrderNewDispatcher
                 return;
             }
 
+
+            /** Проверяем, являлся ли данный профиль логистическим складом в прошлом событии */
             $wasLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
                 ->forProfile($message->getLastProfile())
                 ->isLogisticWarehouse();
 
 
             /** Если оба склада логистические - не меняем резерв */
-            if(($message->getLastProfile() instanceof UserProfileUid) && $isLogisticWarehouse && $wasLogisticWarehouse)
+            if(true === $isLogisticWarehouse && true === $wasLogisticWarehouse)
             {
                 return;
             }

@@ -58,10 +58,16 @@ final class OrderStatusHandler extends AbstractHandler
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
+        $lastProfile = null;
+
         if($command->getEvent() instanceof OrderEventUid)
         {
             $lastEvent = $this->getRepository(OrderEvent::class)->find($command->getEvent());
-            $lastProfile = $lastEvent->getOrderProfile();
+
+            if($lastEvent instanceof OrderEvent)
+            {
+                $lastProfile = $lastEvent->getOrderProfile();
+            }
         }
 
         $this
@@ -101,7 +107,7 @@ final class OrderStatusHandler extends AbstractHandler
                     $this->main->getId(),
                     $this->main->getEvent(),
                     $command->getEvent(),
-                    ($lastProfile instanceof UserProfileUid) ? $lastProfile : null
+                    $lastProfile
                 ),
                 transport: 'orders-order',
             );

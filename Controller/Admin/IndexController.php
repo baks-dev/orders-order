@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
+use BaksDev\Services\BaksDevServicesBundle;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -113,6 +114,9 @@ final class IndexController extends AbstractController
                 'current_profile' => $this->getCurrentProfileUid(),
                 'search' => $searchForm->createView(),
                 'filter' => $OrderDeliveryFilterForm->createView(),
+
+                /* Флаг для отображения ссылки на форму отчета по услугам */
+                'has_services' => class_exists(BaksDevServicesBundle::class),
             ]
         );
     }

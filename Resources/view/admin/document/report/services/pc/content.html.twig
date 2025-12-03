@@ -7,7 +7,7 @@
 
             <h5 class="modal-title">
                 {# Заголовок модального окна #}
-                {{ 'Скачать отчет о заказах'|trans }}:
+                {{ 'Скачать отчет об услугах в заказах'|trans }}:
             </h5>
 
             <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" title="Close">
@@ -18,8 +18,8 @@
         <div class="modal-body d-flex justify-content-between" id="modal-body">
 
             <div class="w-50 d-flex gap-3 align-items-center text-nowrap">
-
                 {{ form_label(form.from, 'Дата начала', { label_attr: { class: 'mb-0'} }) }}
+                {# {{ form_row(form.from, { label: false, attr: { value : "now"|date("d.m.Y") }  }) }} #}
 
                 <div class="input-group">
                             <span class="input-group-text">
@@ -32,7 +32,6 @@
                                     <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
                                 </svg>
                             </span>
-
                     {{ form_widget(form.from, { attr: { style: 'max-width: 110px;' } }) }}
                 </div>
 
@@ -73,6 +72,7 @@
                                     <div class="form-check px-3 d-flex align-items-center">
                                         {{ form_widget(form.all, { label: false }) }}
                                         <span class="h6 mb-0 mt-1">
+                                            {# {{ 'admin.form.label.active'|trans }} #}
                                             По всем регионам
                                         </span>
                                     </div>
@@ -85,18 +85,21 @@
             {% endif %}
 
 
+
             <div class="d-flex gap-3">
                 {# Отмена #}
+
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
 
                 {# Сохранить #}
-                {{ form_widget(form.orders_report, { label: '
+                {{ form_widget(form.services_report, { label: '
 				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
 			'}) }}
             </div>
         </div>
+
 
     </div>
     {{ form_end(form) }}

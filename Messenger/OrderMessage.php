@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Messenger;
 
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 final class OrderMessage
 {
@@ -39,16 +40,23 @@ final class OrderMessage
     /** Идентификатор предыдущего события заказа */
     private string|false $last;
 
-    public function __construct(OrderUid $id, OrderEventUid $event, ?OrderEventUid $last = null)
+    /** Профиль предыдущего события заказа */
+    private string|false $lastProfile;
+
+    public function __construct(
+        OrderUid $id, OrderEventUid $event,
+        ?OrderEventUid $last = null,
+        ?UserProfileUid $lastProfile = null
+    )
     {
         $this->id = (string) $id;
         $this->event = (string) $event;
         $this->last = $last ? (string) $last : false;
+        $this->lastProfile = $lastProfile ? (string) $lastProfile : false;
     }
 
 
     /** Идентификатор заказа */
-
     public function getId(): OrderUid
     {
         return new OrderUid($this->id);
@@ -56,17 +64,22 @@ final class OrderMessage
 
 
     /** Идентификатор события заказа */
-
     public function getEvent(): OrderEventUid
     {
         return new OrderEventUid($this->event);
     }
 
-    /** Идентификатор предыдущего события */
 
+    /** Идентификатор предыдущего события */
     public function getLast(): OrderEventUid|false
     {
         return $this->last ? new OrderEventUid($this->last) : false;
     }
 
+
+    /** Профиль предыдущего события заказа */
+    public function getLastProfile(): UserProfileUid|false
+    {
+        return $this->lastProfile ? new UserProfileUid($this->lastProfile) : false;
+    }
 }

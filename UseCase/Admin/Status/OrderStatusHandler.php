@@ -35,6 +35,8 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderStatusHandler extends AbstractHandler
@@ -56,6 +58,12 @@ final class OrderStatusHandler extends AbstractHandler
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
+        if($command->getEvent() instanceof OrderEventUid)
+        {
+            $lastEvent = $this->getRepository(OrderEvent::class)->find($command->getEvent());
+            $lastProfile = $lastEvent->getOrderProfile();
+        }
+
         $this
             ->setCommand($command)
             ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
@@ -89,7 +97,12 @@ final class OrderStatusHandler extends AbstractHandler
             ->addClearCacheOther('products-product')
             ->addClearCacheOther('products-stocks')
             ->dispatch(
-                message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+                message: new OrderMessage(
+                    $this->main->getId(),
+                    $this->main->getEvent(),
+                    $command->getEvent(),
+                    ($lastProfile instanceof UserProfileUid) ? $lastProfile : null
+                ),
                 transport: 'orders-order',
             );
 

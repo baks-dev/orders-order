@@ -29,6 +29,7 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
@@ -73,8 +74,14 @@ final readonly class ProductReserveByOrderNewDispatcher
         }
 
 
-        /** Новый заказ не имеет предыдущего события!!! */
-        if(false !== ($message->getLast() instanceof OrderEventUid))
+        /**
+         * Новый заказ не имеет предыдущего события!!! (за исключением случая, когда мы намеренно создали новый заказ
+         * после отправки заказа из другого профиля на упаковку)
+         */
+        if(
+            false !== ($message->getLast() instanceof OrderEventUid) &&
+            false === ($message->getLastProfile() instanceof UserProfileUid)
+        )
         {
             return;
         }
@@ -120,20 +127,79 @@ final readonly class ProductReserveByOrderNewDispatcher
             }
         }
 
-        /**
-         * Проверяем, является ли данный профиль логистическим складом
-         */
 
+        /** Проверяем, является ли данный профиль логистическим складом */
         $UserProfileUid = $OrderEvent->getOrderProfile();
 
         if(false === ($UserProfileUid instanceof UserProfileUid))
         {
             return;
         }
-
+        
+        
+        /** Если это не первое событие заказа и профиль его не менялся, не меняем резерв */
+        if(
+            ($message->getLastProfile() instanceof UserProfileUid) &&
+            $UserProfileUid->equals($message->getLastProfile())
+        )
+        {
+            return;
+        }
+        
         $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
             ->forProfile($UserProfileUid)
             ->isLogisticWarehouse();
+
+        $wasLogisticWarehouse = ($message->getLastProfile() instanceof UserProfileUid) ? $this->UserProfileLogisticWarehouseRepository
+            ->forProfile($message->getLastProfile())
+            ->isLogisticWarehouse() : null;
+        
+        
+        /** Если профиль из прошлого события являлся логистическим складом, а текущий - нет, то снимаем резерв */
+        if(
+            ($message->getLastProfile() instanceof UserProfileUid) &&
+            true === $wasLogisticWarehouse &&
+            false === $isLogisticWarehouse
+        )
+        {
+            $this->logger->info(
+                sprintf(
+                    '%s: Снимаем резерв продукции в карточке для нового заказа (см. products-product.log)',
+                    $OrderEvent->getOrderNumber()
+                ),
+                [
+                    'status' => OrderStatusNew::STATUS,
+                    'deduplicator' => $Deduplicator->getKey()
+                ]
+            );
+
+            $EditOrderDTO = new EditOrderDTO();
+            $OrderEvent->getDto($EditOrderDTO);
+
+            /** @var OrderProductDTO $product */
+            foreach($EditOrderDTO->getProduct() as $product)
+            {
+                /** Устанавливаем новый резерв продукции в заказе */
+                $this->messageDispatch->dispatch(
+                    new ProductsReserveByOrderCancelMessage(
+                        $product->getProduct(),
+                        $product->getOffer(),
+                        $product->getVariation(),
+                        $product->getModification(),
+                        $product->getPrice()->getTotal()
+                    )
+                );
+            }
+
+            return;
+        }
+
+
+        /** Если оба склада логистические - не меняем резерв */
+        if(($message->getLastProfile() instanceof UserProfileUid) && $isLogisticWarehouse && $wasLogisticWarehouse)
+        {
+            return;
+        }
 
         if(false === $isLogisticWarehouse)
         {
@@ -141,7 +207,10 @@ final readonly class ProductReserveByOrderNewDispatcher
         }
 
         $this->logger->info(
-            sprintf('%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)', $OrderEvent->getOrderNumber()),
+            sprintf(
+                '%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
+                $OrderEvent->getOrderNumber()
+            ),
             [
                 'status' => OrderStatusNew::STATUS,
                 'deduplicator' => $Deduplicator->getKey()

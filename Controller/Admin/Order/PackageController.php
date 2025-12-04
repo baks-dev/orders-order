@@ -155,6 +155,7 @@ final class PackageController extends AbstractController
                     $OrderStatusDTO
                         ->addComment(sprintf('Важно! Заказ отправлен на сборку с другого магазина региона (%s)', $request->getHost()));
 
+
                     $Order = $OrderStatusHandler->handle(
                         command: $OrderStatusDTO,
                         deduplicator: false,

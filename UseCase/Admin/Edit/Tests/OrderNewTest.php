@@ -67,6 +67,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
+#[Group('orders-order-usecase')]
 #[When(env: 'test')]
 final class OrderNewTest extends KernelTestCase
 {
@@ -108,8 +109,8 @@ final class OrderNewTest extends KernelTestCase
 
         self::assertTrue($OrderDTO->getStatus()->equals(OrderStatusNew::class));
 
-        $OrderDTO->setProfile($UserProfileUid = new  UserProfileUid());
-        self::assertSame($UserProfileUid, $OrderDTO->getProfile());
+        $OrderDTO->getInvariable()->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $OrderDTO->getInvariable()->getProfile());
 
         /** OrderProductDTO */
 

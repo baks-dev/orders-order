@@ -1,0 +1,61 @@
+{% trans_default_domain('orders-order.admin') %}
+
+<div class="modal-dialog modal-dialog-centered" style="max-width: 800px;">
+    {{ form_start(form) }}
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+        <div class="modal-header align-items-center">
+
+            <h5 class="modal-title">
+                {# Заголовок модального окна #}
+                {{ 'Скачать отчет об услугах в заказах'|trans }}:
+            </h5>
+
+            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" title="Close">
+                <span class="svg-icon svg-icon-2x"></span>
+            </div>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+
+            <div class="d-flex gap-3 align-items-center my-3 clearfix">
+                <strong class="text-nowrap">Фильтр, по которому строится отчет</strong>
+                <div class="w-100">
+                    <hr class="m-0">
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 align-items-center my-3">
+
+                <div class="d-flex gap-3 align-items-center my-3 w-100">
+                    <div class="w-100 d-flex gap-3">
+                        <div class="d-flex w-100 gap-3 align-items-center justify-content-between">
+                            {{ form_label(form.date, 'Дата') }}
+                            {{ form_row(form.date, {
+                                label: false,
+                                attr: { value: "now"|date("d.m.Y")}
+                            }) }}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <div class="d-flex gap-3">
+                    {# Отмена #}
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                    </button>
+
+                    {# Сохранить #}
+                    {{ form_widget(form.services_report, { label: '
+				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+			'}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>

@@ -143,6 +143,20 @@
                             Отчет о продуктах
                         </a>
                     </li>
+
+                    {# Проверка - установлен ли services #}
+                    {% if has_services %}
+                        <li>
+                            <a href="{{ path('orders-order:admin.document.report.services') }}"
+                               class="dropdown-item"
+                               data-bs-toggle="modal"
+                               data-bs-target="#modal"
+                            >
+                                Отчет об услугах
+                            </a>
+                        </li>
+                    {% endif %}
+
                 </ul>
             </div>
 

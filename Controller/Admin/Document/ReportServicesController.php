@@ -104,8 +104,8 @@ final class ReportServicesController extends AbstractController
                 ->setCellValue('B1', 'Дата')
                 ->setCellValue('C1', 'Номер заказа')
                 ->setCellValue('D1', 'Наименование услуги')
-                ->setCellValue('E1', 'Стоимость услуги за единицу')
-                ->setCellValue('F1', 'Стоимость услуги в заказе за единицу')
+                ->setCellValue('E1', 'Стоимость услуги')
+                ->setCellValue('F1', 'Стоимость в заказе')
                 ->setCellValue('G1', 'Комментарий');
 
             /* Автоматическое изменение ширины столбца */
@@ -131,17 +131,6 @@ final class ReportServicesController extends AbstractController
                 /* Информация о стоимости услуги */
                 $servicePrice = $data->getServicePrice();
                 $orderServicePrice = $data->getOrderServicePrice();
-
-                if($data->isDanger())
-                {
-                    /* Заливка диапазона красным */
-                    $sheet
-                        ->getStyle('A'.$key.':H'.$key)
-                        ->getFill()
-                        ->setFillType(Fill::FILL_SOLID)
-                        ->getStartColor()
-                        ->setARGB('ff0000');
-                }
 
                 /* Заполнение данными */
                 $sheet

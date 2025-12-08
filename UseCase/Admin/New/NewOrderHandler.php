@@ -57,6 +57,8 @@ final class NewOrderHandler extends AbstractHandler
 
     public function handle(NewOrderDTO $command): string|Order
     {
+        $this->setCommand($command);
+
         $OrderUserDTO = $command->getUsr();
 
         /**

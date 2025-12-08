@@ -44,7 +44,8 @@ final class OrderMessage
     private string|false $lastProfile;
 
     public function __construct(
-        OrderUid $id, OrderEventUid $event,
+        OrderUid $id,
+        OrderEventUid $event,
         ?OrderEventUid $last = null,
         ?UserProfileUid $lastProfile = null
     )

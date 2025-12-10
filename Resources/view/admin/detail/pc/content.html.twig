@@ -62,7 +62,7 @@
 
             <h5 class="offcanvas-title flex-grow-1 mb-0 copy pointer d-flex align-items-center gap-2"
                 data-copy="{{ order.order_number }}">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
                      height="14" fill="text-primary" viewBox="0 0 115.77 122.88">
                     <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
                 </svg>
@@ -204,6 +204,26 @@
                             <li>
                                 <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
                                     <h6 class="dropdown-header">Честный знак</h6>
+
+                                    <span
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom"
+                                            data-bs-delay='{"show":600,"hide":100}'
+                                            title="Список ссылок на все честные знаки"
+                                    >
+                                        <a
+                                                class="text-muted"
+                                                href="{{ path('materials-sign:admin.links.list', { order: order.order_id }) }}">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                 fill="currentColor" class="bi bi-filetype-txt"
+                                                 viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M14 4.5V14a2 2 0 0 1-2 2h-2v-1h2a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.928 15.849v-3.337h1.136v-.662H0v.662h1.134v3.337zm4.689-3.999h-.894L4.9 13.289h-.035l-.832-1.439h-.932l1.228 1.983-1.24 2.016h.862l.853-1.415h.035l.85 1.415h.907l-1.253-1.992zm1.93.662v3.337h-.794v-3.337H6.619v-.662h3.064v.662H8.546Z"/>
+                                            </svg>
+                                        </a>
+
+                                    </span>
                                 </div>
                             </li>
 
@@ -307,6 +327,25 @@
 
                                     </span>
 
+                                    <span
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom"
+                                            data-bs-delay='{"show":600,"hide":100}'
+                                            title="Список ссылок на все честные знаки"
+                                    >
+                                        <a
+                                                class="text-muted"
+                                                href="{{ path('products-sign:admin.links.list', { order: order.order_id }) }}">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                 fill="currentColor" class="bi bi-filetype-txt"
+                                                 viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                      d="M14 4.5V14a2 2 0 0 1-2 2h-2v-1h2a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.928 15.849v-3.337h1.136v-.662H0v.662h1.134v3.337zm4.689-3.999h-.894L4.9 13.289h-.035l-.832-1.439h-.932l1.228 1.983-1.24 2.016h.862l.853-1.415h.035l.85 1.415h.907l-1.253-1.992zm1.93.662v3.337h-.794v-3.337H6.619v-.662h3.064v.662H8.546Z"/>
+                                            </svg>
+                                        </a>
+
+                                    </span>
 
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCT_SIGN_REISSUE') %}
                                         {% if order.order_status != 'new' and order.order_status != 'completed' %}
@@ -338,27 +377,6 @@
 
                                 </div>
                             </li>
-
-
-                            {# <li>
-
-                                <div class="dropdown-item">
-                                    <a
-                                            class="btn btn-sm btn-light disabled prnt text-muted text-nowrap w-100"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modal"
-                                            href="{{ path('products-sign:document.print.orders', { order: order.order_id }) }}">
-                                        Печать всех честных знаков &nbsp;
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                             fill="currentColor"
-                                             class="bi bi-printer" viewBox="0 0 16 16">
-                                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
-                                        </svg>
-                                    </a>
-                                </div>
-
-                            </li> #}
 
 
                             {% for product in products_sign %}
@@ -771,15 +789,6 @@
             <span class="small">{{ total_counter }} товаров на сумму: &nbsp;
                 <span id='total_product_sum'>{{ money(total_summ, total_summ_currency) ?: 0 }}</span>
             </span>
-
-            {# {% if total %}
-                <span class="text-nowrap">
-                    из них маркированных
-                    <span class="badge {{ total_counter == total ? 'text-bg-success' : 'text-bg-danger' }}">
-                        {{ total }}
-                    </span>
-                </span>
-            {% endif %} #}
 
             <br>
 

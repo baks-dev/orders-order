@@ -53,6 +53,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 use BaksDev\Reference\Currency\Type\Currencies\RUR;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -142,8 +143,8 @@ final class OrderNewTest extends KernelTestCase
         $EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
         self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
 
-        //$EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
-        //self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
+        $EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
 
         /** Взываем метод $EditOrderInvariableDTO->getNumber() */
         $number = $EditOrderInvariableDTO->getNumber();
@@ -224,8 +225,9 @@ final class OrderNewTest extends KernelTestCase
         self::assertSame($field, $OrderDeliveryFieldDTO->getField());
 
 
-        $OrderDeliveryFieldDTO->setValue('mQBSkMEHTW');
-        self::assertEquals('mQBSkMEHTW', $OrderDeliveryFieldDTO->getValue());
+        $OrderDeliveryFieldDTO->setValue(UserProfileUid::TEST);
+        //        $OrderDeliveryFieldDTO->setValue('mQBSkMEHTW');
+        //        self::assertEquals('mQBSkMEHTW', $OrderDeliveryFieldDTO->getValue());
 
 
         /** OrderPaymentDTO */

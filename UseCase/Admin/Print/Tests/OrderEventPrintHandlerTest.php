@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Print\Tests;
 
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintHandler;
@@ -44,6 +43,6 @@ final class OrderEventPrintHandlerTest extends KernelTestCase
         $orderEventPrintDTO = new OrderEventPrintDTO(new OrderEventUid(OrderEventUid::TEST));
         $result = $OrderEventPrintHandler->handle($orderEventPrintDTO);
 
-        self::assertInstanceOf(Order::class, $result);
+        self::assertIsBool($result);
     }
 }

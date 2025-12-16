@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
@@ -40,14 +41,13 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class ProductReserveByOrderNewHandler
 {
     public function __construct(
-        #[Target('productsProductLogger')] private LoggerInterface $logger,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private AddProductQuantityInterface $addProductQuantity,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void
     {
-
         /**
          * Всегда пробуем определить активное состояние карточки на случай обновления
          */
@@ -68,7 +68,6 @@ final readonly class ProductReserveByOrderNewHandler
 
             return;
         }
-
 
         $result = $this
             ->addProductQuantity

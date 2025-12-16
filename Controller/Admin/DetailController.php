@@ -35,12 +35,14 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Products\Sign\BaksDevProductsSignBundle;
@@ -82,6 +84,7 @@ final class DetailController extends AbstractController
             ->forOrder($Order->getId())
             ->find();
 
+
         if(false === ($OrderEvent instanceof OrderEvent))
         {
             throw new RouteNotFoundException('Page Not Found');
@@ -97,6 +100,7 @@ final class DetailController extends AbstractController
 
         $OrderDTO = new EditOrderDTO($Order->getId());
         $OrderEvent->getDto($OrderDTO);
+
 
         /**
          * Продукты в заказе
@@ -124,7 +128,7 @@ final class DetailController extends AbstractController
         foreach($OrderDTO->getServ() as $serv)
         {
             $serviceInfo = $oneServiceByIdRepository
-                //->byProfile($this->getProfileUid())
+                //->byProfile($this->getProfileUid()) // проблема с перемещением заказа с одного региона в другой
                 ->find($serv->getServ());
 
             if(false === $serviceInfo)
@@ -167,6 +171,24 @@ final class DetailController extends AbstractController
         {
 
             $this->refreshTokenForm($form);
+
+            foreach($OrderDTO->getProduct() as $product)
+            {
+                /** Еси при редактировании заказа был добавлен новый продукт - нужно создает единицы продукции  */
+                if(false === $product->getCard() instanceof ProductUserBasketResult)
+                {
+                    /** Создаем единицы по общему количеству */
+                    for($i = 0; $i < $product->getPrice()->getTotal(); $i++)
+                    {
+                        $OrderProductItemDTO = new OrderProductItemDTO();
+
+                        $OrderProductItemDTO->getPrice()->setPrice($product->getPrice()->getPrice());
+                        $OrderProductItemDTO->getPrice()->setCurrency($product->getPrice()->getCurrency());
+                        $OrderProductItemDTO->generateConst();
+                        $product->addItem($OrderProductItemDTO);
+                    }
+                }
+            }
 
             /**
              * Проверка уникальности периода

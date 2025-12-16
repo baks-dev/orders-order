@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
@@ -41,7 +42,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class ProductsReserveByOrderCancelHandler
 {
     public function __construct(
-        #[Target('productsProductLogger')] private LoggerInterface $logger,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}

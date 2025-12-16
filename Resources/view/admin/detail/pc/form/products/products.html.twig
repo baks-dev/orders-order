@@ -12,11 +12,12 @@
     <tbody>
 
 
-    {% for product in form.product|filter(v => v.vars.data.card is not empty) %}
+    {% for productIndex,product in form.product|filter(v => v.vars.data.card is not empty) %}
+
+    {% set productGroup = product.vars.id %}
 
     {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
     {% set card = product.vars.data.card %}
-
 
     <tr id='item_{{ product.vars.id }}'>
 
@@ -36,12 +37,12 @@
                 <div class="col-3">
 
                     {# Обложка #}
-                    <a
-                            href="{{ product_path }}"
-                            class="icon rounded-4 mb-2 bg-contain p-1"
-                            style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
-                            target="_blank"
-                    ></a>
+                    <a href="{{ product_path }}"
+                       class="icon rounded-4 mb-2 bg-contain p-1"
+                       style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
+                       target="_blank">
+
+                    </a>
 
                 </div>
 
@@ -50,8 +51,7 @@
                     <a href="{{ product_path }}"
                        class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
                        target="_blank"
-                       style="width: 250px;"
-                    >
+                       style="width: 250px;">
 
                         {{ card.productName }} <br>
 
@@ -91,252 +91,22 @@
 
         </td>
 
-
-        {# Запрет на редактирвоание количества либо стоимости #}
-
-        <td class="vertical-middle text-center">
-            {# {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
-                <span class="text-danger">Не указана</span>
-            {% endif %} #}
-
-            {% if product.price.price is defined %}
-
-                {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
-
-                <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
-
-                    {# Скидка товара  #}
-{#                    {% if card.productPrice and card.productPrice.value == (product.vars.data.price.price.value) %}#}
-                        {{ form_widget(product.discount, { attr: {
-                            class: 'form-control-sm rounded-3 product-discount',
-                            style: 'width: 81px;',
-                            disabled: card.productPrice and card.productPrice.value != (product.vars.data.price.price.value),
-                            placeholder: "Скидка, %",
-                            title: "Скидка товара, %",
-
-                        } }) }}
-{#                    {% endif %}#}
-
-                    <button type="button" class="btn btn-sm minus"
-                            title="Уменьшить количество"
-                            data-id='{{ product.price.price.vars.id }}'
-                            data-step='100'
-                    >
-                        <span class="h4 text-muted opacity-50">-</span>
-                    </button>
-
-
-                    {{ form_widget(product.price.price, { attr: {
-                        class: 'form-control-sm rounded-3 price',
-                        style: 'width: 75px;',
-                        disabled: false,
-                        'data-price': product.vars.data.price.price.value
-                    } }) }}
-
-
-                    <button type="button" class="btn btn-sm plus"
-                            title="Увеличить количество"
-                            data-id='{{ product.price.price.vars.id }}'
-                            data-step='100'
-                    >
-                        <span class="h5 text-muted opacity-50">+</span>
-                    </button>
-                </div>
-
-                {% if isNotEdit %}
-                    {{ money(product.vars.data.price.price, card.productCurrency) }}
-                {% endif %}
-
-
-            {% else %}
-                {{ money(product.vars.data.price.price, card.productCurrency) }}
-            {% endif %}
-
-        </td>
-
-
-        <td class="vertical-middle text-center">
-
-            <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
-
-                <button type="button" class="btn btn-sm minus"
-                        title="Уменьшить количество"
-                        data-id='{{ product.price.total.vars.id }}'
-                >
-                    <span class="h4 text-muted opacity-50">-</span>
-                </button>
-
-                {{ form_widget(product.price.total, {
-                    label: false,
-                    attr: {
-                        class : 'form-control-sm mx-1 rounded-3 total',
-                        style: 'width: 50px;',
-                        'data-price' : ''~product.price.vars.data.price.value*100,
-                        'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
-                        'data-currency' : product.price.vars.data.currency|upper,
-                        'data-max' : card.stockTotal
-                    } } ) }}
-
-                <button type="button" class="btn btn-sm plus"
-                        title="Увеличить количество"
-                        data-id='{{ product.price.total.vars.id }}'
-                >
-                    <span class="h5 text-muted opacity-50">+</span>
-                </button>
-
-            </div>
-
-            {% if isNotEdit %}
-                {{ product.price.total.vars.data }}
-            {% endif %}
-
-        </td>
-
-        <td class="vertical-middle">
-
-            {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
-
-            {% set discount = user_profile_discount(summ) %}
-
-            <strong id='summ_{{ product.price.total.vars.id }}'
-                    data-price='{{ card.productPrice.value }}'
-                    data-discount='{{ baks_profile.profile_discount is defined ? baks_profile.profile_discount }}'
-                    data-currency='{{ card.productCurrency|upper }}'
-            >
-                {{ discount ? money(discount, card.productCurrency) : money(summ, card.productCurrency) }}
-
-            </strong>
-
-            {% if discount %}
-                <span class="badge bg-danger rounded-2 ms-2">- {{ baks_profile.profile_discount }}%</span>
-            {% endif %}
-
-        </td>
-
+        {# Стоимость, количество, скидка и т.д. #}
+        {{ include(_self|replace({ "products.html.twig": "_price.html.twig" })) }}
 
         <td class="vertical-middle text-end">
 
             <li class="nav nav-item flex-grow-1 text-end" role="presentation">
 
-                {% set stockTotal = 0 %}
-
-                {% if order.order_status == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
-
-                    {% for stock in order.stocks|json_decode %}
-                        {% if stock.main == card.productId
-                            and stock.offer == card.productOfferConst
-                            and stock.variation == card.productVariationConst
-                            and stock.modification == card.productModificationConst %}
-                            {% set stockTotal = stockTotal + stock.total - stock.reserve %}
-                        {% endif %}
-                    {% endfor %}
-
-                    {% set stockTotal = stockTotal - product.price.vars.data.total %}
-
-                {% endif %}
-
-
-                <div class="dropdown">
-
-                    <button class="btn btn-link dropdown-toggle d-flex align-items-center text-decoration-none {{ stockTotal < 0 ? 'text-danger' : 'text-muted' }}"
-                            type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-
-
-                        {% if stockTotal < 0 %}
-
-                            <span class="badge text-bg-danger">{{ stockTotal }}</span>
-
-
-                        {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
-                                 class="bi bi-list" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                      d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-                            </svg>
-                        {% endif %}
-
-                    </button>
-
-
-                    <ul class="dropdown-menu">
-
-
-                        {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
-
-                            <li>
-                                <a href="{{ path('wildberries-products:admin.barcode.print', {
-                                    product : card.productEvent,
-                                    offer: card.productOfferUid,
-                                    variation: card.productVariationUid,
-                                    modification: card.productModificationUid,
-                                    total: product.price.vars.data.total,
-                                    print: true
-                                }) }}"
-
-                                   class="dropdown-item prnt"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#modal"
-                                >
-                                    Печать этикетки Wildberries
-                                </a>
-                            </li>
-
-                        {% endif %}
-
-
-                        {% if isNotEdit == false %}
-
-                            <li>
-
-                                <button
-                                        type="button"
-                                        class="dropdown-item delete-product"
-                                        data-row="{{ product.vars.id }}"
-                                >
-                                    Удалить из заказа
-                                </button>
-
-                            </li>
-
-                        {% endif %}
-
-                        {% if stockTotal < 0 %}
-
-                            <li>
-                                <button
-                                        data-href="{{ path('products-stocks:admin.moving.new') }}"
-                                        class="btn dropdown-item moving"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modal"
-                                        data-pre-product="{{ card.productId }}"
-                                        data-pre-offer="{{ card.productOfferConst }}"
-                                        data-pre-variation="{{ card.productVariationConst }}"
-                                        data-pre-modification="{{ card.productModificationConst }}"
-                                        data-pre-total="{{ stockTotal|abs }}"
-                                        data-destination-warehouse="{{ profile }}"
-                                        data-method="post"
-                                        data-formname="moving_product_stock_form"
-                                        data-post-class="add-one-to-collection"
-                                >
-                                    Создать перемещение на {{ stockTotal|abs }} шт.
-                                </button>
-                            </li>
-
-                        {% endif %}
-                    </ul>
-                </div>
-
+                {# Меню редактирования #}
+                {{ include(_self|replace({ "products.html.twig": "_menu.html.twig" })) }}
             </li>
 
-
-            {# УДАЛИТЬ #}
         </td>
-
-        {% set colspan = 4 %}
 
     </tr>
 
+    {% set colspan = 4 %}
 
     {% if product.price.price is defined %}
 
@@ -380,7 +150,13 @@
 
         {% endif %}
 
-        {% endfor %}
+        {% if product.item|length != 0 %}
+            {{ include(_self|replace({ "products.html.twig": "_items/item.html.twig" })) }}
+        {% endif %}
 
+        {# Продукты по единицам #}
+
+        {% endfor %}
     </tbody>
 </table>
+

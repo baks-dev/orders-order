@@ -41,9 +41,10 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Обновляем резерв в карточке при изменении количества в заказе
+ * Обновляем/Снимаем резерв в карточке при изменении количества в заказе
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
+ * @note не сработает на новом заказе
  */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductChangeReserveByOrderChangeDispatcher

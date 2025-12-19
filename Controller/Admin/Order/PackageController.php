@@ -49,14 +49,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Упаковка (сборка) заказов
+ */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class PackageController extends AbstractController
 {
-    /**
-     * Упаковка (сборка) заказов
-     */
-    #[Route('/admin/order/package', name: 'admin.order.package', methods: ['GET', 'POST'])]
+    public const string NAME = 'admin.order.package';
+
+    #[Route('/admin/order/package', name: self::NAME, methods: ['GET', 'POST'])]
     public function package(
         Request $request,
         CentrifugoPublishInterface $publish,
@@ -67,13 +69,11 @@ final class PackageController extends AbstractController
         OrderStatusHandler $OrderStatusHandler
     ): Response
     {
-        $packageOrdersDTO = new PackageOrdersDTO();
-
         $packageOrdersForm = $this
             ->createForm(
-                PackageOrdersForm::class,
-                $packageOrdersDTO,
-                ['action' => $this->generateUrl('orders-order:admin.order.package')],
+                type: PackageOrdersForm::class,
+                data: $packageOrdersDTO = new PackageOrdersDTO(),
+                options: ['action' => $this->generateUrl('orders-order:'.self::NAME)],
             )
             ->handleRequest($request);
 

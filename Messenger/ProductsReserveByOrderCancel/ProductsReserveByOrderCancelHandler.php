@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
-use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
@@ -63,7 +62,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
         {
             $this->logger->critical(
-                'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
                 [var_export($message, true), self::class.':'.__LINE__,],
             );
 
@@ -84,7 +83,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         if($result === 0)
         {
             $this->logger->critical(
-                'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
                 [var_export($message, true), self::class.':'.__LINE__,],
             );
 
@@ -92,7 +91,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         }
 
         $this->logger->info(
-            'Сняли общий резерв продукции в карточке при отмене заказа',
+            'orders-order: Сняли общий резерв продукции в карточке при отмене заказа. Сняли с резерва '.$message->getTotal(),
             [var_export($message, true), self::class.':'.__LINE__,],
         );
     }

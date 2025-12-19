@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
-use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
@@ -63,7 +62,7 @@ final readonly class ProductReserveByOrderNewHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__],
+                [var_export($message, true), self::class.':'.__LINE__],
             );
 
             return;
@@ -79,12 +78,11 @@ final readonly class ProductReserveByOrderNewHandler
             ->addQuantity(false)
             ->update();
 
-
         if($result === false)
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__]
+                [var_export($message, true), self::class.':'.__LINE__]
             );
 
             return;
@@ -94,15 +92,15 @@ final readonly class ProductReserveByOrderNewHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва',
-                [$message, self::class.':'.__LINE__]
+                [var_export($message, true), self::class.':'.__LINE__]
             );
 
             return;
         }
 
         $this->logger->info(
-            sprintf('orders-order: Добавили %s резерва продукции в карточке', $message->getTotal()),
-            [$message, self::class.':'.__LINE__]
+            sprintf('orders-order: Добавили резерв продукции в карточке. Резерв равен %s', $message->getTotal()),
+            [var_export($message, true), self::class.':'.__LINE__]
         );
     }
 }

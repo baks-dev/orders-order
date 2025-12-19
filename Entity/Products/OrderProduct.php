@@ -180,4 +180,14 @@ class OrderProduct extends EntityEvent
     {
         return $this->price->getTotal();
     }
+
+    /**
+     * Item
+     * @return Collection<int, OrderProductItem>
+     */
+    public function getItems(): Collection
+    {
+        return $this->item;
+    }
+
 }

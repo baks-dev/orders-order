@@ -1,0 +1,13 @@
+{% if order.orderServices is not null %}
+
+    {% set services = order.orderServices %}
+
+    {#    {% if services|length > 0 and services|first.service_id %} #}
+
+    <h5>Выбранные услуги</h5>
+    {% for card in services %}
+        <p class="title m-2">{{ card.service_name }} (от
+            <span>{{ money(card.service_price, card.service_currency) }}</span>)</p>
+    {% endfor %}
+    
+{% endif %}

@@ -1,0 +1,274 @@
+{# ПЕЧАТЬ #}
+
+
+{# @var profile \BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult #}
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
+<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
+     style="overflow-y:hidden;">
+
+    {% for order in orders %}
+
+        {% set money =  0 %}
+
+        {% set products = order.orderProducts %}
+
+        {% set services = order.orderServices %}
+
+        {% set order_user = order.orderUser|json_decode %}
+
+
+        <div class="d-flex w-100 align-items-center gap-4 mb-2">
+
+            <div class="d-flex align-items-center" style="height: 100px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"
+                     style="height: 140px; max-height: 140px; max-width: 200px; margin-left: 20px;"
+                     fill="currentColor"
+                     viewBox="10 10 30 30">
+                    {{ order.qrcode|raw }}
+                </svg>
+            </div>
+
+            <img src="/logo.webp" style="max-height: 50px;" alt="{{ app.request.server.get('HOST') }}">
+
+            {% if profile.contactPhone %}
+                <h5 class="w-100 text-end">{{ profile.contactPhone.value }}</h5>
+            {% endif %}
+
+        </div>
+
+
+
+        <div class="d-flex w-100 justify-content-between gap-2 border-bottom">
+            <h5>Расходная накладная #{{ order.orderNumber }} от {{ order.orderData|date('d.m.Y') }}</h5>
+            <h6>{{ app.request.server.get('HOST') }}</h6>
+        </div>
+
+
+
+        <ul class="small p-0 m-0 mb-2">
+
+            {% if profile.organizationName %}
+                <li class="list-group-item">Поставщик: <strong>{{ profile.organizationName.value }}</strong></li>
+            {% endif %}
+
+
+            {% for user in order.orderClient %}
+                <li class="list-group-item">
+                    {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+                </li>
+            {% endfor %}
+
+            {% for delivery in order.orderDelivery %}
+                <li class="list-group-item">
+                    {{ delivery.delivery_name }}: <strong>{{ delivery.delivery_value }}</strong>
+                </li>
+            {% endfor %}
+
+            {% if order.deliveryGeocodeAddress %}
+                <li class="list-group-item">
+                    Адрес доставки:<strong> {{ order.deliveryGeocodeAddress }}</strong>
+                </li>
+            {% endif %}
+
+
+            <li class="list-group-item">
+                Способ оплаты:
+
+                {% if order.paymentId != '01876b9a-f696-7c7b-87cd-1dc3ab014ed8' %}
+                    &nbsp; <strong>Оплачено на сайте</strong>
+                    &nbsp; <span class="small">({{ order.paymentName }})</span>
+                {% else %}
+                    <strong>{{ order.paymentName }}</strong>
+                {% endif %}
+            </li>
+
+            {% if order.orderComment %}
+                <li class="list-group-item">
+                    Комментарий к заказу:<strong> {{ order.orderComment }}</strong>
+                </li>
+            {% endif %}
+        </ul>
+
+
+        <table class="table w-100 mb-2">
+            <thead>
+
+            <tr>
+                <th scope="col"> №
+                <th scope="col"> Товар
+                <th scope="col"> Кол-во
+                <th scope="col"> Ед.
+                <th scope="col"> Цена
+                <th scope="col"> Сумма
+            <tbody>
+
+
+            {% set counter = 0 %}
+
+            {% for card in products %}
+
+
+            {% set counter = counter + 1 %}
+            {% set money = (card.product_price * card.product_total) + money %}
+
+            <tr>
+                <th scope="row"> {{ counter }}
+                <td> {# Triangle Group TR259 225/65 R17 106V #}
+
+                    <strong class="h6">{{ card.product_name }}</strong> &nbsp;
+
+                    {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                    card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+                    {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+                    {# Постфикс торгового предложения #}
+                    {{ card.product_offer_postfix }}
+                    {# Постфикс множественного варианта #}
+                    {{ card.product_variation_postfix }}
+                    {# Постфикс модификации #}
+                    {{ card.product_modification_postfix }}
+
+                <td> {{ card.product_total }}
+                <td> шт
+                <td> {{ money(card.product_price) }}
+                <td> {{ money((card.product_price * card.product_total)) }}
+
+                    {% endfor %}
+
+                    {% if services and services|first.service_id %}
+
+                    {# Услуги #}
+                    {% for service in services %}
+
+                    {% set counter = counter + 1 %}
+                    {% set money =  service.service_price + money %}
+
+            <tr>
+                <th scope="row"> {{ counter }}
+                <td>  {#  {{ service.service_name }} Шиномонтаж #}
+                    <strong class="h6">{{ service.service_name }}</strong> &nbsp;
+                <td> -
+                <td> -
+
+                <td> {{ money(service.service_price) }}
+                <td> {{ money(service.service_price) }}
+
+
+                    {% endfor %}
+                    {% endif %}
+
+
+                    {% if order.orderDeliveryPrice.value > 0 %}
+
+                    {% set counter = counter + 1 %}
+                    {% set money = order.orderDeliveryPrice.value * 100 + money %}
+
+            <tr>
+                <th scope="row"> {{ counter }}
+                <td> Доставка
+
+                <td> -
+                <td> -
+                <td> {{ money(order.orderDeliveryPrice) }}
+                <td> {{ money(order.orderDeliveryPrice) }}
+
+
+                    {% elseif order.deliveryPrice.value > 0 %}
+
+                    {% set counter = counter + 1 %}
+                    {% set money =  order.deliveryPrice.value * 100 + money %}
+
+            <tr>
+                <th scope="row"> {{ counter }}
+                <td> Доставка
+
+                <td> -
+                <td> -
+                <td> {{ money(order.deliveryPrice) }}
+                <td> {{ money(order.deliveryPrice) }}
+
+                    {% endif %}
+
+
+                    {% set total = money(money) %}
+
+
+            <tfoot>
+            <tr>
+                <td colspan="6" class="text-end">Итого: {{ total }}
+
+        </table>
+
+        <div class="small">
+            Всего наименований {{ counter }}, на сумму {{ total }}
+            ({{ money_word((money * 0.01)) }})
+        </div>
+
+        <hr>
+
+        <div class="w-100 d-flex gap-3 mb-2">
+
+            <div class="fw-bolder">Отпустил</div>
+
+            <div class="w-25">
+                <div class="border-bottom">&nbsp;</div>
+                <div class="small"><small>подпись</small></div>
+            </div>
+
+            <div class="w-25">
+                <div class="border-bottom">&nbsp;</div>
+                <div class="small"><small>расшифровка подписи</small></div>
+            </div>
+        </div>
+
+
+        <div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
+            <p><strong>Комментарий:</strong></p>
+        </div>
+
+        <section class="small">
+
+            <h5>Гарантийные обязательства</h5>
+
+            <p>На всю продукцию предоставляется гарантия сроком один год с момента передачи её Покупателю. Гарантия
+                распространяется на недостатки (заводской брак), возникшие по вине производителя.</p>
+
+            <p>Возврат товара надлежащего качества возможен в течение 14 (четырнадцати) дней со дня, следующего за днём
+                покупки. Для возврата необходимо соблюдение следующих условий: сохранены товарный вид, потребительские
+                свойства товара, а также имеется документ, подтверждающий факт и условия покупки (товарный или кассовый
+                чек).</p>
+
+            <p>Денежные средства подлежат возврату Покупателю в течение 3 (трёх) календарных дней с момента получения
+                продавцом товара и письменного заявления с соответствующим требованием.</p>
+
+            <p>Права Покупателя при обнаружении в товаре недостатков (товар ненадлежащего качества) регламентируются
+                статьями 18–24 Закона Российской Федерации «О защите прав потребителей».</p>
+
+        </section>
+
+        <div class="w-100">Товар принял. К количеству, комплектации и внешнему виду претензий не имею:</div>
+
+        <div class="w-100 d-flex gap-3">
+
+            <div class="w-25">
+                <div class="border-bottom">&nbsp;</div>
+                <div class="small"><small>подпись</small></div>
+            </div>
+
+            <div class="w-25">
+                <div class="border-bottom">&nbsp;</div>
+                <div class="small">
+                    <small>расшифровка подписи</small>
+                </div>
+            </div>
+        </div>
+
+        {% if loop.last == false %}
+            <div style="page-break-before:always;">&nbsp;</div>
+        {% endif %}
+
+    {% endfor %}
+
+</div>

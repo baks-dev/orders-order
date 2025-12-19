@@ -1,91 +1,112 @@
 {% trans_default_domain('user.order') %}
 
-<h5>Оплата</h5>
-
 <div id='user_payment'>
 
-    {# <div class="d-flex justify-content-between mb-3"> #}
-    {# <div class="w-50">
-			<label>Способ оплаты: *</label>
-		</div>
-		<div class="w-75"> #}
 
-    {% for payment in form.usr.payment.payment %}
+    {#    <div class="p-2 py-4"> #}
+    {#        <div class="d-flex align-items-center gap-3 mb-3"> #}
+    {#            <svg class="bi bi-wallet2" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#a7d3f7" viewbox="0 0 16 16"> #}
+    {#                <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"></path> #}
+    {#            </svg> #}
+    {#            <h3 class="fs-12 fw-bold text-uppercase mb-0"> #}
+    {#                способ оплаты #}
+    {#            </h3> #}
+    {#        </div> #}
+    {#        <div class="ps-4 pe-2"> #}
+    {#            <div class="form-check mb-3"> #}
+    {#                <input class="form-check-input" id="cardPay" type="radio" name="Pay"> #}
+    {#                <label class="form-check-label fs-12 fw-medium" for="cardPay"> #}
+    {#                    Оплата банковской картой (МИР, Visa,<br> #}
+    {#                    Mastercard), СБП, SBER PAY #}
+    {#                </label> #}
+    {#            </div> #}
+    {#            <div class="form-check "> #}
+    {#                <input class="form-check-input" id="reserd" type="radio" name="Pay" checked> #}
+    {#                <label class="form-check-label fs-12 fw-medium" for="reserd"> #}
+    {#                    Бронирование товара #}
+    {#                    <span class="text-secondary fs-10 fw-normal d-block mt-2">Оплата производится наличными деньгами, в момент получения заказа. #}
+    {#                            </span> #}
+    {#                </label> #}
+    {#            </div> #}
+    {#        </div> #}
+    {#    </div> #}
 
-        <div class="form-check">
 
-            <label class="form-check-label" for="payment1">
-                {{ form_widget(payment) }}
-            </label>
+    <div class="p-2 ">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <svg class="bi bi-wallet2" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#a7d3f7"
+                 viewbox="0 0 16 16">
+                <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"></path>
+            </svg>
+            <h3 class="fs-12 fw-bold text-uppercase mb-0">
+                способ оплаты
+            </h3>
         </div>
 
-    {% endfor %}
+
+        <div class="py-2 d-flex flex-column gap-1" data-buttons="true">
+
+            {# Способ оплаты #}
+            {% for payment in form.usr.payment.payment %}
+
+                <label class="btn p-2 border-dotted rounded-3 w-100 text-muted {{ payment.vars.attr.checked == true ? 'active' }}">
+                    <span class="d-flex align-items-center">
+                        <span class="flex-grow-1">
+                            <span class="h5">
+                                <span class="form-check d-flex align-items-center mb-0">
+
+                                   <span class='mb-1 me-3'>
+                                       {{ form_widget(payment, { label: false }) }}
+                                   </span>
+
+                                    <span style="font-size: 1rem;" class="text-start">
+                                        {{ payment.vars.label }}
+                                    </span>
+
+                                </span>
+                            </span>
+                        </span>
+                    </span>
+                </label>
+            {% endfor %}
 
 
+            {# Инфо #}
+            {% if form.usr.payment.payment.vars.help %}
+                <div class="alert alert-light" role="alert">
+                    {{ form.usr.payment.payment.vars.help }}
+                </div>
+            {% endif %}
 
-    {# <div class="form-check">
-								<input class="form-check-input" type="radio" name="payment" id="payment2">
-								<label class="form-check-label" for="payment2">
-									Перевод с карты на карту Сбербанк
-								</label>
-							</div> #}
-    {# </div> #}
-    {# </div> #}
-
-    {% if form.usr.payment.payment.vars.help %}
-
-        <div class="alert alert-secondary opacity-50 lh-1 small rounded-4 p-2 mt-3" role="alert">
-            {{ form.usr.payment.payment.vars.help }}
-
-            {# Оплата производится наличными деньгами, в момент получения заказа. Подтверждением вашей оплаты
-							является фискальный кассовый чек, вручаемый во время получения и оплаты заказа. #}
         </div>
 
-    {% endif %}
-
+    </div>
 
     {% for payment_field in form.usr.payment.field %}
 
-        {# <div class="form-check">
-								
-								<label class="form-check-label" for="payment1">
-									{{ form_row(payment_field) }}
-								</label>
-							</div> #}
+        <div class="d-flex justify-content-between">
 
-        {# <div class="d-flex justify-content-between">
-			<div class="w-50 d-flex gap-3"> #}
+            <div class="w-50 d-flex gap-3">
 
-        {# {% if payment_field.value.vars.help %}
-					
-					<svg xmlns="http://www.w3.org/2000/svg"
-							width="16" height="16"
-							fill="currentColor"
-							class="text-muted mt-1" viewBox="0 0 16 16"
+                {% if payment_field.value.vars.help %}
 
-              role="tooltip"
-							data-bs-toggle="tooltip"
-							data-bs-placement="bottom"
-							data-bs-original-title="{{ payment_field.value.vars.help }}"
-					
-					>
-						<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/>
-					</svg>
-				
-				{% endif %} #}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="text-muted mt-1" viewbox="0 0 16 16" data-bs-toggle="tooltip"
+                         data-bs-placement="bottom">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"></path>
+                    </svg>
 
+                {% endif %}
 
+                {{ form_label(payment_field.value) }}
+            </div>
 
-        {# </div>
-			
-			<div class="w-50"> #}
-        {{ form_label(payment_field.value) }}
-        {{ form_row(payment_field.field) }}
-        {{ form_widget(payment_field.value, { attr: { class : 'rounded-4' }}) }}
-        {# </div>
-		</div> #}
+            <div class="w-50">
+                {{ form_widget(payment_field.field) }}
+                {{ form_widget(payment_field.value, { attr: { class : 'rounded-4' }}) }}
+            </div>
+        </div>
 
     {% endfor %}
-
 
 </div>

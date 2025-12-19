@@ -1,0 +1,265 @@
+{# ПЕЧАТЬ #}
+
+{% set organization = 'ИП Тавруев Александр Владимирович' %}
+{% set organization_transcript = 'Тавруев А.В.' %}
+
+{% set money =  0 %}
+
+{% set products = order.order_products|json_decode %}
+
+{% for product in products %}
+    {% set money = (product.product_total * product.product_price) + money %}
+{% endfor %}
+
+{% set order_user = order.order_user|json_decode %}
+
+
+<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
+     style="overflow-y:hidden;">
+
+
+    <div class="d-flex w-100 align-items-center gap-2 mb-2">
+        <img src='{{ qrcode }}' alt='QR Code' style="width: 100px;"/>
+        <img src="/logo.webp" style="max-height: 60px;" alt="...">
+        <h5 class="w-100 text-end">+7 (495) 260-17-17</h5>
+    </div>
+
+    {% set parts = order.order_number|split('-') %}
+    {% set order_number_print = parts|slice(1)|join('-') %}
+
+    <div class="d-flex w-100 justify-content-between gap-2 border-bottom">
+        <h5>Расходная накладная #{{ order_number_print ?: order.order_number }}
+            от {{ order.order_data|date('d.m.Y') }}</h5>
+        <h6>{{ app.request.server.get('HOST') }}</h6>
+    </div>
+
+    <ul class="small p-0 m-0 mb-2">
+        <li class="list-group-item">Поставщик: <strong>{{ organization }}</strong></li>
+
+        {% set client = order_user|filter(v => v.profile_name is not empty and v.profile_value is not empty ) %}
+
+        {# <li class="list-group-item">Получатель:</li> #}
+
+        {% for user in client %}
+            <li class="list-group-item">
+                {{ user.profile_name }}: <strong>{{ user.profile_value }}</strong>
+            </li>
+        {% endfor %}
+
+        {% if order.delivery_geocode_address %}
+            <li class="list-group-item">
+                Адрес:<strong> {{ order.delivery_geocode_address }}</strong>
+            </li>
+        {% endif %}
+
+        <li class="list-group-item">
+            Способ оплаты:
+
+            {% if order.payment_id != '01876b9a-f696-7c7b-87cd-1dc3ab014ed8' %}
+                &nbsp; <strong>Оплачено на сайте</strong>
+                &nbsp; <span class="small">({{ order.payment_name }})</span>
+            {% else %}
+                {{ order.payment_name }}
+            {% endif %}
+        </li>
+
+        {% if order.order_comment %}
+            <li class="list-group-item">
+                Комментарий к заказу:<strong> {{ order.order_comment }}</strong>
+            </li>
+        {% endif %}
+
+    </ul>
+
+
+    <table class="table w-100 mb-2">
+        <thead>
+        <tr>
+            <th scope="col"> №
+            <th scope="col"> Товар
+            <th scope="col"> Кол-во
+            <th scope="col"> Ед.
+            <th scope="col"> Цена
+            <th scope="col"> Сумма
+
+        <tbody>
+
+
+        {% set counter = 0 %}
+
+        {% for card in products %}
+
+        <tr>
+            <th scope="row"> {{ loop.index }}
+            <td> {# {{ product.product_name }} Triangle Group TR259 225/65 R17 106V #}
+
+                {{ card.product_name }}<br>
+
+                {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+                {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+                {# Постфикс торгового предложения #}
+                {{ card.product_offer_postfix }}
+                {# Постфикс множественного варианта #}
+                {{ card.product_variation_postfix }}
+                {# Постфикс модификации #}
+                {{ card.product_modification_postfix }}
+
+            <td> {{ card.product_total }}
+            <td> шт
+            <td> {{ card.product_price / 100 }}
+            <td> {{ (card.product_price * card.product_total) / 100 }}
+
+
+                {% set counter = loop.index %}
+
+                {% endfor %}
+
+
+
+
+
+
+
+
+                {% if order.order_delivery_price %}
+
+
+                {% if order.order_delivery_price > 100 %}
+
+
+
+                {% set counter = counter + 1 %}
+
+                {% set delivery_price = order.order_delivery_price / 100 %}
+                {# {{ money(order.order_delivery_price) }} #}
+
+                {# {% set in_total = money + order.order_delivery_price %} #}
+
+                {# <div class="mt-2"><strong>Итого c доставкой:</strong> &nbsp; {{ money(in_total) }} ({{ money_word(in_total / 100) }})</div> #}
+
+                {% set money = money + order.order_delivery_price %}
+
+        <tr>
+            <th scope="row"> {{ counter }}
+            <td> Доставка
+
+            <td> -
+            <td> -
+            <td> {{ delivery_price }}
+            <td> {{ delivery_price }}
+
+                {% endif %}
+
+                {% elseif order.delivery_price %}
+
+                {% set counter = counter + 1 %}
+                {% set delivery_price = order.delivery_price / 100 %}
+                {# {{ money(order.delivery_price) }} #}
+
+                {% set money = money + order.delivery_price %}
+
+                {# <div class="mt-2"><strong>Итого с доставкой:</strong>  &nbsp; {{ money(in_total) }} ({{ money_word(in_total / 100) }})</div> #}
+
+
+        <tr>
+            <th scope="row"> {{ counter }}
+            <td> Доставка
+
+            <td> -
+            <td> -
+            <td> {{ delivery_price }}
+            <td> {{ delivery_price }}
+
+                {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+                {# {{ money(money) }} ( {{ money_word(money / 100) }} ) #}
+
+        <tfoot>
+        <tr>
+            <td colspan="6" class="text-end">Итого: {{ money(money) }}
+
+    </table>
+
+    <div class="small">
+        Всего наименований {{ counter }}, на сумму {{ money(money) }} ({{ money_word(money / 100) }})
+    </div>
+
+
+    <hr>
+
+    <div class="w-100 d-flex gap-3 mb-2">
+
+        <div class="fw-bolder">Отпустил</div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>подпись</small></div>
+        </div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>расшифровка подписи</small></div>
+        </div>
+    </div>
+
+
+    <div class="small w-100 border-bottom border-top border-start-0 border-end-0 pt-2 mb-2" style="border: dotted">
+
+
+        <p><strong>Комментарий:</strong></p>
+
+    </div>
+
+    <section class="small">
+
+        <h5>Гарантийные обязательства</h5>
+
+        <p>На всю продукцию предоставляется гарантия сроком один год с момента передачи её Покупателю. Гарантия
+            распространяется на недостатки (заводской брак), возникшие по вине производителя.</p>
+
+        <p>Возврат товара надлежащего качества возможен в течение 14 (четырнадцати) дней со дня, следующего за днём
+            покупки. Для возврата необходимо соблюдение следующих условий: сохранены товарный вид, потребительские
+            свойства товара, а также имеется документ, подтверждающий факт и условия покупки (товарный или кассовый
+            чек).</p>
+
+        <p>Денежные средства подлежат возврату Покупателю в течение 3 (трёх) календарных дней с момента получения
+            продавцом товара и письменного заявления с соответствующим требованием.</p>
+
+        <p>Права Покупателя при обнаружении в товаре недостатков (товар ненадлежащего качества) регламентируются
+            статьями 18–24 Закона Российской Федерации «О защите прав потребителей».</p>
+
+    </section>
+
+
+    <div class="w-100">Товар принял. К количеству, комплектации и внешнему виду претензий не имею:</div>
+
+    <div class="w-100 d-flex gap-3">
+
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>подпись</small></div>
+        </div>
+
+        <div class="w-25">
+            <div class="border-bottom">&nbsp;</div>
+            <div class="small"><small>расшифровка подписи</small></div>
+        </div>
+    </div>
+
+</div>

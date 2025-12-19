@@ -1,362 +1,45 @@
-<main class="main container px-4">
+<hr class="m-0">
 
-    <div class="mt-3">
-        {{ include(_self|replace({ "content.html.twig": "breadcrumb.html.twig" })) }}
-    </div>
+<main>
 
-    {% if baks_profile.user_profile_profiles is defined %}
+    {% set isProducts = baks_basket.counter > 0 ? true : false %}
 
-        <div class="btn-group">
+    <section class="container py-5">
 
-            <button class="btn btn-outline-secondary border-light btn-sm disabled d-flex text-dark gap-3 pe-3"
-                    type="button">
-                <span>Покупатель:</span>
+        {{ include(_self|replace({ "content.html.twig" : "includes/breadcrumb.html.twig" })) }}
 
-                {% if baks_profile.user_profile_username is defined %}
-                    <strong>{{ baks_profile.user_profile_username }}</strong>
-                {% endif %}
+        {% if form %}
 
-                <span class="badge text-bg-secondary">{{ baks_profile.user_profile_type }}</span>
-            </button>
+            {{ form_start(form) }}
 
-            <button type="button"
-                    class="btn btn-sm btn-outline-secondary border-light dropdown-toggle dropdown-toggle-split"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="visually-hidden">Toggle Dropdown</span>
-            </button>
+            {{ include(_self|replace({ "content.html.twig" : "includes/basket_accordion.html.twig" })) }}
 
+            {{ form_end(form) }}
 
-            <ul class="dropdown-menu leader p-3">
-                {% for profil in baks_profile.user_profile_profiles %}
+        {% else %}
 
-                    {% if baks_profile.id is defined %}
-
-                        {% if profil.equals(baks_profile.id) %}
-                            <li class="p-1 w-100 disabled">
-                                <div class="px-1 text-nowrap text-muted fw-normal">
-                                    &bull; &nbsp; {{ profil.params.username }}
-                                </div>
-                            </li>
-                        {% else %}
-                            <li class="p-1 w-100 list-group-item rounded-5">
-                                <a class="d-block text-decoration-none w-100 px-1 text-nowrap"
-                                   href="{{ path('users-profile-user:user.activate', { id: profil.params.event }) }}">
-                                    {{ profil.params.username }}
-                                </a>
-                            </li>
-                        {% endif %}
-
-                    {% endif %}
-
-                {% else %}
-
-                    <li class="p-1 w-100 list-group-item rounded-3">
-                        <a href='{{ path('users-profile-user:user.index') }}'
-                           class="d-block text-decoration-none w-100 px-2 text-nowrap text-secondary small ">
-                            + Добавить профиль
-                        </a>
-                    </li>
-
-                {% endfor %}
-
-            </ul>
-        </div>
-
-    {% endif %}
-
-
-
-    {% if form %}
-        {{ form_start(form) }}
-
-        <section id="orders">
-            <div class="d-flex justify-content-between align-items-center">
-
-                <h1 class="h4 text-uppercase fw-bolder py-2">Корзина</h1>
-
-                <div class="small">
-                    <button class="btn share-btn border-0" id="shareButton" data-shared="{{ share }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                             class="bi bi-share-fill" viewbox="0 0 16 16">
-                            <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
-                        </svg>
-                    </button>
-                    <span class="me-3 pt-3">
-                        Позиций в корзине: <span
-                                class="text-primary">{{ form.product|length }} {{ 'num_of_products'|trans({'count': form.product|length }, 'messages') }}</span>
-                    </span>
-
-                    {% if isProducts and is_shared == false %}
-
-                        <a href='{{ path('orders-order:public.truncate') }}'
-                           class="btn btn-sm btn-outline-light text-dark text-decoration-underline small shadow-sm text-muted rounded-3 pt-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-x me-1" viewBox="0 0 16 16">
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                            <span class="small">Очистить</span>
-                        </a>
-
-                    {% endif %}
-
-                </div>
-            </div>
-
-
-            {% if isProducts %}
-
-
-                {% set total_summ_product = 0 %}
-                {% set total_summ_currency = null %}
-
-
-
-                {% for product in form.product %}
-
-                    {% set card = product.vars.data.card %}
-                    {% set summ = (product.price.vars.data.total * card.productPrice.value) %}
-                    {% set total_summ_product = total_summ_product + summ %}
-
-
-                    {% set total_summ_currency = card.productCurrency %}
-
-                {% endfor %}
-
-
-
-
-                <div class="border rounded-4 container pt-3">
-                    {{ include(_self|replace({ "content.html.twig": "form/products.htnl.twig" })) }}
-                </div>
-
-            {% else %}
-
-                <div class="alert alert-warning" role="alert">
-
-                    <div class='d-flex justify-content-between align-items-center'>
-                        <div>
-                            <h3>Ваша корзина пуста.</h3>
-
-                            Начните с главной страницы или воспользуйтесь поиском.
-                        </div>
-
-                        <a href='{{ path('core:public.homepage') }}' class="btn btn-lg btn-primary text-nowrap btn">
-                            <span class="h6 text-uppercase px-3 basket-text">Продолжить покупки</span><span
-                                    class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-                        </a>
-                    </div>
-
-
-                </div>
-
-            {% endif %}
-
-
-        </section>
-
-
-        {# ПРОСТМОРЕННЫЕ #}
-        {# <section id="viewed" class="mt-4">
-		<div class="rounded-4 bg-light">
-			<h2 class="text-uppercase h5 fw-bolder p-3 pb-2">Просмотренные</h2>
-
-			<div class="w-100 d-flex gap-3 justify-content-between p-3">
-				{% for i in 0..3 %}
-        #}{# {% include('@Template/default/user/pc/includes/viewed.html.twig') %} #}{#
-    {% include Template('/user/pc/includes/viewed.html.twig') %}
-{% endfor %}
-</div>
-</div>
-</section> #}
-
-
-        {% if isProducts %}
-
-            <section id="ordering" class="">
-
-                <div class="d-flex align-items-center gap-3">
-                    <h2 class="h4 text-uppercase fw-bolder py-4 mt-1">оформление заказа</h2>
-
-                    {% if app.user is null %}
-                        <div class="small">
-                            <a href="{{ path('auth-email:public.login') }}"
-                               class="btn btn-link btn-sm h-25 lh-1 text-decoration-none modal-link w-75"
-                               data-bs-toggle="modal"
-                               data-bs-target="#modal"
-                               style="width: 150px;"
-                               title="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
-                               aria-label="{{ 'user.link.breadcrumb.page'|trans({}, 'public.login') }}"
-                            >
-                                Авторизация
-                            </a>
-                        </div>
-                    {% endif %}
-
-                </div>
-
-                {# <div class="d-flex justify-content-between">
-						<div class="w-50">
-							<label for="address">Адрес доставки: *</label>
-						</div>
-						<div class="w-50">
-							<input class="form-control rounded-4" type="text" id="address">
-						</div>
-					</div>
-
-					<label>
-						<textarea class="form-control rounded-4" rows="5" placeholder="Комментарий к заказу">
-						</textarea>
-					</label> #}
-
-
-                <div class="{# {{ block_user ? 'w-50 flex-column' : 'w-100'}} #} w-100 d-flex gap-5">
-
-                    <div class="{# {{ block_user ? 'w-100' : 'w-50'}} #}w-50 d-flex flex-column gap-3">
-                        {# Способы доставки #}
-                        {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
-
-
-                        {% set block_user = false %}
-
-                        {% if app.user is null %}
-
-                            {% set block_user = true %}
-
-                            {# Аккаунт пользователя #}
-                            {# {{ include(_self|replace({ "content.html.twig": "form/account.html.twig" })) }} #}
-                            {# Профиль пользователя #}
-
-                            {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
-
-                        {% else %}
-
-                            {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
-
-                            {% if baks_profile.id is null %}
-                                {% set block_user = true %}
-                                {{ include(_self|replace({ "content.html.twig": "form/userprofile.html.twig" })) }}
-                            {% endif %}
-
-                        {% endif %}
-
-
-                    </div>
-
-                    <div class='{# {{ block_user ? 'w-100' : 'w-50'}} #} w-50 d-flex flex-column gap-3 align-items-stretch'
-                         style="max-height: 100%;"
-                    >
-
-                        {# {% if block_user %}
-							<hr>
-						{% endif %} #}
-
-
-                        {# Услуги #}
-                        {% if has_services %}
-                            <div class="p-5 py-4">
-                                {{ include(_self|replace({ "content.html.twig" : "form/services.html.twig" })) }}
-                            </div>
-                            <hr>
-                        {% endif %}
-
-                        {# Способы оплаты  #}
-                        {{ include(_self|replace({ "content.html.twig": "form/payment.html.twig" })) }}
-
-                        {# <div class="d-flex">
-						<div class="w-25">
-							<label for="coupon">Купон на скидку:</label>
-						</div>
-						<div class="w-50">
-							<input class="form-control rounded-4" type="text" id="coupon">
-						</div>
-					</div> #}
-
-                        {{ form_row(form.comment, { label: 'Комментарий:' }) }}
-                        <hr>
-
-
-                        <div class='{# {{ block_user ? 'w-100' : 'w-50'}} #} w-100 h-100 d-flex flex-column gap-3 align-items-stretch'
-                             style="max-height: 100%;"
-                        >
-                            <div class="w-100 d-flex justify-content-between mt-auto">
-                                <div class="w-50">
-							<span class="small">Товаров на сумму: &nbsp;
-
-							{% set discount = user_profile_discount(total_summ_product) %}
-								<span id='total_product_sum'>{{ discount ?  money(discount) : money(total_summ_product) }}</span>
-							</span>
-                                    <div class="d-flex align-items-stretch">
-								<span
-                                        class="small me-3 pt-1">Итого:
-								</span>
-                                        <span id='total_all_sum'
-                                              class="fw-bolder mb-0 h3">{{ discount ?  money(discount) : money(total_summ_product) }}</span>
-                                    </div>
-                                </div>
-
-                                {% if has_services %}
-                                    <p id="selected-services" class="fs-16 mb-2">Выбранные услуги:</p>
-                                {% endif %}
-                                <div class="w-50 d-flex align-items-end justify-content-end">
-
-                                    {# {{ form_row(form.order, {
-								label: 'Оформить заказ',
-								attr: { class: 'btn-danger', title : "Оформить заказ", 'aria-label' : "Оформить заказ" }
-							}) }} #}
-
-                                    {{ form_widget(form.order, { label: '
-								<span>'~ 'Оформить заказ'|trans({}, 'core.btn') ~'</span>
-								<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-							',
-                                        attr: { class: 'btn-danger', title : "Оформить заказ", 'aria-label' : "Оформить заказ" }
-                                    }) }}
-
-                                </div>
-                            </div>
-
-                            <div class="small ">
-								<span class="small">Нажимая «Оформить заказ», Вы соглашаетесь на обработку персональных данных и
-									подтверждаете
-									ознакомление с
-									<a href="#">пользовательским соглашением</a>,
-									<a href="#">условиями продажи товаров</a> и
-									<a href="#">политикой о конфиденциальности</a>.</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-
-            </section>
-
-        {% endif %}
-
-        {{ form_end(form) }}
-    {% else %}
-
-        <div class="alert alert-warning" role="alert">
-
+            {# ПУСТАЯ КОРЗИНА #}
             <div class='d-flex justify-content-between align-items-center'>
                 <div>
-                    <h3>Ваша корзина пуста.</h3>
-
+                    <h2>Ваша корзина пуста.</h2>
                     Начните с главной страницы или воспользуйтесь поиском.
                 </div>
 
-                <a href='{{ path('core:public.homepage') }}' class="btn btn-lg btn-primary text-nowrap btn">
-                    <span class="h6 text-uppercase px-3 basket-text">Продолжить покупки</span><span
-                            class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                <a href='{{ path('core:public.homepage') }}' class="btn btn-primary fw-medium rounded-5 py-2 mb-3">
+                    <span class="h6 text-uppercase px-3 basket-text">Продолжить покупки</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
                 </a>
             </div>
 
+        {% endif %}
 
-        </div>
+    </section>
 
-    {% endif %}
+    <div class="bg-secondary">
 
-    <hr class="mt-5 rounded-circle border-0" style="height: 20px; box-shadow: 0 20px 20px -6px #000;">
+
+        {{ render_products_viewed() }}
+
+    </div>
 
 </main>
-
-

@@ -50,7 +50,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDERS')]
 final class SalesInvoiceController extends AbstractController
 {
     /**

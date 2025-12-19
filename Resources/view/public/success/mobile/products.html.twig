@@ -1,7 +1,8 @@
-{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+{#    {{ dd(order) }} #}
 
+{% set products = order.orderProducts %}
 
-    {% for card in order.orderProducts %}
+{% for card in products %}
 
         <div class="d-flex border-bottom mb-3 pb-3">
 
@@ -18,18 +19,18 @@
             <div class="me-3">
 
                 <a href="{{ path('products-product:public.detail', {
+                    category : card.category_url ,
                     url : card.product_url ,
                     offer: card.product_offer_value,
                     variation: card.product_variation_value,
                     modification: card.product_modification_value
                 }) }}" class="icon rounded-4 mb-2 lazy bg-contain p-1"
                    data-bg="{{ image_path }}"
-                   style="width: 75px; height: 75px;"
-                ></a>
+                   style="width: 75px; height: 75px;">
 
+                </a>
 
             </div>
-
 
             <div class="d-flex flex-column">
 
@@ -37,6 +38,7 @@
                     <div class="w-75 lh-normal small">
 
                         <a href="{{ path('products-product:public.detail', {
+                            category : card.category_url ,
                             url : card.product_url ,
                             offer: card.product_offer_value,
                             variation: card.product_variation_value,
@@ -51,26 +53,11 @@
                             {{ card.product_offer_value|call_twig_func(card.product_offer_reference) }}
 
                         </a>
-
-                        {# <div class="small text-muted py-2">Артикул: {{ card.product_article }}</div> #}
                     </div>
-
-
-                    {# TODO: Добавить в избранное  #}
-                    {# <button class="btn btn-link py-0 align-items-baseline"
-					aria-label="Добавить в избранное"
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
-					 class="bi bi-heart-fill" viewBox="0 0 16 16">
-					<path fill-rule="evenodd"
-						  d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"></path>
-				</svg>
-			</button> #}
 
                 </div>
 
                 <div class="d-flex flex-column">
-
 
                     {% set summ = (card.product_total * card.product_price) %}
 
@@ -87,7 +74,6 @@
                         </strong>
 
                     </div>
-
 
                 </div>
 

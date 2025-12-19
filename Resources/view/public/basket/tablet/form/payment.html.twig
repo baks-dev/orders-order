@@ -1,0 +1,83 @@
+{% trans_default_domain('user.order') %}
+
+
+<div id='user_payment' class="px-3">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+
+        <svg class="bi bi-wallet2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+             fill="#a7d3f7" viewbox="0 0 16 16">
+            <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"></path>
+        </svg>
+
+        <h3 class="fs-6 text-uppercase mb-0">
+            способ оплаты
+        </h3>
+    </div>
+
+
+    <div class="d-flex flex-column gap-1" data-buttons="true">
+
+        {# Способ оплаты #}
+        {% for payment in form.usr.payment.payment %}
+
+            <label class="btn p-2 border-dotted rounded-3 w-100 text-muted {{ payment.vars.attr.checked == true ? 'active' }}">
+				<span class="d-flex align-items-center">
+					<span class="flex-grow-1">
+						<span class="h5">
+							<span class="form-check d-flex align-items-center mb-0">
+
+							   <span class='mb-1 me-3'>
+								   {{ form_widget(payment, { label: false }) }}
+							   </span>
+
+								<span style="font-size: 1rem;" class="text-start">
+									{{ payment.vars.label }}
+								</span>
+							</span>
+						</span>
+					</span>
+				</span>
+            </label>
+
+        {% endfor %}
+
+        {# Инфо #}
+        {% if form.usr.payment.payment.vars.help %}
+            <div class="alert alert-light" role="alert">
+                {{ form.usr.payment.payment.vars.help }}
+            </div>
+        {% endif %}
+    </div>
+
+    {% for payment_field in form.usr.payment.field %}
+
+        <div class="d-flex justify-content-between">
+
+            <div class="w-50 d-flex gap-3">
+
+                {% if payment_field.value.vars.help %}
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="16" height="16"
+                         fill="currentColor"
+                         class="text-muted mt-1" viewBox="0 0 16 16"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"></path>
+                    </svg>
+
+                {% endif %}
+
+                {{ form_label(payment_field.value) }}
+            </div>
+
+            <div class="w-50">
+                {{ form_widget(payment_field.field) }}
+                {{ form_widget(payment_field.value, { attr: { class : 'rounded-4' }}) }}
+            </div>
+        </div>
+
+    {% endfor %}
+    <hr class="m-0">
+</div>

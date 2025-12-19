@@ -114,7 +114,7 @@
 
             <tr>
                 <th scope="row"> {{ counter }}
-                <td> {# Triangle Group TR259 225/65 R17 106V #}
+                <td>  Triangle Group TR259 225/65 R17 106V
 
                     <strong class="h6">{{ card.product_name }}</strong> &nbsp;
 
@@ -123,11 +123,11 @@
 
                     {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
 
-                    {# Постфикс торгового предложения #}
+                     Постфикс торгового предложения
                     {{ card.product_offer_postfix }}
-                    {# Постфикс множественного варианта #}
+                     Постфикс множественного варианта
                     {{ card.product_variation_postfix }}
-                    {# Постфикс модификации #}
+                     Постфикс модификации
                     {{ card.product_modification_postfix }}
 
                 <td> {{ card.product_total }}
@@ -139,7 +139,7 @@
 
                     {% if services and services|first.service_id %}
 
-                    {# Услуги #}
+                     Услуги
                     {% for service in services %}
 
                     {% set counter = counter + 1 %}
@@ -147,7 +147,7 @@
 
             <tr>
                 <th scope="row"> {{ counter }}
-                <td>  {#  {{ service.service_name }} Шиномонтаж #}
+                <td>    {{ service.service_name }} Шиномонтаж
                     <strong class="h6">{{ service.service_name }}</strong> &nbsp;
                 <td> -
                 <td> -

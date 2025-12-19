@@ -19,7 +19,6 @@
 
             <div class="w-50 d-flex gap-3 align-items-center text-nowrap">
                 {{ form_label(form.from, 'Дата начала', { label_attr: { class: 'mb-0'} }) }}
-                {# {{ form_row(form.from, { label: false, attr: { value : "now"|date("d.m.Y") }  }) }} #}
 
                 <div class="input-group">
                             <span class="input-group-text">
@@ -70,7 +69,6 @@
                                     <div class="form-check px-3 d-flex align-items-center">
                                         {{ form_widget(form.all, { label: false }) }}
                                         <span class="h6 mb-0 mt-1">
-                                            {# {{ 'admin.form.label.active'|trans }} #}
                                             По всем регионам
                                         </span>
                                     </div>

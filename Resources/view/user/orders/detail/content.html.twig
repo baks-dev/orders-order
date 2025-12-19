@@ -3,17 +3,16 @@
 <script nonce='{{ csp_nonce() }}' class="lazy">
 
     /* вешаем события на модальные ссылки */
-    document.querySelectorAll("[data-bs-toggle=\"modal\"]").forEach(function(item, i, arr)
-    {
-        modalLink(item);
-    });
+    document.querySelectorAll('[data-bs-toggle="modal"]')
+        .forEach(function(item, i, arr)
+        {
+            modalLink(item);
+        });
 
     document.querySelectorAll(".dropdown-item").forEach(item =>
     {
-
         item.addEventListener("click", function(e)
         {
-
             document.querySelectorAll(".dropdown-item").forEach(el =>
             {
                 el.classList.remove("active");

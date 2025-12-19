@@ -1,0 +1,156 @@
+{# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
+{# @var Price \BaksDev\Reference\Money\Type\Money #}
+{# @var OldPrice \BaksDev\Reference\Money\Type\Money #}
+
+{% trans_default_domain 'user.order' %}
+
+{% set arr_property = card.categorySectionField %}
+
+<div class="modal-dialog modal-dialog-centered justify-content-center">
+
+    <div class="modal-content p-3 border-0" style="max-width: 600px;">
+
+
+        {{ form_start(form) }}
+
+        <div class="modal-header border-0">
+
+            <div class='d-flex gap-3'>
+
+                <h5 class='lh-1'>
+
+                    {{ card.productName }}
+
+                    {# Значение множественного варианта ТП #}
+                    {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render')
+                    ~ card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
+
+                    {# Значение торгового предложения #}
+                    {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
+
+                    {# Постфикс #}
+                    {{ (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null ) }}
+
+                    {# Свойства, учавствующие в названии #}
+                    {% for name_property in arr_property | filter(props => props.field_name == true) %}
+                        {{ name_property.field_name|call_twig_func(name_property.field_type) }}
+                    {% endfor %}
+
+                </h5>
+
+                <div class='d-flex gap-2 align-items-center'>
+
+                    {# Свойства, учавствующие в превью карточки #}
+                    {% for name_property in  arr_property | filter(props => props.field_card is defined and props.field_card == true) %}
+                        {{ name_property.field_value|call_twig_func(name_property.field_type~'_render') }}
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+
+        <div class="modal-body d-flex justify-content-between ">
+
+            <div class="d-flex justify-content-between gap-3 align-items-center w-100">
+
+                {% set img_path = card.productImageCdn == true ? CDN_HOST : '' %}
+                {% set product_image_ext = card.productImageCdn == true ? 'small.'~card.productImageExt : card.productImageExt %}
+
+                {# ФОТО ПРОДУКТА  #}
+                <div>
+                    <div class="icon rounded-4 mb-2 bg-contain p-1"
+                         style="width: 75px; height: 75px; background-image: url('{{ card.productImage ? img_path ~ card.productImage ~ product_image_ext : '/assets/'~version~'/img/blank.svg' }}');">
+
+                    </div>
+                </div>
+
+                {# Персональная скидка #}
+                {% set Price = card.productPrice %}
+
+                {# Старая цена #}
+                {% set OldPrice = card.productOldPrice %}
+
+                <div class='w-25'>
+
+                    {% if Price %}
+                        <span class='small text-muted'>Стоимость</span>
+                        {{ money(Price, card.productCurrency) }}
+                    {% else %}
+                        <span class="badge text-bg-danger">
+                            Цена по запросу
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center gap-2">
+
+                    <button type="button" id="minus" class="btn btn-lg btn-link text-decoration-none p-0"
+                            title="Отнять количество">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-dash"
+                             viewbox="0 0 16 16">
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"></path>
+                        </svg>
+                    </button>
+
+                    {#                    {% set default_count = card.product_quantity < card.category_input ? card.product_quantity : card.category_input %} #}
+                    {% set default_count = card.productQuantity < card.categoryInput ? card.productQuantity : card.categoryInput %}
+
+                    {{ form_widget(form.price.total, {
+                        label: false,
+                        value : default_count,
+                        attr: {
+                            class : 'form-control-lg border p-2  rounded-5 m-0 text-center text-secondary total',
+                            style: 'width: 85px;',
+                            'data-max' : card.productQuantity,
+                            'data-min': card.categoryMinimal,
+                            'data-step': card.categoryStep,
+                            'data-price' : ''~Price.value * 100,
+                            'data-discount' : '',
+                            'data-currency' : card.productCurrency|upper,
+                        } } ) }}
+
+                    <button type='button' id="plus" class="btn btn-lg btn-link text-decoration-none p-0"
+                            title="Добавить количество">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-plus"
+                             viewbox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+                <div class='w-25'>
+
+                    {% set summ = (default_count * Price.value) * 100 %}
+
+                    <div class='small text-muted text-nowrap'>
+                        Сумма
+                    </div>
+
+                    <div id='summ_{{ form.price.total.vars.id }}'
+                         data-price='{{ Price.value * 100 }}'
+                         data-currency='{{ card.productCurrency|upper }}'>
+
+                        {{ money(summ, card.productCurrency) }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary fs-12 rounded-5 shadow px-4 py-2 fw-medium w-75 ">
+                    <span class="basket-text">В корзину</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                </button>
+
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+</div>

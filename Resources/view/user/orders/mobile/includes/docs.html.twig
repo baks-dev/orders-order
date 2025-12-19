@@ -1,0 +1,33 @@
+<div class="dropdown">
+
+    <button class="fs-12 btn bg-primary fw-bold btn-alt rounded-5 dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        Документы
+    </button>
+
+    <ul class="dropdown-menu">
+
+        {% if constant('BaksDev\\Products\\Sign\\BaksDevProductsSignBundle::NAMESPACE') is defined %}
+
+            <li><h6 class="dropdown-header">Честный знак</h6></li>
+
+            <li>
+                <a href="{{ path('products-sign:user.print.orders', {
+                    order : order_id,
+                    product : product.product_id,
+                    offer : product.product_offer_const,
+                    variation : product.product_variation_const,
+                    modification: product.product_modification_const,
+                }) }}"
+                   class="dropdown-item prnt"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal">
+                    Печать честных знаков
+                </a>
+            </li>
+
+        {% endif %}
+
+    </ul>
+</div>

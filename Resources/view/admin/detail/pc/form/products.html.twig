@@ -77,15 +77,6 @@
 
                     </a>
 
-
-                    {# {% if date() < card.product_active_from|date_modify("+1 month") %}
-                                    <span class="badge bg-success rounded-2 mt-1 mx-1">Новинка</span>
-                                {% endif %} #}
-
-
-
-                    {# <span class="badge bg-hit rounded-2 mt-1 mx-1">Хит</span> #}
-
                     <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
                          data-copy="{{ card.product_article }}">
 
@@ -123,7 +114,6 @@
             {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
                 <span class="text-danger">Не указана</span>
             {% else %}
-                {# class : 'form-control-sm mx-1 rounded-3 total', #}
                 {% if product.price.price is defined %}
 
                     {% set isDiscount = card.product_price > (product.vars.data.price.price.value * 100) %}
@@ -177,10 +167,6 @@
                     <span class="h4 text-muted opacity-50">-</span>
                 </button>
 
-                {# <input type="text" value="4" class="form-control form-control-sm mx-1 rounded-3"
-                               title="Количество"
-                               style="width: 50px;"> #}
-
                 {{ form_widget(product.price.total, {
                     label: false,
                     attr: {
@@ -231,21 +217,6 @@
         {# УДАЛИТЬ #}
 
         <td class="vertical-middle text-end">
-
-            {# <a
-                                href=' #}{# {{ path('orders-order:public.delete', {
-                                    product : card.id ,
-                                    offer: card.product_offer_uid,
-                                    variation: card.product_variation_uid,
-                                    modification: card.product_modification_uid
-                                }) }} #}{# #'
-                                class="btn btn-sm btn-link text-decoration-underline small text-muted"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-                            </svg>
-                        </a> #}
-
 
             <li class="nav nav-item flex-grow-1 text-end" role="presentation">
 

@@ -12,17 +12,3 @@
 {% block content %}
     {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
 {% endblock %}
-
-{% block javascript %}
-
-{#<script nonce="{{ csp_nonce() }}" data-src='/assets/{{ version }}/js/script.min.js?v={{ version }}' class="lazy"></script>#}
-
-{#<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/datepicker/datepicker.min.js?v={{ version }}"#}
-{#            defer class="lazy"></script>#}
-{#<script nonce='{{ csp_nonce() }}' async data-src='/assets/{{ version }}/plugins/nice-select2/nice-select2.min.js?v={{ version }}'#}
-{#            class='lazy'></script>#}
-
-{#    <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/services/order_service_add_new.min.js?v={{ version }}"#}
-{#            class="lazy"></script>#}
-
-{% endblock %}

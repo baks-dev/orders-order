@@ -47,15 +47,6 @@
                 </svg>
             </a>
 
-            {# {% if opens %}
-                <a href="{{ path('manufacture-part:admin.newedit.new') }}"
-                   class="btn modal-btn modal-link disabled btn-primary text-nowrap" data-bs-toggle="modal"
-                   data-bs-target="#modal"
-                   title="Открыть производственную партию">
-                    Добавить партию
-                </a>
-            {% endif %} #}
-
         </div>
 
         {% if opens %}
@@ -90,18 +81,6 @@
                     Каталог продукции в наличии
                 </h2>
             </div>
-
-            {# <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
-            #}{# {{ form_start(profile) }}
-                <div class="d-flex justify-content-end position-relative my-1 gap-3">
-
-                    <div class="w-50">
-                        {{ form_widget(profile.profile, {
-                            placeholder: 'Выберите профиль из списка ...', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}
-                    </div>
-                </div>
-                {{ form_end(profile) }} #}{#
-            </div> #}
 
         </div>
 
@@ -147,14 +126,6 @@
 
 
                     </div>
-
-
-                    {# <div class="collapse multi-collapse" id="multiCollapseExample2">
-                            <div class="d-flex justify-content-end align-items-center my-1 gap-3" style="clear: both;">
-
-                            </div>
-                        </div> #}
-
 
                     {{ form_end(filter) }}
                 </div>

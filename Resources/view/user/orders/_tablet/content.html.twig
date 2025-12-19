@@ -1,0 +1,93 @@
+<main>
+    <section class="container ">
+
+        {{ include(_self|replace({ "content.html.twig" : "includes/breadcrumb.html.twig" })) }}
+
+        {# АКТИВНЫЕ ЗАКАЗЫ #}
+        {% if status == 'new' %}
+
+            {# ССЫЛКЫ НА ЗАКАЗЫ #}
+            <div class="d-flex align-items-center gap-2 mb-2">
+
+                <div class="btn px-3 py-2 fw-bold rounded-5 productCardTabs text-decoration-underline active">
+                    Активные заказы
+                </div>
+
+
+                <a href="{{ path('orders-order:user.orders',
+                    { status: 'completed'
+                    } ) }}"
+                   class="btn px-3 py-2 fw-bold rounded-5 productCardTabs text-decoration-underline">
+                    Завершенные заказы
+                </a>
+
+            </div>
+
+            {% if orders.data is not empty %}
+
+                {{ include (_self|replace({ "content.html.twig" : "includes/products.html.twig" }), { 'orders': orders.data }, with_context = false) }}
+
+                {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
+
+            {% else %}
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+
+                    <h2 class="fs-18 mb-0 text-uppercase fw-bold mb-2">
+                        Активных заказов нет
+                    </h2>
+
+                </div>
+
+                {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
+
+            {% endif %}
+        {% endif %}
+
+        {# ЗАВЕРШЕННЫЕ ЗАКАЗЫ #}
+        {% if status == 'completed' %}
+
+            {# ССЫЛКЫ НА ЗАКАЗЫ #}
+            <div class="d-flex align-items-center gap-2 mb-2">
+
+                <a href="{{ path('orders-order:user.orders',
+                    { status: 'new'
+                    } ) }}"
+                   class="btn px-3 py-2 fw-bold rounded-5 productCardTabs text-decoration-underline">
+                    Активные заказы
+                </a>
+
+                <div class="btn px-3 py-2 fw-bold rounded-5 productCardTabs text-decoration-underline active">
+                    Завершенные заказы
+                </div>
+
+            </div>
+
+            {% if orders.data is not empty %}
+
+                {{ include (_self|replace({ "content.html.twig" : "includes/products.html.twig" }), { 'orders': orders.data }, with_context = false) }}
+
+                {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
+
+            {% else %}
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+
+                    <h2 class="fs-18 mb-0 text-uppercase fw-bold mb-2">
+                        Завершенных заказов нет
+                    </h2>
+
+                </div>
+
+                {% include Template('/user/pc/includes/pagination.html.twig') with { 'pagination' : orders } %}
+
+            {% endif %}
+
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+

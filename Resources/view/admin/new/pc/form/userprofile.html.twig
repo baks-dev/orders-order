@@ -63,12 +63,6 @@
                 {% if section != value.vars.data.section %}
                     {% set section = value.vars.data.section %}
 
-                    {# Закрываем секцию, eсли она не первая в цикле #}
-                    {# {% if loop.first != true %}
-			</div></div>
-		{% endif %} #}
-
-
                     {# Открываем новую секцию #}
 
                     <div class="card-header border-light bg-body">
@@ -83,13 +77,6 @@
 
                 {% endif %}
 
-
-
-                {# РЕНДЕР ПОЛЕЙ #}
-                {# {{ render_field(value.vars.data.type, value.value) }} #}
-                {# {{ render_field(value.vars.data.type, value.value) }} #}
-
-
                 {% if value.value is  defined %}
 
                     <div class="d-flex justify-content-between">
@@ -103,36 +90,6 @@
                     </div>
 
                 {% endif %}
-
-
-
-
-                {# {% if value %}
-		<div class="d-flex justify-content-between">
-			<div class="w-50">
-				{{ form_label(value.value) }}
-			</div>
-			
-			
-			<div class="w-50">
-				{{ form_widget(value.value, { attr: { class : 'rounded-4' }}) }}
-			</div>
-		</div>
-	{% endif %} #}
-
-
-
-                {# <div class="d-flex justify-content-between">
-		<div class="w-50">
-			{{ form_label(value.value) }}
-		</div>
-		
-		
-		<div class="w-50">
-			{{ form_widget(value.value, { attr: { class : 'rounded-4' }}) }}
-		</div>
-	</div> #}
-
 
             {% endfor %}
         {% endif %}

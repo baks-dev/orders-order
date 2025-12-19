@@ -15,15 +15,6 @@
     </svg>
 </button>
 
-
-{# Чекбокс #}
-{# <label>
-	<input class="form-check-input ms-3 p-2" type="checkbox"
-#}{# onchange=checkedItem(); #}{#
-value="{{ identifier }}">
-</label> #}
-
-
 <div id="usecase-{{ item.product_id }}-content" class="d-none">
     <ul class="leader list-group list-group-flush ">
 
@@ -38,17 +29,6 @@ value="{{ identifier }}">
                 {{ 'btn.edit'|trans({}, 'core.btn') }}
             </a>
         </li>
-
-        {# Удалить #}{#
-        <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('manufacture-part:admin.delete', { id: identifier }) }}"
-                   class="text-decoration-none text-dark w-100 modal-link disabled"
-                   data-bs-toggle="modal"
-                   data-bs-target="#modal"
-                   title="{{ 'btn.delete'|trans({}, 'core.btn') }}">
-                    {{ 'btn.delete'|trans({}, 'core.btn') }}
-                </a>
-            </li> #}
 
     </ul>
 </div>

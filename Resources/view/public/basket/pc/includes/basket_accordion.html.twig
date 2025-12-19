@@ -1,0 +1,234 @@
+{# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
+
+{% if isProducts %}
+
+    {% set total_summ_product = 0 %}
+    {% set total_count_product = 0 %}
+    {% set total_summ_currency = null %}
+
+    {% for product in form.product %}
+
+        {% set card = product.vars.data.card %}
+
+        {% set summ = (product.price.vars.data.total * card.productPrice.value) %}
+
+        {% set total_summ_product = (total_summ_product + summ) %}
+        {% set total_count_product = total_count_product + product.price.vars.data.total %}
+        {% set total_summ_currency = card.productCurrency %}
+
+    {% endfor %}
+
+    <div class="accordion" id="basket-accordion">
+
+        {# 1 - Список товаров в корзине #}
+        <div id="basket-list" class="accordion-collapse collapse show " data-bs-parent="#basket-accordion">
+
+            <div class="accordion-body">
+
+                <div class="d-flex align-items-center mb-4 justify-content-between">
+
+                    <h1 class="h4 text-uppercase fw-bolder py-2">Список товаров</h1>
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span>В корзине
+                            <span class="text-primary">&nbsp
+                                <span class="total-count">{{ total_count_product }} </span>
+                                ед. товара</span>
+                        </span>
+
+                        <a href="{{ path('orders-order:public.truncate') }}" class="text-primary">
+                            <svg class="bi bi-x" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray"
+                                 viewbox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                            </svg>
+                            Очистить корзину
+                        </a>
+
+                        <button class="btn btn-primary rounded-5 px-3 py-2 fw-medium"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#basket-ordering"
+                                aria-controls="basket-ordering"
+                                aria-expanded="false"
+                                type="button">
+                            Оформить заказ
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="border rounded-5">
+
+                        {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/products.html.twig" })) }}
+
+                </div>
+
+                <div class="text-end mt-3">
+                    <button class="btn btn-primary rounded-4 px-5 py-3 fw-medium"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#basket-ordering"
+                            aria-controls="basket-ordering"
+                            aria-expanded="false"
+                            type="button">
+                        Оформить заказ
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# 2 - Данные для оформления заказа #}
+    <div id="basket-ordering" class="accordion-collapse collapse" data-bs-parent="#basket-accordion">
+
+        <div class="accordion-body">
+            {#  BASKET INFO #}
+            <div class="d-flex align-items-center mb-4 justify-content-between">
+
+                <h1 class="h4 text-uppercase fw-bolder py-2">Оформление заказа</h1>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <span class="me-3 small">
+                        Позиций в корзине:
+                        <span class="text-primary fw-bold">
+                            {{ baks_basket.counter }} {{ 'num_of_products'|trans({'count': baks_basket.counter}, 'messages') }}
+                        </span>
+                    </span>
+
+                    <button class="btn btn-primary rounded-5 px-3 py-2 fw-medium"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#basket-list"
+                            aria-controls="basket-list"
+                            aria-expanded="true"
+                            type="button">
+                        Корзина
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-9">
+
+                    <div class="border rounded-5 mb-4">
+
+                        <div class="p-5 py-4">
+                            {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/user_profile.html.twig" })) }}
+                        </div>
+
+                        <hr>
+
+                        <div class="p-5 py-4">
+                            {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/payment.html.twig" })) }}
+                        </div>
+
+                        <hr>
+
+                        <div class='p-5 py-4'>
+                            {{ form_row(form.comment, {
+                                label: 'Комментарий',
+                                label_attr: {
+                                    'class': 'fs-6 text-uppercase mb-2',
+                                }} ) }}
+                        </div>
+
+                        <hr>
+
+                        <div class="p-5 py-4">
+                            {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/delivery.html.twig" })) }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-3">
+
+                    <div class="bg-secondary rounded-5 p-4 sticky-top z-2" style="top:8rem;">
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h3 class="fs-24 mb-0">
+                                Ваш заказ
+                            </h3>
+                        </div>
+
+                        <hr>
+
+                        {# Итоговая цена #}
+                        <div class="d-flex align-items-top pt-1 gap-3 fw-medium mb-3 total-result-price">
+
+                            <p class="fs-16 mb-0">Итого</p>
+                            <p id="total_result" class="fs-3 lh-1 mb-1">
+                                {{ money((total_summ_product * 100), total_summ_currency) }}
+                            </p>
+
+                        </div>
+
+                        {% if has_services %}
+                            <p id="selected-services" class="fs-16 mb-2">Выбранные услуги:</p>
+                        {% endif %}
+
+                        {{ form_widget(form.order,
+                            { label:
+                                '<span>' ~ 'Оформить заказ'|trans({}, 'core.btn') ~'</span>'
+                                ~ '<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>',
+                                attr: {
+                                class: 'btn btn-primary fw-medium rounded-5 w-100 py-2 mb-3',
+                                title : "Оформить заказ", 'aria-label' : "Оформить заказ" }}
+                        ) }}
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="mb-0 fs-6 text-secondary">
+                        Я согласен на&nbsp;
+                        <a href="{{ path('auth-email:public.agree.terms') }}" class="text-primary">обработку
+                            персональных данных</a>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        <input aria-label="Кнопка подтверждения согласия на обработку персональных данных"
+                               class="form-check-input" id="dataProcessing" type="checkbox" role="switch"
+                               checked="" style="width: 50px; height: 30px;">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+{% else %}
+
+    {# ПУСТАЯ КОРЗИНА #}
+    <div class='d-flex justify-content-between align-items-center'>
+
+        <div>
+            <h3>Ваша корзина пуста.</h3>
+            Начните с главной страницы или воспользуйтесь поиском.
+        </div>
+
+        <a href='{{ path('core:public.homepage') }}'
+           class="btn btn-primary fw-medium rounded-5 py-2 mb-3">
+            <span class="h6 text-uppercase px-3 basket-text">Продолжить покупки</span>
+            <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+        </a>
+
+    </div>
+
+{% endif %}
+

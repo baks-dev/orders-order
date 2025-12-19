@@ -64,12 +64,6 @@
     {# ИНФОРМАЦИЯ О ПРОДУКТАХ В ЗАКАЗЕ #}
     {% for product in products %}
 
-        {# {{ product.product_variation_article }}
-
-            {% if product.product_variation_article == 'T-BLACK-XS' or product.product_variation_article == 'T-BLACK-L' %}
-                {{ dump(products) }}  #}{# TODO: удалить !!! #}{#
-    {% endif %} #}
-
         <div class="d-flex align-items-center justify-content-between border-bottom py-3">
 
             <div class="d-flex align-items-center justify-content-between gap-5">
@@ -146,12 +140,6 @@
                 {% set productCurrency = product.product_price_currency %}
 
             </div>
-
-            {# {% if order.order_status == 'completed' %}
-                    {{ include (_self|replace({ "products.html.twig" : "docs.html.twig" })) }}
-                {% endif %} #}
-
-
 
             {% if order.sign_part is defined and order.sign_part is not null %}
 

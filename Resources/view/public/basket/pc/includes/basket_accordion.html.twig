@@ -124,14 +124,6 @@
 
                         <hr>
 
-                        {#                        #}{# Услуги #}
-                        {#                        {% if has_services %} #}
-                        {#                            <div class="p-5 py-4"> #}
-                        {#                                {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/services.html.twig" })) }} #}
-                        {#                            </div> #}
-                        {#                            <hr> #}
-                        {#                        {% endif %} #}
-
                         <div class="p-5 py-4">
                             {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/payment.html.twig" })) }}
                         </div>
@@ -240,4 +232,3 @@
 
 {% endif %}
 
-{# <script nonce="{{ csp_nonce() }}" data-src='/assets/{{ version }}/js/script.min.js?v={{ version }}' class="lazy"></script> #}

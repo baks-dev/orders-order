@@ -38,9 +38,7 @@
                 <div class="d-flex align-items-center justify-content-between gap-5">
 
                     {# Обложка  #}
-                    {#                    {% if product.product_image_ext is defined and product.product_image_ext is not null %} #}
                     {% set image_path = cdn_image_path(product.product_image, product.product_image_ext, product.product_image_cdn) %}
-                    {#                    {% endif %} #}
 
                     <a href="{{ path('products-product:public.detail', {
                         category : product.category_url ,

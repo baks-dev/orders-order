@@ -138,16 +138,8 @@
                          data-currency='{{ card.product_currency|upper }}'
                     >
                         {{ discount ? money(discount, card.product_currency) : money(summ, card.product_currency) }}
-                        {# {{ card.product_currency|upper|currency_symbol(app.request.locale) }} #}
                     </div>
                 </div>
-
-                {# <button
-						type="submit"
-						class="btn btn-lg btn-primary text-nowrap btn">
-					<span class="h6 text-uppercase px-3 basket-text">В корзину</span>
-					<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-				</button> #}
 
                 {{ form_widget(form.order_products, { label: '
                     <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>

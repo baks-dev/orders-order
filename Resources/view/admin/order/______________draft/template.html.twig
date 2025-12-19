@@ -15,18 +15,6 @@
     <link href="/assets/{{ version }}/plugins/nice-select2/nice-select2.min.css" rel="stylesheet" type="text/css">
 {% endblock %}
 
-{# ---- HEADER-БЛОК ------------------------------------------------------------ #}
-{# {% block header %}
-    {{ include(_self|replace({ "template.html.twig": "header.html.twig" })) }}
-{% endblock %} #}
-
-
-{# ---- LEFT-БЛОК ------------------------------------------------------------ #}
-{# {% block left %} #}
-{#   {% include '@Template/flowers/left.html.twig' %} #}
-{# {% endblock %} #}
-
-
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
@@ -43,14 +31,6 @@
     </div>
 
 {% endblock %}
-
-
-{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
-{#
-{% block footer %}
-    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
-{% endblock %}
-#}
 
 {% block javascript %}
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
@@ -112,8 +92,6 @@
 
     </script>
 
-
-
     <script nonce="{{ csp_nonce() }}">
 
         let TTmzCXyCq = 100;
@@ -121,16 +99,8 @@
         /** Сокеты */
         setTimeout(function SpgGHaQzun()
         {
-
-
-
-
             if(typeof Centrifuge === 'function')
             {
-
-
-
-
                 // /** Удаляем из списка у всех продукт */
                 centrifuge.newSubscription('remove').on('publication', function(ctx)
                 {

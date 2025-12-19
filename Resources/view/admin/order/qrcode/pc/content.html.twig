@@ -14,50 +14,12 @@
                 <div class="text-center w-100" style="min-width: 320px;">
                     <img src='{{ qrcode }}' alt='QR Code' class="w-100"/>
                     <h6 class="w-100 fw-bolder"># {{ item.number }}</h6>
-                    {# <div class="w-100">Количество: <strong>{{ item.quantity }} шт.</strong></div> #}
                 </div>
-
-                {# {% if item.product_offer_value %}
-                <div class="w-100"><small class="text-muted">{{ item.product_offer_name }}: </small>
-                <span class="fw-bolder">{{ item.product_offer_value|call_twig_func(item.product_offer_reference) }}
-                    {{ item.product_offer_postfix }}
-                </span>
-                </div>
-                {% endif %} #}
-
-                {# {% if item.product_variation_value %}
-                    <div class="w-100">
-                        <small class="text-muted">{{ item.product_variation_name }}: </small>
-                        <span class="fw-bolder">
-                            {{ item.product_variation_value|call_twig_func(item.product_variation_reference) }}
-                        {{ item.product_variation_postfix }}
-                            </span>
-                    </div>
-                {% endif %} #}
-
-                {# {% if item.product_modification_value %}
-                    <small class="text-muted">{{ item.product_modification_name }}: </small>
-                    <span class="fw-bolder">
-                        {{ item.product_modification_value|call_twig_func(item.product_modification_reference) }}
-                        {{ item.product_modification_postfix }}
-                    </span>
-                {% endif %} #}
 
             </div>
 
             <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
 
-
-            {# <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
-            <img class="printer page-break" src='{{ qrcode }}' alt='QR Code' width='300' height='300'>
-            <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
-            <img class="printer page-break" src='{{ qrcode }}' alt='QR Code' width='300' height='300'>
-            <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
-            <img class="printer page-break" src='{{ qrcode }}' alt='QR Code' width='300' height='300'>
-            <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
-            <img class="printer page-break" src='{{ qrcode }}' alt='QR Code' width='300' height='300'>
-            <div class="page-break" style="page-break-before:always; position: absolute;">&nbsp;</div>
-            <img class="printer page-break" src='{{ qrcode }}' alt='QR Code' width='300' height='300'> #}
         </div>
 
         <div class="modal-footer ">

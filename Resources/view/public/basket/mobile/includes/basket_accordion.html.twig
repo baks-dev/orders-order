@@ -90,14 +90,6 @@
 
                     {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/user_profile.html.twig" })) }}
 
-                    {#                    #}{# Услуги #}
-                    {#                    {% if has_services %} #}
-                    {#                        <div class="p-2"> #}
-                    {#                            {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/services.html.twig" })) }} #}
-                    {#                        </div> #}
-                    {#                        <hr> #}
-                    {#                    {% endif %} #}
-
                     {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/delivery.html.twig" })) }}
 
                     {{ include(_self|replace({ "includes/basket_accordion.html.twig" : "form/payment.html.twig" })) }}

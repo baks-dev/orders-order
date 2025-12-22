@@ -124,7 +124,6 @@
                      data-currency='{{ card.product_currency|upper }}'
                 >
                     {{ discount ? money(discount, card.product_currency) : money(summ, card.product_currency) }}
-                    {# {{ card.product_currency|upper|currency_symbol(app.request.locale) }} #}
                 </div>
             </div>
 

@@ -6,7 +6,6 @@
 
  {% block stylesheets %}
      <link rel="preconnect" href="https://api-maps.yandex.ru"/>
-     {# <link rel="preconnect" href="https://yastatic.net" /> #}
      <link rel="preload"
            href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"/>
      <link href="/assets/{{ version }}/plugins/datepicker/datepicker.min.css" rel="stylesheet">
@@ -42,8 +41,5 @@
         class='lazy'></script>
 
 {% endif %}
-
-
-{# <script async nonce="{{ csp_nonce() }}" data-src="/assets/{{ version }}/products-stocks/moving.js?v={{ version }}" class="lazy"></script> #}
 
 {% endblock %}

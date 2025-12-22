@@ -1,6 +1,6 @@
 {# Выбор услуг #}
 
-<div class="services">
+<div class="services p-2">
 
     <div class="d-flex align-items-center gap-3 mb-4">
 
@@ -14,10 +14,10 @@
 
     {% for key, form in form.serv %}
 
-        <div class="px-4">
-            <div class="service-item p-2 d-flex border-dotted rounded-3 align-items-center">
+        <div class="px-3">
+            <div class="service-item p-2 ps-4 row row-cols-2 border-dotted rounded-3 align-items-center justify-content-between">
 
-                <div class="form-control-lg p-0 me-2 ms-4 d-flex align-items-center">
+                <div class="form-control-lg p-0 col-4 d-flex flex-column">
 
                     {{ form_widget(form.selected, {
                         label: '<span>
@@ -31,11 +31,13 @@
                         label_html: true
                     }) }}
 
+                    <div class="fs-11 bg-secondary p-2 rounded-3">{{ form.vars.value.preview }}</div>
+
                 </div>
 
 
                 <div id="order_form_service_{{ key }}"
-                     class="item-service align-middle d-flex align-items-center d-none gap-1">
+                     class="item-service col-7 align-middle d-flex align-items-center d-none gap-1">
 
                     {{ form_row(form.serv) }}
 
@@ -43,9 +45,9 @@
 
                     {{ form_row(form.money) }}
 
-                    {{ form_widget(form.date, {attr: {style:'width:auto;', placeholder: 'Выберите дату ...' } }) }}
+                    {{ form_widget(form.date, {attr: {class: 'w-100', placeholder: 'Выберите дату ...' } }) }}
 
-                    {{ form_row(form.period, { attr: {class: 'service-period'}, placeholder: 'Выберите период ...'} ) }}
+                    {{ form_row(form.period, { attr: {class: 'service-period w-100'}, placeholder: 'Выберите период ...'} ) }}
 
 
                 </div>

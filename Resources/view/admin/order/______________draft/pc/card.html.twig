@@ -21,7 +21,6 @@
             <div class="card-body small p-2">
                 <div class="d-flex justify-content-between align-items-center small">
 
-                    {# {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }} #}
                     {# Бренд #}
                     <div class="w-100">
                         {{ item.users_profile_username }}
@@ -32,10 +31,6 @@
                     </div>
                 </div>
 
-                {# <div class="d-flex justify-content-between align-items-end">
-                    <span class="h5 mb-0"> #}{# {{ money(item.order_price, item.order_currency) }} #}{# </span>
-                    <span class="small text-muted">1 шт</span>
-                </div> #}
             </div>
 
             {# Обложка  #}
@@ -107,13 +102,6 @@
 
                     <div class="d-flex align-items-center small">
                         {{ item.product_article }}
-                        {# <form method="post" action='{{ path('manufacture-part:admin.index') }}' class="p-0">
-                            <input type="hidden" name="search_form[query]" value="{{ item.product_article }}">
-                            <button type="submit" class="btn btn-link text-decoration-none btn-sm p-0 border-0">
-                                <span class="small">{{ item.product_article }}</span>
-                            </button>
-
-                        </form> #}
                     </div>
 
                     {% if is_granted('ROLE_ORDERS_NEW') or  is_granted('ROLE_ADMIN') %}

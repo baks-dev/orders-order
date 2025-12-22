@@ -1,0 +1,135 @@
+{% for product in  form.product %}
+    {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
+    {# @var Price \BaksDev\Reference\Money\Type\Money #}
+
+    {% set card = product.vars.data.card %}
+
+    {% set Price = card.productPrice %}
+
+    {# Обложка  #}
+    {% set image_path = '/assets/'~version~'/img/blank.svg' %}
+    {% if card.productImage is defined and card.productImage is not null %}
+        {% set image_path = cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn) %}
+    {% endif %}
+
+    <div id='item_{{ product.vars.id }}'
+         class="d-flex align-items-top justify-content-between border-top p-3 px-2 gap-1">
+        <div class="d-flex gap-3 w-100">
+            <div class="border rounded-4"
+                 style="min-width:68px; height:68px; background: url({{ image_path }}) center /  contain no-repeat;"></div>
+
+            <div class="pt-2 w-100">
+                <h5 class="fs-11 fw-bold text-uppercase mb-0 w-100">
+
+                    <a href="{{ path('products-product:public.detail', {
+                        category : card.categoryUrl ,
+                        url : card.productUrl ,
+                        offer: card.productOfferValue,
+                        variation: card.productVariationValue,
+                        modification: card.productModificationValue,
+                        postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' }),
+                    }) }}"
+                       class="text-decoration-none text-black">
+
+                        {{ card.productName }}
+
+                        {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render') ~
+                        card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
+
+                        {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
+
+                        {{ (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null ) }}
+                    </a>
+
+                </h5>
+
+                <span class="text-secondary fs-10 mb-1 d-block mb-2 ">
+                Артикул: {{ card.productArticle }}
+            </span>
+
+                {# Управление количеством продукта в корзине #}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between gap-1 counter-container "
+                         style="height: max-content;">
+
+                        <button type="button" class="btn p-0 lh-1 decrease-btn minus"
+                                aria-label="Кнопка уменьшения количества товара"
+                                data-id='{{ product.price.total.vars.id }}'>
+                            <svg class="bi bi-dash-lg" xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                 fill="gray"
+                                 viewbox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8Z"></path>
+                            </svg>
+                        </button>
+
+                        {{ form_widget(product.price.total, {
+                            label: false,
+                            attr: {
+                                class : 'border py-2 px-4 rounded-5 text-center total',
+                                style: 'width:85px;box-shadow: inset 0px 3px 2.5px rgba(0,0,0,0.16);background-color: #f9f9f9;',
+                                'data-max' : card.productQuantity,
+                                'data-min': card.categoryMinimal,
+                                'data-price' : ''~Price.value * 100,
+                                'data-step': card.categoryStep,
+                                'data-discount' : '',
+                                'data-currency' : card.productCurrency|upper,
+                            } } ) }}
+
+                        <button type="button" class="btn p-0 lh-1 increase-btn plus"
+                                aria-label="Кнопка увеличения количества товара"
+                                data-id='{{ product.price.total.vars.id }}'>
+
+                            <svg class="bi bi-plus-lg" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="gray"
+                                 viewbox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"></path>
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <p class="mb-0 fs-16 fw-medium lh-1  text-nowrap">
+
+                        {# ЦЕНА ТОВАРА - СУММА #}
+                        {% set summ = (product.price.vars.data.total * Price.value) * 100 %}
+
+                        <strong id='summ_{{ product.price.total.vars.id }}'
+                                data-price='{{ Price.value * 100 }}'
+                                data-currency='{{ card.productCurrency|upper }}'>
+
+                            {{ money(summ, card.productCurrency) }}
+
+                        </strong>
+
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <a href='{{ path('orders-order:public.delete', {
+            product : card.productEvent ,
+            offer: card.productOfferUid,
+            variation: card.productVariationUid,
+            modification: card.productModificationUid
+        }) }}'
+           class="btn btn p-0 pt-1 delete-product" data-id='item_{{ product.vars.id }}'>
+            <svg class="bi bi-x d-block" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="gray"
+                 viewbox="0 0 16 16">
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+            </svg>
+        </a>
+
+    </div>
+{% endfor %}
+
+{# Услуги #}
+{% if has_services %}
+    <hr>
+    <div class="p-2">
+        {{ include(_self|replace({ "products.html.twig" : "services.html.twig" })) }}
+    </div>
+{% endif %}

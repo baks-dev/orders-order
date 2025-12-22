@@ -1,18 +1,20 @@
-{# ---- ШАБЛОН ------------------------------------------------------------ #}
 {% extends Template('/user/base.html.twig') %}
 
 {% block title %}
     Заказы
 {% endblock %}
 
-{# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
+{# ---- CSS ------------------------------------------------------------ #}
+ {% block stylesheets %}
+     <link href="/assets/{{ version }}/css/print.min.css" rel="stylesheet">
+ {% endblock %}
+
 {% block content %}
-
     {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
-
 {% endblock %}
 
  {% block javascript %}
-
+ <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/print.min.js?v={{ version }}"
+        class="lazy"></script>
  {% endblock %}
 

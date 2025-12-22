@@ -94,15 +94,6 @@
 
             <div class="dropdown">
 
-                {# <button
-                        class="btn btn-warning dropdown-toggle "
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                >
-                    Документы
-                </button> #}
-
                 <button
                         class="btn btn-outline-success d-flex gap-2 align-items-center dropdown-toggle "
                         type="button"
@@ -208,7 +199,6 @@
                 {% for stats in status_array %}
 
                     {% set color = stats.color() %}
-                    {# {% set orders = query.data|filter(v => v.order_status == stats.getOrderStatusValue()) %} #}
                     {% set counter = query[stats.getValue()]|length %}
 
                     <div class="w-100 d-flex flex-column gap-2" style="min-width: {{ width_col }}px;">
@@ -263,12 +253,6 @@
 
                             {% endif %}
 
-
-
-                            {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
-								title="Быстрая сделка">+ Быстрая сделка</a> #}
-
-
                             <div class="text-center"><small>
                                     {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
                             </div>
@@ -278,10 +262,6 @@
 
                                 {# КАРТОЧКА ЗАКАЗА  #}
                                 {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
-
-                                {# ДАТАЛИ ЗАКАЗА #}
-                                {# {{ include(_self|replace({ "content.html.twig": "_info.order.html.twig" })) }} #}
-
 
                             {% endfor %}
 
@@ -308,12 +288,6 @@
 
     <div class="draggable-zone child-hidden position-fixed bottom-0 start-0 p-5 z-3" data-status="canceled">
 
-        {# <div class="d-flex flex-column gap-2 h-100 justify-content-start draggable-zone child-hidden"
-			 data-status="cancel"
-		> #}
-        {# <div class="w-100 badge text-bg-danger p-2 sticky-top" style="top: 1rem;">Отмена</div> #}
-
-
         <div class="icon rounded-circle mb-2 bg-danger shadow" style="width: 75px; height: 75px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" fill="white" class="bi bi-trash"
                  viewBox="0 0 16 16">
@@ -324,22 +298,6 @@
 
         </div>
 
-        {# <strong class="text-danger">Отмена сделки</strong> #}
-
-        {# БЫСТРАЯ СДЕЛКА #}
-        {# <a href="#exampleModalToggle" class="btn btn-light w-100" data-bs-toggle="modal" role="button"
-				   title="Быстрая сделка">+</a> #}
-
-        {# <div class="text-center"><small>5 заказов</small></div> #}
-
-
-        {# {% for i in 0..0 %}
-					{{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
-				{% endfor %} #}
-
-        {# </div> #}
-
-
     </div>
 
 
@@ -347,9 +305,6 @@
         {{ render_support_widget() }}
     {% endif %}
 
-
-    {# БЫСТРАЯ СДЕЛКА #}
-    {# {{ include(_self|replace({ "content.html.twig": "_fast.order.html.twig" })) }} #}
 
     <div class="offcanvas offcanvas-start" tabindex="-1"
          id="offcanvas"

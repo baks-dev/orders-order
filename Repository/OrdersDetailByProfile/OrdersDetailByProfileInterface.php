@@ -21,13 +21,14 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile;
 
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Generator;
 
 interface OrdersDetailByProfileInterface
@@ -38,10 +39,25 @@ interface OrdersDetailByProfileInterface
     /** Заказы с переданным статусом */
     public function forStatus(OrderStatus $status): self;
 
-    /** Метод возвращает массив с информацией об заказе */
+    /**
+     * Метод возвращает массивы с информацией о заказе
+     * @return false|Generator<array>
+     * @deprecated
+     */
     public function findAll(): false|Generator;
 
-    /** Метод возвращает пагинатор с информацией об заказе */
+    /**
+     * Метод возвращает пагинатор с информацией о заказев виде массивов
+     * @deprecated
+     */
     public function findAllWithPaginator(): PaginatorInterface;
 
+    /**
+     * Метод возвращает резалты с информацией о заказе
+     * @return false|Generator<OrdersDetailByProfileResult>
+     */
+    public function findAllResults(): false|Generator;
+
+    /** Метод возвращает пагинатор с информацией о заказе в виде резалтов */
+    public function findAllWithResultPaginator(): PaginatorInterface;
 }

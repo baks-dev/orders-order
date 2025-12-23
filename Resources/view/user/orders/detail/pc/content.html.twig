@@ -13,7 +13,7 @@
         <ul class="dropdown-menu overflow-auto" style="max-height: 500px;">
 
             <li>
-                <a href="{{ path('orders-order:user.document.sales', { print: true }) }}"
+                <a href="{{ path('orders-order:admin.document.sales', { print: true }) }}"
 
                    class="dropdown-item"
                    data-bs-toggle="modal"
@@ -137,8 +137,8 @@
                                 title="Список ссылок на все честные знаки"
                         >
                             <a
-                                class="text-muted"
-                                href="{{ path('products-sign:admin.links.list', { order: order.orderId }) }}">
+                                    class="text-muted"
+                                    href="{{ path('products-sign:admin.links.list', { order: order.orderId }) }}">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                      fill="currentColor" class="bi bi-filetype-txt"

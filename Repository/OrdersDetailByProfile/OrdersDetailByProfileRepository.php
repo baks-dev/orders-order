@@ -37,33 +37,10 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
-use BaksDev\Products\Category\Entity\CategoryProduct;
-use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
-use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
-use BaksDev\Products\Category\Entity\Offers\Trans\CategoryProductOffersTrans;
-use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
-use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
-use BaksDev\Products\Category\Entity\Offers\Variation\Modification\Trans\CategoryProductModificationTrans;
-use BaksDev\Products\Category\Entity\Offers\Variation\Trans\CategoryProductVariationTrans;
-use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
-use BaksDev\Products\Product\Entity\Category\ProductCategory;
-use BaksDev\Products\Product\Entity\Event\ProductEvent;
-use BaksDev\Products\Product\Entity\Info\ProductInfo;
-use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
-use BaksDev\Products\Product\Entity\Offers\ProductOffer;
-use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
-use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Image\ProductModificationImage;
-use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
-use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
-use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
-use BaksDev\Products\Product\Entity\Trans\ProductTrans;
-use BaksDev\Products\Sign\BaksDevProductsSignBundle;
-use BaksDev\Products\Sign\Entity\Event\ProductSignEvent;
-use BaksDev\Products\Sign\Entity\Invariable\ProductSignInvariable;
-use BaksDev\Products\Sign\Type\Status\ProductSignStatus;
-use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
@@ -125,27 +102,46 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
     }
 
     /**
-     * Метод возвращает пагинатор с информацией об заказе
+     * Метод возвращает пагинатор с информацией о заказев виде массивов
+     *
+     * @deprecated
      */
     public function findAllWithPaginator(): PaginatorInterface
     {
         $result = $this->builder();
-
         return $this->paginator->fetchAllAssociative($result);
     }
 
     /**
-     * Метод возвращает генератор с информацией о заказах
+     * Метод возвращает массивы с информацией о заказе
+     * @return false|Generator<array>
+     * @deprecated
      */
     public function findAll(): false|Generator
     {
         return $this->builder()->fetchAllGenerator();
     }
 
+    /**
+     * Метод возвращает резалты с информацией о заказе
+     *
+     * @return false|Generator<OrdersDetailByProfileResult>
+     */
+    public function findAllResults(): false|Generator
+    {
+        return $this->builder()->fetchAllHydrate(OrdersDetailByProfileResult::class);
+    }
+
+    /** Метод возвращает пагинатор с информацией о заказе в виде резалтов */
+    public function findAllWithResultPaginator(): PaginatorInterface
+    {
+        $result = $this->builder();
+        return $this->paginator->fetchAllHydrate($result, OrdersDetailByProfileResult::class);
+    }
+
     /** Билдер запроса */
     private function builder(): DBALQueryBuilder
     {
-
         if(false === $this->profile)
         {
             throw new InvalidArgumentException('Не передан обязательный параметр запроса $profile');
@@ -186,14 +182,15 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         }
         else
         {
-
             $dbal
                 ->join(
                     'orders',
                     OrderEvent::class,
                     'event',
-                    'event.id = orders.event'
-                );
+                    'event.id = orders.event AND event.status != :completed AND event.status = :canceled',
+                )
+                ->setParameter('completed', OrderStatusCompleted::STATUS, OrderStatus::TYPE)
+                ->setParameter('canceled', OrderStatusCanceled::STATUS, OrderStatus::TYPE);
         }
 
 
@@ -219,7 +216,6 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 value: $this->profile,
                 type: UserProfileUid::TYPE
             );
-
 
         /** Оплата */
         $dbal
@@ -247,253 +243,6 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'payment_trans',
                 'payment_trans.event = payment.event AND payment_trans.local = :local'
             );
-
-
-        /** Продукция в заказе  */
-        //        $dbal->leftJoin(
-        //            'orders',
-        //            OrderProduct::class,
-        //            'order_product',
-        //            'order_product.event = orders.event'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'order_product',
-        //            OrderPrice::class,
-        //            'order_product_price',
-        //            'order_product_price.product = order_product.id'
-        //        );
-        //
-        //
-        //        $dbal->leftJoin(
-        //            'order_product',
-        //            ProductEvent::class,
-        //            'product_event',
-        //            'product_event.id = order_product.product'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_event',
-        //            ProductInfo::class,
-        //            'product_info',
-        //            'product_info.product = product_event.main '
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_event',
-        //            ProductTrans::class,
-        //            'product_trans',
-        //            'product_trans.event = product_event.id AND product_trans.local = :local'
-        //        );
-        //
-        //        /** Торговое предложение */
-        //        $dbal->leftJoin(
-        //            'product_event',
-        //            ProductOffer::class,
-        //            'product_offer',
-        //            'product_offer.id = order_product.offer AND product_offer.event = product_event.id'
-        //        );
-        //
-        //        /** Тип торгового предложения */
-        //        $dbal->leftJoin(
-        //            'product_offer',
-        //            CategoryProductOffers::class,
-        //            'category_offer',
-        //            'category_offer.id = product_offer.category_offer'
-        //        );
-        //
-        //        /** Название торгового предложения */
-        //        $dbal->leftJoin(
-        //            'category_offer',
-        //            CategoryProductOffersTrans::class,
-        //            'category_offer_trans',
-        //            'category_offer_trans.offer = category_offer.id AND category_offer_trans.local = :local'
-        //        );
-        //
-        //        /** Множественный вариант */
-        //        $dbal->leftJoin(
-        //            'product_offer',
-        //            ProductVariation::class,
-        //            'product_variation',
-        //            'product_variation.id = order_product.variation AND product_variation.offer = product_offer.id'
-        //        );
-        //
-        //        /** Тип множественного варианта */
-        //        $dbal->leftJoin(
-        //            'product_variation',
-        //            CategoryProductVariation::class,
-        //            'category_variation',
-        //            'category_variation.id = product_variation.category_variation'
-        //        );
-        //
-        //        /** Название множественного варианта */
-        //        $dbal->leftJoin(
-        //            'category_variation',
-        //            CategoryProductVariationTrans::class,
-        //            'category_variation_trans',
-        //            'category_variation_trans.variation = category_variation.id AND category_variation_trans.local = :local'
-        //        );
-        //
-        //        /** Тип модификации множественного варианта */
-        //        $dbal->leftJoin(
-        //            'product_variation',
-        //            ProductModification::class,
-        //            'product_modification',
-        //            'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_modification',
-        //            CategoryProductModification::class,
-        //            'category_modification',
-        //            'category_modification.id = product_modification.category_modification'
-        //        );
-        //
-        //        /** Название типа модификации */
-        //        $dbal->leftJoin(
-        //            'category_modification',
-        //            CategoryProductModificationTrans::class,
-        //            'category_modification_trans',
-        //            'category_modification_trans.modification = category_modification.id AND category_modification_trans.local = :local'
-        //        );
-        //
-        //        /** Фото продукта */
-        //        $dbal->leftJoin(
-        //            'product_event',
-        //            ProductPhoto::class,
-        //            'product_photo',
-        //            'product_photo.event = product_event.id AND product_photo.root = true'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_offer',
-        //            ProductOfferImage::class,
-        //            'product_offer_image',
-        //            'product_offer_image.offer = product_offer.id AND product_offer_image.root = true'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_variation',
-        //            ProductVariationImage::class,
-        //            'product_variation_image',
-        //            'product_variation_image.variation = product_variation.id AND product_variation_image.root = true'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_modification',
-        //            ProductModificationImage::class,
-        //            'product_modification_image',
-        //            'product_modification_image.modification = product_modification.id AND product_modification_image.root = true'
-        //        );
-        //
-        //        /** Категория продукта */
-        //        $dbal->leftJoin(
-        //            'product_event',
-        //            ProductCategory::class,
-        //            'product_event_category',
-        //            'product_event_category.event = product_event.id AND product_event_category.root = true'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'product_event_category',
-        //            CategoryProduct::class,
-        //            'category',
-        //            'category.id = product_event_category.category'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'category',
-        //            CategoryProductTrans::class,
-        //            'category_trans',
-        //            'category_trans.event = category.event AND category_trans.local = :local'
-        //        );
-        //
-        //        $dbal->leftJoin(
-        //            'category',
-        //            CategoryProductInfo::class,
-        //            'category_info',
-        //            'category_info.event = category.event'
-        //        );
-
-        //        $dbal->addSelect(
-        //            "JSON_AGG
-        //			( DISTINCT
-        //
-        //					JSONB_BUILD_OBJECT
-        //					(
-        //						/* свойства для сортировки JSON */
-        //						'product_id', product_event.main,
-        //						'product_url', product_info.url,
-        //						'product_article', product_info.article,
-        //						'product_name', product_trans.name,
-        //
-        //						'product_offer_reference', category_offer.reference,
-        //						'product_offer_name', category_offer_trans.name,
-        //						'product_offer_value', product_offer.value,
-        //						'product_offer_const', product_offer.const,
-        //						'product_offer_postfix', product_offer.postfix,
-        //						'product_offer_article', product_offer.article,
-        //
-        //						'product_variation_reference', category_variation.reference,
-        //						'product_variation_name', category_variation_trans.name,
-        //						'product_variation_value', product_variation.value,
-        //						'product_variation_const', product_variation.const,
-        //						'product_variation_postfix', product_variation.postfix,
-        //						'product_variation_article', product_variation.article,
-        //
-        //						'product_modification_reference', category_modification.reference,
-        //						'product_modification_name', category_modification_trans.name,
-        //						'product_modification_value', product_modification.value,
-        //						'product_modification_const', product_modification.const,
-        //						'product_modification_postfix', product_modification.postfix,
-        //						'product_modification_article', product_modification.article,
-        //
-        //						'product_image', CASE
-        //						                   WHEN product_modification_image.name IS NOT NULL THEN
-        //                                                CONCAT ( '/upload/".$dbal->table(ProductModificationImage::class)."' , '/', product_modification_image.name)
-        //                                           WHEN product_variation_image.name IS NOT NULL THEN
-        //                                                CONCAT ( '/upload/".$dbal->table(ProductVariationImage::class)."' , '/', product_variation_image.name)
-        //                                           WHEN product_offer_image.name IS NOT NULL THEN
-        //                                                CONCAT ( '/upload/".$dbal->table(ProductOfferImage::class)."' , '/', product_offer_image.name)
-        //                                           WHEN product_photo.name IS NOT NULL THEN
-        //                                                CONCAT ( '/upload/".$dbal->table(ProductPhoto::class)."' , '/', product_photo.name)
-        //                                           ELSE NULL
-        //                                        END,
-        //
-        //						'product_image_ext', CASE
-        //						                        WHEN product_modification_image.name IS NOT NULL THEN
-        //                                                    product_modification_image.ext
-        //                                               WHEN product_variation_image.name IS NOT NULL THEN
-        //                                                    product_variation_image.ext
-        //                                               WHEN product_offer_image.name IS NOT NULL THEN
-        //                                                    product_offer_image.ext
-        //                                               WHEN product_photo.name IS NOT NULL THEN
-        //                                                    product_photo.ext
-        //                                               ELSE NULL
-        //                                            END,
-        //
-        //                        'product_image_cdn', CASE
-        //                                                WHEN product_modification_image.name IS NOT NULL THEN
-        //                                                    product_modification_image.cdn
-        //                                               WHEN product_variation_image.name IS NOT NULL THEN
-        //                                                    product_variation_image.cdn
-        //                                               WHEN product_offer_image.name IS NOT NULL THEN
-        //                                                    product_offer_image.cdn
-        //                                               WHEN product_photo.name IS NOT NULL THEN
-        //                                                    product_photo.cdn
-        //                                               ELSE NULL
-        //                                            END,
-        //
-        //						'product_total', order_product_price.total,
-        //						'product_price', order_product_price.price,
-        //						'product_price_currency', order_product_price.currency,
-        //						'category_name', category_trans.name,
-        //						'category_url', category_info.url
-        //					)
-        //
-        //			)
-        //			AS order_products"
-        //        );
 
         /** Доставка */
         $dbal->leftJoin(
@@ -627,62 +376,6 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
             );
 
         }
-
-        /** Получаем информацию о честном знаке на продукцию */
-
-        //        if(class_exists(BaksDevProductsSignBundle::class))
-        //        {
-        //
-        //            $dbal
-        //                ->leftJoin(
-        //                    'stock_order',
-        //                    ProductSignEvent::class,
-        //                    'product_sign_event',
-        //                    '
-        //                    product_sign_event.ord = orders.id
-        //                    AND product_sign_event.status = :sign_status
-        //                ')
-        //                ->setParameter(
-        //                    key: 'sign_status',
-        //                    value: ProductSignStatusDone::class,
-        //                    type: ProductSignStatus::TYPE,
-        //                );
-        //
-        //            $dbal
-        //                ->addSelect('product_sign_invariable.part AS sign_part')
-        //                ->leftJoin(
-        //                    'product_sign_event',
-        //                    ProductSignInvariable::class,
-        //                    'product_sign_invariable',
-        //                    '
-        //                    product_sign_invariable.main = product_sign_event.main
-        //                    AND product_sign_invariable.product = product_event.main
-        //                    AND product_sign_invariable.offer = product_offer.const
-        //                    AND product_sign_invariable.variation = product_variation.const
-        //                ',
-        //                );
-        //
-        //        }
-
-        //        $dbal->addSelect(
-        //            "JSON_AGG
-        //			( DISTINCT
-        //
-        //					JSONB_BUILD_OBJECT
-        //					(
-        //						/* свойства для сортирвоки JSON */
-        //						'0', type_profile_field.sort,
-        //						'profile_type', type_profile_field.type,
-        //
-        //						'profile_name', type_profile_field_trans.name,
-        //
-        //						'profile_value', user_profile_value.value,
-        //						'profile_value', user_profile_value.value
-        //					)
-        //
-        //			)
-        //			AS order_user"
-        //        );
 
         $dbal->allGroupByExclude();
 

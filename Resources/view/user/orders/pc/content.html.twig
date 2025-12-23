@@ -5,7 +5,7 @@
         {{ include(_self|replace({ "content.html.twig" : "includes/breadcrumb.html.twig" })) }}
 
         {# АКТИВНЫЕ ЗАКАЗЫ #}
-        {% if status == 'new' %}
+        {% if status != 'completed' %}
 
             {# ССЫЛКЫ НА ЗАКАЗЫ #}
             <div class="d-flex align-items-center gap-2 mb-3">

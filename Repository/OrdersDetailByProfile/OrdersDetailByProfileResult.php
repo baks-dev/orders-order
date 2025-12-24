@@ -43,7 +43,7 @@ final readonly class OrdersDetailByProfileResult
         private string $order_number,
         private string $order_status,
         private string $order_data,
-        private string $order_comment,
+        private ?string $order_comment,
         private string $profile_avatar_name,
         private ?string $payment_id,
         private ?string $payment_name,
@@ -85,7 +85,7 @@ final readonly class OrdersDetailByProfileResult
         return $this->order_data;
     }
 
-    public function getOrderComment(): string
+    public function getOrderComment(): ?string
     {
         return $this->order_comment;
     }

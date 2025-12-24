@@ -136,6 +136,7 @@ class OrderEvent extends EntityEvent
         $this->created = new DateTimeImmutable();
         $this->status = new OrderStatus(OrderStatusNew::class);
         $this->serv = new ArrayCollection();
+        $this->product = new ArrayCollection();
     }
 
     public function __clone()
@@ -275,7 +276,7 @@ class OrderEvent extends EntityEvent
         return $this->usr->getClientProfile();
     }
 
-    /** @return Collection<OrderService> */
+    /** @return Collection<int, OrderService> */
     public function getServ(): Collection
     {
         return $this->serv;

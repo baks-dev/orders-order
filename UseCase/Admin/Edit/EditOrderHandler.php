@@ -34,6 +34,14 @@ final class EditOrderHandler extends AbstractHandler
 {
     public function handle(EditOrderDTO $command): string|Order
     {
+        foreach($command->getProduct() as $product)
+        {
+            if($product->getItem()->count() !== $product->getPrice()->getTotal())
+            {
+                return 'Количество продукции не совпадает с количеством единиц продукции';
+            }
+        }
+
         /** Валидация DTO  */
         $this
             ->setCommand($command)
@@ -47,7 +55,7 @@ final class EditOrderHandler extends AbstractHandler
 
         $this->flush();
 
-        /* Отправляем сообщение в шину */
+        /** Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
             transport: 'orders-order',

@@ -43,11 +43,12 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
-    public static function setUpBeforeClass(): void
-    {
-        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
-        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
-    }
+    // @TODO фикс в модуле products-product
+    //    public static function setUpBeforeClass(): void
+    //    {
+    //        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
+    //        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
+    //    }
 
     #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testFind(): void
@@ -56,7 +57,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
-            ->date(new DateTimeImmutable())
+            ->from(new DateTimeImmutable())
+            ->to(new DateTimeImmutable('+1 day'))
             ->forProfile(new UserProfileUid())
             ->findAll();
 

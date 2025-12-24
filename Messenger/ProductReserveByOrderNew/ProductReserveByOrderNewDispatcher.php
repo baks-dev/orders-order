@@ -44,8 +44,10 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Создаем резерв продукции при поступлении нового заказа
+ * Создаем резерв продукции при поступлении НОВОГО заказа
+ *
  * @note Работа с резервами в карточке - самый высокий приоритет
+ * @note сработает с НОВЫМ заказом
  */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductReserveByOrderNewDispatcher
@@ -79,13 +81,12 @@ final readonly class ProductReserveByOrderNewDispatcher
         if(false === ($OrderEvent instanceof OrderEvent))
         {
             $this->logger->critical(
-                'products-sign: Не найдено событие OrderEvent',
-                [self::class.':'.__LINE__, var_export($message, true)]
+                message: 'products-sign: Не найдено событие OrderEvent',
+                context: [self::class.':'.__LINE__, var_export($message, true)]
             );
 
             return;
         }
-
 
         /** Если заказ не является новым и не списывает продукцию на складе - завершаем обработчик */
         if(
@@ -95,7 +96,6 @@ final readonly class ProductReserveByOrderNewDispatcher
         {
             return;
         }
-
 
         /** Получаем активное событие заказа в случае если статус заказа изменился */
         if(empty($OrderEvent->getOrderNumber()))
@@ -107,8 +107,8 @@ final readonly class ProductReserveByOrderNewDispatcher
             if(false === ($OrderEvent instanceof OrderEvent))
             {
                 $this->logger->critical(
-                    'orders-order: Не найдено событие OrderEvent',
-                    [self::class.':'.__LINE__, var_export($message, true)]
+                    message: 'orders-order: Не найдено событие OrderEvent',
+                    context: [self::class.':'.__LINE__, var_export($message, true)]
                 );
 
                 return;
@@ -122,24 +122,23 @@ final readonly class ProductReserveByOrderNewDispatcher
             return;
         }
 
-
         /** Проверяем, является ли данный профиль логистическим складом */
         $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
             ->forProfile($UserProfileUid)
             ->isLogisticWarehouse();
 
-
         /**
-         * Новый заказ не имеет предыдущего события!!! (за исключением случая, когда мы намеренно создали новый заказ
+         * Новый заказ не имеет предыдущего события!!!
+         * (за исключением случая, когда мы намеренно создали новый заказ
          * после отправки заказа из другого профиля на упаковку)
          */
         if(false !== ($message->getLast() instanceof OrderEventUid))
         {
+
             if(false === ($message->getLastProfile() instanceof UserProfileUid))
             {
                 return;
             }
-
 
             /** Если это не первое событие заказа и профиль его не менялся, не меняем резерв */
             if($UserProfileUid->equals($message->getLastProfile()))
@@ -147,12 +146,10 @@ final readonly class ProductReserveByOrderNewDispatcher
                 return;
             }
 
-
             /** Проверяем, являлся ли данный профиль логистическим складом в прошлом событии */
             $wasLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
                 ->forProfile($message->getLastProfile())
                 ->isLogisticWarehouse();
-
 
             /** Если оба склада логистические - не меняем резерв */
             if(true === $isLogisticWarehouse && true === $wasLogisticWarehouse)
@@ -160,18 +157,19 @@ final readonly class ProductReserveByOrderNewDispatcher
                 return;
             }
 
-
             /** Если профиль из прошлого события являлся логистическим складом, а текущий - нет, то снимаем резерв */
             if(true === $wasLogisticWarehouse && false === $isLogisticWarehouse)
             {
                 $this->logger->info(
-                    sprintf(
+                    message: sprintf(
                         '%s: Снимаем резерв продукции в карточке для нового заказа (см. products-product.log)',
                         $OrderEvent->getOrderNumber()
                     ),
-                    [
+                    context: [
                         'status' => OrderStatusNew::STATUS,
-                        'deduplicator' => $Deduplicator->getKey()
+                        'deduplicator' => $Deduplicator->getKey(),
+                        var_export($message, true),
+                        self::class.':'.__LINE__
                     ]
                 );
 
@@ -181,14 +179,53 @@ final readonly class ProductReserveByOrderNewDispatcher
                 /** @var OrderProductDTO $product */
                 foreach($EditOrderDTO->getProduct() as $product)
                 {
-                    /** Устанавливаем новый резерв продукции в заказе */
+                    $productTotal = $product->getPrice()->getTotal();
+                    $itemsCount = $product->getItem()->count();
+
+                    /** Определяем total по ЕДИНИЦАМ продукции */
+                    $total = $itemsCount;
+
+                    /** Истинное условие */
+                    $isCorrectItemsCount = $productTotal === $itemsCount;
+
+                    if(true === $isCorrectItemsCount)
+                    {
+                        $this->logger->debug(
+                            message: sprintf(
+                                '%s: Снимаем резерв в соответствии с количеством единиц продукции',
+                                $EditOrderDTO->getInvariable()->getNumber()
+                            ),
+                            context: [
+                                '$productTotal' => $productTotal,
+                                '$itemsCount' => $itemsCount,
+                                self::class.':'.__LINE__
+                            ],
+                        );
+                    }
+
+
+                    if(false === $isCorrectItemsCount)
+                    {
+                        $this->logger->warning(
+                            message: 'КОЛИЧЕСТВО продукции в заказе не совпадает с ЕДИНИЦАМИ продукта в заказе',
+                            context: [
+                                '$productTotal' => $productTotal,
+                                '$itemsCount' => $itemsCount,
+                                self::class.':'.__LINE__],
+                        );
+
+                        /** Переопределяем total из КОЛИЧЕСТВА продукции */
+                        $total = $productTotal;
+                    }
+
+                    /** Снимаем новый резерв продукции в заказе */
                     $this->messageDispatch->dispatch(
                         new ProductsReserveByOrderCancelMessage(
                             $product->getProduct(),
                             $product->getOffer(),
                             $product->getVariation(),
                             $product->getModification(),
-                            $product->getPrice()->getTotal()
+                            $total
                         )
                     );
                 }
@@ -205,22 +242,63 @@ final readonly class ProductReserveByOrderNewDispatcher
         }
 
         $this->logger->info(
-            sprintf(
+            message: sprintf(
                 '%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
                 $OrderEvent->getOrderNumber()
             ),
-            [
+            context: [
                 'status' => OrderStatusNew::STATUS,
-                'deduplicator' => $Deduplicator->getKey()
+                'deduplicator' => $Deduplicator->getKey(),
+                var_export($message, true),
+                self::class.':'.__LINE__,
             ]
         );
 
+        /** Заказ */
         $EditOrderDTO = new EditOrderDTO();
         $OrderEvent->getDto($EditOrderDTO);
 
         /** @var OrderProductDTO $product */
         foreach($EditOrderDTO->getProduct() as $product)
         {
+            $productTotal = $product->getPrice()->getTotal();
+            $itemsCount = $product->getItem()->count();
+
+            /** Определяем total по ЕДИНИЦАМ продукции */
+            $total = $itemsCount;
+
+            /** Истинное условие */
+            $isCorrectItemsCount = $productTotal === $itemsCount;
+
+            if(true === $isCorrectItemsCount)
+            {
+                $this->logger->debug(
+                    message: sprintf(
+                        '%s: Добавляем резерв в соответствии с количеством единиц продукции',
+                        $EditOrderDTO->getInvariable()->getNumber()
+                    ),
+                    context: [
+                        '$productTotal' => $productTotal,
+                        '$itemsCount' => $itemsCount,
+                        self::class.':'.__LINE__],
+                );
+            }
+
+            if(false === $isCorrectItemsCount)
+            {
+                $this->logger->warning(
+                    message: 'КОЛИЧЕСТВО продукции в заказе не совпадает с ЕДИНИЦАМИ продукта в заказе',
+                    context: [
+                        '$productTotal' => $productTotal,
+                        '$itemsCount' => $itemsCount,
+                        self::class.':'.__LINE__
+                    ],
+                );
+
+                /** Переопределяем total из КОЛИЧЕСТВА продукции */
+                $total = $productTotal;
+            }
+
             /** Устанавливаем новый резерв продукции в заказе */
             $this->messageDispatch->dispatch(
                 new ProductReserveByOrderNewMessage(
@@ -228,12 +306,11 @@ final readonly class ProductReserveByOrderNewDispatcher
                     $product->getOffer(),
                     $product->getVariation(),
                     $product->getModification(),
-                    $product->getPrice()->getTotal()
+                    $total
                 )
             );
         }
 
         $Deduplicator->save();
     }
-
 }

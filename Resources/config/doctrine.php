@@ -32,6 +32,10 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Event\OrderEventUidType;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Id\OrderUidType;
+use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConst;
+use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConstType;
+use BaksDev\Orders\Order\Type\Items\OrderProductItemType;
+use BaksDev\Orders\Order\Type\Items\OrderProductItemUid;
 use BaksDev\Orders\Order\Type\OrderService\OrderServiceType;
 use BaksDev\Orders\Order\Type\OrderService\OrderServiceUid;
 use BaksDev\Orders\Order\Type\OrderService\Period\ServicePeriodType;
@@ -65,10 +69,17 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
 
     $doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
+
+    /** Продукты в заказе */
     $doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
+    $doctrine->dbal()->type(OrderProductItemUid::TYPE)->class(OrderProductItemType::class);
+    $doctrine->dbal()->type(OrderProductItemConst::TYPE)->class(OrderProductItemConstType::class);
+
+    /** Услуги в заказе */
     $doctrine->dbal()->type(ServiceUid::TYPE)->class(ServiceType::class);
     $doctrine->dbal()->type(OrderServiceUid::TYPE)->class(OrderServiceType::class);
     $doctrine->dbal()->type(ServicePeriodUid::TYPE)->class(ServicePeriodType::class);
+
     $doctrine->dbal()->type(OrderUserUid::TYPE)->class(OrderUserType::class);
     $doctrine->dbal()->type(OrderPaymentUid::TYPE)->class(OrderPaymentType::class);
     $doctrine->dbal()->type(OrderPaymentFieldUid::TYPE)->class(OrderPaymentFieldType::class);

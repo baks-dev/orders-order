@@ -33,6 +33,7 @@ use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\Items\OrderProductItemDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
@@ -66,7 +67,6 @@ final class NewOrderHandler extends AbstractHandler
          */
         if($OrderUserDTO->getProfile() === null)
         {
-
             $UserProfileDTO = $OrderUserDTO->getUserProfile();
             $this->validatorCollection->add($UserProfileDTO);
 
@@ -104,6 +104,27 @@ final class NewOrderHandler extends AbstractHandler
         }
 
 
+        /**
+         * Items
+         * Создаем единицу продукта по количеству продукта в заказе
+         */
+        foreach($command->getProduct() as $product)
+        {
+            for($i = 0; $i < $product->getPrice()->getTotal(); $i++)
+            {
+                $item = new OrderProductItemDTO;
+
+                /**
+                 * Присваиваем цену из продукта в заказе
+                 */
+                $item->getPrice()
+                    ->setPrice($product->getPrice()->getPrice())
+                    ->setCurrency($product->getPrice()->getCurrency());
+
+                $product->addItem($item);
+            }
+        }
+
         $this
             ->setCommand($command)
             ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
@@ -126,5 +147,4 @@ final class NewOrderHandler extends AbstractHandler
 
         return $this->main;
     }
-
 }

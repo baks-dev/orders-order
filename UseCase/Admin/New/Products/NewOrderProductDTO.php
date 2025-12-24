@@ -27,10 +27,12 @@ namespace BaksDev\Orders\Order\UseCase\Admin\New\Products;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\Items\OrderProductItemDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderProduct */
@@ -57,6 +59,18 @@ final class NewOrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private Price\NewOrderPriceDTO $price;
 
+    /**
+     * Коллекция единиц товара
+     *
+     * @var ArrayCollection<int, OrderProductItemDTO> $item
+     */
+    #[Assert\Valid]
+    private ArrayCollection $item;
+
+    public function __construct()
+    {
+        $this->item = new ArrayCollection();
+    }
 
     /** Событие продукта */
     public function getProduct(): ProductEventUid
@@ -94,7 +108,7 @@ final class NewOrderProductDTO implements OrderProductInterface
         return $this;
     }
 
-    /** Модификация множественного вараинта торгового предложения  */
+    /** Модификация множественного варианта торгового предложения  */
     public function getModification(): ?ProductModificationUid
     {
         return $this->modification;
@@ -117,4 +131,31 @@ final class NewOrderProductDTO implements OrderProductInterface
         $this->price = $price;
     }
 
+    /**
+     * Коллекция разделенных отправлений одного заказа
+     *
+     * @return ArrayCollection<int, OrderProductItemDTO>
+     */
+    public function getItem(): ArrayCollection
+    {
+        return $this->item;
+    }
+
+    public function addItem(OrderProductItemDTO $item): void
+    {
+        $exist = $this->item->exists(function(int $k, OrderProductItemDTO $value) use ($item) {
+            /** @var OrderProductItemDTO $item */
+            return $value->getConst()->equals($item->getConst());
+        });
+
+        if(false === $exist)
+        {
+            $this->item->add($item);
+        }
+    }
+
+    public function removeItem(OrderProductItemDTO $item): void
+    {
+        $this->item->removeElement($item);
+    }
 }

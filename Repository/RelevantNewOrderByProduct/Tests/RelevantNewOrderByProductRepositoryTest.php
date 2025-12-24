@@ -25,10 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\RelevantNewOrderByProduct\Tests;
 
-use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Repository\RelevantNewOrderByProduct\RelevantNewOrderByProductInterface;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -54,8 +52,6 @@ class RelevantNewOrderByProductRepositoryTest extends KernelTestCase
             ->forModification(null)
             ->onlyPackageStatus()
             ->find();
-
-        dd($OrderEvent); /* TODO: удалить !!! */
 
     }
 }

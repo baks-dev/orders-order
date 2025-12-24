@@ -41,7 +41,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class ProductsReserveByOrderCancelHandler
 {
     public function __construct(
-        #[Target('productsProductLogger')] private LoggerInterface $logger,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private SubProductQuantityInterface $subProductQuantity,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}
@@ -62,7 +62,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
         {
             $this->logger->critical(
-                'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
                 [var_export($message, true), self::class.':'.__LINE__,],
             );
 
@@ -83,7 +83,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         if($result === 0)
         {
             $this->logger->critical(
-                'Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
+                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
                 [var_export($message, true), self::class.':'.__LINE__,],
             );
 
@@ -91,7 +91,7 @@ final readonly class ProductsReserveByOrderCancelHandler
         }
 
         $this->logger->info(
-            'Сняли общий резерв продукции в карточке при отмене заказа',
+            'orders-order: Сняли общий резерв продукции в карточке при отмене заказа. Сняли с резерва '.$message->getTotal(),
             [var_export($message, true), self::class.':'.__LINE__,],
         );
     }

@@ -40,14 +40,13 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class ProductReserveByOrderNewHandler
 {
     public function __construct(
-        #[Target('productsProductLogger')] private LoggerInterface $logger,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private AddProductQuantityInterface $addProductQuantity,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
     ) {}
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void
     {
-
         /**
          * Всегда пробуем определить активное состояние карточки на случай обновления
          */
@@ -63,12 +62,11 @@ final readonly class ProductReserveByOrderNewHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__],
+                [var_export($message, true), self::class.':'.__LINE__],
             );
 
             return;
         }
-
 
         $result = $this
             ->addProductQuantity
@@ -80,12 +78,11 @@ final readonly class ProductReserveByOrderNewHandler
             ->addQuantity(false)
             ->update();
 
-
         if($result === false)
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__]
+                [var_export($message, true), self::class.':'.__LINE__]
             );
 
             return;
@@ -95,15 +92,15 @@ final readonly class ProductReserveByOrderNewHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва',
-                [$message, self::class.':'.__LINE__]
+                [var_export($message, true), self::class.':'.__LINE__]
             );
 
             return;
         }
 
         $this->logger->info(
-            sprintf('orders-order: Добавили %s резерва продукции в карточке', $message->getTotal()),
-            [$message, self::class.':'.__LINE__]
+            sprintf('orders-order: Добавили резерв продукции в карточке. Резерв равен %s', $message->getTotal()),
+            [var_export($message, true), self::class.':'.__LINE__]
         );
     }
 }

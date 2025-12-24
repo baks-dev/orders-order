@@ -43,7 +43,7 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Коллекция продукции в заказе
      *
-     * @var ArrayCollection{int, NewOrderProductDTO} $product
+     * @var ArrayCollection<int, NewOrderProductDTO> $product
      * */
     #[Assert\Valid]
     private ArrayCollection $product;
@@ -52,7 +52,7 @@ final class NewOrderDTO implements OrderEventInterface
 
     /**
      * Коллекция продукции в заказе
-     * @var ArrayCollection{int, OrderServiceDTO} $serv
+     * @var ArrayCollection<int, OrderServiceDTO> $serv
      */
     #[Assert\Valid]
     private ArrayCollection $serv;
@@ -103,7 +103,7 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Коллекция продукции в заказе
      *
-     * @return ArrayCollection{int, NewOrderProductDTO}
+     * @return ArrayCollection<int, NewOrderProductDTO>
      */
     public function getProduct(): ArrayCollection
     {
@@ -131,7 +131,7 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Коллекция услуг в заказе
      *
-     * @return ArrayCollection{int, OrderServiceDTO}
+     * @return ArrayCollection<int, OrderServiceDTO>
      */
     public function getServ(): ArrayCollection
     {

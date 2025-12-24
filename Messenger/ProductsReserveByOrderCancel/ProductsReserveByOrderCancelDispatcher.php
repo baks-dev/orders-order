@@ -50,7 +50,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Снимаем только резерв с карточки товара при отмене заказа
+ * Снимаем резерв с карточки товара  при отмене заказа или удалении продукта из заказа
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */

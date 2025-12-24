@@ -120,69 +120,12 @@ executeFunc(function P8X1I2diQ4()
             }
         });
 
-        //console.log(droppable);  /* TODO: удалить !!! */
-        //
-        //droppable.on("drag:move", (e) =>
-        //{
-        //    //console.log('drag:move');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("drag:start", (e) =>
-        //{
-        //    console.log('drag:start');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("drag:stop", (e) =>
-        //{
-        //    console.log('drag:stop');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("draggable:destroy", (e) =>
-        //{
-        //    console.log('draggable:destroy');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("draggable:initialize", (e) =>
-        //{
-        //    console.log('draggable:initialize');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("mirror:created", (e) =>
-        //{
-        //    console.log('mirror:created');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("mirror:destroy", (e) =>
-        //{
-        //    console.log('mirror:destroy');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("mirror:move", (e) =>
-        //{
-        //    console.log('mirror:destroy');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("droppable:dropped", (e) =>
-        //{
-        //    console.log('droppable:dropped');  /* TODO: удалить !!! */
-        //});
-        //
-        //droppable.on("drag:pressure", (e) =>
-        //{
-        //    console.log('drag:pressure');  /* TODO: удалить !!! */
-        //});
-
-
         // Handle drag start event -- more info: https://shopify.github.io/draggable/docs/class/src/Draggable/DragEvent/DragEvent.js~DragEvent.html
         droppable.on("drag:start", (e) =>
         {
             document.body.style.overflow = "hidden";
 
             const draggedOrderId = e.originalSource.id;
-
-            //console.log("Drag start для заказа:", draggedOrderId);
-            //console.log("Выбранные заказы:", Array.from(selectedOrders));
-            //console.log("Размер выбранных:", selectedOrders.size);
 
             // Проверяем, является ли перетаскиваемый элемент частью выделенных
             if(selectedOrders.has(draggedOrderId) && selectedOrders.size > 1)

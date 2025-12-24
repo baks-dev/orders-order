@@ -34,11 +34,15 @@ use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiv
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Создание заказа в админке
+ */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_NEW')]
 final class NewController extends AbstractController
@@ -116,7 +120,7 @@ final class NewController extends AbstractController
              * Продукты
              */
 
-
+            /** @var NewOrderProductDTO $product */
             foreach($OrderDTO->getProduct() as $product)
             {
                 $ProductUserBasketResult = $userBasket

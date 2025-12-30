@@ -11,7 +11,6 @@
 
     <tbody>
 
-
     {% for productIndex,product in form.product|filter(v => v.vars.data.card is not empty) %}
 
     {% set productGroup = product.vars.id %}
@@ -91,7 +90,7 @@
 
         </td>
 
-        {# Стоимость, количество, скидка и т.д. #}
+        {# dropdown-menu #}
         {{ include(_self|replace({ "products.html.twig": "_price.html.twig" })) }}
 
         <td class="vertical-middle text-end">
@@ -150,11 +149,11 @@
 
         {% endif %}
 
+        {# ЕДИНИЦЫ ПРОДУКЦИИ #}
         {% if product.item|length != 0 %}
             {{ include(_self|replace({ "products.html.twig": "_items/item.html.twig" })) }}
         {% endif %}
 
-        {# Продукты по единицам #}
 
         {% endfor %}
     </tbody>

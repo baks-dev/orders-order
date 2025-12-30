@@ -11,8 +11,12 @@
     }
 
     .accordion-button:focus {
-        /*outline: 2px solid transparent; !* Убираем стандартный outline *!*/
         box-shadow: none;
+    }
+
+    input[readonly]:focus {
+        border-color: #dc3545; /* Красный цвет из Bootstrap */
+        outline: none;
     }
 
 

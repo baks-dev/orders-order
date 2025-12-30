@@ -44,7 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Создаем резерв продукции при поступлении НОВОГО заказа
+ * Создает резерв в КАРТОЧКЕ товара при поступлении НОВОГО заказа
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  * @note сработает с НОВЫМ заказом
@@ -162,14 +162,14 @@ final readonly class ProductReserveByOrderNewDispatcher
             {
                 $this->logger->info(
                     message: sprintf(
-                        '%s: Снимаем резерв продукции в карточке для нового заказа (см. products-product.log)',
-                        $OrderEvent->getOrderNumber()
+                        '%s: Снимаем резерв в карточке товара для заказа со статусом %s',
+                        $OrderEvent->getOrderNumber(),
+                        $OrderEvent->getStatus()->getOrderStatusValue()
                     ),
                     context: [
-                        'status' => OrderStatusNew::STATUS,
+                        self::class.':'.__LINE__,
                         'deduplicator' => $Deduplicator->getKey(),
                         var_export($message, true),
-                        self::class.':'.__LINE__
                     ]
                 );
 
@@ -192,7 +192,7 @@ final readonly class ProductReserveByOrderNewDispatcher
                     {
                         $this->logger->debug(
                             message: sprintf(
-                                '%s: Снимаем резерв в соответствии с количеством единиц продукции',
+                                '%s: Снимаем резерв в карточке по количеству ЕДИНИЦ продукции',
                                 $EditOrderDTO->getInvariable()->getNumber()
                             ),
                             context: [
@@ -241,16 +241,19 @@ final readonly class ProductReserveByOrderNewDispatcher
             return;
         }
 
+        /**
+         * Запускаем процесс добавления резервов в карточке продукта
+         */
+
         $this->logger->info(
-            message: sprintf(
-                '%s: Добавляем резерв продукции в карточке для нового заказа (см. products-product.log)',
-                $OrderEvent->getOrderNumber()
+            message: sprintf('%s Добавляем резерв в карточке товара для заказ со статусом `%s`',
+                $OrderEvent->getOrderNumber(),
+                $OrderEvent->getStatus()->getOrderStatusValue()
             ),
             context: [
-                'status' => OrderStatusNew::STATUS,
+                self::class.':'.__LINE__,
                 'deduplicator' => $Deduplicator->getKey(),
                 var_export($message, true),
-                self::class.':'.__LINE__,
             ]
         );
 
@@ -272,9 +275,9 @@ final readonly class ProductReserveByOrderNewDispatcher
 
             if(true === $isCorrectItemsCount)
             {
-                $this->logger->debug(
+                $this->logger->info(
                     message: sprintf(
-                        '%s: Добавляем резерв в соответствии с количеством единиц продукции',
+                        '%s Добавляем резерв в соответствии с количеством ЕДИНИЦ продукции',
                         $EditOrderDTO->getInvariable()->getNumber()
                     ),
                     context: [
@@ -306,7 +309,8 @@ final readonly class ProductReserveByOrderNewDispatcher
                     $product->getOffer(),
                     $product->getVariation(),
                     $product->getModification(),
-                    $total
+                    $total,
+                    $OrderEvent->getOrderNumber(),
                 )
             );
         }

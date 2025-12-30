@@ -42,7 +42,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/** Метод меняет статус заказа на Package «Упаковка заказов» */
+/**
+ * Метод меняет статус заказа на Package «Упаковка заказов»
+ */
 #[AsMessageHandler(priority: 100)]
 final readonly class MultiplyOrdersPackageDispatcher
 {

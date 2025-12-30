@@ -26,9 +26,12 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewMessage;
+use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
@@ -41,14 +44,14 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * НА КАЖДУЮ ЕДИНИЦУ ТОВАРА Обновляем/Снимаем резерв в карточке при изменении количества продукции в УЖЕ СОЗДАННОМ заказе
+ * НА КАЖДУЮ ЕДИНИЦУ ТОВАРА Обновляет/Снимает резерв в КАРТОЧКЕ при изменении количества продукции в УЖЕ СОЗДАННОМ заказе
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  * @note не сработает на новом заказе
  *
  * заменяет работу @see ProductChangeReserveByOrderChangeDispatcher
  */
-#[AsMessageHandler(priority: 998)]
+#[AsMessageHandler(priority: 999)]
 final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
 {
     public function __construct(
@@ -65,10 +68,8 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 $message,
-                //                self::class,
-                ProductChangeReserveByOrderChangeDispatcher::class, // отработает только если этот обработчик не был вызван первым // @TODO удалить при релизе
+                self::class,
             ]);
-
 
         if($Deduplicator->isExecuted())
         {
@@ -121,8 +122,8 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
             $this->logger->critical(
                 message: 'Не найдено активное событие OrderEvent',
                 context: [
-                    var_export($message, true),
                     self::class.':'.__LINE__,
+                    var_export($message, true),
                 ]
             );
 
@@ -156,10 +157,15 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
          * Итерируемся по текущей коллекции продуктов в заказе
          */
 
-        /** @var OrderProductDTO $currentOrderProductDTO */
+        /**
+         * Реагируем на изменение продукта в заказе или новый продукт
+         * @var OrderProductDTO $currentOrderProductDTO
+         */
         foreach($CurrentOrderDTO->getProduct() as $currentOrderProductDTO)
         {
-            /** Находим соответствие продукта из актуального и предыдущего состояния ЗАКАЗА */
+            $CurrentOrderNumber = $CurrentOrderDTO->getOrderNumber();
+
+            /** Находим соответствие продукта из АКТУАЛЬНОГО и ПРЕДЫДУЩЕГО состояния ЗАКАЗА */
             $lastOrderProductDTO = $LastOrderDTO->getProduct()->findFirst(function(
                 int $k,
                 OrderProductDTO $lastProduct
@@ -172,6 +178,9 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                     && ((is_null($lastProduct->getModification()) === true && is_null($currentOrderProductDTO->getModification()) === true) || $lastProduct->getModification()?->equals($currentOrderProductDTO->getModification()));
             });
 
+            /** Уменьшаем коллекцию продуктов из предыдущего события - для списания резерва в КАРТОЧКЕ товара */
+            $LastOrderDTO->getProduct()->removeElement($lastOrderProductDTO);
+
             /**
              * Если в заказе текущий продукт СОВПАДАЕТ с прошлым продуктом - значит мы ОБНОВИЛИ продукт в заказе:
              * - начинаем сравнивать прошлые и текущие item у продукта
@@ -182,12 +191,14 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 if($currentOrderProductDTO->getItem()->isEmpty() || $lastOrderProductDTO->getItem()->isEmpty())
                 {
                     $this->logger->critical(
-                        message: 'При сохранении заказа не были добавлены единицы продукта',
+                        message: sprintf('%s При сохранении заказа не были добавлены единицы продукта',
+                            $CurrentOrderNumber
+                        ),
                         context: [
+                            self::class.':'.__LINE__,
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                            self::class.':'.__LINE__,
                         ]
                     );
 
@@ -205,50 +216,53 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 }
 
                 $this->logger->info(
-                    message: 'Список единиц продукции был изменен. Запущен процесс резервирования и списания',
+                    message: sprintf(
+                        '%s Список единиц продукции был изменен. Запущен процесс резервирования и списания по ЕДИНИЦАМ в КАРТОЧКЕ продукции',
+                        $CurrentOrderNumber
+                    ),
                     context: [
+                        self::class.':'.__LINE__,
                         'current_product' => var_export($currentOrderProductDTO, true),
                         'last_product' => var_export($lastOrderProductDTO, true),
                         var_export($message, true),
-                        self::class.':'.__LINE__,
                     ]
                 );
 
-                // @TODO вернуть при релизе
                 /**
-                 * Добавляем новый резерв с ВЫСОКИМ приоритетом
+                 * Добавляем новый резерв (очередь с ВЫСОКИМ приоритетом)
                  */
-                //                $this->messageDispatch->dispatch(
-                //                    new ProductReserveByOrderNewMessage(
-                //                        $currentOrderProductDTO->getProduct(),
-                //                        $currentOrderProductDTO->getOffer(),
-                //                        $currentOrderProductDTO->getVariation(),
-                //                        $currentOrderProductDTO->getModification(),
-                //                        $currentOrderProductDTO->getItem()->count(),
-                //                    ),
-                //                    transport: 'products-product',
-                //                );
+                $this->messageDispatch->dispatch(
+                    new ProductReserveByOrderNewMessage(
+                        $currentOrderProductDTO->getProduct(),
+                        $currentOrderProductDTO->getOffer(),
+                        $currentOrderProductDTO->getVariation(),
+                        $currentOrderProductDTO->getModification(),
+                        $currentOrderProductDTO->getItem()->count(),
+                        $CurrentOrderNumber
+                    ),
+                    transport: 'products-product',
+                );
 
-                // @TODO вернуть при релизе
                 /**
-                 * Снимаем предыдущий резерв как отложенное сообщение с НИЗКИМ приоритетом
+                 * Снимаем предыдущий резерв как отложенное сообщение (очередь с НИЗКИМ приоритетом)
                  */
-                //                $this->messageDispatch->dispatch(
-                //                    new ProductsReserveByOrderCancelMessage(
-                //                        $lastOrderProductDTO->getProduct(),
-                //                        $lastOrderProductDTO->getOffer(),
-                //                        $lastOrderProductDTO->getVariation(),
-                //                        $lastOrderProductDTO->getModification(),
-                //                        $lastOrderProductDTO->getItem()->count(),
-                //                    ),
-                //                    stamps: [new MessageDelay('5 seconds')],
-                //                    transport: 'products-product-low',
-                //                );
+                $this->messageDispatch->dispatch(
+                    new ProductsReserveByOrderCancelMessage(
+                        $lastOrderProductDTO->getProduct(),
+                        $lastOrderProductDTO->getOffer(),
+                        $lastOrderProductDTO->getVariation(),
+                        $lastOrderProductDTO->getModification(),
+                        $lastOrderProductDTO->getItem()->count(),
+                        $CurrentOrderNumber
+                    ),
+                    stamps: [new MessageDelay('5 seconds')],
+                    transport: 'products-product-low',
+                );
 
             }
 
             /**
-             * Если в заказе текущий продукт НЕ СОВПАДАЕТ с прошлым продуктом - значит мы ДОБАВИЛИ продукт в заказ:
+             * Если в заказе текущий продукт НЕ СОВПАДАЕТ с прошлым продуктом - значит мы ДОБАВИЛИ продукт в ТЕКУЩИЙ заказ:
              * - начинаем сравнивать прошлые и текущие item у продукта
              */
             if(false === $lastOrderProductDTO instanceof OrderProductDTO)
@@ -259,10 +273,10 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                     $this->logger->critical(
                         message: 'При сохранении заказа не были добавлены единицы продукта',
                         context: [
+                            self::class.':'.__LINE__,
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                            self::class.':'.__LINE__,
                         ]
                     );
 
@@ -274,29 +288,57 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 foreach($currentOrderProductDTO->getItem() as $currentOrderProductItemDTO)
 
                     $this->logger->info(
-                        message: 'Добавляем резерв при добавлении нового ПРОДУКТА в заказ',
+                        message: sprintf('%s Добавляем резерв в КАРТОЧКЕ товара при добавлении нового продукта в заказ',
+                            $CurrentOrderNumber
+                        ),
                         context: [
+                            self::class.':'.__LINE__,
                             'new_product_item' => var_export($currentOrderProductItemDTO, true),
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                            self::class.':'.__LINE__,
                         ]
                     );
 
-                // @TODO вернуть при релизе
-                //
-                //                $this->messageDispatch->dispatch(
-                //                    new ProductReserveByOrderNewMessage(
-                //                        $currentOrderProductDTO->getProduct(),
-                //                        $currentOrderProductDTO->getOffer(),
-                //                        $currentOrderProductDTO->getVariation(),
-                //                        $currentOrderProductDTO->getModification(),
-                //                        $currentOrderProductDTO->getItem()->count(),
-                //                    ),
-                //                    transport: 'products-product',
-                //                );
+                $this->messageDispatch->dispatch(
+                    new ProductReserveByOrderNewMessage(
+                        $currentOrderProductDTO->getProduct(),
+                        $currentOrderProductDTO->getOffer(),
+                        $currentOrderProductDTO->getVariation(),
+                        $currentOrderProductDTO->getModification(),
+                        $currentOrderProductDTO->getItem()->count(),
+                        $CurrentOrderNumber
+                    ),
+                    transport: 'products-product',
+                );
             }
+        }
+
+        /**
+         * Реагируем на удаленный продукт в заказе - снимаем резерв для каждой единицы удаленного продукта
+         * @var OrderProductDTO $lastOrderProductDTO
+         */
+        foreach($LastOrderDTO->getProduct() as $lastOrderProductDTO)
+        {
+            $this->logger->info(
+                message: sprintf('%s Снимаем резерв при удалении ПРОДУКТА из заказа',
+                    $LastOrderDTO->getOrderNumber()),
+                context: [
+                    self::class.':'.__LINE__,
+                ]
+            );
+
+            $this->messageDispatch->dispatch(
+                new ProductsReserveByOrderCancelMessage(
+                    $lastOrderProductDTO->getProduct(),
+                    $lastOrderProductDTO->getOffer(),
+                    $lastOrderProductDTO->getVariation(),
+                    $lastOrderProductDTO->getModification(),
+                    $lastOrderProductDTO->getItem()->count(),
+                    $LastOrderDTO->getOrderNumber()
+                ),
+                transport: 'products-product',
+            );
         }
 
         $DeduplicatorOrder->save();

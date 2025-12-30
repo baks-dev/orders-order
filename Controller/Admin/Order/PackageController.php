@@ -56,9 +56,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class PackageController extends AbstractController
 {
-    public const string NAME = 'admin.order.package';
-
-    #[Route('/admin/order/package', name: self::NAME, methods: ['GET', 'POST'])]
+    #[Route(path: '/admin/order/package', name: 'admin.order.package', methods: ['GET', 'POST'])]
     public function package(
         Request $request,
         CentrifugoPublishInterface $publish,
@@ -73,7 +71,7 @@ final class PackageController extends AbstractController
             ->createForm(
                 type: PackageOrdersForm::class,
                 data: $packageOrdersDTO = new PackageOrdersDTO(),
-                options: ['action' => $this->generateUrl('orders-order:'.self::NAME)],
+                options: ['action' => $this->generateUrl('orders-order:admin.order.package')],
             )
             ->handleRequest($request);
 
@@ -126,7 +124,7 @@ final class PackageController extends AbstractController
                     ->forStatus(OrderStatusCanceled::class)
                     ->isExists();
 
-                if($isExists)
+                if(true === $isExists)
                 {
                     $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;
@@ -155,7 +153,6 @@ final class PackageController extends AbstractController
                     $OrderStatusDTO
                         ->addComment(sprintf('Важно! Заказ отправлен на сборку с другого магазина региона (%s)', $request->getHost()));
 
-
                     $Order = $OrderStatusHandler->handle(
                         command: $OrderStatusDTO,
                         deduplicator: false,
@@ -174,14 +171,12 @@ final class PackageController extends AbstractController
                  * Отправляем заказ на упаковку через очередь сообщений
                  */
 
-                $MultiplyOrdersPackageMessage = new MultiplyOrdersPackageMessage(
-                    $OrderEvent->getMain(),
-                    $packageOrdersDTO->getProfile(),
-                    $CurrentUserUid, // передаем текущего пользователя
-                );
-
                 $messageDispatch->dispatch(
-                    message: $MultiplyOrdersPackageMessage,
+                    message: new MultiplyOrdersPackageMessage(
+                        $OrderEvent->getMain(),
+                        $packageOrdersDTO->getProfile(),
+                        $CurrentUserUid, // передаем текущего пользователя
+                    ),
                     transport: 'orders-order',
                 );
 

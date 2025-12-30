@@ -49,6 +49,5 @@ class CurrentOrderEventRepositoryTest extends KernelTestCase
             ->forOrder($orderID)
             ->find();
 
-        dd($result);
     }
 }

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
@@ -33,7 +34,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Снимает резерв с карточки товара при отмене заказа
+ * Снимает резерв в КАРТОЧКЕ товара
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
@@ -42,8 +43,9 @@ final readonly class ProductsReserveByOrderCancelHandler
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
-        private SubProductQuantityInterface $subProductQuantity,
-        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
+        private MessageDispatchInterface $messageDispatch,
+        private SubProductQuantityInterface $subProductQuantityRepository,
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierRepository,
     ) {}
 
     public function __invoke(ProductsReserveByOrderCancelMessage $message): void
@@ -52,7 +54,7 @@ final readonly class ProductsReserveByOrderCancelHandler
          * Всегда пробуем определить активное состояние карточки на случай обновления
          */
 
-        $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
+        $CurrentProductIdentifierResult = $this->CurrentProductIdentifierRepository
             ->forEvent($message->getEvent())
             ->forOffer($message->getOffer())
             ->forVariation($message->getVariation())
@@ -62,16 +64,18 @@ final readonly class ProductsReserveByOrderCancelHandler
         if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
         {
             $this->logger->critical(
-                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [var_export($message, true), self::class.':'.__LINE__,],
+                message: sprintf(
+                    '%s Невозможно снять резерв с карточки товара: не найдены активные идентификаторы продукта',
+                    $message->getNumber() ?? 'orders-order',
+                ),
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
         }
 
-
         $result = $this
-            ->subProductQuantity
+            ->subProductQuantityRepository
             ->forEvent($CurrentProductIdentifierResult->getEvent())
             ->forOffer($CurrentProductIdentifierResult->getOffer())
             ->forVariation($CurrentProductIdentifierResult->getVariation())
@@ -83,16 +87,25 @@ final readonly class ProductsReserveByOrderCancelHandler
         if($result === 0)
         {
             $this->logger->critical(
-                'orders-order: Невозможно снять резерв с карточки товара при отмене заказа: карточка не найдена либо недостаточное количество в резерве)',
-                [var_export($message, true), self::class.':'.__LINE__,],
+                message: sprintf(
+                    '%s Невозможно снять резерв с карточки товара: карточка не найдена либо недостаточное количество в резерве',
+                    $message->getNumber() ?? 'orders-order',
+                ),
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
         }
 
+        $this->messageDispatch->addClearCacheOther('products-product');
+
         $this->logger->info(
-            'orders-order: Сняли общий резерв продукции в карточке при отмене заказа. Сняли с резерва '.$message->getTotal(),
-            [var_export($message, true), self::class.':'.__LINE__,],
+            message: sprintf(
+                '%s Сняли общий резерв продукции в карточке. Сняли с резерва %s',
+                $message->getNumber() ?? 'orders-order',
+                $message->getTotal(),
+            ),
+            context: [self::class.':'.__LINE__, var_export($message, true),],
         );
     }
 }

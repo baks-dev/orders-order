@@ -26,10 +26,37 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Type\Items\Const;
 
 use BaksDev\Core\Type\UidType\Uid;
+use Symfony\Component\Uid\AbstractUid;
 
 final class OrderProductItemConst extends Uid
 {
     public const string TEST = '301003f2-337e-76d5-8c3b-249b48175517';
 
     public const string TYPE = 'order_product_item_const';
+
+    private array|string|null $params;
+
+    public function __construct(
+        AbstractUid|self|string|null $value = null,
+        string|null $params = null
+    )
+    {
+        parent::__construct($value);
+        $this->params = $params;
+    }
+
+    public function getParams(): array|null
+    {
+        if(empty($this->params))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->params))
+        {
+            return null;
+        }
+
+        return json_decode($this->params, true, 512, JSON_THROW_ON_ERROR);
+    }
 }

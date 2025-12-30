@@ -1,7 +1,10 @@
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
 {% set stockTotal = 0 %}
 
-{% if order.order_status == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
-    {% for stock in order.stocks|json_decode %}
+{% if order.orderStatus == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
+
+    {% for stock in order.stocks %}
         {% if stock.main == card.productId
             and stock.offer == card.productOfferConst
             and stock.variation == card.productVariationConst
@@ -34,7 +37,6 @@
 
     <ul class="dropdown-menu">
 
-
         {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
 
             <li>
@@ -56,9 +58,7 @@
 
         {% endif %}
 
-
-        {% if isNotEdit == false %}
-
+        {% if notEdit is not true %}
             <li>
                 <button type="button"
                         class="dropdown-item delete-product"
@@ -67,7 +67,6 @@
                     Удалить из заказа
                 </button>
             </li>
-
         {% endif %}
 
         {% if stockTotal < 0 %}

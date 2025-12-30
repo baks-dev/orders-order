@@ -43,6 +43,7 @@ final class ProductsReserveByOrderCancelMessage
 
     private string|false $modification;
 
+    private string|null $number;
 
     public function __construct(
         ProductEventUid $event,
@@ -50,14 +51,18 @@ final class ProductsReserveByOrderCancelMessage
         ProductVariationUid|null|false $variation,
         ProductModificationUid|null|false $modification,
         int $total,
+        string|null $number = null,
     )
     {
-        $this->total = $total;
         $this->event = (string) $event;
 
         $this->offer = empty($offer) ? false : (string) $offer;
         $this->variation = empty($variation) ? false : (string) $variation;
         $this->modification = empty($modification) ? false : (string) $modification;
+
+        $this->total = $total;
+
+        $this->number = $number;
     }
 
     /**
@@ -100,5 +105,11 @@ final class ProductsReserveByOrderCancelMessage
         return $this->modification ? new ProductModificationUid($this->modification) : false;
     }
 
-
+    /**
+     * Number
+     */
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
 }

@@ -13,14 +13,14 @@
                         style=""
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#collapse{{ order.order_id }}"
-                        data-container="collapse{{ order.order_id }}"
+                        data-bs-target="#collapse{{ order.orderId }}"
+                        data-container="collapse{{ order.orderId }}"
 
-                        data-href="{{ path('orders-order:user.orders.detail', { id: order.order_id }) }}"
+                        data-href="{{ path('orders-order:user.orders.detail', { id: order.orderId }) }}"
                         aria-expanded="false">
 
                     <span class="fs-18 mb-0 fw-bold me-2 text-decoration" title="Показать детали заказа">
-                         № {{ order.order_number }} от {{ order.order_data|format_datetime(pattern="d MMMM Y") }}
+                         № {{ order.orderNumber }} от {{ order.orderData|format_datetime(pattern="d MMMM Y") }}
                     </span>
 
                 </button>
@@ -29,14 +29,14 @@
 
             <div class="d-flex align-items-center gap-2">
                 <span class="text-secondary">
-                    {{ order.payment_name }} | {{ order.delivery_name }}
+                    {{ order.paymentName }} | {{ order.deliveryName }}
                 </span>
             </div>
 
         </div>
 
         {# содержимое контейнера #}
-        <div id="collapse{{ order.order_id }}"
+        <div id="collapse{{ order.orderId }}"
              class="card-body fw-normal mb-0 accordion-collapse collapse"
              data-bs-parent="#accordionPackage">
 

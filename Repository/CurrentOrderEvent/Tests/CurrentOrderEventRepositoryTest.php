@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\CurrentOrderEvent\Tests;
 
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -36,19 +37,13 @@ class CurrentOrderEventRepositoryTest extends KernelTestCase
 {
     public function testFind(): void
     {
+        self::assertTrue(true);
 
         /** @var CurrentOrderEventInterface $CurrentOrderEventInterface */
         $CurrentOrderEventInterface = self::getContainer()->get(CurrentOrderEventInterface::class);
 
-        self::assertTrue(true);
-        return;
-
-        $orderID = '';
-
-        $result = $CurrentOrderEventInterface
-            ->forOrder($orderID)
+        $OrderEvent = $CurrentOrderEventInterface
+            ->forOrder(new OrderUid(OrderUid::TEST))
             ->find();
-
-        dd($result);
     }
 }

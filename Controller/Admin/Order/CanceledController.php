@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -162,6 +162,17 @@ final class CanceledController extends AbstractController
                 ->send('orders');
 
             $numbers[] = $orderEvent->getOrderNumber();
+
+        }
+
+        /** Если заказ один и имеется комментарий к заказу - присваиваем комментарий из заказа */
+        if(
+            isset($orderEvent)
+            && false === empty($orderEvent->getComment())
+            && $canceledOrdersDTO->getOrders()->count() === 1
+        )
+        {
+            $canceledOrdersDTO->setComment($orderEvent->getComment());
         }
 
         return $this->render([

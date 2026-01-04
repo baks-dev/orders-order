@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -170,7 +170,8 @@ final class ReportOrdersController extends AbstractController
                     $data->getProductOfferReference().'_render',
                 );
 
-                $strOffer .= $modification ? ' '.trim($offer) : '';
+                $strOffer .= $offer ? ' '.trim($offer) : '';
+
                 $strOffer .= $data->getProductOfferPostfix() ? ' '.$data->getProductOfferPostfix() : '';
                 $strOffer .= $data->getProductVariationPostfix() ? ' '.$data->getProductVariationPostfix() : '';
                 $strOffer .= $data->getProductModificationPostfix() ? ' '.$data->getProductModificationPostfix() : '';

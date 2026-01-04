@@ -31,7 +31,10 @@
             </p>
 
             <div class="mt-3">
-                {{ form_widget(form.comment, { attr: { placeholder : 'Укажите причину отмены' } }) }}
+                {{ form_widget(form.comment, {
+                    value : form.vars.data.comment is not empty ? form.vars.data.comment,
+                    attr: { placeholder : 'Укажите причину отмены' } }) }}
+
                 {{ form_widget(form.orders) }}
             </div>
 

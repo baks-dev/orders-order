@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,13 @@ interface ProductTotalInOrdersInterface
 
     /** Уникальная константа Modification */
     public function onModificationConst(ProductModificationConst|null|false $modificationConst): self;
+
+    /** Не учитывать заказы на упаковке */
+    public function notPackage(): self;
+
+    /** Не учитывать заказы на упаковке */
+    public function notUnpaid(): self;
+
 
     /**
      * Возвращает количество продуктов, у которых есть заказы в статусах: new, phone, unpaid

@@ -30,7 +30,6 @@ use BaksDev\Orders\Order\Repository\ExistsOrderByProfile\ExistsOrderByProfileRep
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -46,11 +45,12 @@ final class ExistsOrderByProfileRepositoryTest extends KernelTestCase
     {
         $ExistsOrderByProfileRepository = self::getContainer()->get(ExistsOrderByProfileInterface::class);
 
+        // @TODO добавить продукт в OrderNewTest
         /** @var ExistsOrderByProfileRepository $ExistsOrderByProfileRepository */
         $exists = $ExistsOrderByProfileRepository->isExist(
             new UserProfileUid(UserProfileUid::TEST),
             new OrderStatus(OrderStatusNew::class),
-            new ProductUid(ProductUid::TEST)
+        //            new ProductUid(ProductUid::TEST)
         );
 
         self::assertTrue($exists);

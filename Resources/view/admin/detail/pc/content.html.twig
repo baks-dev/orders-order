@@ -1,4 +1,14 @@
 <div class="offcanvas-header">
+
+    {# Сообщение об ощибке из контроллера #}
+    {% if error is not null %}
+        <div class="alert alert-warning p-3 m-0" role="alert">
+            <div class="lh-1">
+                <small class="text-danger fw-bold">{{ error }}</small>
+            </div>
+        </div>
+    {% endif %}
+
     <button type="button" class="btn-close icon rounded-circle" style="width: 35px; height: 35px;"
             data-bs-dismiss="offcanvas"
             title="Close">
@@ -7,40 +17,6 @@
 </div>
 
 {% set total = 0 %}
-
-{% set product_prototype = form.product.vars.prototype %}
-
-{% set price_price_widget = form_widget(product_prototype.price.price, { attr: {
-    class: 'form-control-sm rounded-3 price',
-    style: 'width: 75px;',
-    min: '__product_min_price__',
-    disabled: false,
-    value: '__product_price__',
-    'data-price': '__product_price__'
-} }) %}
-
-{# Product Discount #}
-{% set product_discount_widget = form_widget(product_prototype.discount, { attr: {
-    class: 'form-control-sm rounded-3 product-discount',
-    style: 'width: 81px;',
-    min:  '__order_product_discount__',
-    disabled: false,
-    placeholder: "Скидка товара, %",
-} }) %}
-
-
-{% set price_total_widget = form_widget(product_prototype.price.total, {
-    label: false,
-    attr: {
-        class : 'form-control-sm mx-1 rounded-3 total',
-        style: 'width: 50px;',
-        'data-price' :   '__product_price__',
-        'data-discount' : '__product_discount__',
-        'data-currency' : '__product_currency__',
-        'data-max' : '__product_total_max__',
-        'value' : '__product_total__'
-    } } ) %}
-
 
 {# @var material \BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderResult #}
 
@@ -57,17 +33,17 @@
         <div class='d-flex gap-3 align-items-center'>
 
             <div class="badge" style='background-color: {{ status.color }};'>
-                {{ order.order_status|trans({}, 'status.order') }}
+                {{ order.orderStatus|trans({}, 'status.order') }}
             </div>
 
             <h5 class="offcanvas-title flex-grow-1 mb-0 copy pointer d-flex align-items-center gap-2"
-                data-copy="{{ order.order_number }}">
+                data-copy="{{ order.orderNumber }}">
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
                      height="14" fill="text-primary" viewBox="0 0 115.77 122.88">
                     <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
                 </svg>
 
-                <span>Заказ #{{ order.order_number }}</span>
+                <span>Заказ #{{ order.orderNumber }}</span>
 
             </h5>
         </div>
@@ -168,7 +144,7 @@
 
                                data-method="post"
                                data-formname="sales_invoice_form"
-                               data-order="{{ order.order_id }}"
+                               data-order="{{ order.orderId }}"
 
                                data-collection-form="order_form_data" {# name коллекции из DTO #}
                                data-post-class="add-one-to-collection" {# признак одного элемента #}>
@@ -178,7 +154,7 @@
                         </li>
 
                         <li>
-                            <a href="{{ path('orders-order:admin.document.receipt', { id : order.order_id }) }}"
+                            <a href="{{ path('orders-order:admin.document.receipt', { id : order.orderId }) }}"
                                class="dropdown-item prnt"
                                data-bs-toggle="modal"
                                data-bs-target="#modal">
@@ -187,7 +163,7 @@
                             </a>
                         </li>
 
-                        <a href="{{ path('orders-order:admin.document.sticker', { id : order.order_id }) }}"
+                        <a href="{{ path('orders-order:admin.document.sticker', { id : order.orderId }) }}"
                            class="dropdown-item prnt"
                            data-bs-toggle="modal"
                            data-bs-target="#modal">
@@ -213,7 +189,7 @@
                                     >
                                         <a
                                                 class="text-muted"
-                                                href="{{ path('materials-sign:admin.links.list', { order: order.order_id }) }}">
+                                                href="{{ path('materials-sign:admin.links.list', { order: order.orderId }) }}">
 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                  fill="currentColor" class="bi bi-filetype-txt"
@@ -231,7 +207,7 @@
 
                                 {% set parameters = {
                                     article: material.materialArticle,
-                                    order: order.order_id,
+                                    order: order.orderId,
                                     material: material.materialId,
                                     offer: material.materialOfferConst,
                                     variation: material.materialVariationConst,
@@ -287,14 +263,9 @@
 
                             {% endfor %}
 
-
                         {% endif %}
 
-
-
                         {% if is_products_sign %}
-
-
 
                             <li>
                                 <hr class="dropdown-divider">
@@ -305,17 +276,15 @@
                                     <h6 class="dropdown-header w-100">Честный знак</h6>
 
 
-                                    <span
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom"
-                                            data-bs-delay='{"show":600,"hide":100}'
-                                            title="Печать всех честных знаков"
-                                    >
-                                        <a
-                                                class="btn btn-sm btn-light disabled prnt text-muted text-nowrap"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modal"
-                                                href="{{ path('products-sign:document.print.orders', { order: order.order_id }) }}">
+                                    <span data-bs-toggle="tooltip"
+                                          data-bs-placement="bottom"
+                                          data-bs-delay='{"show":600,"hide":100}'
+                                          title="Печать всех честных знаков">
+
+                                        <a class="btn btn-sm btn-light disabled prnt text-muted text-nowrap"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#modal"
+                                           href="{{ path('products-sign:document.print.orders', { order: order.orderId }) }}">
 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                  fill="currentColor"
@@ -327,15 +296,13 @@
 
                                     </span>
 
-                                    <span
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom"
-                                            data-bs-delay='{"show":600,"hide":100}'
-                                            title="Список ссылок на все честные знаки"
-                                    >
-                                        <a
-                                                class="text-muted"
-                                                href="{{ path('products-sign:admin.links.list', { order: order.order_id }) }}">
+                                    <span data-bs-toggle="tooltip"
+                                          data-bs-placement="bottom"
+                                          data-bs-delay='{"show":600,"hide":100}'
+                                          title="Список ссылок на все честные знаки">
+
+                                        <a class="text-muted"
+                                           href="{{ path('products-sign:admin.links.list', { order: order.orderId }) }}">
 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                  fill="currentColor" class="bi bi-filetype-txt"
@@ -348,18 +315,16 @@
                                     </span>
 
                                     {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCT_SIGN_REISSUE') %}
-                                        {% if order.order_status != 'new' and order.order_status != 'completed' %}
-                                            <span
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="bottom"
-                                                    data-bs-delay='{"show":600,"hide":100}'
-                                                    title="Перевыпуск честных знаков"
-                                            >
-                                            <a
-                                                    class="btn btn-sm btn-light disabled text-muted text-nowrap"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modal"
-                                                    href="{{ path('products-sign:admin.reissue', { id: order.order_event }) }}">
+                                        {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
+                                            <span data-bs-toggle="tooltip"
+                                                  data-bs-placement="bottom"
+                                                  data-bs-delay='{"show":600,"hide":100}'
+                                                  title="Перевыпуск честных знаков">
+
+                                            <a class="btn btn-sm btn-light disabled text-muted text-nowrap"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#modal"
+                                               href="{{ path('products-sign:admin.reissue', { id: order.orderEvent }) }}">
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                      fill="currentColor" class="bi bi-arrow-clockwise"
@@ -386,7 +351,7 @@
                                 {% set parameters = {
                                     part: product.signPart,
                                     article: product.productArticle,
-                                    order: order.order_id,
+                                    order: order.orderId,
                                     product: product.productId,
                                     offer: product.productOfferConst,
                                     variation: product.productVariationConst,
@@ -417,12 +382,11 @@
 
                                             <div class="d-flex gap-3 align-items-center ">
 
-                                                <span
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="bottom"
-                                                        data-bs-delay='{"show":600,"hide":100}'
-                                                        title="Скачать стикеры маркировки"
-                                                >
+                                                <span data-bs-toggle="tooltip"
+                                                      data-bs-placement="bottom"
+                                                      data-bs-delay='{"show":600,"hide":100}'
+                                                      title="Скачать стикеры маркировки">
+
                                                 <a class="text-muted"
                                                    href="{{ path('products-sign:document.pdf.orders', parameters) }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
@@ -434,12 +398,11 @@
                                                 </a>
                                                 </span>
 
-                                                <span
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="bottom"
-                                                        data-bs-delay='{"show":600,"hide":100}'
-                                                        title="Скачать TXT c короткой кодировкой"
-                                                >
+                                                <span data-bs-toggle="tooltip"
+                                                      data-bs-placement="bottom"
+                                                      data-bs-delay='{"show":600,"hide":100}'
+                                                      title="Скачать TXT c короткой кодировкой">
+
                                                     <a class="text-muted"
                                                        href="{{ path('products-sign:document.small.orders', parameters) }}">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
@@ -451,12 +414,11 @@
                                                     </a>
                                                 </span>
 
-                                                <span
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="bottom"
-                                                        data-bs-delay='{"show":600,"hide":100}'
-                                                        title="Скачать TXT c полной кодировкой"
-                                                >
+                                                <span data-bs-toggle="tooltip"
+                                                      data-bs-placement="bottom"
+                                                      data-bs-delay='{"show":600,"hide":100}'
+                                                      title="Скачать TXT c полной кодировкой">
+
                                                 <a class="text-muted"
                                                    href="{{ path('products-sign:document.big.orders', parameters) }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
@@ -487,8 +449,7 @@
                       data-bs-toggle="tooltip"
                       data-bs-placement="bottom"
                       data-bs-delay='{"show":600,"hide":100}'
-                      title="Количество маркируемых товаров"
-                >
+                      title="Количество маркируемых товаров">
                 {{ total }}
                 <span class="visually-hidden">Количество маркируемых товаров</span>
             </span>
@@ -497,7 +458,6 @@
 
         </ul>
 
-
         <div class="tab-content w-100 h-100 pt-3" id="pills-tabContent">
 
 
@@ -505,67 +465,84 @@
                  id="pills-order"
                  tabindex="0">
 
-                {% set users = order.order_user|json_decode|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
+                {% if order.orderUser is not null %}
 
-                {% if users %}
+                    {% set users = order.orderUser|filter(v => v.profile_value is not empty and v.profile_name is not empty) %}
 
-                    {# Клиент #}
-                    <div class="d-flex align-items-end bg-light gap-3 p-3 rounded-3 my-3">
+                    {% if users %}
 
-                        <div>
-                            {# Обложка  #}
-                            {% set image_path = '/assets/'~version~'/img/blank.svg' %}
+                        {# Клиент #}
+                        <div class="d-flex align-items-end bg-light gap-3 p-3 rounded-3 my-3">
 
-                            {% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
-                                {% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}
-                                {% set img_dir = order.profile_avatar_name %}
-                                {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ order.profile_avatar_ext %}
-                                {% set image_path = img_host ~ img_dir ~ img_file %}
-                            {% endif %}
+                            <div>
+                                {# Обложка  #}
+                                {% set image_path = '/assets/'~version~'/img/blank.svg' %}
 
-                            <span class="icon rounded-circle bg-contain lazy p-1 mb-2 entered loaded"
-                                  style="width: 43px; height: 43px; background-image: url('{{ image_path }}');"
-                            ></span>
-                        </div>
+                                {% if order.profile_avatar_ext is defined and order.profile_avatar_ext is not null %}
+                                    {% set img_host =  order.profile_avatar_cdn == true  ? CDN_HOST : '' %}
+                                    {% set img_dir = order.profile_avatar_name %}
+                                    {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ order.profile_avatar_ext %}
+                                    {% set image_path = img_host ~ img_dir ~ img_file %}
+                                {% endif %}
 
-                        {% set organization_field = constant('BaksDev\\Field\\Pack\\Organization\\Type\\OrganizationField::TYPE') %}
-                        {% set contact_field = constant('BaksDev\\Field\\Pack\\Contact\\Type\\ContactField::TYPE') %}
-                        {% set phone_field = constant('BaksDev\\Field\\Pack\\Phone\\Type\\PhoneField::TYPE') %}
-                        {% set email_field = constant('BaksDev\\Auth\\Email\\Type\\Email\\AccountEmail::TYPE') %}
+                                <span class="icon rounded-circle bg-contain lazy p-1 mb-2 entered loaded"
+                                      style="width: 43px; height: 43px; background-image: url('{{ image_path }}');"
+                                ></span>
+                            </div>
 
-                        {% for user in users|filter(v =>
-                            v.profile_type == organization_field
-                            or v.profile_type == contact_field
-                            or v.profile_type == phone_field
-                            or v.profile_type == email_field
-                        ) %}
-                            <div class='d-flex flex-column small w-100'>
-                                <small class="small text-muted">{{ user.profile_name }}</small>
-                                <span class="h5 {{ loop.first ? "fw-bolder" }} ">
+                            {% set organization_field = constant('BaksDev\\Field\\Pack\\Organization\\Type\\OrganizationField::TYPE') %}
+                            {% set contact_field = constant('BaksDev\\Field\\Pack\\Contact\\Type\\ContactField::TYPE') %}
+                            {% set phone_field = constant('BaksDev\\Field\\Pack\\Phone\\Type\\PhoneField::TYPE') %}
+                            {% set email_field = constant('BaksDev\\Auth\\Email\\Type\\Email\\AccountEmail::TYPE') %}
+
+                            {% for user in users|filter(v =>
+                                v.profile_type == organization_field
+                                or v.profile_type == contact_field
+                                or v.profile_type == phone_field
+                                or v.profile_type == email_field
+                            ) %}
+                                <div class='d-flex flex-column small w-100'>
+                                    <small class="small text-muted">{{ user.profile_name }}</small>
+                                    <span class="h5 {{ loop.first ? "fw-bolder" }} ">
                                     {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
                                 </span>
-                            </div>
-                        {% endfor %}
+                                </div>
+                            {% endfor %}
 
-                    </div>
+                        </div>
 
+                    {% endif %}
                 {% endif %}
 
+                {% set allEditField = is_granted('ROLE_ADMIN') == true or order.orderStatus == 'new' or order.orderStatus == 'phone' %}
+                {% set partEditField = is_granted('ROLE_ADMIN') == true or order.orderStatus == 'package' or order.orderStatus == 'extradition' %}
+                {% set notEdit = is_granted('ROLE_ADMIN') != true or order.orderStatus == 'completed' or order.orderStatus == 'delivery' or order.orderStatus == 'unpaid' %}
 
-
-                {# Продукция и скидка заказа #}
                 <div class="d-flex align-items-center">
                     <h5 class="text-uppercase fw-bolder py-2 w-75">Продукция</h5>
-                    <div class="fw-bold w-100">
-                        <div class="ms-2 w-50">
-                            {{ form_widget(form.discount, {
-                                label: '<span class="text-nowrap fw-bold">'~ 'Скидка по заказу' ~'</span>',
-                                attr: {
-                                    placeholder : 'Скидка по заказу, %',
-                                }
-                            }
 
-                            ) }}
+                    {# СКИДКА ЗАКАЗА #}
+                    <div class="fw-bold w-100 ">
+                        <div class="ms-2 w-50">
+
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-percent" viewBox="0 0 16 16">
+                                        <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                                    </svg>
+                                </span>
+
+                                {{ form_widget(form.discount, {
+                                    title: "Скидка к заказу",
+                                    attr: {
+                                        placeholder : 'Скидка к заказу',
+                                        class: notEdit is true ? 'bg-light text-muted ' : '',
+                                        readonly:  notEdit is true ?: false
+                                    },
+                                }) }}
+
+                            </div>
 
                         </div>
                     </div>
@@ -579,30 +556,30 @@
                     </div>
                 </div>
 
-
                 <div class="d-flex flex-column gap-3 my-3">
 
+                    {# @TODO #}
                     {# Запрет на изменение заказа (стоимости, количество и пр.)  #}
-                    {% set isNotEdit =
-                        order.order_status == 'package' or
-                        order.order_status == 'unpaid' or
-                        order.order_status == 'extradition' or
-                        order.order_status == 'delivery' or
-                        order.order_status == 'completed' %}
+                    {#                    {% set notEdit = #}
+                    {#                        order.orderStatus == 'package' or #}
+                    {#                    order.orderStatus == 'extradition' or #}
+                    {#                        order.orderStatus == 'delivery' or #}
+                    {#                        order.orderStatus == 'completed' #}
+
+                    {# ПРОДУКТ #}
 
                     <div class="border rounded-4 p-2" id="order-product-list"
                          data-prototype='{{ include(_self|replace({ "content.html.twig": "form/products/product.prototype.html.twig" })) }}'>
                         {{ include(_self|replace({ "content.html.twig": "form/products/products.html.twig" })) }}
                     </div>
 
-                    {% if isNotEdit == false %}
+                    {% if notEdit is not true %}
 
                         <a href="{{ path('orders-order:admin.order.add') }}"
                            class="btn btn-primary modal-link"
                            data-bs-toggle="modal"
                            data-bs-target="#modal"
-                           title="Добавить в заказ"
-                        >
+                           title="Добавить в заказ">
 
                             <span class="svg-icon svg-icon-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -644,7 +621,7 @@
 
                 {{ include(_self|replace({ "content.html.twig": "form/delivery.html.twig" })) }}
 
-                {% set address = order.delivery_geocode_address %}
+                {% set address = order.deliveryGeocodeAddress %}
 
                 {% if address is null %}
                     {% for delivery_field in form.usr.delivery.field %}
@@ -679,7 +656,9 @@
                             <tr>
                                 <td>
                                     <span class="badge"
-                                          style='background-color: {{ statuses.from(hist.status).getColor() }};'>{{ hist.status|trans({}, 'status.order') }}</span>
+                                          style='background-color: {{ statuses.from(hist.status).getColor() }};'>
+                                        {{ hist.status|trans({}, 'status.order') }}
+                                    </span>
                                 </td>
                                 <td>{{ hist.mod_date|date('d.m.Y') }}</td>
                                 <td>{{ hist.mod_date|date('H:i:s') }}</td>
@@ -703,7 +682,6 @@
                 </div>
 
             </div>
-
 
             {# УСЛУГИ #}
 
@@ -826,13 +804,13 @@
     <div class="w-100 d-flex justify-content-between align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
 
         <div>
-            {% if order.order_status != 'completed' %}
-                {{ form_widget(form.order, { label: '
+            {#            {% if order.orderStatus != 'completed' %} #}
+            {#            {% endif %} #}
+            {{ form_widget(form.order, { label: '
                     <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
                     <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
 		        ', attr: { class: 'btn-danger', title : "Сохранить изменения" }
-                }) }}
-            {% endif %}
+            }) }}
         </div>
 
 

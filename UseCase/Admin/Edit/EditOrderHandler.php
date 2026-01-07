@@ -26,14 +26,42 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
 use BaksDev\Core\Entity\AbstractHandler;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Validator\ValidatorCollectionInterface;
+use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
+use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use Doctrine\ORM\EntityManagerInterface;
 
 final class EditOrderHandler extends AbstractHandler
 {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        MessageDispatchInterface $messageDispatch,
+        ValidatorCollectionInterface $validatorCollection,
+        ImageUploadInterface $imageUpload,
+        FileUploadInterface $fileUpload,
+
+    )
+    {
+        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
+    }
+
     public function handle(EditOrderDTO $command): string|Order
     {
+        /**
+         * Синхрон количества с единицами
+         */
+        foreach($command->getProduct() as $product)
+        {
+            if($product->getItem()->count() !== $product->getPrice()->getTotal())
+            {
+                return 'Количество продукции не совпадает с количеством единиц продукции';
+            }
+        }
+
         /** Валидация DTO  */
         $this
             ->setCommand($command)
@@ -47,7 +75,7 @@ final class EditOrderHandler extends AbstractHandler
 
         $this->flush();
 
-        /* Отправляем сообщение в шину */
+        /** Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
             transport: 'orders-order',

@@ -1,0 +1,96 @@
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
+{% set stockTotal = 0 %}
+
+{% if order.orderStatus == 'new' and constant('\BaksDev\\Products\\Stocks\\BaksDevProductsStocksBundle::NAMESPACE') is defined %}
+
+    {% for stock in order.stocks %}
+        {% if stock.main == card.productId
+            and stock.offer == card.productOfferConst
+            and stock.variation == card.productVariationConst
+            and stock.modification == card.productModificationConst %}
+            {% set stockTotal = stockTotal + stock.total - stock.reserve %}
+        {% endif %}
+    {% endfor %}
+    {% set stockTotal = stockTotal - product.price.vars.data.total %}
+{% endif %}
+
+<div class="dropdown">
+
+    <button class="btn btn-link dropdown-toggle d-flex align-items-center text-decoration-none {{ stockTotal < 0 ? 'text-danger' : 'text-muted' }}"
+            type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+        {% if stockTotal < 0 %}
+
+            <span class="badge text-bg-danger">{{ stockTotal }}</span>
+
+        {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                 class="bi bi-list" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                      d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+            </svg>
+        {% endif %}
+
+    </button>
+
+    <ul class="dropdown-menu">
+
+        {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
+
+            <li>
+                <a href="{{ path('wildberries-products:admin.barcode.print', {
+                    product : card.productEvent,
+                    offer: card.productOfferUid,
+                    variation: card.productVariationUid,
+                    modification: card.productModificationUid,
+                    total: product.price.vars.data.total,
+                    print: true
+                }) }}"
+
+                   class="dropdown-item prnt"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal">
+                    Печать этикетки Wildberries
+                </a>
+            </li>
+
+        {% endif %}
+
+        {% if notEdit is not true %}
+            <li>
+                <button type="button"
+                        class="dropdown-item delete-product"
+                        data-row="{{ product.vars.id }}">
+
+                    Удалить из заказа
+                </button>
+            </li>
+        {% endif %}
+
+        {% if stockTotal < 0 %}
+
+            <li>
+                <button data-href="{{ path('products-stocks:admin.moving.new') }}"
+                        class="btn dropdown-item moving"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal"
+                        data-pre-product="{{ card.productId }}"
+                        data-pre-offer="{{ card.productOfferConst }}"
+                        data-pre-variation="{{ card.productVariationConst }}"
+                        data-pre-modification="{{ card.productModificationConst }}"
+                        data-pre-total="{{ stockTotal|abs }}"
+                        data-destination-warehouse="{{ profile }}"
+                        data-method="post"
+                        data-formname="moving_product_stock_form"
+                        data-post-class="add-one-to-collection">
+
+                    Создать перемещение на {{ stockTotal|abs }} шт.
+                </button>
+            </li>
+
+        {% endif %}
+
+    </ul>
+</div>

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -43,23 +43,22 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
-    public static function setUpBeforeClass(): void
-    {
-        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
-        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
-    }
+    // @TODO фикс в модуле products-product
+    //    public static function setUpBeforeClass(): void
+    //    {
+    //        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
+    //        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
+    //    }
 
     #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testFind(): void
     {
-        self::assertTrue(true);
-
         /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
         $result = $allProductsOrdersReportRepository
             ->from(new DateTimeImmutable())
-            ->to(new DateTimeImmutable())
+            ->to(new DateTimeImmutable('+1 day'))
             ->forProfile(new UserProfileUid())
             ->findAll();
 
@@ -69,6 +68,7 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
             return;
         }
 
+        /** @var AllOrdersReportResult $AllOrdersReportResult */
         foreach($result as $AllOrdersReportResult)
         {
 

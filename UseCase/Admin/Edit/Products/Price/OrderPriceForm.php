@@ -37,7 +37,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
 
 final class OrderPriceForm extends AbstractType
 {
@@ -86,7 +85,6 @@ final class OrderPriceForm extends AbstractType
 
         $builder->add('total', TextType::class);
 
-
         if($this->discount)
         {
             $builder->addEventListener(
@@ -96,8 +94,10 @@ final class OrderPriceForm extends AbstractType
                     /** @var OrderPriceDTO $OrderPriceDTO */
                     $OrderPriceDTO = $event->getData();
 
+
                     if($OrderPriceDTO)
                     {
+
                         $form = $event->getForm();
 
                         /**  @var OrderProductDTO $OrderProductDTO */
@@ -149,6 +149,21 @@ final class OrderPriceForm extends AbstractType
                                 )
                                 ->getForm(),
                         );
+
+                        //                        /** @var EditOrderDTO $EditOrderDTO */
+                        //                        $EditOrderDTO = $event->getForm()->getParent()->getParent()->getParent()->getData();
+                        //
+                        //                        if(true === $EditOrderDTO instanceof EditOrderDTO)
+                        //                        {
+                        //                            $status = $EditOrderDTO->getStatus();
+                        //
+                        //                            $form->add('total', TextType::class,
+                        //                                [
+                        //                                    'attr' => ['readonly' => false === $status->equals(OrderStatusNew::class)],
+                        //                                ]
+                        //                            );
+                        //                        }
+
                     }
                 },
             );

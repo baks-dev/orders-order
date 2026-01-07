@@ -44,7 +44,7 @@ class ProductChangeReserveByOrderTest extends KernelTestCase
 {
     public function testUseCase(): void
     {
-        // Бросаем событие консольной комманды
+        // Бросаем событие консольной команды
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');

@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
@@ -37,14 +38,22 @@ use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Products\Sign\BaksDevProductsSignBundle;
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
+use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemInterface;
+use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemRepository;
+use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusProcess;
+use BaksDev\Products\Stocks\Messenger\Orders\EditProductStockProduct\EditProductStockProductMessage;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,6 +66,8 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 #[RoleSecurity('ROLE_ORDERS')]
 final class DetailController extends AbstractController
 {
+    private string|null $error = null;
+
     #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -70,11 +81,13 @@ final class DetailController extends AbstractController
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
+        MessageDispatchInterface $messageDispatch,
         string $id,
 
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
 
+        ?ProductSignByOrderProductItemInterface $productSignByOrderProductItemRepository = null,
     ): Response
     {
         /** Получаем активное событие заказа */
@@ -88,7 +101,9 @@ final class DetailController extends AbstractController
         }
 
         /** Информация о заказе */
-        $OrderInfo = $orderDetailRepository->fetchDetailOrderAssociative($OrderEvent->getMain());
+        $OrderInfo = $orderDetailRepository
+            ->onOrder($OrderEvent->getMain())
+            ->find();
 
         if(!$OrderInfo)
         {
@@ -114,6 +129,25 @@ final class DetailController extends AbstractController
                 ->find();
 
             $product->setCard($ProductUserBasketResult);
+
+            /** Код Честного знака по единице продукта */
+            if($productSignByOrderProductItemRepository instanceof ProductSignByOrderProductItemRepository)
+            {
+                /** @var OrderProductItemDTO $item */
+                foreach($product->getItem() as $item)
+                {
+                    $ProductSignByOrderProductItemResult = $productSignByOrderProductItemRepository
+                        ->forStatuses(ProductSignStatusProcess::STATUS)
+                        ->forStatuses(ProductSignStatusDone::STATUS)
+                        ->forProductItem($item->getConst())
+                        ->find();
+
+                    if($ProductSignByOrderProductItemResult instanceof ProductSignByOrderProductItemResult)
+                    {
+                        $item->setSign($ProductSignByOrderProductItemResult);
+                    }
+                }
+            }
         }
 
         /**
@@ -124,7 +158,7 @@ final class DetailController extends AbstractController
         foreach($OrderDTO->getServ() as $serv)
         {
             $serviceInfo = $oneServiceByIdRepository
-                //->byProfile($this->getProfileUid())
+                //->byProfile($this->getProfileUid()) // проблема с перемещением заказа с одного региона в другой
                 ->find($serv->getServ());
 
             if(false === $serviceInfo)
@@ -168,6 +202,25 @@ final class DetailController extends AbstractController
 
             $this->refreshTokenForm($form);
 
+            foreach($OrderDTO->getProduct() as $product)
+            {
+                /** Еси при редактировании заказа был добавлен новый продукт - у него нет единиц продукции - нужно создать */
+                if(true === $product->getItem()->isEmpty())
+                {
+
+                    /** Создаем единицы по общему количеству */
+                    for($i = 0; $i < $product->getPrice()->getTotal(); $i++)
+                    {
+                        $OrderProductItemDTO = new OrderProductItemDTO();
+
+                        $OrderProductItemDTO->getPrice()->setPrice($product->getPrice()->getPrice());
+                        $OrderProductItemDTO->getPrice()->setCurrency($product->getPrice()->getCurrency());
+                        $OrderProductItemDTO->generateConst();
+                        $product->addItem($OrderProductItemDTO);
+                    }
+                }
+            }
+
             /**
              * Проверка уникальности периода
              *
@@ -205,6 +258,20 @@ final class DetailController extends AbstractController
 
             if($OrderHandler instanceof Order)
             {
+                /** Изменение остатков и Честных знаков */
+                if(false === $OrderDTO->getStatus()->equals(OrderStatusNew::class))
+                {
+                    $messageDispatch->dispatch(
+                        message: new EditProductStockProductMessage(
+                            $OrderHandler->getId(),
+                            $OrderDTO->getInvariable()->getProfile(),
+                            $this->getCurrentUsr(), // передаем текущего пользователя
+                            $OrderDTO->getOrderNumber(),
+                        ),
+                        transport: 'products-stocks',
+                    );
+                }
+
                 $this->addFlash('success', 'success.update', 'orders-order.admin');
             }
             else
@@ -263,19 +330,19 @@ final class DetailController extends AbstractController
             }
         }
 
-
         return $this->render(
             [
                 'id' => $id,
                 'form' => $form->createView(),
                 'order' => $OrderInfo,
                 'history' => $History,
-                'status' => $collection->from(($OrderInfo['order_status'] ?? 'new')),
+                'status' => $collection->from(($OrderInfo->getOrderStatus() ?? OrderStatusNew::STATUS)),
                 'statuses' => $collection,
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign,
                 'is_products_sign' => class_exists(BaksDevProductsSignBundle::class),
                 'profile' => $this->getProfileUid(),
+                'error' => $this->error,
             ],
         );
     }

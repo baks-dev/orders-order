@@ -1,0 +1,261 @@
+<tr>
+    <td
+            {#        id="accordion-items" #}
+            colspan="8"
+            class="accordion">
+
+        {% set itemsCount = product.item|length %}
+
+        {# Заголовок блока с продуктами #}
+        <div class="accordion-header items-header">
+
+            <button class="accordion-button collapsed py-1 rounded small"
+                    type="button"
+                    title="Свернуть"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#{{ productGroup }}-items"
+                    aria-label="Свернуть"
+                    aria-expanded="false"
+                    aria-controls="{{ productGroup }}-items">
+
+                <span> Единиц продукции: &nbsp;
+                    <span class="text-primary"
+                          data-items-total="{{ itemsCount }}">
+                        {{ itemsCount }}
+                    </span>
+                </span>
+
+            </button>
+
+        </div>
+
+        <div class="accordion-body p-1">
+
+            <div id="{{ productGroup }}-items"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="accordion-items"
+
+                 data-group="product-items"
+                 data-items-count="{{ itemsCount }}">
+
+                <div id="{{ productGroup }}-items-prototype" class="d-none">
+                    {{ include('@orders-order/admin/detail/pc/form/products/_items/item.prototype.html.twig')|e('html_attr') }}
+                </div>
+
+                {% for item in product.item %}
+
+                    {#                    {% if notEdit == true %} #}
+
+                    {#                        <div class="d-flex align-items-baseline justify-content-between {{ item.vars.data.sign is not null ? 'w-75' : 'w-50' }}"> #}
+
+                    {#                            <div> #}
+                    {#                                &bull; {{ money(item.vars.data.price.price.value * 100, item.vars.data.price.currency) }} #}
+                    {#                            </div> #}
+
+                    {#                            <div> #}
+
+                    {#                                {% if item.vars.data.price.discount %} #}
+                    {#                                    <span class="badge text-bg-warning">Скидка {{ item.vars.data.price.discount }}%</span> #}
+                    {#                                {% else %} #}
+                    {#                                    <span class="badge text-bg-light ">без скидки</span> #}
+                    {#                                {% endif %} #}
+                    {#                            </div> #}
+
+                    {#                            {% if item.vars.data.sign is not null %} #}
+
+                    {#                                #}{# @var itemSign \BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult #}
+                    {#                                {% set itemSign = item.vars.data.sign %} #}
+
+                    {#                                <div class="text-center p-2"> #}
+                    {#                                    {{ product_sign_status(itemSign.status) }} #}
+                    {#                                </div> #}
+
+                    {#                                <div class="text-muted text-truncate text-nowrap pointer copy" #}
+                    {#                                     data-copy="{{ itemSign.code }}" #}
+                    {#                                     style="max-width: 350px;"> #}
+
+                    {#                                    <span class="me-1"> #}
+                    {#                                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14" #}
+                    {#                                             height="14" fill="currentColor" #}
+                    {#                                             viewBox="0 0 115.77 122.88"> #}
+                    {#                                            <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"> #}
+                    {#                                            </path> #}
+                    {#                                        </svg> #}
+                    {#                                    </span> #}
+
+                    {#                                    {{ itemSign.smallCode }} #}
+                    {#                                </div> #}
+
+                    {#                            {% else %} #}
+                    {#                                <div class="p-1"> #}
+                    {#                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" #}
+                    {#                                         class="bi bi-qr-code-scan" viewBox="0 0 16 16"> #}
+                    {#                                        <path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5M.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5M4 4h1v1H4z"></path> #}
+                    {#                                        <path d="M7 2H2v5h5zM3 3h3v3H3zm2 8H4v1h1z"></path> #}
+                    {#                                        <path d="M7 9H2v5h5zm-4 1h3v3H3zm8-6h1v1h-1z"></path> #}
+                    {#                                        <path d="M9 2h5v5H9zm1 1v3h3V3zM8 8v2h1v1H8v1h2v-2h1v2h1v-1h2v-1h-3V8zm2 2H9V9h1zm4 2h-1v1h-2v1h3zm-4 2v-1H8v1z"></path> #}
+                    {#                                        <path d="M12 9h2V8h-2z"></path> #}
+                    {#                                    </svg> #}
+                    {#                                </div> #}
+                    {#                                не зарезервирован #}
+                    {#                            {% endif %} #}
+                    {#                        </div> #}
+
+
+                    {#                    {% endif %} #}
+
+                    <div class="d-flex justify-content-start align-items-center text-center"
+                         data-item="product-item"
+                         data-item-index="{{ loop.index0 }}"
+                         id='{{ item.vars.id }}'>
+
+                        <div class="d-none"
+                             id="{{ item.vars.id }}_const"
+                             data-items-const="{{ item.vars.value.const }}">
+                        </div>
+
+                        <div class="d-none"
+                             id="{{ item.vars.id }}_product"
+                             data-items-product="{{ product.vars.value.orderProductId }}">
+                        </div>
+
+                        <div class="d-none"
+                             id="{{ item.vars.id }}_id"
+                             data-items-id="{{ item.vars.value.id }}">
+                        </div>
+
+                        {# Удалить #}
+                        <button type="button"
+                                data-id='{{ item.vars.id }}'
+                                data-product-price='{{ product.price.price.vars.id }}'
+                                data-total="{{ product.price.total.vars.id }}"
+
+                                data-items-index="{{ loop.index0 }}"
+                                data-items-deleted="{{ productGroup }}-items-deleted"
+                                data-items-deleted-prototype="{{ productGroup }}-items-deleted-prototype"
+
+                                class="btn btn-outline-danger border-0 py-1 px-2 delete-el">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="currentColor"
+                                 viewBox="0 0 16 16" class="mb-1">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"></path>
+                            </svg>
+                        </button>
+
+                        {% set class_price = 'item-price' %}
+                        {% set class_discount = 'item-discount' %}
+
+                        {# Стоимость #}
+                        {% if allEditField is true or partEditField is true %}
+                            <button type="button" class="btn btn-sm"
+                                    title="Уменьшить количество"
+                                    data-id='{{ item.price.price.vars.id }}'
+                                    data-action='price-minus'
+
+                                    data-step='100'>
+                                <span class="h4 text-muted opacity-50">-</span>
+                            </button>
+                        {% endif %}
+
+                        {{ form_widget(item.price.price, { attr: {
+                            class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm ' ~ class_price,
+                            style: 'width: 75px;',
+                            disabled: false,
+                            'data-price': item.vars.data.price.price.value,
+                            'data-total': product.price.total.vars.id,
+                            'data-item': productGroup,
+                            readonly:  notEdit is true ?: false
+                        } }) }}
+
+                        {% if allEditField is true or partEditField is true %}
+                            <button type="button" class="btn btn-sm"
+                                    title="Увеличить количество"
+                                    data-id='{{ item.price.price.vars.id }}'
+                                    data-action='price-plus'
+                                    data-step='100'>
+
+                                <span class="h5 text-muted opacity-50">+</span>
+                            </button>
+                        {% endif %}
+
+                        {# Скидка товара  #}
+
+                        <div class="p-2">
+                            <div class="input-group">
+
+                                {{ form_widget(item.price.discount, { attr: {
+                                    class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm ' ~class_discount,
+                                    style: 'width: 81px;',
+                                    placeholder: "Скидка",
+                                    title: "Скидка",
+                                    'data-target': item.price.price.vars.id,
+                                    readonly:  notEdit is true ?: false
+                                } }) }}
+
+                                <span class="input-group-text" id="basic-addon1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-percent" viewBox="0 0 16 16">
+                                            <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                                        </svg>
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-qr-code-scan" viewBox="0 0 16 16">
+                                <path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5M.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5M4 4h1v1H4z"></path>
+                                <path d="M7 2H2v5h5zM3 3h3v3H3zm2 8H4v1h1z"></path>
+                                <path d="M7 9H2v5h5zm-4 1h3v3H3zm8-6h1v1h-1z"></path>
+                                <path d="M9 2h5v5H9zm1 1v3h3V3zM8 8v2h1v1H8v1h2v-2h1v2h1v-1h2v-1h-3V8zm2 2H9V9h1zm4 2h-1v1h-2v1h3zm-4 2v-1H8v1z"></path>
+                                <path d="M12 9h2V8h-2z"></path>
+                            </svg>
+                        </div>
+
+
+                        {% if item.vars.data.sign is not null %}
+
+                            {# @var itemSign \BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult #}
+                            {% set itemSign = item.vars.data.sign %}
+
+                            <div class="text-center p-2">
+                                {{ product_sign_status(itemSign.status) }}
+                            </div>
+
+                            <div class="text-muted text-truncate text-nowrap pointer copy"
+                                 data-copy="{{ itemSign.code }}"
+                                 style="max-width: 350px;">
+
+                                    <span class="me-1">
+                                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
+                                             height="14" fill="currentColor"
+                                             viewBox="0 0 115.77 122.88">
+                                            <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z">
+                                            </path>
+                                        </svg>
+                                    </span>
+
+                                {{ itemSign.smallCode }}
+                            </div>
+
+                        {% else %}
+                            не зарезервирован
+                        {% endif %}
+
+
+                    </div>
+                {% endfor %}
+
+                <div id="{{ productGroup }}-items-deleted">
+                    <div id="{{ productGroup }}-items-deleted-prototype" class="d-none">
+                        {{ include('@orders-order/admin/detail/pc/form/products/_items/deleted_item.prototype.html.twig')|e('html_attr') }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </td>
+</tr>

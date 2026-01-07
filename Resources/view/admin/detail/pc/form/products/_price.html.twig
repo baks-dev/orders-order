@@ -1,0 +1,142 @@
+{#  Стоимость + Скидка товара #}
+<td class="vertical-middle text-center">
+
+    {% if product.price.price is defined %}
+
+        {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
+
+        <div class="d-flex justify-content-center align-items-center text-center">
+
+            {# Скидка товара  #}
+            {{ form_widget(product.discount, { attr: {
+                class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm rounded-3 product-discount',
+                style: 'width: 81px;',
+                disabled: card.productPrice and card.productPrice.value != (product.vars.data.price.price.value),
+                placeholder: "Скидка, %",
+                title: "Скидка товара, %",
+                readonly:  notEdit is true ?: false
+            } }) }}
+
+            {# Стоимость #}
+            {% if allEditField is true or partEditField is true %}
+                <button type="button" class="btn btn-sm minus"
+                        title="Уменьшить количество"
+                        data-id='{{ product.price.price.vars.id }}'
+                        data-step='100'>
+
+                    <span class="h4 text-muted opacity-50">-</span>
+                </button>
+            {% else %}
+                <div class="p-2">
+                    &nbsp;
+                </div>
+            {% endif %}
+
+            {{ form_widget(product.price.price, { attr: {
+                class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm rounded-3 text-center price',
+                style: 'width: 75px;',
+                disabled: false,
+                'data-price': product.vars.data.price.price.value,
+                'data-product-group': productGroup,
+                'data-target': productGroup,
+                readonly:  notEdit is true ?: false
+            } }) }}
+
+            {% if allEditField is true or partEditField is true %}
+                <button type="button" class="btn btn-sm plus"
+                        title="Увеличить количество"
+                        data-id='{{ product.price.price.vars.id }}'
+                        data-step='100'>
+
+                    <span class="h5 text-muted opacity-50">+</span>
+                </button>
+            {% endif %}
+
+        </div>
+
+        {#        {% if notEdit %} #}
+        {#            {{ money(product.vars.data.price.price, card.productCurrency) }} #}
+        {#        {% endif %} #}
+
+    {% else %}
+        {{ money(product.vars.data.price.price, card.productCurrency) }}
+    {% endif %}
+
+</td>
+
+{#  Количество #}
+<td class="vertical-middle text-center">
+
+    <div class="d-flex justify-content-center align-items-center text-center">
+
+        {% if allEditField is true %}
+            <button data-id='{{ product.price.total.vars.id }}'
+                    type="button" class="btn btn-sm minus"
+                    title="Уменьшить количество">
+
+                <span class="h4 text-muted opacity-50">-</span>
+            </button>
+        {% else %}
+            <div class="p-1">
+                <div class="rounded-circle d-flex justify-content-center align-items-center p-2 bg-primary text-white"
+                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                     data-bs-original-title="Для уменьшения количество продукции удалите единицу продукции"
+                     style="width: 10px; height: 10px;">
+                    <span class="small">!</span></div>
+            </div>
+        {% endif %}
+
+        {{ form_widget(product.price.total, {
+            label: false,
+            attr: {
+                class : (partEditField is true or notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm mx-1 rounded-3 text-center total ',
+                style: 'width: 50px;',
+                'data-price' : ''~product.price.vars.data.price.value*100,
+                'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
+                'data-currency' : product.price.vars.data.currency|upper,
+                'data-max' : card.stockTotal,
+                'data-min' : 1,
+                'data-product-group': productGroup,
+                readonly:  partEditField is true or notEdit is true ?: false
+            } } ) }}
+
+        {% if allEditField is true or partEditField is true %}
+            <button data-id='{{ product.price.total.vars.id }}'
+                    type="button" class="btn btn-sm plus"
+                    title="Увеличить количество">
+
+                <span class="h5 text-muted opacity-50">+</span>
+            </button>
+        {% else %}
+            <div class="p-2">
+                &nbsp;
+            </div>
+        {% endif %}
+
+    </div>
+
+</td>
+
+{# Сумма (Стоимость * Количество) #}
+<td class="vertical-middle">
+
+    {% set summ = (product.price.vars.data.total * (product.price.vars.data.price.value * 100)) %}
+
+    {% set discount = user_profile_discount(summ) %}
+
+    <strong id='summ_{{ product.price.total.vars.id }}'
+            data-price='{{ card.productPrice.value }}'
+            data-discount='{{ baks_profile.profile_discount is defined ? baks_profile.profile_discount }}'
+            data-currency='{{ card.productCurrency|upper }}'
+            data-total='{{ discount ? discount / 100 : summ / 100 }}'
+            class="total-sum">
+
+        {{ discount ? money(discount, card.productCurrency) : money(summ, card.productCurrency) }}
+
+    </strong>
+
+    {% if discount %}
+        <span class="badge bg-danger rounded-2 ms-2">- {{ baks_profile.profile_discount }}%</span>
+    {% endif %}
+
+</td>

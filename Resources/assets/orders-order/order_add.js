@@ -33,85 +33,85 @@ async function changeObjectCategory(forms)
     data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        method: forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials : "same-origin", // include, *same-origin, omit
-        headers : {
-            "X-Requested-With" : "XMLHttpRequest",
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
         },
-        redirect : "follow", // manual, *follow, error
-        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body : data, // body data type must match "Content-Type" header
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data, // body data type must match "Content-Type" header
     }).then((response) =>
+    {
+
+        if(response.status !== 200)
+        {
+            return false;
+        }
+
+        return response.text();
+
+    }).then((data) =>
+    {
+
+        if(data)
         {
 
-            if(response.status !== 200)
+            const parser = new DOMParser();
+            const result = parser.parseFromString(data, "text/html");
+
+            let preProduct = result.getElementById("preProduct");
+
+            document.getElementById("preProduct").replaceWith(preProduct);
+
+            preProduct ?
+                document?.getElementById("product")?.replaceWith(preProduct) :
+                preProduct.innerHTML = "";
+
+            /** SELECT2 */
+            let replacer = document.getElementById(forms.name + "_preProduct_preProduct");
+            replacer && replacer.type !== "hidden" ? preProduct.classList.remove("d-none") : null;
+
+            /** Событие на изменение модификации */
+            if(replacer)
             {
-                return false;
-            }
 
-            return response.text();
-
-        }).then((data) =>
-        {
-
-            if(data)
-            {
-
-                const parser = new DOMParser();
-                const result = parser.parseFromString(data, "text/html");
-
-                let preProduct = result.getElementById("preProduct");
-
-                document.getElementById("preProduct").replaceWith(preProduct);
-
-                preProduct ?
-                    document?.getElementById("product")?.replaceWith(preProduct) :
-                    preProduct.innerHTML = "";
-
-                /** SELECT2 */
-                let replacer = document.getElementById(forms.name + "_preProduct_preProduct");
-                replacer && replacer.type !== "hidden" ? preProduct.classList.remove("d-none") : null;
-
-                /** Событие на изменение модификации */
-                if(replacer)
+                if(replacer.tagName === "SELECT")
                 {
+                    new NiceSelect(replacer, {searchable: true});
 
-                    if(replacer.tagName === "SELECT")
-                    {
-                        new NiceSelect(replacer, {searchable : true});
-
-                        let focus = document.getElementById(forms.name + "_preProduct_preProduct_select2");
-                        focus ? focus.click() : null;
-                    }
-                }
-
-                /** сбрасываем зависимые поля */
-                let preOffer = document.getElementById("preOffer");
-                preOffer ? preOffer.innerHTML = "" : null;
-
-                /** сбрасываем зависимые поля */
-                let preVariation = document.getElementById("preVariation");
-                preVariation ? preVariation.innerHTML = "" : null;
-
-                let preModification = document.getElementById("preModification");
-                preModification ? preModification.innerHTML = "" : null;
-
-
-                if(replacer)
-                {
-
-                    replacer.addEventListener("change", function()
-                    {
-                        changeObjectProduct(forms);
-                        return false;
-                    });
+                    let focus = document.getElementById(forms.name + "_preProduct_preProduct_select2");
+                    focus ? focus.click() : null;
                 }
             }
 
-            enableElementsForm(forms);
-        });
+            /** сбрасываем зависимые поля */
+            let preOffer = document.getElementById("preOffer");
+            preOffer ? preOffer.innerHTML = "" : null;
+
+            /** сбрасываем зависимые поля */
+            let preVariation = document.getElementById("preVariation");
+            preVariation ? preVariation.innerHTML = "" : null;
+
+            let preModification = document.getElementById("preModification");
+            preModification ? preModification.innerHTML = "" : null;
+
+
+            if(replacer)
+            {
+
+                replacer.addEventListener("change", function()
+                {
+                    changeObjectProduct(forms);
+                    return false;
+                });
+            }
+        }
+
+        enableElementsForm(forms);
+    });
 }
 
 
@@ -127,16 +127,16 @@ async function changeObjectProduct(forms)
     data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method : forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials : "same-origin", // include, *same-origin, omit
-        headers : {
-            "X-Requested-With" : "XMLHttpRequest",
+        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
         },
 
-        redirect : "follow", // manual, *follow, error
-        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body : data, // body data type must match "Content-Type" header
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data, // body data type must match "Content-Type" header
     })
         .then((response) =>
         {
@@ -173,13 +173,12 @@ async function changeObjectProduct(forms)
 
                     if(replacer.tagName === "SELECT")
                     {
-                        new NiceSelect(replacer, {searchable : true});
+                        new NiceSelect(replacer, {searchable: true});
 
                         let focus = document.getElementById(forms.name + "_preProduct_preOffer_select2");
                         focus ? focus.click() : null;
 
-                    }
-                    else
+                    } else
                     {
                         selectTotal(document.getElementById(forms.name + "_preProduct_preProduct"));
                     }
@@ -226,80 +225,79 @@ async function changeObjectOffer(forms)
 
 
     await fetch(forms.action, {
-        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        method: forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials : "same-origin", // include, *same-origin, omit
-        headers : {
-            "X-Requested-With" : "XMLHttpRequest",
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
         },
 
-        redirect : "follow", // manual, *follow, error
-        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body : data, // body data type must match "Content-Type" header
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data, // body data type must match "Content-Type" header
     }).then((response) =>
+    {
+
+        if(response.status !== 200)
+        {
+            return false;
+        }
+
+        return response.text();
+
+    }).then((data) =>
+    {
+
+        if(data)
         {
 
-            if(response.status !== 200)
-            {
-                return false;
-            }
+            const parser = new DOMParser();
+            const result = parser.parseFromString(data, "text/html");
 
-            return response.text();
+            let preVariation = result.getElementById("preVariation");
 
-        }).then((data) =>
-        {
-
-            if(data)
+            if(preVariation)
             {
 
-                const parser = new DOMParser();
-                const result = parser.parseFromString(data, "text/html");
+                document.getElementById("preVariation").replaceWith(preVariation);
 
-                let preVariation = result.getElementById("preVariation");
+                /** SELECT2 */
 
-                if(preVariation)
+                let replacer = document.getElementById(forms.name + "_preProduct_preVariation");
+                replacer && replacer.type !== "hidden" ? preVariation.classList.remove("d-none") : null;
+
+                if(replacer)
                 {
 
-                    document.getElementById("preVariation").replaceWith(preVariation);
-
-                    /** SELECT2 */
-
-                    let replacer = document.getElementById(forms.name + "_preProduct_preVariation");
-                    replacer && replacer.type !== "hidden" ? preVariation.classList.remove("d-none") : null;
-
-                    if(replacer)
+                    if(replacer.tagName === "SELECT")
                     {
+                        new NiceSelect(replacer, {searchable: true});
 
-                        if(replacer.tagName === "SELECT")
+                        let focus = document.getElementById(forms.name + "_preProduct_preVariation_select2");
+                        focus ? focus.click() : null;
+
+                        replacer.addEventListener("change", function()
                         {
-                            new NiceSelect(replacer, {searchable : true});
-
-                            let focus = document.getElementById(forms.name + "_preProduct_preVariation_select2");
-                            focus ? focus.click() : null;
-
-                            replacer.addEventListener("change", function()
-                            {
-                                changeObjectVariation(forms);
-                                return false;
-                            });
-                        }
-                        else
-                        {
-                            selectTotal(document.getElementById(forms.name + "_preProduct_preOffer"));
-                        }
-
+                            changeObjectVariation(forms);
+                            return false;
+                        });
+                    } else
+                    {
+                        selectTotal(document.getElementById(forms.name + "_preProduct_preOffer"));
                     }
 
                 }
 
-                let preModification = document.getElementById("preModification");
-                preModification ? preModification.innerHTML = "" : null;
-
             }
 
-            enableElementsForm(forms);
-        });
+            let preModification = document.getElementById("preModification");
+            preModification ? preModification.innerHTML = "" : null;
+
+        }
+
+        enableElementsForm(forms);
+    });
 }
 
 
@@ -314,73 +312,72 @@ async function changeObjectVariation(forms)
     data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method : forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials : "same-origin", // include, *same-origin, omit
-        headers : {
-            "X-Requested-With" : "XMLHttpRequest",
+        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
         },
-        redirect : "follow", // manual, *follow, error
-        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body : data, // body data type must match "Content-Type" header
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data, // body data type must match "Content-Type" header
     }).then((response) =>
+    {
+
+        if(response.status !== 200)
+        {
+            return false;
+        }
+
+        return response.text();
+
+    }).then((data) =>
+    {
+
+        if(data)
         {
 
-            if(response.status !== 200)
-            {
-                return false;
-            }
+            const parser = new DOMParser();
+            const result = parser.parseFromString(data, "text/html");
 
-            return response.text();
+            let preModification = result.getElementById("preModification");
 
-        }).then((data) =>
-        {
-
-            if(data)
+            if(preModification)
             {
 
-                const parser = new DOMParser();
-                const result = parser.parseFromString(data, "text/html");
+                document.getElementById("preModification").replaceWith(preModification);
 
-                let preModification = result.getElementById("preModification");
+                /** SELECT2 */
+                let replacer = document.getElementById(forms.name + "_preProduct_preModification");
+                replacer && replacer.type !== "hidden" ? preModification.classList.remove("d-none") : null;
 
-                if(preModification)
+                /** Событие на изменение модификации */
+                if(replacer)
                 {
 
-                    document.getElementById("preModification").replaceWith(preModification);
-
-                    /** SELECT2 */
-                    let replacer = document.getElementById(forms.name + "_preProduct_preModification");
-                    replacer && replacer.type !== "hidden" ? preModification.classList.remove("d-none") : null;
-
-                    /** Событие на изменение модификации */
-                    if(replacer)
+                    if(replacer.tagName === "SELECT")
                     {
+                        new NiceSelect(replacer, {searchable: true});
 
-                        if(replacer.tagName === "SELECT")
+                        let focus = document.getElementById(forms.name + "_preProduct_preModification_select2");
+                        focus ? focus.click() : null;
+
+                        replacer.addEventListener("change", function()
                         {
-                            new NiceSelect(replacer, {searchable : true});
+                            selectTotal(this);
+                            return false;
+                        });
 
-                            let focus = document.getElementById(forms.name + "_preProduct_preModification_select2");
-                            focus ? focus.click() : null;
-
-                            replacer.addEventListener("change", function()
-                            {
-                                selectTotal(this);
-                                return false;
-                            });
-
-                        }
-                        else
-                        {
-                            selectTotal(document.getElementById(forms.name + "_preProduct_preVariation"));
-                        }
+                    } else
+                    {
+                        selectTotal(document.getElementById(forms.name + "_preProduct_preVariation"));
                     }
                 }
             }
+        }
 
-            enableElementsForm(forms);
-        });
+        enableElementsForm(forms);
+    });
 }
 
 
@@ -391,7 +388,7 @@ function selectTotal(element)
     let preProduct_preTotal = document.getElementById("add_to_order_form_preProduct_preTotal");
 
     preProduct_preTotal.setAttribute("max", element.options[index].dataset.max);
-    
+
     /* Проверить стоимость */
     let $price = element.options[index].getAttribute("data-product-price");
     let $objectSubmit = document.getElementById("add_to_order_form_order_add");
@@ -402,14 +399,13 @@ function selectTotal(element)
 
         /* TOAST */
         let header = "Добавить продукцию в заказ";
-        
+
         let $errorFormHandler = "{ \"type\":\"danger\" , " +
             "\"header\":\"" + header + "\"  , " +
             "\"message\" : \"У данного продукта не указана цена\" }";
 
         createToast(JSON.parse($errorFormHandler));
-    }
-    else
+    } else
     {
         if(true === $objectSubmit.classList.contains('disabled'))
         {
@@ -657,17 +653,17 @@ async function submitAddToOrderForm(forms)
 
     let $totalPrice = productPrice * $totalAmount / 100;
     let $formattedPrice = new Intl.NumberFormat($locale, {
-        style : "currency",
-        currency : productCurrency === "rur" ? "RUB" : productCurrency,
-        maximumFractionDigits : 0,
+        style: "currency",
+        currency: productCurrency === "rur" ? "RUB" : productCurrency,
+        maximumFractionDigits: 0,
     }).format($totalPrice);
     prototype = prototype.replaceAll("__product_price_formatted__", $formattedPrice);
 
     let $minPrice = $productMinPrice === 0 ? 1 : $productMinPrice / 100;
     let $formattedMinPrice = new Intl.NumberFormat($locale, {
-        style : "currency",
-        currency : productCurrency === "rur" ? "RUB" : productCurrency,
-        maximumFractionDigits : 0,
+        style: "currency",
+        currency: productCurrency === "rur" ? "RUB" : productCurrency,
+        maximumFractionDigits: 0,
     }).format($minPrice);
 
     prototype = prototype.replaceAll("__product_min_price__", $minPrice);
@@ -697,10 +693,12 @@ async function submitAddToOrderForm(forms)
 
 
     /* Навесить слушатель события для обработки cкидки товара */
-    var product_discounts =  document.querySelectorAll('.product-discount');
+    var product_discounts = document.querySelectorAll('.product-discount');
 
-    product_discounts.forEach(function(product_discount){
-        product_discount.addEventListener('input', function(event){
+    product_discounts.forEach(function(product_discount)
+    {
+        product_discount.addEventListener('input', function(event)
+        {
 
             const discount = this.value * -1;
 
@@ -838,7 +836,8 @@ async function submitAddToOrderForm(forms)
 
     let $deleteButtons = document.querySelectorAll(".delete-product");
 
-    $deleteButtons.forEach(($button) => {
+    $deleteButtons.forEach(($button) =>
+    {
         $button.addEventListener("click", function($e)
             {
                 $e.preventDefault();
@@ -857,7 +856,9 @@ async function submitAddToOrderForm(forms)
 }
 
 
-setTimeout(function() {
+setTimeout(function()
+{
+
     const object_submit = document.getElementById("add_to_order_form_order_add");
 
     if(object_submit)
@@ -883,7 +884,7 @@ setTimeout(function() {
 
         if(object_category.tagName === "SELECT")
         {
-            new NiceSelect(object_category, {searchable : true});
+            new NiceSelect(object_category, {searchable: true});
         }
     }
 
@@ -904,7 +905,7 @@ setTimeout(function() {
 
         if(object_product.tagName === "SELECT")
         {
-            new NiceSelect(object_product, {searchable : true});
+            new NiceSelect(object_product, {searchable: true});
         }
     }
 }, 2)

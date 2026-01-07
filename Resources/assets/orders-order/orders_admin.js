@@ -20,7 +20,6 @@
  *  THE SOFTWARE.
  */
 
-
 basketLang = {
     'ru': {
         btnAdd: 'В корзину',
@@ -49,7 +48,6 @@ document.querySelectorAll('.order-basket').forEach(function(forms)
         btn.addEventListener('click', addOrder);
     }
 });
-
 
 initDatepicker();
 
@@ -106,7 +104,6 @@ function initDatepicker()
     }
 }
 
-
 function resolve(forms)
 {
 
@@ -161,7 +158,25 @@ document.querySelectorAll('.minus').forEach(function(btn)
             return;
         }
 
-        document.getElementById(this.dataset.id).value = result;
+        let price = document.getElementById(this.dataset.id)
+        price.value = result;
+
+        let productItems = document.getElementById(price.dataset.productGroup + '-items')
+
+        /** При изменении количества продукта - добавляем единицу продукта */
+        if(price.id.endsWith('total'))
+        {
+            let item = productItems.querySelector('[data-item="product-item"]');
+            let del = item.querySelector('.delete-el');
+
+            del.click()
+        }
+
+        /** При изменении цены продукта - изменяем цену в каждой единице продукта */
+        if(price.id.endsWith('price'))
+        {
+            modifyOrderProductItemPrice(productItems, result)
+        }
 
         /** Пересчет Суммы */
         orderSum(result, this.dataset.id);
@@ -175,7 +190,6 @@ document.querySelectorAll('.minus').forEach(function(btn)
 /** Увеличиваем число продукции */
 document.querySelectorAll('.plus').forEach(function(btn)
 {
-
     btn.addEventListener('click', function(event)
     {
         let inpt = document.getElementById(this.dataset.id);
@@ -188,8 +202,22 @@ document.querySelectorAll('.plus').forEach(function(btn)
             return;
         }
 
-        /** изменение value у input */
         inpt.value = result;
+
+        /** Коллекция единиц конкретного продукта */
+        let orderProductItems = document.getElementById(inpt.dataset.productGroup + '-items')
+
+        /** При изменении количества продукта - добавляем единицу продукта */
+        if(inpt.id.endsWith('total'))
+        {
+            addOrderProductItem(orderProductItems)
+        }
+
+        /** При изменении цены продукта - изменяем цену в каждой единице продукта */
+        if(inpt.id.endsWith('price'))
+        {
+            modifyOrderProductItemPrice(orderProductItems, result)
+        }
 
         /** Пересчет Суммы */
         orderSum(result, this.dataset.id);
@@ -200,7 +228,73 @@ document.querySelectorAll('.plus').forEach(function(btn)
     });
 });
 
+/** Добавляем единицу продукта */
+function addOrderProductItem(items)
+{
+    if(items)
+    {
+        let productItems = items.querySelectorAll('[data-item="product-item"]');
 
+        /** Минимальный индекс в коллекции элем енотов */
+        const maxIndex = Math.max(
+            ...Array.from(productItems)
+                .map(el => parseInt(el.dataset.itemIndex))
+        );
+
+        let prototype = document.getElementById(items.id + '-prototype');
+
+        let prototypeContent = prototype.innerText;
+        prototypeContent = prototypeContent.replace(/__item__/g, maxIndex + 1);
+
+        const template = document.createElement('template');
+        template.innerHTML = prototypeContent.trim();
+        const inputElement = template.content.firstElementChild;
+
+        const inputElementPrice = inputElement.querySelector('#' + inputElement.id + '_price_price');
+        inputElementPrice.value = inputElementPrice.dataset.price
+
+        //items.append(inputElement)
+        prototype.after(inputElement)
+
+        /** Элементы после вставки */
+        const itemCountAfterAdd = items.querySelectorAll('[data-item="product-item"]')
+
+        items.setAttribute('data-items-count', itemCountAfterAdd.length);
+
+        initHsH22s6NM(items)
+    }
+}
+
+/** Изменяем цену и скидку в каждой единице продукта */
+function modifyOrderProductItemPrice(items, price_value, discount_value = null)
+{
+    if(items)
+    {
+        /** Изменяем цену в каждой единице продукта */
+        items.querySelectorAll('.item-price').forEach(function(price_input)
+        {
+            let itemMin = price_input.getAttribute('min');
+
+            if(price_value < parseInt(itemMin))
+            {
+                return
+            }
+
+            price_input.value = price_value;
+        });
+
+        /** Изменяем скидку в каждой единице продукта */
+        if(null !== discount_value)
+        {
+            items.querySelectorAll('.item-discount').forEach(function(discount_input)
+            {
+                discount_input.value = discount_value * -1;
+            });
+        }
+    }
+}
+
+/** Событие на изменение количества */
 document.querySelectorAll('.total').forEach(function(input)
 {
     setTimeout(function initCounter()
@@ -218,7 +312,6 @@ document.querySelectorAll('.total').forEach(function(input)
 
 });
 
-
 /** Событие на изменение стоимости */
 document.querySelectorAll('.price').forEach(function(input)
 {
@@ -226,7 +319,7 @@ document.querySelectorAll('.price').forEach(function(input)
     {
         if(typeof orderCounter.debounce == 'function')
         {
-            /** Событие на изменение стимости в ручную */
+            /** Событие на изменение стоимости в ручную */
             input.addEventListener('input', orderCounter.debounce(1000));
             return;
         }
@@ -236,31 +329,6 @@ document.querySelectorAll('.price').forEach(function(input)
     }, 100);
 
 });
-
-
-function orderCounter()
-{
-    let result = this.value * 1;
-    let max = this.dataset.max * 1;
-
-
-    if(result < 1)
-    {
-        document.getElementById(this.id).value = 1;
-        result = 1;
-    }
-
-
-    if(result > max)
-    {
-        document.getElementById(this.id).value = max;
-        result = max;
-    }
-
-    orderSum(result, this.id);
-
-    total();
-}
 
 /** Суммирует цену с учетом количества */
 function orderSum(result, id)
@@ -279,10 +347,11 @@ function orderSum(result, id)
         }).format(result_product_sum);
 
         product_summ.innerText = result_product_sum;
+
     }
 }
 
-function total()
+function total(id = null)
 {
     let result_total = 0;
     let currency = null;
@@ -291,7 +360,8 @@ function total()
     {
         // изменение в поле количество
 
-        const price_id = total.id.replace(/price_total/g, "price_price");
+        const price_id = id ?? total.id.replace(/price_total/g, "price_price");
+
         const input_price = document.getElementById(price_id);
 
         let price = parseFloat(total.dataset.price.replace(",", "."));
@@ -392,6 +462,74 @@ function total()
 
 }
 
+function orderCounter()
+{
+    let result = this.value * 1;
+    let max = this.dataset.max * 1;
+
+    if(result < 1)
+    {
+        document.getElementById(this.id).value = 1;
+        result = 1;
+    }
+
+
+    if(result > max)
+    {
+        document.getElementById(this.id).value = max;
+        result = max;
+    }
+
+    orderSum(result, this.id);
+
+    total();
+
+
+    /** Коллекция единиц конкретного продукта */
+    let orderProductItems = document.getElementById(this.dataset.productGroup + '-items')
+
+    /** Изменение количества продукта */
+    if(this.id.endsWith('total'))
+    {
+
+        let items = orderProductItems.querySelectorAll('[data-item="product-item"]');
+
+        if(this.value < items.length)
+        {
+            console.log(' ->', 'удаляем элементы')
+            const diff = items.length - this.value
+
+            for(let i = 0; i < diff; i++)
+            {
+                let item = orderProductItems.querySelector('[data-item="product-item"]');
+                item.remove()
+            }
+
+            let itemsCountAfter = orderProductItems.querySelectorAll('[data-item="product-item"]');
+            orderProductItems.setAttribute('data-items-count', itemsCountAfter.length)
+        }
+
+
+        if(this.value > items.length)
+        {
+            console.log(' ->', 'добавляем элементы')
+
+            const diff = this.value - items.length
+
+            for(let i = 0; i < diff; i++)
+            {
+                addOrderProductItem(orderProductItems)
+            }
+        }
+    }
+
+    /** Изменение цены продукта */
+    if(this.id.endsWith('price'))
+    {
+        modifyOrderProductItemPrice(orderProductItems, this.value)
+    }
+}
+
 document.querySelectorAll(".delete-product").forEach(function($button)
 {
     $button.addEventListener("click", function($e)
@@ -422,7 +560,10 @@ function deleteElement($row)
         return;
     }
 
+
     document.getElementById($row).remove();
+
+    document.getElementById('item_' + $row).nextSibling.nextSibling.remove() // удаляем единицы продукции // @TODO
     document.getElementById('item_' + $row).nextSibling.remove();
     document.getElementById('item_' + $row).remove();
 
@@ -434,7 +575,6 @@ function success(id)
     (document.getElementById(id))?.remove();
 }
 
-
 document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(function(userProfileType)
 {
     userProfileType.addEventListener('change', function(event)
@@ -444,7 +584,6 @@ document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(fun
         return false;
     });
 });
-
 
 document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(userPayment)
 {
@@ -838,19 +977,16 @@ async function submitOrderForm(forms)
     return false;
 }
 
-
 /** Скидка заказа */
-/* Получить поле по скидке заказа */
 var order_discount = document.querySelector('#edit_order_form_discount');
 
 order_discount.addEventListener('input', function()
 {
-
     const discount = this.value;
 
-    let products_discounts = document.querySelectorAll('.product-discount').forEach(function(product_discount) {
-
-        if (product_discount.disabled == false)
+    let products_discounts = document.querySelectorAll('.product-discount, .item-discount').forEach(function(product_discount)
+    {
+        if(product_discount.disabled == false)
         {
             product_discount.value = discount;
             product_discount.dispatchEvent(new Event('input'));
@@ -859,13 +995,13 @@ order_discount.addEventListener('input', function()
 
 });
 
-
 /** Скидка товара */
-var product_discounts =  document.querySelectorAll('.product-discount');
+var product_discounts = document.querySelectorAll('.product-discount');
 
-product_discounts.forEach(function(product_discount){
-    product_discount.addEventListener('input', function(event){
-
+product_discounts.forEach(function(product_discount)
+{
+    product_discount.addEventListener('input', function(event)
+    {
         const discount = this.value * -1;
 
         /* Родительский td */
@@ -881,6 +1017,9 @@ product_discounts.forEach(function(product_discount){
 
         /* Изменить значение input поля Цены товара */
         price.value = discount_product_price;
+
+        /** Изменяем цену и скидку в каждой единице продукта */
+        modifyOrderProductItemPrice(document.getElementById(price.dataset.target + '-items'), price.value, discount)
 
         /* Пересчетать всего */
         total();

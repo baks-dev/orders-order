@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Entity\Products;
 
 use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Items\OrderProductItem;
 use BaksDev\Orders\Order\Entity\Products\Posting\OrderProductPosting;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
@@ -78,6 +79,10 @@ class OrderProduct extends EntityEvent
     #[ORM\OneToMany(targetEntity: OrderProductPosting::class, mappedBy: 'product', cascade: ['all'], fetch: 'EAGER')]
     private Collection $posting;
 
+    /** Коллекция идентификаторов для каждой единицы продукта в заказе */
+    #[ORM\OneToMany(targetEntity: OrderProductItem::class, mappedBy: 'product', cascade: ['all'], fetch: 'EAGER')]
+    private Collection $item;
+
     public function __construct(OrderEvent $event)
     {
         $this->id = new OrderProductUid();
@@ -126,6 +131,7 @@ class OrderProduct extends EntityEvent
     {
         if($dto instanceof OrderProductInterface || $dto instanceof self)
         {
+
             return parent::setEntity($dto);
         }
 
@@ -152,19 +158,36 @@ class OrderProduct extends EntityEvent
         return $this->modification;
     }
 
-    public function getTotal(): int
-    {
-        return $this->price->getTotal();
-    }
-
-    /** @return Collection<OrderProductPosting> */
+    /**
+     * Posting
+     * @return Collection<int, OrderProductPosting>
+     */
     public function getOrderPostings(): Collection
     {
         return $this->posting;
     }
 
+    /**
+     * OrderPrice
+     */
+
     public function getPrice(): Money
     {
         return $this->price->getPrice();
     }
+
+    public function getTotal(): int
+    {
+        return $this->price->getTotal();
+    }
+
+    /**
+     * Item
+     * @return Collection<int, OrderProductItem>
+     */
+    public function getItems(): Collection
+    {
+        return $this->item;
+    }
+
 }

@@ -1,5 +1,41 @@
 {{ include(_self|replace({ "content.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
+{# CSS #}
+
+<style>
+
+    {#  OrderProductItems #}
+
+    .accordion-button {
+        --bs-accordion-btn-icon-width: 16px; /* Указать конкретный размер в пикселях */
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+    }
+
+    input[readonly]:focus {
+        border-color: #dc3545; /* Красный цвет из Bootstrap */
+        outline: none;
+    }
+
+
+    {#  OrderServices  #}
+
+    option.blocked {
+        color: #aaa;
+        background-color: #f8f9fa;
+        pointer-events: none; /* не всегда работает в <option>, зависит от браузера */
+    }
+
+    option.current {
+        font-weight: bold;
+    }
+
+</style>
+
+{# JS #}
+
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/print.min.js?v={{ version }}"
         class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/copy.min.js?v={{ version }}"
@@ -12,25 +48,15 @@
 <script nonce='{{ csp_nonce() }}' async
         data-src="/assets/{{ version }}/orders-order/orders_admin.min.js?v={{ version }}"
         class="lazy"></script>
+
+<script nonce='{{ csp_nonce() }}' async
+        data-src="/assets/{{ version }}/orders-order/order_product_items.min.js?v={{ version }}"
+        class="lazy"></script>
+
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"
         class="lazy"></script>
 
 {% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
-
-    <style>
-
-        option.blocked {
-            color: #aaa;
-            background-color: #f8f9fa;
-            pointer-events: none; /* не всегда работает в <option>, зависит от браузера */
-        }
-
-        option.current {
-            font-weight: bold;
-        }
-
-    </style>
-
     <script nonce='{{ csp_nonce() }}' async
             data-src="/assets/{{ version }}/services/order_service_add_edit.min.js?v={{ version }}"
             class="lazy"></script>

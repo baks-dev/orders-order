@@ -49,14 +49,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Упаковка (сборка) заказов
+ */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class PackageController extends AbstractController
 {
-    /**
-     * Упаковка (сборка) заказов
-     */
-    #[Route('/admin/order/package', name: 'admin.order.package', methods: ['GET', 'POST'])]
+    #[Route(path: '/admin/order/package', name: 'admin.order.package', methods: ['GET', 'POST'])]
     public function package(
         Request $request,
         CentrifugoPublishInterface $publish,
@@ -67,13 +67,11 @@ final class PackageController extends AbstractController
         OrderStatusHandler $OrderStatusHandler
     ): Response
     {
-        $packageOrdersDTO = new PackageOrdersDTO();
-
         $packageOrdersForm = $this
             ->createForm(
-                PackageOrdersForm::class,
-                $packageOrdersDTO,
-                ['action' => $this->generateUrl('orders-order:admin.order.package')],
+                type: PackageOrdersForm::class,
+                data: $packageOrdersDTO = new PackageOrdersDTO(),
+                options: ['action' => $this->generateUrl('orders-order:admin.order.package')],
             )
             ->handleRequest($request);
 
@@ -126,7 +124,7 @@ final class PackageController extends AbstractController
                     ->forStatus(OrderStatusCanceled::class)
                     ->isExists();
 
-                if($isExists)
+                if(true === $isExists)
                 {
                     $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;
@@ -155,7 +153,6 @@ final class PackageController extends AbstractController
                     $OrderStatusDTO
                         ->addComment(sprintf('Важно! Заказ отправлен на сборку с другого магазина региона (%s)', $request->getHost()));
 
-
                     $Order = $OrderStatusHandler->handle(
                         command: $OrderStatusDTO,
                         deduplicator: false,
@@ -174,14 +171,12 @@ final class PackageController extends AbstractController
                  * Отправляем заказ на упаковку через очередь сообщений
                  */
 
-                $MultiplyOrdersPackageMessage = new MultiplyOrdersPackageMessage(
-                    $OrderEvent->getMain(),
-                    $packageOrdersDTO->getProfile(),
-                    $CurrentUserUid, // передаем текущего пользователя
-                );
-
                 $messageDispatch->dispatch(
-                    message: $MultiplyOrdersPackageMessage,
+                    message: new MultiplyOrdersPackageMessage(
+                        $OrderEvent->getMain(),
+                        $packageOrdersDTO->getProfile(),
+                        $CurrentUserUid, // передаем текущего пользователя
+                    ),
                     transport: 'orders-order',
                 );
 

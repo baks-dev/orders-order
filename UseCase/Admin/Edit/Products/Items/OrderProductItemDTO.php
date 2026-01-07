@@ -1,0 +1,110 @@
+<?php
+/*
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is furnished
+ *  to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ */
+
+declare(strict_types=1);
+
+namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items;
+
+use BaksDev\Orders\Order\Entity\Items\OrderProductItemInterface;
+use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConst;
+use BaksDev\Orders\Order\Type\Items\OrderProductItemUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\Price\OrderProductItemPriceDTO;
+use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult;
+use ReflectionProperty;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/** @see OrderProductItem */
+final class OrderProductItemDTO implements OrderProductItemInterface
+{
+    /**
+     * ID единицы продукта в заказе
+     */
+    private OrderProductItemUid $id;
+
+    /**
+     * Постоянный уникальный идентификатор
+     */
+    #[Assert\Valid]
+    private readonly OrderProductItemConst $const;
+
+    /**
+     * Цена единицы продукта
+     */
+    #[Assert\Valid]
+    private OrderProductItemPriceDTO $price;
+
+    private ?ProductSignByOrderProductItemResult $sign = null;
+
+    public function __construct()
+    {
+        $this->id = clone new OrderProductItemUid();
+        $this->price = new OrderProductItemPriceDTO();
+    }
+
+    public function getId(): ?OrderProductItemUid
+    {
+        return $this->id;
+    }
+
+    public function getPrice(): OrderProductItemPriceDTO
+    {
+        return $this->price;
+    }
+
+    public function setPrice(OrderProductItemPriceDTO $price): void
+    {
+        $this->price = $price;
+    }
+
+    public function getConst(): OrderProductItemConst
+    {
+        if(false === (new ReflectionProperty(self::class, 'const'))->isInitialized($this))
+        {
+            $this->const = new OrderProductItemConst;
+        }
+
+        return $this->const;
+    }
+
+    /** Для генерации константы, если нужно значение после чтения из БД (getDTO) */
+    public function generateConst(): self
+    {
+        if(false === (new ReflectionProperty(self::class, 'const'))->isInitialized($this))
+        {
+            $this->const = new OrderProductItemConst;
+        }
+
+        return $this;
+    }
+
+    public function setSign(?ProductSignByOrderProductItemResult $sign): OrderProductItemDTO
+    {
+        $this->sign = $sign;
+        return $this;
+    }
+
+    public function getSign(): ?ProductSignByOrderProductItemResult
+    {
+        return $this->sign;
+    }
+}

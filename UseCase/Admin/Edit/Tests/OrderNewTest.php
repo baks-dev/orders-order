@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\New\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\Price\NewOrderPriceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\User\Delivery\Field\OrderDeliveryFieldDTO;
@@ -104,19 +105,19 @@ final class OrderNewTest extends KernelTestCase
 
     public function testUseCase(): void
     {
-        //$OrderDTO = new EditOrderDTO();
-        $OrderDTO = new NewOrderDTO();
+        // $EditOrderDTO = new EditOrderDTO();
+        $NewOrderDTO = new NewOrderDTO();
 
-        self::assertTrue($OrderDTO->getStatus()->equals(OrderStatusNew::class));
+        self::assertTrue($NewOrderDTO->getStatus()->equals(OrderStatusNew::class));
 
-        $OrderDTO->getInvariable()->setProfile($UserProfileUid = new  UserProfileUid());
-        self::assertSame($UserProfileUid, $OrderDTO->getInvariable()->getProfile());
+        $NewOrderDTO->getInvariable()->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $NewOrderDTO->getInvariable()->getProfile());
 
         /** OrderProductDTO */
 
         $OrderProductDTO = new NewOrderProductDTO();
-        $OrderDTO->addProduct($OrderProductDTO);
-        self::assertTrue($OrderDTO->getProduct()->contains($OrderProductDTO));
+        $NewOrderDTO->addProduct($OrderProductDTO);
+        self::assertTrue($NewOrderDTO->getProduct()->contains($OrderProductDTO));
 
         $product = new ProductEventUid();
         $OrderProductDTO->setProduct($product);
@@ -134,27 +135,19 @@ final class OrderNewTest extends KernelTestCase
         $OrderProductDTO->setModification($modification);
         self::assertSame($modification, $OrderProductDTO->getModification());
 
+        /** NewOrderInvariableDTO */
 
-        /** EditOrderInvariableDTO */
+        $NewOrderInvariableDTO = $NewOrderDTO->getInvariable(); // читаем из NewOrderDTO
 
-        $EditOrderInvariableDTO = $OrderDTO->getInvariable();
+        $NewOrderInvariableDTO->setUsr($UserUid = new  UserUid());
+        self::assertSame($UserUid, $NewOrderInvariableDTO->getUsr());
 
-        $EditOrderInvariableDTO->setUsr($UserUid = new  UserUid());
-        self::assertSame($UserUid, $EditOrderInvariableDTO->getUsr());
+        $NewOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
+        self::assertSame($UserProfileUid, $NewOrderInvariableDTO->getProfile());
 
-        //$EditOrderInvariableDTO->setProfile($UserProfileUid = new  UserProfileUid());
-        //self::assertSame($UserProfileUid, $EditOrderInvariableDTO->getProfile());
-
-        /** Взываем метод $EditOrderInvariableDTO->getNumber() */
-        $number = $EditOrderInvariableDTO->getNumber();
+        /** Взываем метод $NewOrderInvariableDTO->getNumber() */
+        $number = $NewOrderInvariableDTO->getNumber();
         self::assertNotEmpty($number);
-
-        //$EditOrderInvariableDTO->setNumber('order_number');
-        //self::assertSame('order_number', $EditOrderInvariableDTO->getNumber());
-
-        //$EditOrderInvariableDTO->setCreated($DateTimeImmutable = new DateTimeImmutable());
-        //self::assertSame($DateTimeImmutable, $EditOrderInvariableDTO->getCreated());
-
 
         /** OrderPriceDTO */
 
@@ -174,11 +167,32 @@ final class OrderNewTest extends KernelTestCase
         self::assertSame($currency, $OrderPriceDTO->getCurrency());
 
 
+        /**
+         * OrderProductItemDTO
+         * Создаем единицу продукта по количеству продукта в заказе
+         */
+        foreach($NewOrderDTO->getProduct() as $product)
+        {
+            for($i = 0; $i < $product->getPrice()->getTotal(); $i++)
+            {
+                $item = new OrderProductItemDTO;
+
+                /**
+                 * Присваиваем цену из продукта в заказе
+                 */
+                $item->getPrice()
+                    ->setPrice($product->getPrice()->getPrice())
+                    ->setCurrency($product->getPrice()->getCurrency());
+
+                $product->addItem($item);
+            }
+        }
+
         /** OrderUserDTO */
 
         $OrderUserDTO = new OrderUserDTO();
-        $OrderDTO->setUsr($OrderUserDTO);
-        self::assertSame($OrderUserDTO, $OrderDTO->getUsr());
+        $NewOrderDTO->setUsr($OrderUserDTO);
+        self::assertSame($OrderUserDTO, $NewOrderDTO->getUsr());
 
         $user = new UserUid();
         $OrderUserDTO->setUsr($user);
@@ -212,7 +226,6 @@ final class OrderNewTest extends KernelTestCase
         $OrderDeliveryDTO->setLongitude($GpsLongitude);
         self::assertSame($GpsLongitude, $OrderDeliveryDTO->getLongitude());
 
-
         /** OrderDeliveryFieldDTO */
 
         $OrderDeliveryFieldDTO = new OrderDeliveryFieldDTO();
@@ -223,11 +236,8 @@ final class OrderNewTest extends KernelTestCase
         $OrderDeliveryFieldDTO->setField($field);
         self::assertSame($field, $OrderDeliveryFieldDTO->getField());
 
-
-        /** Присваиваем в качестве значения UID */
-        $OrderDeliveryFieldDTO->setValue(OrderUid::TEST);
-        self::assertEquals(OrderUid::TEST, $OrderDeliveryFieldDTO->getValue());
-
+        $OrderDeliveryFieldDTO->setValue(UserProfileUid::TEST);
+        self::assertEquals(UserProfileUid::TEST, $OrderDeliveryFieldDTO->getValue());
 
         /** OrderPaymentDTO */
 
@@ -237,7 +247,6 @@ final class OrderNewTest extends KernelTestCase
         $payment = new PaymentUid(TypePaymentCache::TYPE);
         $OrderPaymentDTO->setPayment($payment);
         self::assertSame($payment, $OrderPaymentDTO->getPayment());
-
 
         /** OrderPaymentFieldDTO */
 
@@ -252,13 +261,11 @@ final class OrderNewTest extends KernelTestCase
         $OrderPaymentFieldDTO->setValue('XWLoRsQwyq');
         self::assertEquals('XWLoRsQwyq', $OrderPaymentFieldDTO->getValue());
 
-
         self::bootKernel();
 
         /** @var NewOrderHandler $OrderHandler */
         $OrderHandler = self::getContainer()->get(NewOrderHandler::class);
-        $handle = $OrderHandler->handle($OrderDTO);
+        $handle = $OrderHandler->handle($NewOrderDTO);
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
     }
-
 }

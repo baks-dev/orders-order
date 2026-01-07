@@ -1,5 +1,3 @@
-{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
-
 <table class="table">
     <thead>
     <tr class="small text-muted border-white">
@@ -13,7 +11,10 @@
 
     <tbody>
 
-    {% for card in order.orderProducts %}
+    {% set products = order.orderProducts %}
+
+    {% for card in products %}
+
 
         {% if card %}
 
@@ -34,12 +35,7 @@
                             {% endif %}
 
                             <a
-                                    href="{# {{ path('products-product:public.detail', {
-                                        url : card.product_url ,
-                                        offer: card.product_offer_value,
-                                        variation: card.product_variation_value,
-                                        modification: card.product_modification_value
-                                    }) }} #}"
+                                    href=""
                                     class="icon rounded-4 mb-2 bg-contain p-1"
                                     style="width: 75px; height: 75px; background-image: url('{{ image_path }}')"
                             ></a>
@@ -76,6 +72,7 @@
 
                 </td>
 
+
                 <td class="vertical-middle">
                     {% set summ = (card.product_total * card.product_price) %}
 
@@ -83,7 +80,6 @@
 
                     <strong>
                         {{ discount ? money(discount, card.product_price_currency) : money(summ, card.product_price_currency) }}
-                        {# {{ card.product_currency|upper|currency_symbol(app.request.locale) }} #}
                     </strong>
 
                     {% if discount %}
@@ -92,11 +88,7 @@
 
                 </td>
 
-                <td class="vertical-middle text-end">
-
-                    {# УДАЛИТЬ #}
-
-                </td>
+                <td class="vertical-middle text-end"></td>
 
             </tr>
         {% endif %}

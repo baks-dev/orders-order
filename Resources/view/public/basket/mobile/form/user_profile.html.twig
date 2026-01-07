@@ -1,0 +1,102 @@
+{% trans_default_domain('user.order') %}
+
+<div class="p-2">
+
+    {# Тип заказа #}
+    {% if form.usr.userProfile.type is defined %}
+        <div class="d-flex align-items-center gap-3 mb-4">
+
+            <svg class="bi bi-cart d-block" xmlns="http://www.w3.org/2000/svg"
+                 width="24" height="24" fill="#a7d3f7"
+                 viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+            </svg>
+
+            <h3 class="fs-12 fw-bold text-uppercase mb-0">
+                тип заказа
+            </h3>
+        </div>
+
+        {% for profile_type in form.usr.userProfile.type %}
+            <label class="btn p-2 border-dotted rounded-3 w-100 text-muted mb-3 {{ profile_type.vars.data or (not profile_type.vars.data and loop.first) ? 'active' }}">
+                <span class="d-flex align-items-center">
+                    <span class="flex-grow-1">
+                        <span class="h5">
+                            <span class="form-check d-flex align-items-center mb-0">
+
+                               <span class='mb-1 me-3'>
+                                   {{ form_widget(profile_type, { label: false }) }}
+                               </span>
+
+                                <span style="font-size: 1rem;" class="text-start">
+                                    {{ profile_type.vars.label }}
+                                </span>
+                            </span>
+                        </span>
+                    </span>
+                </span>
+            </label>
+        {% endfor %}
+    {% endif %}
+
+
+
+
+    {% if form.usr.userProfile.value is defined %}
+
+
+        <div class="d-flex flex-column gap-3" id='user_profile'> {% set section = null %}
+
+            {% for value in form.usr.userProfile.value %}
+
+                {% if section != value.vars.data.section %}
+                    {% set section = value.vars.data.section %}
+
+                    {# Заголовок #}
+                    <div class="d-flex align-items-center gap-3 ">
+                        <svg class="bi bi-person" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             fill="#a7d3f7" viewbox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"></path>
+                        </svg>
+                        <h3 class="fs-12 fw-bold text-uppercase mb-0">{{ value.vars.data.sectionName }}</h3>
+                    </div>
+
+
+                {% endif %}
+
+
+                <div
+                        class="px-2">
+
+                    {# Поля формы (Имя, Телефон, E-mail) #}
+                    {% if value.value is defined %}
+
+                        <div class="mb-2">
+                            {{ form_label(value.value, false,
+                                {'label_attr': {
+                                    'class': 'form-label text-secondary fs-10'}
+                                }) }}
+
+
+                            {{ form_widget(value.value,
+                                {
+                                    attr: {
+                                    'class': 'form-control border-0  bg-body-tertiary',
+                                    'style': 'box-shadow: 0px 3px 3px rgba(0,0,0,0.08) inset;',
+                                }}
+                            ) }}
+
+                        </div>
+
+                    {% endif %}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>

@@ -16,31 +16,11 @@
     <link href="/assets/{{ version }}/plugins/datepicker/datepicker.min.css" rel="stylesheet">
 {% endblock %}
 
-{# ---- HEADER-БЛОК ------------------------------------------------------------ #}
-{# {% block header %}
-    {{ include(_self|replace({ "template.html.twig": "header.html.twig" })) }}
-{% endblock %} #}
-
-
-{# ---- LEFT-БЛОК ------------------------------------------------------------ #}
-{# {% block left %} #}
-{#   {% include '@Template/flowers/left.html.twig' %} #}
-{# {% endblock %} #}
-
-
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
 {% endblock %}
-
-
-{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
-{#
-{% block footer %}
-    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
-{% endblock %}
-#}
 
 {% block javascript %}
 
@@ -56,8 +36,6 @@
             const form = document.forms.order_filter_form;
             form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
         });
-
-        //filterDate = document.getElementById('manufacture_filter_form_date');
 
         function changeDatapicker(input)
         {

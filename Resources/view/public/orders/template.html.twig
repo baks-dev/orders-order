@@ -1,0 +1,15 @@
+{% extends Template('/public/base.html.twig') %}
+
+{% block title %}
+    Заказы
+{% endblock %}
+
+{% block content %}
+
+    {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
+{% endblock %}
+
+ {% block javascript %}
+
+ {% endblock %}
+

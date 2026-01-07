@@ -1,6 +1,3 @@
-{# {{ include(_self|replace({ "content.html.twig": "header.html.twig" })) }} #}
-
-
 <main class="main">
 
     {{ form_start(form) }}
@@ -32,11 +29,7 @@
 
         {% if isProducts %}
 
-
-
-
             <div class="bg-light container py-3">
-
 
                 {% set total_summ_product = 0 %}
                 {% set total_summ_currency = null %}
@@ -49,9 +42,6 @@
 
                     {% set total_summ_product = total_summ_product + summ %}
                     {% set total_summ_currency = card.product_currency %}
-
-
-
 
                     {{ include(_self|replace({ "content.html.twig": "products.html.twig" })) }}
 
@@ -121,23 +111,7 @@
 
     </section>
 
-    {# TODO: ПРОСМОТРЕННЫЕ #}
-    {# <section id="viewed" class="mt-4 bg-light">
-		<div class="container p-4">
-			<h2 class="text-uppercase me-4 h5 fw-bolder">Просмотренные</h2>
-		</div>
-
-		<div class="d-flex flex-nowrap gap-4 overflow-auto w-100 px-4 pb-3">
-			{% for i in 0..5 %}
-				{{ include(_self|replace({ "content.html.twig": "viewed.html.twig" })) }}
-			{% endfor %}
-		</div>
-	</section> #}
-
-
     {% if isProducts %}
-
-
 
         {# оформление заказа #}
         <section id="ordering" class="container bg-white pb-3">
@@ -187,12 +161,6 @@
                 </div>
             </div>
 
-
-            {# {{ form_row(form.order, {
-								label: 'Оформить заказ',
-								attr: { class: 'btn-danger', title : "Оформить заказ", 'aria-label' : "Оформить заказ" }
-							}) }} #}
-
             {{ form_widget(form.order, { label: '
 								<span>'~ 'Оформить заказ'|trans({}, 'core.btn') ~'</span>
 								<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
@@ -213,7 +181,6 @@
                     <a href="#">условиями продажи товаров</a> и
                     <a href="#">политикой о конфиденциальности</a>.</p>
             </div>
-
 
         </section>
 

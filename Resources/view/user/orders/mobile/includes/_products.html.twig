@@ -1,0 +1,238 @@
+{% trans_default_domain('user.status') %}
+
+
+{% set num = null %}
+
+
+{% for order in orders %}
+
+    {% set products = order.order_products|json_decode %}
+
+    {% if order.order_number != num %}
+
+        {% if num is not null %}
+
+            <div class="d-flex align-items-center justify-content-start py-2 gap-5">
+
+                <div class="d-flex gap-5">
+
+                    <p class="fs-18 mb-0 fw-bold" style="width:90px;">
+                        Итого:
+                    </p>
+
+                    <p class="fs-18 mb-0 fw-bold" style="width:90px;">
+                        {{ money(priceTotal, productCurrency) }}
+                    </p>
+
+                    <p class="fs-18 mb-0 fw-bold" style="width:90px;">
+                        {{ productTotal }} шт.
+                    </p>
+                </div>
+
+            </div>
+
+            </div>
+        {% endif %}
+
+
+<div class="border px-4 py-2 rounded-4 mb-3">
+
+    <div class="d-flex align-items-center justify-content-between mb-2 gap-2">
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="fs-18 mb-0 text-uppercase fw-bold mb-2 tt"> Заказ № {{ order.order_number }} | {{ ('public_' ~order.order_status)|trans({}, 'status.order') }}</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+                        <span class="text-secondary">
+                            {{ order.payment_name }} | {{ order.delivery_name }}
+                        </span>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+
+    {% set priceTotal = null %}
+    {% set productTotal = null %}
+    {% set productCurrency = null %}
+
+
+    {# ИНФОРМАЦИЯ О ПРОДУКТАХ В ЗАКАЗЕ #}
+    {% for product in products %}
+
+        <div class="d-flex align-items-center justify-content-between border-bottom py-3">
+
+            <div class="d-flex align-items-center justify-content-between gap-5">
+                {% set image_path = '/assets/'~version~'/img/blank.svg' %}
+
+                {# Обложка  #}
+                {% if product.product_image_ext is defined and product.product_image_ext is not null %}
+                    {% set image_path = cdn_image_path(product.product_image, product.product_image_ext, product.product_image_cdn) %}
+                {% endif %}
+
+                <a href="{{ path('products-product:public.detail', {
+                    category : product.category_url ,
+                    url : product.product_url ,
+                    offer: product.product_offer_value,
+                    variation: product.product_variation_value,
+                    modification: product.product_modification_value
+                }) }}"
+                   class="icon rounded-4 mb-2 lazy bg-contain p-1"
+                   data-bg="{{ image_path }}"
+                   style="width: 75px; height: 75px;">
+                </a>
+
+                <div class="d-flex flex-column justify-content-center gap-2 w-100" style="">
+
+                    <a href="{{ path('products-product:public.detail', {
+                        category : product.category_url,
+                        url : product.product_url,
+                        offer: product.product_offer_value,
+                        variation: product.product_variation_value,
+                        modification: product.product_modification_value
+                    }) }}"
+
+                       class="fs-14 text-black fw-bold text-uppercase mb-0 list-group-item best-offers-item">
+                        {{ product.product_name }}
+
+                        <br>
+
+                        {{ product.product_variation_value|call_twig_func(product.product_variation_reference~'_render') ~
+                        product.product_modification_value|call_twig_func(product.product_modification_reference~'_render') }}
+
+                        {{ product.product_offer_value|call_twig_func(product.product_offer_reference~'_render') }}
+                    </a>
+
+                    <p class="text-secondary mb-0" style="font-size: 12px;">
+                        Артикул: {# {{ product.product_article }} #}
+
+                        {% if product.product_offer_article %}
+                            {{ product.product_offer_article }}
+                        {% endif %}
+
+                        {% if product.product_variation_article %}
+                            {{ product.product_variation_article }}
+                        {% endif %}
+
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between gap-4">
+
+                {# ЦЕНА #}
+                <p class="mb-0 fw-bold" style="width:90px;">
+                    {{ money(product.product_price, product.product_price_currency) }}
+                </p>
+
+                {# КОЛИЧЕСТВО #}
+                <p class="mb-0 fw-bold" style="width:90px;">
+                    {{ product.product_total }} шт.
+                </p>
+
+                {% set priceTotal = priceTotal + product.product_price %}
+                {% set productTotal = productTotal + product.product_total %}
+                {% set productCurrency = product.product_price_currency %}
+
+            </div>
+
+            {% if order.sign_part is defined and order.sign_part is not null %}
+
+                <div class="d-flex align-items-center justify-content-end gap-2 w-25">
+
+                    {% set document_pdf = path('products-sign:document.pdf.orders', {
+                        article: product.product_variation_article,
+                        part: order.sign_part,
+                        order: order.order_id,
+                        product: product.product_id,
+                        offer: product.product_offer_const,
+                        variation: product.product_variation_const,
+                        modification: product.product_modification_const
+                    }) %}
+
+                    {% set document_small_txt = path('products-sign:document.small.orders', {
+                        article: product.product_variation_article,
+                        part: order.sign_part,
+                        order: order.order_id,
+                        product: product.product_id,
+                        offer: product.product_offer_const,
+                        variation: product.product_variation_const,
+                        modification: product.product_modification_const
+                    }) %}
+
+                    {% set document_big_txt = path('products-sign:document.big.orders', {
+                        article: product.product_variation_article,
+                        part: order.sign_part,
+                        order: order.order_id,
+                        product: product.product_id,
+                        offer: product.product_offer_const,
+                        variation: product.product_variation_const,
+                        modification: product.product_modification_const
+                    }) %}
+
+
+                    <a
+                            href="{{ document_pdf }}"
+                            class='btn btn-sm btn-light d-flex gap-3'
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title='Скачать PDF c КИЗ'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                             class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                        </svg>
+                    </a>
+
+                    <a
+                            href="{{ document_small_txt }}"
+                            class='btn btn-sm btn-light d-flex gap-3'
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title='Скачать TXT c короткой кодировкой'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                             class="bi bi-filetype-txt" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M14 4.5V14a2 2 0 0 1-2 2h-2v-1h2a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.928 15.849v-3.337h1.136v-.662H0v.662h1.134v3.337zm4.689-3.999h-.894L4.9 13.289h-.035l-.832-1.439h-.932l1.228 1.983-1.24 2.016h.862l.853-1.415h.035l.85 1.415h.907l-1.253-1.992zm1.93.662v3.337h-.794v-3.337H6.619v-.662h3.064v.662H8.546Z"/>
+                        </svg>
+                    </a>
+
+
+                    <a
+                            href="{{ document_big_txt }}"
+                            class='btn btn-sm btn-light d-flex gap-3'
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title='Скачать TXT c полной кодировкой'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                             class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+                            <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                            <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                        </svg>
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+
+        </div>
+
+    {% endfor %}
+
+    {% set num = order.order_number %}
+
+    {% endfor %}
+
+</div>

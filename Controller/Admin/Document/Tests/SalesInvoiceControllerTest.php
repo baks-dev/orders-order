@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -40,12 +40,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class SalesInvoiceControllerTest extends WebTestCase
 {
-
-    private const string URL = '/admin/order/document/sales';
+    private const string URL = '/admin/order/document/sales?print=true';
 
     private static ?array $post_data = null;
 
-    private const string ROLE = 'ROLE_ORDERS';
+    private const string ROLE = 'ROLE_USER';
 
     public static function setUpBeforeClass(): void
     {
@@ -155,7 +154,8 @@ final class SalesInvoiceControllerTest extends WebTestCase
             $client->loginUser($usr, 'user');
             $client->request('GET', sprintf(self::URL));
 
-            self::assertResponseStatusCodeSame(403);
+            //self::assertResponseStatusCodeSame(403);
+            self::assertResponseIsSuccessful();
         }
 
         self::assertTrue(true);

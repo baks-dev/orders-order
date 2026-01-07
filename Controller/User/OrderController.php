@@ -21,13 +21,14 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Controller\User;
 
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -43,7 +44,7 @@ class OrderController extends AbstractController
     #[Route('/orders/{status}/{page<\d+>}', name: 'user.orders')]
     public function index(
         OrdersDetailByProfileInterface $ordersDetailByProfileRepository,
-        string $status = OrderStatusNew::STATUS,
+        ?string $status = null,
         int $page = 0,
     ): Response
     {
@@ -59,19 +60,23 @@ class OrderController extends AbstractController
          * Если передан несуществующий статус ->
          * @throws InvalidArgumentException
          */
-        foreach(OrderStatus::cases() as $case)
+        if(false === empty($status))
         {
-            if($case->equals($status))
+            foreach(OrderStatus::cases() as $case)
             {
-                /** @var OrderStatus $status */
-                $status = $case;
+                if($case->equals($status))
+                {
+                    /** @var OrderStatus $status */
+                    $status = $case;
+                }
             }
+
+            $ordersDetailByProfileRepository->forStatus($status);
         }
 
         $ordersPaginator = $ordersDetailByProfileRepository
-            ->forStatus($status)
             ->forProfile($profile)
-            ->findAllWithPaginator();
+            ->findAllWithResultPaginator();
 
         return $this->render([
             'orders' => $ordersPaginator,

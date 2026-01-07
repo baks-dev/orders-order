@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,18 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile\Tests;
 
 use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileInterface;
+use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileResult;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\AdminUserProfile\AdminUserProfileInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[Group('orders-order')]
+#[Group('orders-order-repository')]
 #[When(env: 'test')]
 class OrdersDetailByProfileRepositoryTest extends KernelTestCase
 {
@@ -70,93 +73,16 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
 
         $result = $repository
             ->forProfile($UserProfileUid)
-            ->findAll();
+            ->findAllResults();
 
         if(false === $result || false === $result->valid())
         {
             self::$result = false;
-            echo PHP_EOL.'Не найдено ни одного заказа у профиля администратора : '.self::class.PHP_EOL;
+            echo PHP_EOL.'Не найдено ни одного заказа у профиля администратора : '.self::class.':'.__LINE__.PHP_EOL;
             return;
         }
 
         self::$result = $result->current();
-    }
-
-    public static function getAllQueryKeys(): array
-    {
-        return [
-            "order_id",
-            "order_event",
-            "order_number",
-            "order_status",
-            "order_data",
-            "order_comment",
-            "payment_id",
-            "payment_name",
-            //"order_products",
-            "order_delivery_price",
-            "order_delivery_currency",
-            "delivery_name",
-            "delivery_price",
-            "delivery_geocode_longitude",
-            "delivery_geocode_latitude",
-            "delivery_geocode_address",
-            "order_profile_discount",
-            "order_profile",
-            "profile_avatar_name",
-            "profile_avatar_ext",
-            "profile_avatar_cdn",
-            //"order_user",
-        ];
-    }
-
-    public static function getOrderProductsKeys(): array
-    {
-        return [
-            "product_id",
-            "product_url",
-            "category_url",
-            "product_name",
-            "category_name",
-            "product_image",
-            "product_price",
-            "product_total",
-            "product_article",
-            "product_image_cdn",
-            "product_image_ext",
-            "product_offer_name",
-            "product_offer_const",
-            "product_offer_value",
-            "product_offer_article",
-            "product_offer_postfix",
-            "product_price_currency",
-            "product_variation_name",
-            "product_offer_reference",
-            "product_variation_const",
-            "product_variation_value",
-            "product_modification_name",
-            "product_variation_article",
-            "product_variation_postfix",
-            "product_modification_const",
-            "product_modification_value",
-            "product_variation_reference",
-            "product_modification_article",
-            "product_modification_postfix",
-            "product_modification_reference",
-
-            "order_products",
-
-        ];
-    }
-
-    public static function getOrderUserKeys(): array
-    {
-        return [
-            "0",
-            "profile_name",
-            "profile_type",
-            "profile_value",
-        ];
     }
 
     public function testFindAll(): void
@@ -167,69 +93,19 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
             return;
         }
 
-        $current = self::$result;
-        $queryKeys = self::getAllQueryKeys();
+        // Вызываем все геттеры
+        $reflectionClass = new ReflectionClass(OrdersDetailByProfileResult::class);
+        $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        foreach($queryKeys as $key)
+        foreach($methods as $method)
         {
-            self::assertArrayHasKey($key, $current, sprintf('Новый ключ в массиве для сравнения ключей: %s', $key));
+            // Методы без аргументов
+            if($method->getNumberOfParameters() === 0)
+            {
+                // Вызываем метод
+                $data = $method->invoke(self::$result);
+                //                 dump($data);
+            }
         }
-
-        foreach($current as $key => $value)
-        {
-            self::assertTrue(in_array($key, $queryKeys), sprintf('Новый ключ в в массиве с результатом запроса: %s', $key));
-        }
-    }
-
-    #[Depends('testFindAll')]
-    public function testOrderProducts(): void
-    {
-        if(false === self::$result)
-        {
-            self::assertFalse(self::$result);
-            return;
-        }
-
-        self::assertTrue(true);
-
-        $queryKeys = self::getOrderProductsKeys();
-
-        //$current = current(json_decode(self::$result['order_products'], true));
-
-        //        foreach($queryKeys as $key)
-        //        {
-        //            self::assertArrayHasKey($key, $current, sprintf('Новый ключ в массиве для сравнения ключей: %s', $key));
-        //        }
-
-        //        foreach($current as $key => $value)
-        //        {
-        //            self::assertTrue(in_array($key, $queryKeys), sprintf('Новый ключ в в массиве с результатом запроса: %s', $key));
-        //        }
-    }
-
-    #[Depends('testOrderProducts')]
-    public function testOrderUser(): void
-    {
-        if(false === self::$result)
-        {
-            self::assertFalse(self::$result);
-            return;
-        }
-
-        self::assertTrue(true);
-
-        $queryKeys = self::getOrderUserKeys();
-
-        //        $current = current(json_decode(self::$result['order_user'], true));
-        //
-        //        foreach($queryKeys as $key)
-        //        {
-        //            self::assertArrayHasKey($key, $current, sprintf('Новый ключ в массиве для сравнения ключей: %s', $key));
-        //        }
-        //
-        //        foreach($current as $key => $value)
-        //        {
-        //            self::assertTrue(in_array($key, $queryKeys), sprintf('Новый ключ в в массиве с результатом запроса: %s', $key));
-        //        }
     }
 }

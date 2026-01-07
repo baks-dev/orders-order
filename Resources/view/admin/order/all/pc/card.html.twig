@@ -51,14 +51,6 @@
         &nbsp;
         <div class="d-flex gap-3">
 
-            {# {% set users = item.order_user|json_decode %}
-
-            {% for user in users %}
-                <div class='{{ loop.first ? "fw-bolder" }}'>
-                    {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
-                </div>
-            {% endfor %} #}
-
             {% if item.clientName %}
                 {% for client in item.clientName %}
                     <div class='mb-1 text-truncate pointer'

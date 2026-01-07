@@ -29,6 +29,7 @@ use BaksDev\Orders\Order\Entity\Items\OrderProductItemInterface;
 use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConst;
 use BaksDev\Orders\Order\Type\Items\OrderProductItemUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\Price\OrderProductItemPriceDTO;
+use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult;
 use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -51,6 +52,8 @@ final class OrderProductItemDTO implements OrderProductItemInterface
      */
     #[Assert\Valid]
     private OrderProductItemPriceDTO $price;
+
+    private ?ProductSignByOrderProductItemResult $sign = null;
 
     public function __construct()
     {
@@ -92,5 +95,16 @@ final class OrderProductItemDTO implements OrderProductItemInterface
         }
 
         return $this;
+    }
+
+    public function setSign(?ProductSignByOrderProductItemResult $sign): OrderProductItemDTO
+    {
+        $this->sign = $sign;
+        return $this;
+    }
+
+    public function getSign(): ?ProductSignByOrderProductItemResult
+    {
+        return $this->sign;
     }
 }

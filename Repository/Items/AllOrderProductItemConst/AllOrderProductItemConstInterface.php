@@ -31,6 +31,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 interface AllOrderProductItemConstInterface
 {
+    /** Единицы продукции, у которой есть Честный знак */
+    public function withoutSign(): self;
+
     /**
      * Возвращает множество констант единиц продукции конкретного заказа
      * @return Generator<int, OrderProductItemConst>|false

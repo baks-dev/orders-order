@@ -87,15 +87,22 @@ function deleteOrderProductItem(btn)
             modifyOrderProductTotal(itemPrice)
 
             /** Изменение количества в заголовке */
-            //const itemHeader = items.parentNode.querySelector('.items-header');
+            //if(false === items.parentNode.classList.contains('accordion-body'))
+            //{
+            //    return;
+            //}
+            //
+            //const accordion = items.parentNode.parentNode
+            //
+            //const itemHeader = accordion.parentNode.querySelector('.items-header');
+            //
             //let itemHeaderCount = itemHeader.querySelector('[data-items-total]');
             //itemHeaderCount.setAttribute('data-items-total', newCount);
             //
-            //itemHeaderCount.innerHTML = `${newCount} продукта`;
+            //itemHeaderCount.innerHTML = newCount;
         }
     });
 }
-
 
 /** Изменение цены продукта путем применения скидки */
 function changeOrderProductItemPriceByDiscount(input)

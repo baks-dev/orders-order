@@ -104,7 +104,7 @@
 
         {# Запрет на редактирвоание количества либо стоимости #}
 
-        {% set isNotEdit =
+        {% set notEdit =
             order.order_status == 'package' or
             order.order_status == 'extradition' or
             order.order_status == 'delivery' or
@@ -118,7 +118,7 @@
 
                     {% set isDiscount = card.product_price > (product.vars.data.price.price.value * 100) %}
 
-                    <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+                    <div class="d-flex justify-content-center align-items-center text-center {{ notEdit ? 'd-none' }}">
 
                         <button type="button" class="btn btn-sm minus"
                                 title="Уменьшить количество"
@@ -143,7 +143,7 @@
                         </button>
                     </div>
 
-                    {% if isNotEdit %}
+                    {% if notEdit %}
                         {{ money(product.vars.data.price.price, card.product_currency) }}
                     {% endif %}
 
@@ -158,7 +158,7 @@
 
         <td class="vertical-middle text-center">
 
-            <div class="d-flex justify-content-center align-items-center text-center {{ isNotEdit ? 'd-none' }}">
+            <div class="d-flex justify-content-center align-items-center text-center {{ notEdit ? 'd-none' }}">
 
                 <button type="button" class="btn btn-sm minus"
                         title="Уменьшить количество"
@@ -187,7 +187,7 @@
 
             </div>
 
-            {% if isNotEdit %}
+            {% if notEdit %}
                 {{ product.price.total.vars.data }}
             {% endif %}
 

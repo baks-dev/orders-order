@@ -39,10 +39,6 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
@@ -50,7 +46,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Снимаем резерв с карточки товара  при отмене заказа или удалении продукта из заказа
+ * Снимает резерв в КАРТОЧКЕ товара при отмене заказа или удалении продукта из заказа
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
@@ -81,6 +77,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
+        /** @var  $OrderEvent */
         $OrderEvent = $this->OrderEventRepository
             ->find($message->getEvent());
 
@@ -95,7 +92,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         }
 
         /**
-         * Не снимаем резерв в карточке, если статус не:
+         * Если заказ НЕ входит в список статусов, которым доступна отмена резервов - завершаем обработчик:
          * - Canceled «Отменен»
          * - Decommission «Списание»
          * - Return «Возврат»
@@ -109,7 +106,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
-        /**  Получаем предыдущее событие заказа если статус текущего - Canceled «Отменен»  */
+        /** Получаем предыдущее событие заказа если статус текущего - Canceled «Отменен»  */
         if(true === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
         {
             $LastOrderEvent = $this->OrderEventRepository
@@ -118,7 +115,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             if(false === ($LastOrderEvent instanceof OrderEvent))
             {
                 $this->logger->critical(
-                    'products-sign: Не найдено предыдущее событие OrderEvent',
+                    'orders-order: Не найдено предыдущее событие OrderEvent',
                     [self::class.':'.__LINE__, var_export($message, true)],
                 );
 
@@ -153,16 +150,16 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             }
         }
 
-        /**
-         * Проверяем, является ли данный профиль логистическим складом
-         */
-
         $UserProfileUid = $OrderEvent->getOrderProfile();
 
         if(false === ($UserProfileUid instanceof UserProfileUid))
         {
             return;
         }
+
+        /**
+         * Проверяем, является ли данный профиль логистическим складом
+         */
 
         $isLogisticWarehouse = $this->UserProfileLogisticWarehouseRepository
             ->forProfile($UserProfileUid)
@@ -173,14 +170,19 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
+        /**
+         * Запускаем процесс снятия резервов в карточке продукта
+         */
+
         $this->logger->info(
-            sprintf(
-                '%s: Снимаем общий резерв в карточке товара при отмене заказа (см. products-product.log)',
+            sprintf('%s: Снимаем общий резерв в карточке товара для заказ со статусом `%s`',
                 $OrderEvent->getOrderNumber(),
+                $OrderEvent->getStatus()->getOrderStatusValue()
             ),
             [
-                'status' => (string) $OrderEvent->getStatus(),
+                self::class.':'.__LINE__,
                 'deduplicator' => $Deduplicator->getKey(),
+                var_export($message, true)
             ],
         );
 
@@ -202,7 +204,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             if(false === ($CurrentProductIdentifier instanceof CurrentProductIdentifierResult))
             {
                 $this->logger->critical(
-                    'products-sign: Продукт не найден',
+                    'orders-order: Продукт не найден',
                     [
                         'product' => (string) $product->getProduct(),
                         'offer' => (string) $product->getOffer(),
@@ -215,15 +217,53 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 continue;
             }
 
-            /** Снимаем резерв с карточки отмененного заказа */
+            $productTotal = $product->getPrice()->getTotal();
+            $itemsCount = $product->getItem()->count();
 
+            /** Определяем total по ЕДИНИЦАМ продукции */
+            $total = $itemsCount;
+
+            /** Истинное условие */
+            $isCorrectItemsCount = $productTotal === $itemsCount;
+
+            if(true === $isCorrectItemsCount)
+            {
+                $this->logger->info(
+                    message: sprintf(
+                        '%s: Снимаем резерв в карточке товара по количеству ЕДИНИЦ продукции',
+                        $EditOrderDTO->getInvariable()->getNumber()
+                    ),
+                    context: [
+                        '$productTotal' => $productTotal,
+                        '$itemsCount' => $itemsCount,
+                        self::class.':'.__LINE__
+                    ],
+                );
+            }
+
+            if(false === $isCorrectItemsCount)
+            {
+                $this->logger->warning(
+                    message: 'КОЛИЧЕСТВО продукции в заказе не совпадает с ЕДИНИЦАМИ продукта в заказе',
+                    context: [
+                        '$productTotal' => $productTotal,
+                        '$itemsCount' => $itemsCount,
+                        self::class.':'.__LINE__],
+                );
+
+                /** Переопределяем total из КОЛИЧЕСТВА продукции */
+                $total = $productTotal;
+            }
+
+            /** Снимаем резерв с карточки отмененного заказа */
             $this->messageDispatch->dispatch(
-                new ProductsReserveByOrderCancelMessage(
+                message: new ProductsReserveByOrderCancelMessage(
                     $CurrentProductIdentifier->getEvent(),
                     $CurrentProductIdentifier->getOffer(),
                     $CurrentProductIdentifier->getVariation(),
                     $CurrentProductIdentifier->getModification(),
-                    $product->getPrice()->getTotal(),
+                    $total,
+                    $OrderEvent->getOrderNumber(),
                 ),
                 transport: 'products-product',
             );

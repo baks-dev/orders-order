@@ -228,9 +228,6 @@ executeFunc(function P8X1I2diQ4()
 
             let sourceLevel = e.sourceContainer.dataset.status;
 
-            //console.log(sourceLevel);  /* TODO: удалить !!! */
-            //console.log(droppableLevel);  /* TODO: удалить !!! */
-
             if(sourceLevel !== droppableLevel && droppableRestrict !== "restricted")
             {
                 // Универсальная логика для одиночного и группового перетаскивания

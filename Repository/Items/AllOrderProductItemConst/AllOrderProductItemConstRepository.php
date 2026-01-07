@@ -33,11 +33,25 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConst;
+use BaksDev\Products\Sign\Entity\Event\ProductSignEvent;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusProcess;
 use Generator;
 
-final readonly class AllOrderProductItemConstRepository implements AllOrderProductItemConstInterface
+final class AllOrderProductItemConstRepository implements AllOrderProductItemConstInterface
 {
-    public function __construct(private DBALQueryBuilder $DBALQueryBuilder) {}
+    private bool|null $sign = null;
+
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder
+    ) {}
+
+    /** Единицы продукции, у которой есть Честный знак */
+    public function withoutSign(): self
+    {
+        $this->sign = false;
+        return $this;
+    }
 
     /**
      * Возвращает множество констант единиц продукции конкретного заказа
@@ -66,6 +80,7 @@ final readonly class AllOrderProductItemConstRepository implements AllOrderProdu
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $dbal->from(Order::class, 'orders');
+        $dbal->distinct();
 
         /** Событие с проверкой на корень */
         $dbal
@@ -92,15 +107,48 @@ final readonly class AllOrderProductItemConstRepository implements AllOrderProdu
                 'product.event = event.id'
             );
 
+        /** Идентификаторы продукта в заказе */
+        $dbal->addSelect(
+            "
+					JSONB_BUILD_OBJECT
+					(
+						'product', product.product,
+						'offer', product.offer,
+						'variation', product.variation,
+						'modification', product.modification
+					)
+			
+			AS params",
+        );
+
         /** Единицы */
         $dbal
-            ->select('item.const as value')
+            ->addSelect('item.const as value')
             ->join(
                 'event',
                 OrderProductItem::class,
                 'item',
                 'item.product = product.id'
             );
+
+        if(null !== $this->sign)
+        {
+            $dbal->setParameter(
+                'status',
+                new ProductSignStatus(ProductSignStatusProcess::class),
+                ProductSignStatus::TYPE);
+
+            $dbal->andWhereNotExists(
+                ProductSignEvent::class,
+                'product_sign_event',
+                '
+                    product_sign_event.ord = :ord AND
+                    product_sign_event.status = :status AND
+                    product_sign_event.product = item.const
+                    '
+            );
+
+        }
 
         return $dbal;
     }

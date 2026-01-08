@@ -102,13 +102,6 @@
         </td>
 
 
-        {# Запрет на редактирвоание количества либо стоимости #}
-
-        {% set notEdit =
-            order.order_status == 'package' or
-            order.order_status == 'extradition' or
-            order.order_status == 'delivery' or
-            order.order_status == 'completed' %}
 
         <td class="vertical-middle text-center">
             {% if product.vars.data.price.price is empty or product.vars.data.price.price.value == 0 %}
@@ -120,13 +113,18 @@
 
                     <div class="d-flex justify-content-center align-items-center text-center {{ notEdit ? 'd-none' }}">
 
-                        <button type="button" class="btn btn-sm minus"
-                                title="Уменьшить количество"
-                                data-id='{{ product.price.price.vars.id }}'
-                                data-step='100'
-                        >
-                            <span class="h4 text-muted opacity-50">-</span>
-                        </button>
+
+                        {% if order.order_status != 'completed' %}
+                            <button type="button" class="btn btn-sm minus"
+                                    title="Уменьшить количество"
+                                    data-id='{{ product.price.price.vars.id }}'
+                                    data-step='100'
+                            >
+                                <span class="h4 text-muted opacity-50">-</span>
+                            </button>
+
+                        {% endif %}
+
 
                         {{ form_widget(product.price.price, { attr: {
                             class: 'form-control-sm rounded-3 price',
@@ -134,13 +132,18 @@
                             disabled: false
                         } }) }}
 
-                        <button type="button" class="btn btn-sm plus"
-                                title="Увеличить количество"
-                                data-id='{{ product.price.price.vars.id }}'
-                                data-step='100'
-                        >
-                            <span class="h5 text-muted opacity-50">+</span>
-                        </button>
+                        {% if order.order_status != 'completed' %}
+
+                            <button type="button" class="btn btn-sm plus"
+                                    title="Увеличить количество"
+                                    data-id='{{ product.price.price.vars.id }}'
+                                    data-step='100'
+                            >
+                                <span class="h5 text-muted opacity-50">+</span>
+                            </button>
+
+                        {% endif %}
+
                     </div>
 
                     {% if notEdit %}

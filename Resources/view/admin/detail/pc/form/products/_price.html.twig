@@ -7,18 +7,21 @@
 
         <div class="d-flex justify-content-center align-items-center text-center">
 
+
             {# Скидка товара  #}
             {{ form_widget(product.discount, { attr: {
-                class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm rounded-3 product-discount',
-                style: 'width: 81px;',
+                class: (notEdit is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm rounded-3 product-discount',
+                style: 'width: 80px;',
                 disabled: card.productPrice and card.productPrice.value != (product.vars.data.price.price.value),
-                placeholder: "Скидка, %",
+                placeholder: "± %",
                 title: "Скидка товара, %",
                 readonly:  notEdit is true ?: false
             } }) }}
 
+
+
             {# Стоимость #}
-            {% if allEditField is true or partEditField is true %}
+            {% if ( allEditField is true or partEditField is true ) and notEdit is not true %}
                 <button type="button" class="btn btn-sm minus"
                         title="Уменьшить количество"
                         data-id='{{ product.price.price.vars.id }}'
@@ -42,7 +45,7 @@
                 readonly:  notEdit is true ?: false
             } }) }}
 
-            {% if allEditField is true or partEditField is true %}
+            {% if (allEditField is true or partEditField is true) and notEdit is not true %}
                 <button type="button" class="btn btn-sm plus"
                         title="Увеличить количество"
                         data-id='{{ product.price.price.vars.id }}'
@@ -69,7 +72,7 @@
 
     <div class="d-flex justify-content-center align-items-center text-center">
 
-        {% if allEditField is true %}
+        {% if allEditField is true and notEdit is not true %}
             <button data-id='{{ product.price.total.vars.id }}'
                     type="button" class="btn btn-sm minus"
                     title="Уменьшить количество">
@@ -100,7 +103,7 @@
                 readonly:  partEditField is true or notEdit is true ?: false
             } } ) }}
 
-        {% if allEditField is true or partEditField is true %}
+        {% if (allEditField is true or partEditField is true)  and notEdit is not true %}
             <button data-id='{{ product.price.total.vars.id }}'
                     type="button" class="btn btn-sm plus"
                     title="Увеличить количество">

@@ -3,7 +3,7 @@
 <tr id="item_{{ product_prototype.vars.id }}">
     <td rowspan="2">
         <div class="row">
-            <div class="col-3">
+            {# <div class="col-3">
 
                 <a href="__product_url__"
                    class="icon rounded-4 mb-2 bg-contain p-1"
@@ -11,7 +11,7 @@
                    target="_blank"
                 ></a>
 
-            </div>
+            </div> #}
 
             <div class="col-8 align-self-center">
 
@@ -47,7 +47,7 @@
                 style: 'width: 81px;',
                 min:  '__order_product_discount__',
                 disabled: false,
-                placeholder: "Скидка товара, %",
+                placeholder: "± %",
                 title: "Скидка товара, %",
                 readonly:  notEdit is true ?: false
             } }) }}

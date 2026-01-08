@@ -185,15 +185,15 @@
                             <div class="input-group">
 
                                 {{ form_widget(item.price.discount, { attr: {
-                                    class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm ' ~class_discount,
-                                    style: 'width: 81px;',
+                                    class: (notEdit is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm ' ~class_discount,
+                                    style: 'width: 90px;',
                                     placeholder: "Скидка",
                                     title: "Скидка",
                                     'data-target': item.price.price.vars.id,
                                     readonly:  notEdit is true ?: false
                                 } }) }}
 
-                                <span class="input-group-text" id="basic-addon1">
+                                <span class="input-group-text {{ notEdit is true ? 'd-none' }}" id="basic-addon1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              fill="currentColor"
                                              class="bi bi-percent" viewBox="0 0 16 16">
@@ -203,6 +203,7 @@
                             </div>
                         </div>
 
+                        {# Иконка QR #}
                         <div class="p-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                  class="bi bi-qr-code-scan" viewBox="0 0 16 16">

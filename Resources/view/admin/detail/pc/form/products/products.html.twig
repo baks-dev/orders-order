@@ -34,9 +34,8 @@
                     postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' })
                 }) %}
 
-                <div class="col-3">
-
-                    {# Обложка #}
+                {# <div class="col-3">
+                #}{# Обложка #}{#
                     <a href="{{ product_path }}"
                        class="icon rounded-4 mb-2 bg-contain p-1"
                        style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
@@ -44,7 +43,7 @@
 
                     </a>
 
-                </div>
+                </div> #}
 
                 <div class="col-8 align-self-center">
 

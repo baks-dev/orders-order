@@ -514,9 +514,22 @@
                     {% endif %}
                 {% endif %}
 
-                {% set allEditField = is_granted('ROLE_ADMIN') == true or order.orderStatus == 'new' or order.orderStatus == 'phone' %}
-                {% set partEditField = is_granted('ROLE_ADMIN') == true or order.orderStatus == 'package' or order.orderStatus == 'extradition' %}
-                {% set notEdit = is_granted('ROLE_ADMIN') != true or order.orderStatus == 'completed' or order.orderStatus == 'delivery' or order.orderStatus == 'unpaid' %}
+
+
+                {# is_granted('ROLE_ADMIN') == true or #}
+                {% set allEditField = order.orderStatus == 'new' or order.orderStatus == 'phone' %}
+
+
+                {% set partEditField = order.orderStatus == 'package' or order.orderStatus == 'extradition' %}
+
+                {# Запрет на редактирвоание количества либо стоимости #}
+                {% set notEdit =
+                    order.orderStatus == 'completed'
+                    or order.orderStatus == 'delivery'
+                    or order.orderStatus == 'unpaid' %}
+
+
+
 
                 <div class="d-flex align-items-center">
                     <h5 class="text-uppercase fw-bolder py-2 w-75">Продукция</h5>
@@ -526,7 +539,8 @@
                         <div class="ms-2 w-50">
 
                             <div class="input-group">
-                                <span class="input-group-text" id="basic-addon1">
+
+                                <span class="input-group-text {{ notEdit is true ? 'd-none' }}" id="basic-addon1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          class="bi bi-percent" viewBox="0 0 16 16">
                                         <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
@@ -537,7 +551,7 @@
                                     title: "Скидка к заказу",
                                     attr: {
                                         placeholder : 'Скидка к заказу',
-                                        class: notEdit is true ? 'bg-light text-muted ' : '',
+                                        class: notEdit is true ? 'bg-light text-muted d-none' : 'form-control-sm',
                                         readonly:  notEdit is true ?: false
                                     },
                                 }) }}

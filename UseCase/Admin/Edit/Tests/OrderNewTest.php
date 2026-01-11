@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,7 @@ use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -72,6 +73,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[When(env: 'test')]
 final class OrderNewTest extends KernelTestCase
 {
+
     public static function setUpBeforeClass(): void
     {
         // Бросаем событие консольной комманды

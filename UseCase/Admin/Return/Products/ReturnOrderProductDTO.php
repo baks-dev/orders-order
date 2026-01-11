@@ -23,15 +23,14 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
+namespace BaksDev\Orders\Order\UseCase\Admin\Return\Products;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
-use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\DeletedItem\DeletedItemDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Posting\OrderProductPostingDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Return\Products\Items\DeletedItem\DeletedItemDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Return\Products\Items\OrderProductItemDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Return\Products\Posting\OrderProductPostingDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Return\Products\Price\ReturnOrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -41,7 +40,7 @@ use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderProduct */
-final class OrderProductDTO implements OrderProductInterface
+final class ReturnOrderProductDTO implements OrderProductInterface
 {
     /** Идентификатор продукта в заказе */
     #[Assert\Uuid]
@@ -66,42 +65,12 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
     #[Assert\Valid]
-    private OrderPriceDTO $price;
+    private ReturnOrderPriceDTO $price;
 
-    /**
-     * Коллекция разделенных отправлений одного заказа
-     *
-     * @var ArrayCollection<int, OrderProductPostingDTO> $posting
-     */
-    #[Assert\Valid]
-    private ArrayCollection $posting;
-
-    /**
-     * Коллекция единиц товара
-     *
-     * @var ArrayCollection<int, OrderProductItemDTO> $item
-     */
-    #[Assert\Valid]
-    private ArrayCollection $item;
-
-    /**
-     * HELPERS
-     */
-
-    /** Персональная скидка пользователя для товара */
-    private ?int $discount = null;
-
-    /** Карточка товара */
-    private ProductUserBasketResult|null $card = null;
-
-    private ArrayCollection $deletedItems;
 
     public function __construct()
     {
-        $this->price = new OrderPriceDTO();
-        $this->posting = new ArrayCollection();
-        $this->item = new ArrayCollection();
-        $this->deletedItems = new ArrayCollection();
+        $this->price = new ReturnOrderPriceDTO();
     }
 
     public function getOrderProductId(): OrderProductUid
@@ -192,124 +161,16 @@ final class OrderProductDTO implements OrderProductInterface
     }
 
     /** Стоимость и количество */
-    public function getPrice(): OrderPriceDTO
+    public function getPrice(): ReturnOrderPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(OrderPriceDTO $price): self
+    public function setPrice(ReturnOrderPriceDTO $price): self
     {
         $this->price = $price;
 
         return $this;
     }
 
-    /**
-     * Коллекция разделенных отправлений одного заказа
-     *
-     * @return ArrayCollection<int, OrderProductPostingDTO>
-     */
-    public function getPosting(): ArrayCollection
-    {
-        return $this->posting;
-    }
-
-    public function addPosting(OrderProductPostingDTO $posting): void
-    {
-        $exist = $this->posting->exists(function(int $key, OrderProductPostingDTO $element) use ($posting) {
-            return $element->getNumber() === $posting->getNumber();
-        });
-
-        if(false === $exist)
-        {
-            $this->posting->add($posting);
-        }
-    }
-
-    public function removePosting(OrderProductPostingDTO $posting): void
-    {
-        $this->posting->removeElement($posting);
-    }
-
-    /**
-     * Коллекция разделенных отправлений одного заказа
-     *
-     * @return ArrayCollection<int, OrderProductItemDTO>
-     */
-    public function getItem(): ArrayCollection
-    {
-        return $this->item;
-    }
-
-    public function addItem(OrderProductItemDTO $item): void
-    {
-        $exist = $this->item->exists(function(int $k, OrderProductItemDTO $value) use ($item) {
-            /** @var OrderProductItemDTO $item */
-            return $value->getConst()->equals($item->getConst());
-        });
-
-        if(false === $exist)
-        {
-            $this->item->add($item);
-        }
-    }
-
-    public function removeItem(OrderProductItemDTO $item): void
-    {
-        $this->item->removeElement($item);
-    }
-
-    /**
-     * HELPERS
-     */
-
-    public function getDiscount(): ?int
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(?int $discount): self
-    {
-        $this->discount = $discount;
-        return $this;
-    }
-
-    /** Карточка товара */
-    public function getCard(): ?ProductUserBasketResult
-    {
-        return $this->card;
-    }
-
-    public function setCard(bool|ProductUserBasketResult $card): void
-    {
-        $this->card = $card ?: null;
-    }
-
-    /**
-     * Коллекция констант удаленных единиц продукта
-     *
-     * @return ArrayCollection<int, DeletedItemDTO>
-     */
-    public function getDeletedItems(): ArrayCollection
-    {
-        return $this->deletedItems;
-    }
-
-    public function addDeletedItem(DeletedItemDTO $item): void
-    {
-        $exist = $this->item->exists(function(int $k, DeletedItemDTO $value) use ($item) {
-            /** @var DeletedItemDTO $item */
-            return $value->getConst()->equals($item->getConst());
-        });
-
-        if(false === $exist)
-        {
-            $this->deletedItems->add($item);
-        }
-    }
-
-    public function removeDeletedItem(DeletedItemDTO $item): void
-    {
-        $this->deletedItems->removeElement($item);
-    }
 }

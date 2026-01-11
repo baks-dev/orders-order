@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable;
+namespace BaksDev\Orders\Order\UseCase\Admin\Return\Invariable;
 
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariableInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -32,7 +32,7 @@ use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderInvariable */
-final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
+final class ReturnOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
      * Идентификатор заказа
@@ -40,18 +40,22 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
     #[Assert\NotBlank]
     private string $number;
 
-
     /**
      * ID пользователя заказа
      * (при новом заказе через корзину - может быть null)
      */
-    private ?UserUid $usr;
+    private readonly ?UserUid $usr;
 
     /**
      * ID профиля заказа
      * (при новом заказе через корзину - может быть null)
      */
-    private ?UserProfileUid $profile;
+    private readonly ?UserProfileUid $profile;
+
+    public function __construct()
+    {
+        $this->number = number_format((microtime(true) * 100), 0, '.', '.');
+    }
 
     public function getNumber(): ?string
     {
@@ -61,6 +65,11 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
         }
 
         return $this->number;
+    }
+
+    public function setNumber(string $number): self
+    {
+        return $this;
     }
 
     public function getProfile(): ?UserProfileUid
@@ -78,9 +87,21 @@ final readonly class EditOrderInvariableDTO implements OrderInvariableInterface
         return $this;
     }
 
+
     public function getUsr(): ?UserUid
     {
         return $this->usr;
     }
+
+    public function setUsr(?UserUid $usr): self
+    {
+        if(false === (new ReflectionProperty(self::class, 'usr')->isInitialized($this)))
+        {
+            $this->usr = $usr;
+        }
+
+        return $this;
+    }
+
 
 }

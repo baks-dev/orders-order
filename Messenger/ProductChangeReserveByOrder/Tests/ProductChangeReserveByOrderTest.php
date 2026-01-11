@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder\Tests;
 
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder\ProductChangeReserveByOrderChangeDispatcher;
+use BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder\DeprecateProductChangeReserveByOrderChangeDispatcher;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use PHPUnit\Framework\Attributes\Group;
@@ -49,8 +49,8 @@ class ProductChangeReserveByOrderTest extends KernelTestCase
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-        /** @var ProductChangeReserveByOrderChangeDispatcher $ProductChangeReserveByOrderChangeDispatcher */
-        $ProductChangeReserveByOrderChangeDispatcher = self::getContainer()->get(ProductChangeReserveByOrderChangeDispatcher::class);
+        /** @var DeprecateProductChangeReserveByOrderChangeDispatcher $ProductChangeReserveByOrderChangeDispatcher */
+        $ProductChangeReserveByOrderChangeDispatcher = self::getContainer()->get(DeprecateProductChangeReserveByOrderChangeDispatcher::class);
 
         $ProductChangeReserveByOrderChangeDispatcher(
             new OrderMessage(

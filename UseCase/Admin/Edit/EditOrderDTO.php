@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderEvent */
 final class EditOrderDTO implements OrderEventInterface
 {
+    /** Идентификатор события */
+    #[Assert\Uuid]
+    private ?OrderEventUid $id = null;
+
     /** Идентификатор заказа */
     #[Assert\Uuid]
     private ?OrderUid $order = null;
@@ -47,9 +51,6 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderUid $orders = null;
 
-    /** Идентификатор события */
-    #[Assert\Uuid]
-    private ?OrderEventUid $id = null;
 
     /** Постоянная величина */
     #[Assert\Valid]

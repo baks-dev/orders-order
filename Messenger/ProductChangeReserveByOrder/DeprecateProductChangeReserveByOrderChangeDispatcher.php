@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -48,8 +48,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * заменен работу @see ProductChangeReserveByOrderProductItemChangeDispatcher
  */
 #[AsMessageHandler(priority: 999)]
-final readonly class ProductChangeReserveByOrderChangeDispatcher
+final readonly class DeprecateProductChangeReserveByOrderChangeDispatcher
 {
+    /**
+     * @depricate
+     */
     public function __construct(
         private OrderEventInterface $OrderEventRepository,
         private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
@@ -57,9 +60,13 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
         private MessageDispatchInterface $messageDispatch,
     ) {}
 
+    /**
+     * @depricate
+     */
     public function __invoke(OrderMessage $message): void
     {
-        return; // @TODO
+        /** @see ProductChangeReserveByOrderProductItemChangeDispatcher */
+        return;
 
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
@@ -130,9 +137,9 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
 
         $CurrentOrderDTO = new EditOrderDTO();
         $CurrentOrderEvent->getDto($CurrentOrderDTO);
-        
+
         // Пройдемся по новой коллекции
-        
+
         /** @var EditOrderDTO() $currentProduct */
         foreach($CurrentOrderDTO->getProduct() as $currentProduct)
         {
@@ -145,7 +152,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         && ((is_null($lastProduct->getOffer()) === true && is_null($currentProduct->getOffer()) === true) || $lastProduct->getOffer()?->equals($currentProduct->getOffer()))
                         && ((is_null($lastProduct->getVariation()) === true && is_null($currentProduct->getVariation()) === true) || $lastProduct->getVariation()?->equals($currentProduct->getVariation()))
                         && ((is_null($lastProduct->getModification()) === true && is_null($currentProduct->getModification()) === true) || $lastProduct->getModification()?->equals($currentProduct->getModification()));
-                }
+                },
             );
 
             if(true === $matchingCurrentAll->isEmpty())
@@ -184,7 +191,7 @@ final readonly class ProductChangeReserveByOrderChangeDispatcher
                         && ((is_null($currentProduct->getOffer()) === true && is_null($lastProduct->getOffer()) === true) || $currentProduct->getOffer()?->equals($lastProduct->getOffer()))
                         && ((is_null($currentProduct->getVariation()) === true && is_null($lastProduct->getVariation()) === true) || $currentProduct->getVariation()?->equals($lastProduct->getVariation()))
                         && ((is_null($currentProduct->getModification()) === true && is_null($lastProduct->getModification()) === true) || $currentProduct->getModification()?->equals($lastProduct->getModification()));
-                }
+                },
             );
 
             if($matchingAll->isEmpty())

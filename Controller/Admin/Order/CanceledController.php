@@ -33,7 +33,9 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\ReturnOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -91,7 +93,15 @@ final class CanceledController extends AbstractController
                     continue;
                 }
 
+                /** По умолчанию заказ отменяется */
                 $orderCanceledDTO = new CanceledOrderDTO();
+
+                /** Если текущий статус Completed «Выполнен» - применяем заказу статус отмены */
+                if($orderEvent->isStatusEquals(OrderStatusCompleted::class))
+                {
+                    $orderCanceledDTO = new ReturnOrderDTO();
+                }
+
                 $orderEvent->getDto($orderCanceledDTO);
 
                 /** Присваиваем комментарий из формы только в случае, если не было комментария у заказа */

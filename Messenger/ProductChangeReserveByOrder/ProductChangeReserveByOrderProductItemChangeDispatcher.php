@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -44,12 +44,13 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * НА КАЖДУЮ ЕДИНИЦУ ТОВАРА Обновляет/Снимает резерв в КАРТОЧКЕ при изменении количества продукции в УЖЕ СОЗДАННОМ заказе
+ * НА КАЖДУЮ ЕДИНИЦУ ТОВАРА Обновляет/Снимает резерв в КАРТОЧКЕ при изменении количества продукции в УЖЕ СОЗДАННОМ
+ * заказе
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  * @note не сработает на новом заказе
  *
- * заменяет работу @see ProductChangeReserveByOrderChangeDispatcher
+ * заменяет работу @see DeprecateProductChangeReserveByOrderChangeDispatcher
  */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
@@ -124,7 +125,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 context: [
                     self::class.':'.__LINE__,
                     var_export($message, true),
-                ]
+                ],
             );
 
             return;
@@ -159,6 +160,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
 
         /**
          * Реагируем на изменение продукта в заказе или новый продукт
+         *
          * @var OrderProductDTO $currentOrderProductDTO
          */
         foreach($CurrentOrderDTO->getProduct() as $currentOrderProductDTO)
@@ -192,18 +194,17 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 {
                     $this->logger->critical(
                         message: sprintf('%s При сохранении заказа не были добавлены единицы продукта',
-                            $CurrentOrderNumber
+                            $CurrentOrderNumber,
                         ),
                         context: [
                             self::class.':'.__LINE__,
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                        ]
+                        ],
                     );
 
-                    return;
-                    // throw new \Exception(); // @TODO
+                    continue;
                 }
 
                 /**
@@ -218,14 +219,14 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                 $this->logger->info(
                     message: sprintf(
                         '%s Список единиц продукции был изменен. Запущен процесс резервирования и списания по ЕДИНИЦАМ в КАРТОЧКЕ продукции',
-                        $CurrentOrderNumber
+                        $CurrentOrderNumber,
                     ),
                     context: [
                         self::class.':'.__LINE__,
                         'current_product' => var_export($currentOrderProductDTO, true),
                         'last_product' => var_export($lastOrderProductDTO, true),
                         var_export($message, true),
-                    ]
+                    ],
                 );
 
                 /**
@@ -238,7 +239,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                         $currentOrderProductDTO->getVariation(),
                         $currentOrderProductDTO->getModification(),
                         $currentOrderProductDTO->getItem()->count(),
-                        $CurrentOrderNumber
+                        $CurrentOrderNumber,
                     ),
                     transport: 'products-product',
                 );
@@ -253,7 +254,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                         $lastOrderProductDTO->getVariation(),
                         $lastOrderProductDTO->getModification(),
                         $lastOrderProductDTO->getItem()->count(),
-                        $CurrentOrderNumber
+                        $CurrentOrderNumber,
                     ),
                     stamps: [new MessageDelay('5 seconds')],
                     transport: 'products-product-low',
@@ -277,19 +278,18 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                        ]
+                        ],
                     );
 
-                    return;
-                    // throw new \Exception(); // @TODO
+                    continue;
                 }
 
                 /** @var OrderProductItemDTO $currentOrderProductItemDTO */
                 foreach($currentOrderProductDTO->getItem() as $currentOrderProductItemDTO)
-
+                {
                     $this->logger->info(
                         message: sprintf('%s Добавляем резерв в КАРТОЧКЕ товара при добавлении нового продукта в заказ',
-                            $CurrentOrderNumber
+                            $CurrentOrderNumber,
                         ),
                         context: [
                             self::class.':'.__LINE__,
@@ -297,25 +297,27 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                             'current_product' => var_export($currentOrderProductDTO, true),
                             'last_product' => var_export($lastOrderProductDTO, true),
                             var_export($message, true),
-                        ]
+                        ],
                     );
 
-                $this->messageDispatch->dispatch(
-                    new ProductReserveByOrderNewMessage(
-                        $currentOrderProductDTO->getProduct(),
-                        $currentOrderProductDTO->getOffer(),
-                        $currentOrderProductDTO->getVariation(),
-                        $currentOrderProductDTO->getModification(),
-                        $currentOrderProductDTO->getItem()->count(),
-                        $CurrentOrderNumber
-                    ),
-                    transport: 'products-product',
-                );
+                    $this->messageDispatch->dispatch(
+                        new ProductReserveByOrderNewMessage(
+                            $currentOrderProductDTO->getProduct(),
+                            $currentOrderProductDTO->getOffer(),
+                            $currentOrderProductDTO->getVariation(),
+                            $currentOrderProductDTO->getModification(),
+                            $currentOrderProductDTO->getItem()->count(),
+                            $CurrentOrderNumber,
+                        ),
+                        transport: 'products-product',
+                    );
+                }
             }
         }
 
         /**
          * Реагируем на удаленный продукт в заказе - снимаем резерв для каждой единицы удаленного продукта
+         *
          * @var OrderProductDTO $lastOrderProductDTO
          */
         foreach($LastOrderDTO->getProduct() as $lastOrderProductDTO)
@@ -325,7 +327,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                     $LastOrderDTO->getOrderNumber()),
                 context: [
                     self::class.':'.__LINE__,
-                ]
+                ],
             );
 
             $this->messageDispatch->dispatch(
@@ -335,7 +337,7 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
                     $lastOrderProductDTO->getVariation(),
                     $lastOrderProductDTO->getModification(),
                     $lastOrderProductDTO->getItem()->count(),
-                    $LastOrderDTO->getOrderNumber()
+                    $LastOrderDTO->getOrderNumber(),
                 ),
                 transport: 'products-product',
             );

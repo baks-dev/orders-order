@@ -524,11 +524,11 @@
 
                 {# Запрет на редактирвоание количества либо стоимости #}
                 {% set notEdit =
-                    order.orderStatus == 'completed'
+                    order.orderStatus == 'canceled'
+                    or order.orderStatus == 'return'
+                    or order.orderStatus == 'completed'
                     or order.orderStatus == 'delivery'
                     or order.orderStatus == 'unpaid' %}
-
-
 
 
                 <div class="d-flex align-items-center">

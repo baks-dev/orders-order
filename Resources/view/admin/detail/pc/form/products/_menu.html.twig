@@ -58,7 +58,7 @@
 
         {% endif %}
 
-        {% if notEdit is not true %}
+        {% if order.orderStatus != 'canceled' and order.orderStatus != 'return' %}
             <li>
                 <button type="button"
                         class="dropdown-item delete-product"

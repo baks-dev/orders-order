@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -53,6 +53,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
     #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testFind(): void
     {
+        self::assertTrue(true);
+
         /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
@@ -62,9 +64,8 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
             ->forProfile(new UserProfileUid())
             ->findAll();
 
-        if(false === $result)
+        if(false === $result || false === $result->valid())
         {
-            self::assertFalse(false);
             return;
         }
 
@@ -87,7 +88,6 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
                 }
             }
 
-            break;
         }
     }
 }

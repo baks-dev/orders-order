@@ -32,6 +32,7 @@ use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
+use BaksDev\Orders\Order\UseCase\Admin\Delete\Tests\DeleteOrderTest;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Return\Products\Price\ReturnOrderPriceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Return\Products\ReturnOrderProductDTO;
@@ -70,7 +71,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[When(env: 'test')]
 final class ReturnOrderNewTest extends KernelTestCase
 {
-    //#[DependsOnClass(DeleteOrderTest::class)]
+    #[DependsOnClass(DeleteOrderTest::class)]
     public function testUseCase(): void
     {
         // $EditOrderDTO = new EditOrderDTO();
@@ -211,5 +212,10 @@ final class ReturnOrderNewTest extends KernelTestCase
         $ReturnOrderHandler = self::getContainer()->get(ReturnOrderHandler::class);
         $handle = $ReturnOrderHandler->handle($ReturnOrderDTO);
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        DeleteOrderTest::tearDownAfterClass();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ final readonly class OrderDetailResult
         private string $order_products,
 
         private ?string $order_delivery_currency,
-        private string $delivery_name,
+        private ?string $delivery_name,
         private ?int $delivery_price,
         private ?int $order_delivery_price,
 
@@ -63,7 +63,7 @@ final readonly class OrderDetailResult
         private ?string $delivery_geocode_address,
 
         private ?string $order_profile_discount,
-        private string $order_profile,
+        private ?string $order_profile,
         private ?string $account_email,
 
         private string $profile_avatar_name,
@@ -158,7 +158,7 @@ final readonly class OrderDetailResult
         return $this->order_delivery_currency;
     }
 
-    public function getDeliveryName(): string
+    public function getDeliveryName(): ?string
     {
         return $this->delivery_name;
     }

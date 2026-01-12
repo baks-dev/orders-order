@@ -140,6 +140,10 @@ final class SalesInvoiceControllerTest extends WebTestCase
     }
 
     // доступ по роли ROLE_USER
+    #[DependsOnClass(OrderNewTest::class)]
+    #[DependsOnClass(NewDeliveryHandleTest::class)]
+    #[DependsOnClass(UserNewUserProfileHandleTest::class)]
+    #[DependsOnClass(NewTypeProfileHandleTest::class)]
     public function testRoleUserDeny(): void
     {
 

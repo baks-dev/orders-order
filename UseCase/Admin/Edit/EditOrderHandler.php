@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
 use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Messenger\EditOrder\EditOrderMessage;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -75,7 +76,15 @@ final class EditOrderHandler extends AbstractHandler
 
         $this->flush();
 
-        /** Отправляем сообщение в шину */
+        /**
+         * Отправляем сообщение в шину
+         */
+
+        $this->messageDispatch->dispatch(
+            message: new EditOrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+            transport: 'orders-order',
+        );
+
         $this->messageDispatch->dispatch(
             message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
             transport: 'orders-order',

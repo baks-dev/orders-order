@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterf
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdResult;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\Price\OrderServicePriceDTO;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
@@ -123,7 +123,7 @@ class BasketController extends AbstractController
         {
             $isRemove = false;
 
-            /** @var OrderProductDTO $product */
+            /** @var PublicOrderProductDTO $product */
             foreach($this->products as $product)
             {
                 /**
@@ -140,10 +140,11 @@ class BasketController extends AbstractController
                 {
                     /**
                      * Удаляем из корзины, если карточка товара не найдена
-                     * @var OrderProductDTO $element
+                     *
+                     * @var PublicOrderProductDTO $element
                      */
 
-                    $predicat = static function($key, OrderProductDTO $element) use ($product) {
+                    $predicat = static function($key, PublicOrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 
@@ -386,8 +387,6 @@ class BasketController extends AbstractController
             }
 
 
-
-
             /**
              * Проверяем, что продукция в наличии в карточке
              */
@@ -398,16 +397,16 @@ class BasketController extends AbstractController
                 $ProductDetail = $product->getCard();
 
                 if(
-                    false === $ProductDetail->getProductEvent()->equals($ProductDetail->getCurrentProductEvent()) ||
-                    $product->getPrice()->getTotal() > $ProductDetail->getProductQuantity()
+                    false === $ProductDetail->getProductEvent()->equals($ProductDetail->getCurrentProductEvent())
+                    || $product->getPrice()->getTotal() > $ProductDetail->getProductQuantity()
                 )
                 {
                     /**
                      * Удаляем из корзины продукцию
                      *
-                     * @var OrderProductDTO $element
+                     * @var PublicOrderProductDTO $element
                      */
-                    $predicat = static function($key, OrderProductDTO $element) use ($product) {
+                    $predicat = static function($key, PublicOrderProductDTO $element) use ($product) {
                         return $element === $product;
                     };
 
@@ -458,7 +457,8 @@ class BasketController extends AbstractController
                 $this->addFlash(
                     type: 'success',
                     message: 'user.order.new.success',
-                    arguments: 'user.order',
+                    domain: 'user.order',
+                    arguments: $OrderInvariable->getNumber(),
                 );
 
                 // Удаляем кеш

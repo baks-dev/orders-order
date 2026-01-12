@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,28 +23,27 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add\Items\Posting;
 
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\Price\OrderProductItemPriceForm;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\Entity\Items\Posting\OrderProductItemPostingInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderProductItemForm extends AbstractType
+/** @see OrderProductItemPosting */
+final class PublicOrderProductItemPostingDTO implements OrderProductItemPostingInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /**
+     * Идентификатор разделенного отправления
+     */
+    #[Assert\NotBlank]
+    private string $number;
+
+    public function getNumber(): string
     {
-        $builder->add('price', OrderProductItemPriceForm::class);
-
-
+        return $this->number;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function setNumber(string $value): void
     {
-        $resolver->setDefaults([
-            'data_class' => OrderProductItemDTO::class,
-            'method' => 'POST',
-            'attr' => ['class' => 'w-100'],
-        ]);
+        $this->number = $value;
     }
 }

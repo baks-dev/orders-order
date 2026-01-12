@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,17 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add;
 
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\Items\PublicOrderProductItemDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\Price\PublicOrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderProductDTO implements OrderProductInterface
+final class PublicOrderProductDTO implements OrderProductInterface
 {
     /** Событие продукта */
     #[Assert\NotBlank]
@@ -55,18 +58,25 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
     #[Assert\Valid]
-    private Price\OrderPriceDTO $price;
+    private PublicOrderPriceDTO $price;
 
 
     /** Карточка товара */
     private ProductUserBasketResult|array $card;
 
+    /**
+     * Коллекция единиц товара
+     *
+     * @var ArrayCollection<int, PublicOrderProductItemDTO> $item
+     */
+    #[Assert\Valid]
+    private ArrayCollection|null $item = null;
 
     public function __construct()
     {
-        $this->price = new Price\OrderPriceDTO();
+        $this->price = new PublicOrderPriceDTO();
+        $this->item = new ArrayCollection();
     }
-
 
     //    /** Идентификтаор продукта */
     //
@@ -144,12 +154,12 @@ final class OrderProductDTO implements OrderProductInterface
 
     /** Стоимость и количество */
 
-    public function getPrice(): Price\OrderPriceDTO
+    public function getPrice(): PublicOrderPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(Price\OrderPriceDTO $price): self
+    public function setPrice(PublicOrderPriceDTO $price): self
     {
         $this->price = $price;
         return $this;
@@ -167,6 +177,37 @@ final class OrderProductDTO implements OrderProductInterface
     {
         $this->card = $card;
         return $this;
+    }
+
+
+    /**
+     * Коллекция разделенных отправлений одного заказа
+     *
+     * @return ArrayCollection<int, PublicOrderProductItemDTO>
+     */
+    public function getItem(): ArrayCollection
+    {
+        return $this->item;
+    }
+
+    public function addItem(PublicOrderProductItemDTO $item): void
+    {
+        false === empty($this->item) ?: $this->item = new ArrayCollection();
+
+        $exist = $this->item->exists(function(int $k, PublicOrderProductItemDTO $value) use ($item) {
+            /** @var PublicOrderProductItemDTO $item */
+            return $value->getConst()->equals($item->getConst());
+        });
+
+        if(false === $exist)
+        {
+            $this->item->add($item);
+        }
+    }
+
+    public function removeItem(PublicOrderProductItemDTO $item): void
+    {
+        $this->item->removeElement($item);
     }
 
 }

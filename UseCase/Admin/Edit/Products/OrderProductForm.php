@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\DeletedItem\DeletedItemForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceForm;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -72,15 +71,15 @@ final class OrderProductForm extends AbstractType
 
         //        $builder->add('deletedItems', DeletedItemForm::class, ['label' => false]);
 
-        $builder->add('deletedItems', CollectionType::class, [
-            'entry_type' => DeletedItemForm::class,
-            'entry_options' => ['label' => false],
-            'label' => false,
-            'by_reference' => false,
-            'allow_delete' => true,
-            'allow_add' => true,
-            'prototype_name' => '__deleted-item__',
-        ]);
+        //        $builder->add('deletedItems', CollectionType::class, [
+        //            'entry_type' => DeletedItemForm::class,
+        //            'entry_options' => ['label' => false],
+        //            'label' => false,
+        //            'by_reference' => false,
+        //            'allow_delete' => true,
+        //            'allow_add' => true,
+        //            'prototype_name' => '__deleted-item__',
+        //        ]);
 
         $builder->add('item', CollectionType::class, [
             'entry_type' => OrderProductItemForm::class,
@@ -176,7 +175,7 @@ final class OrderProductForm extends AbstractType
                     $Session
                         ->getFlashBag()
                         ->add('Ошибка обновления количества',
-                            sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name'])
+                            sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name']),
                         );
 
                     $event->getForm()->addError(new FormError('Ошибка обновления количества'));
@@ -196,7 +195,7 @@ final class OrderProductForm extends AbstractType
                     $Session
                         ->getFlashBag()
                         ->add('Ошибка обновления количества ',
-                            sprintf('Недостаточное количество продукции %s для резерва', $card['product_name'])
+                            sprintf('Недостаточное количество продукции %s для резерва', $card['product_name']),
                         );
 
                     $event->getForm()->addError(new FormError('Ошибка обновления количества'));
@@ -244,7 +243,7 @@ final class OrderProductForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => OrderProductDTO::class,
-            'attr' => ['class' => 'order-basket']
+            'attr' => ['class' => 'order-basket'],
         ]);
     }
 

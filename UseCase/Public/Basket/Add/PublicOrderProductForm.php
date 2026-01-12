@@ -23,28 +23,25 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add;
 
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\Price\OrderProductItemPriceForm;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class OrderProductItemForm extends AbstractType
+final class PublicOrderProductForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('price', OrderProductItemPriceForm::class);
-
-
+        $builder->add('price', Price\PublicOrderPriceForm::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => OrderProductItemDTO::class,
-            'method' => 'POST',
-            'attr' => ['class' => 'w-100'],
+            'data_class' => PublicOrderProductDTO::class,
+            'attr' => ['class' => 'order-basket']
         ]);
     }
+
 }

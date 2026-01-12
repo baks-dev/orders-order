@@ -215,6 +215,11 @@
                 <span class="badge bg-danger rounded-2 ms-2">- {{ baks_profile.profile_discount }}%</span>
             {% endif %}
 
+            {{ form_widget(product.product) }}
+            {{ form_widget(product.offer) }}
+            {{ form_widget(product.variation) }}
+            {{ form_widget(product.modification) }}
+
         </td>
 
         {# УДАЛИТЬ #}

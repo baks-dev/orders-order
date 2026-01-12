@@ -23,28 +23,50 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add\Items\Price;
 
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\Price\OrderProductItemPriceForm;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use BaksDev\Orders\Order\Entity\Items\Price\OrderProductItemPriceInterface;
+use BaksDev\Reference\Currency\Type\Currency;
+use BaksDev\Reference\Money\Type\Money;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderProductItemForm extends AbstractType
+/** @see OrderProductItemPrice */
+final class PublicOrderProductItemPriceDTO implements OrderProductItemPriceInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    /** Стоимость */
+    private ?Money $price;
+
+    /** Валюта */
+    #[Assert\NotBlank]
+    private Currency $currency;
+
+    public function __construct()
     {
-        $builder->add('price', OrderProductItemPriceForm::class);
-
-
+        $this->price = new Money(0);
+        $this->currency = new Currency();
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    /** Стоимость */
+    public function getPrice(): Money
     {
-        $resolver->setDefaults([
-            'data_class' => OrderProductItemDTO::class,
-            'method' => 'POST',
-            'attr' => ['class' => 'w-100'],
-        ]);
+        return $this->price;
+    }
+
+    public function setPrice(Money $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    /** Валюта */
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(Currency $currency): self
+    {
+        $this->currency = $currency;
+        return $this;
     }
 }

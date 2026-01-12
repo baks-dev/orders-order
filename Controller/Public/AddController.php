@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductForm;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductForm;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -92,16 +92,15 @@ class AddController extends AbstractController
             return $this->ErrorResponse();
         }
 
-        $AddProductBasketDTO = new OrderProductDTO();
-
-        $AddProductBasketDTO->setProduct($event);
-        $AddProductBasketDTO->setOffer($offer);
-        $AddProductBasketDTO->setVariation($variation);
-        $AddProductBasketDTO->setModification($modification);
+        $AddProductBasketDTO = new PublicOrderProductDTO()
+            ->setProduct($event)
+            ->setOffer($offer)
+            ->setVariation($variation)
+            ->setModification($modification);
 
         $form = $this
             ->createForm(
-                OrderProductForm::class,
+                PublicOrderProductForm::class,
                 $AddProductBasketDTO,
                 [
                     'action' => $this->generateUrl(
@@ -112,9 +111,9 @@ class AddController extends AbstractController
                             'variation' => $AddProductBasketDTO->getVariation(),
                             'modification' => $AddProductBasketDTO->getModification(),
 
-                        ]
+                        ],
                     ),
-                ]
+                ],
             )
             ->handleRequest($request);
 
@@ -142,8 +141,8 @@ class AddController extends AbstractController
                 $this->products = new ArrayCollection();
             }
 
-            /** @var OrderProductDTO $element */
-            $predicat = function($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
+            /** @var PublicOrderProductDTO $element */
+            $predicat = function($key, PublicOrderProductDTO $element) use ($AddProductBasketDTO) {
                 return
                     $element->getProduct()->equals($AddProductBasketDTO->getProduct())
                     && (!$AddProductBasketDTO->getOffer() || $element->getOffer()?->equals($AddProductBasketDTO->getOffer()))
@@ -162,7 +161,7 @@ class AddController extends AbstractController
                         'name' => 'перейти в корзину',
                         'status' => 400,
                     ],
-                    400
+                    400,
                 );
             }
 
@@ -186,7 +185,7 @@ class AddController extends AbstractController
                     'name' => 'перейти в корзину',
                     'status' => 200,
                 ],
-                200
+                200,
             );
         }
 
@@ -213,7 +212,7 @@ class AddController extends AbstractController
                 'message' => 'Ошибка при добавлении товара в корзину',
                 'status' => 400,
             ],
-            400
+            400,
         );
     }
 }

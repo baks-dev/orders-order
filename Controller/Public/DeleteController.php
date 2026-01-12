@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -98,8 +98,8 @@ class DeleteController extends AbstractController
             $this->products = new ArrayCollection();
         }
 
-        /** @var OrderProductDTO $element */
-        $predicat = function($key, OrderProductDTO $element) use ($product, $offer, $variation, $modification) {
+        /** @var PublicOrderProductDTO $element */
+        $predicat = function($key, PublicOrderProductDTO $element) use ($product, $offer, $variation, $modification) {
             return
                 $element->getProduct()->equals($product)
                 && (!$offer || $element->getOffer()?->equals($offer))

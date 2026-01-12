@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -55,6 +54,7 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
 
     /**
      * Возвращает множество констант единиц продукции конкретного заказа
+     *
      * @return Generator<int, OrderProductItemConst>|false
      */
     public function findAll(OrderUid $ord): Generator|false
@@ -90,12 +90,12 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
                 'event',
                 '
                     event.id = orders.event AND
-                    event.orders = :ord'
+                    event.orders = :ord',
             )
             ->setParameter(
                 key: 'ord',
                 value: $ord,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         /** Продукт */
@@ -104,7 +104,7 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
                 'event',
                 OrderProduct::class,
                 'product',
-                'product.event = event.id'
+                'product.event = event.id',
             );
 
         /** Идентификаторы продукта в заказе */
@@ -128,15 +128,12 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
                 'event',
                 OrderProductItem::class,
                 'item',
-                'item.product = product.id'
+                'item.product = product.id',
             );
 
         if(null !== $this->sign)
         {
-            $dbal->setParameter(
-                'status',
-                new ProductSignStatus(ProductSignStatusProcess::class),
-                ProductSignStatus::TYPE);
+
 
             $dbal->andWhereNotExists(
                 ProductSignEvent::class,
@@ -145,8 +142,14 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
                     product_sign_event.ord = :ord AND
                     product_sign_event.status = :status AND
                     product_sign_event.product = item.const
-                    '
-            );
+                    ',
+            )
+                ->setParameter(
+                    'status',
+                    new ProductSignStatus(ProductSignStatusProcess::class),
+                    ProductSignStatus::TYPE,
+                );
+
 
         }
 

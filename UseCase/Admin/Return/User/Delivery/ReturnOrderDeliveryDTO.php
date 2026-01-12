@@ -51,19 +51,6 @@ final class ReturnOrderDeliveryDTO implements OrderDeliveryInterface
     #[Assert\Valid]
     private ArrayCollection $field;
 
-    /**
-     * GPS широта.
-     */
-    #[Assert\NotBlank]
-    private ?GpsLatitude $latitude = null;
-
-    /**
-     * GPS долгота.
-     */
-    #[Assert\NotBlank]
-    private ?GpsLongitude $longitude = null;
-
-
     /** Дата доставки заказа */
     #[Assert\NotBlank]
     private ?DateTimeImmutable $deliveryDate;

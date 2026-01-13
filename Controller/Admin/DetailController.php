@@ -47,13 +47,10 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Products\Sign\BaksDevProductsSignBundle;
+use BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrderInterface;
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
-use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemInterface;
-use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemRepository;
-use BaksDev\Products\Sign\Repository\ProductSignByOrderProductItem\ProductSignByOrderProductItemResult;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusProcess;
-use BaksDev\Products\Stocks\Messenger\Orders\EditProductStockProduct\EditProductStockProductMessage;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,7 +84,7 @@ final class DetailController extends AbstractController
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
 
-        ?ProductSignByOrderProductItemInterface $productSignByOrderProductItemRepository = null,
+        ?AllProductSignByOrderInterface $allProductSignByOrderRepository = null,
     ): Response
     {
         /** Получаем активное событие заказа */
@@ -129,25 +126,6 @@ final class DetailController extends AbstractController
                 ->find();
 
             $product->setCard($ProductUserBasketResult);
-
-            /** Код Честного знака по единице продукта */
-            if($productSignByOrderProductItemRepository instanceof ProductSignByOrderProductItemRepository)
-            {
-                /** @var OrderProductItemDTO $item */
-                foreach($product->getItem() as $item)
-                {
-                    $ProductSignByOrderProductItemResult = $productSignByOrderProductItemRepository
-                        ->forStatuses(ProductSignStatusProcess::STATUS)
-                        ->forStatuses(ProductSignStatusDone::STATUS)
-                        ->forProductItem($item->getConst())
-                        ->find();
-
-                    if($ProductSignByOrderProductItemResult instanceof ProductSignByOrderProductItemResult)
-                    {
-                        $item->setSign($ProductSignByOrderProductItemResult);
-                    }
-                }
-            }
         }
 
         /**
@@ -316,6 +294,18 @@ final class DetailController extends AbstractController
             }
         }
 
+        /** Информация о Честных знаках по заказу */
+        $ProductSignItems = false;
+
+        if($allProductSignByOrderRepository instanceof AllProductSignByOrderInterface)
+        {
+            $ProductSignItems = $allProductSignByOrderRepository
+                ->forOrder($Order)
+                ->forStatus(ProductSignStatusProcess::STATUS)
+                ->forStatus(ProductSignStatusDone::STATUS)
+                ->findAll();
+        }
+
         return $this->render(
             [
                 'id' => $id,
@@ -326,6 +316,7 @@ final class DetailController extends AbstractController
                 'statuses' => $collection,
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign,
+                'products_sign_items' => $ProductSignItems,
                 'is_products_sign' => class_exists(BaksDevProductsSignBundle::class),
                 'profile' => $this->getProfileUid(),
                 'error' => $this->error,

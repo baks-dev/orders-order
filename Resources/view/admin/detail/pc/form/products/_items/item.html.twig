@@ -217,8 +217,9 @@
                             </svg>
                         </div>
 
+                        {% set item_identifier = item.vars.value.const|trans %}
 
-                        {% if products_sign_items != false %}
+                        {% if products_sign_items[item_identifier] is defined %}
 
                             {# @var itemSign \BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrderResult #}
                             {% set itemSign = products_sign_items[item.vars.value.const] %}

@@ -126,7 +126,7 @@
 
         </ul>
 
-        <div class="tab-content w-100 h-100 pt-3" id="pills-tabContent">
+        <div class="tab-content w-100 h-100" id="pills-tabContent">
 
 
             <div class="tab-pane fade active show" role="tabpanel"
@@ -140,7 +140,7 @@
                     {% if users %}
 
                         {# Клиент #}
-                        <div class="d-flex align-items-end bg-light gap-3 p-3 rounded-3 my-3">
+                        <div class="d-flex align-items-center bg-light gap-3 p-3 rounded-3 my-3">
 
                             <div>
                                 {# Обложка  #}
@@ -160,22 +160,37 @@
 
                             {% set organization_field = constant('BaksDev\\Field\\Pack\\Organization\\Type\\OrganizationField::TYPE') %}
                             {% set contact_field = constant('BaksDev\\Field\\Pack\\Contact\\Type\\ContactField::TYPE') %}
+
+                            <div class='d-flex flex-column small w-100'>
+                                {% for user in users|filter(v =>
+                                    v.profile_type == organization_field
+                                    or v.profile_type == contact_field
+                                ) %}
+
+                                    <small class="small text-muted">{{ user.profile_name }}</small>
+                                    <span class="h6">
+                                        {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                                    </span>
+
+                                {% endfor %}
+                            </div>
+
                             {% set phone_field = constant('BaksDev\\Field\\Pack\\Phone\\Type\\PhoneField::TYPE') %}
                             {% set email_field = constant('BaksDev\\Auth\\Email\\Type\\Email\\AccountEmail::TYPE') %}
 
-                            {% for user in users|filter(v =>
-                                v.profile_type == organization_field
-                                or v.profile_type == contact_field
-                                or v.profile_type == phone_field
-                                or v.profile_type == email_field
-                            ) %}
-                                <div class='d-flex flex-column small w-100'>
+                            <div class='d-flex flex-column small w-100'>
+                                {% for user in users|filter(v =>
+                                    v.profile_type == phone_field
+                                    or v.profile_type == email_field
+                                ) %}
+
                                     <small class="small text-muted">{{ user.profile_name }}</small>
-                                    <span class="h5 {{ loop.first ? "fw-bolder" }} ">
-                                    {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
-                                </span>
-                                </div>
-                            {% endfor %}
+                                    <span class="h6">
+                                        {{ user.profile_value|call_twig_func(user.profile_type~'_template') }}
+                                    </span>
+
+                                {% endfor %}
+                            </div>
 
                         </div>
 

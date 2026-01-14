@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
+use BaksDev\Products\Stocks\Messenger\Products\Recalculate\RecalculateProductMessage;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
@@ -73,18 +74,6 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
             ]);
 
         if($Deduplicator->isExecuted())
-        {
-            return;
-        }
-
-        $DeduplicatorOrder = $this->deduplicator
-            ->namespace('orders-order')
-            ->deduplication([
-                $message,
-                self::class,
-            ]);
-
-        if($DeduplicatorOrder->isExecuted())
         {
             return;
         }
@@ -343,6 +332,6 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
             );
         }
 
-        $DeduplicatorOrder->save();
+        $Deduplicator->save();
     }
 }

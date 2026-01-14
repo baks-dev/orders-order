@@ -46,9 +46,9 @@ final readonly class OrderDetailResult
         private string $order_event,
         private string $order_number,
         private string $order_status,
-        private string $order_data,
+        private ?string $order_data,
         private ?string $order_comment,
-        private string $payment_id,
+        private ?string $payment_id,
         private string $payment_name,
         private string $order_products,
 

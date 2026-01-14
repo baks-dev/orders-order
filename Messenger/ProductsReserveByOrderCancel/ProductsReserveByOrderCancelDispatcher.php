@@ -34,7 +34,6 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
@@ -98,12 +97,10 @@ final readonly class ProductsReserveByOrderCancelDispatcher
          * Если заказ НЕ входит в список статусов, которым доступна отмена резервов - завершаем обработчик:
          * - Canceled «Отменен»
          * - Decommission «Списание»
-         * - Return «Возврат»
          */
         if(
             false === $OrderEvent->isStatusEquals(OrderStatusCanceled::class)
             && false === $OrderEvent->isStatusEquals(OrderStatusDecommission::class)
-            && false === $OrderEvent->isStatusEquals(OrderStatusReturn::class)
         )
         {
             return;
@@ -120,7 +117,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             if(false === ($LastOrderEvent instanceof OrderEvent))
             {
                 $this->logger->critical(
-                    'orders-order: Не найдено предыдущее событие OrderEvent',
+                    sprintf('orders-order: Не найдено предыдущее событие заказа %s', $OrderEvent->getOrderNumber()),
                     [self::class.':'.__LINE__, var_export($message, true)],
                 );
 
@@ -131,8 +128,13 @@ final readonly class ProductsReserveByOrderCancelDispatcher
              * Не снимаем резерв в карточке, если предыдущее событие заказа Completed «Выполнен».
              * Резерв был списан при завершении
              */
-            if($LastOrderEvent->isStatusEquals(OrderStatusCompleted::class))
+            if(true === $LastOrderEvent->isStatusEquals(OrderStatusCompleted::class))
             {
+                $this->logger->critical(
+                    sprintf('orders-order: Не снимаем резерв с ранее выполненного заказа %s', $LastOrderEvent->getOrderNumber()),
+                    [self::class.':'.__LINE__, var_export($message, true)],
+                );
+
                 return;
             }
         }
@@ -182,12 +184,12 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         $this->logger->info(
             sprintf('%s: Снимаем общий резерв в карточке товара для заказ со статусом `%s`',
                 $OrderEvent->getOrderNumber(),
-                $OrderEvent->getStatus()->getOrderStatusValue()
+                $OrderEvent->getStatus()->getOrderStatusValue(),
             ),
             [
                 self::class.':'.__LINE__,
                 'deduplicator' => $Deduplicator->getKey(),
-                var_export($message, true)
+                var_export($message, true),
             ],
         );
 
@@ -236,12 +238,12 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 $this->logger->info(
                     message: sprintf(
                         '%s: Снимаем резерв в карточке товара по количеству ЕДИНИЦ продукции',
-                        $EditOrderDTO->getInvariable()->getNumber()
+                        $EditOrderDTO->getInvariable()->getNumber(),
                     ),
                     context: [
                         '$productTotal' => $productTotal,
                         '$itemsCount' => $itemsCount,
-                        self::class.':'.__LINE__
+                        self::class.':'.__LINE__,
                     ],
                 );
             }

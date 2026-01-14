@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Public\Basket\User;
 
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfile\CurrentUserProfileInterface;
+use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -56,8 +58,8 @@ final class OrderUserForm extends AbstractType
 
                 $userProfileType = $data->getUserProfile()?->getType();
 
-                /** Если пользователь авторизован */
-                if($data->getUsr() && $userProfileType === null)
+                /** Если пользователь авторизован, но не определен тип профиля */
+                if(false === ($userProfileType instanceof TypeProfileUid) && $data->getUsr() instanceof UserUid)
                 {
                     $CurrentUserProfile = $this->currentUserProfile->getCurrentUserProfile($data->getUsr());
 
@@ -73,7 +75,8 @@ final class OrderUserForm extends AbstractType
                     }
                 }
 
-                if(!$data->getUsr())
+                /** Если пользователь не авторизован - добавляем форму  */
+                if(false === ($data->getUsr() instanceof UserUid))
                 {
                     $form->add(
                         'userAccount',
@@ -81,21 +84,19 @@ final class OrderUserForm extends AbstractType
                         [
                             'label' => false,
                             'constraints' => [new Valid()],
-                        ]
+                        ],
                     );
                 }
 
-                //if(!$data->getProfile())
-                //{
+
                 $form->add(
                     'userProfile',
                     UserProfile\UserProfileForm::class,
                     [
                         'label' => false,
                         'constraints' => [new Valid()],
-                    ]
+                    ],
                 );
-                //}
 
 
                 if($userProfileType)
@@ -106,7 +107,7 @@ final class OrderUserForm extends AbstractType
                         [
                             'label' => false,
                             'user_profile_type' => $userProfileType,
-                        ]
+                        ],
                     );
 
                     $form->add(
@@ -115,11 +116,11 @@ final class OrderUserForm extends AbstractType
                         [
                             'label' => false,
                             'user_profile_type' => $userProfileType,
-                        ]
+                        ],
                     );
                 }
 
-            }
+            },
         );
 
     }

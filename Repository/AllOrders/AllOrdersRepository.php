@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -70,6 +70,7 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Personal\UserProfilePersonal;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
@@ -384,12 +385,21 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
         $dbal
-            ->addSelect('user_profile_info.discount AS order_profile_discount')
+            ->addSelect('user_profile_discount.value AS order_profile_discount')
             ->leftJoin(
                 'user_profile',
-                UserProfileInfo::class,
-                'user_profile_info',
-                'user_profile_info.profile = user_profile.profile ',
+                UserProfileDiscount::class,
+                'user_profile_discount',
+                'user_profile_discount.event = user_profile.id',
+            );
+
+        $dbal
+            ->addSelect('user_profile_personal.username AS order_profile_username')
+            ->leftJoin(
+                'user_profile',
+                UserProfilePersonal::class,
+                'user_profile_personal',
+                'user_profile_personal.event = user_profile.id',
             );
 
 
@@ -435,10 +445,10 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         $dbal
             ->leftJoin(
-                'user_profile_info',
+                'order_user',
                 Account::class,
                 'account',
-                'account.id = user_profile_info.usr',
+                'account.id = order_user.usr',
             );
 
 

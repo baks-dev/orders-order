@@ -83,7 +83,6 @@ final class DetailController extends AbstractController
 
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
-
         ?AllProductSignByOrderInterface $allProductSignByOrderRepository = null,
     ): Response
     {

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class PreProductForm extends AbstractType
 {
@@ -60,6 +61,7 @@ final class PreProductForm extends AbstractType
         private readonly ProductOfferChoiceInterface $productOfferChoice,
         private readonly ProductVariationChoiceInterface $productVariationChoice,
         private readonly ProductModificationChoiceInterface $productModificationChoice,
+        private readonly TranslatorInterface $translator,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -284,6 +286,9 @@ final class PreProductForm extends AbstractType
         $CurrentProductOfferUid = $offer->current();
 
 
+        // product_offer_reference
+
+
         $form
             ->add(
                 'preOffer',
@@ -297,10 +302,16 @@ final class PreProductForm extends AbstractType
                         return trim($offer->getAttr());
                     },
                     'choice_attr' => function(?ProductOfferUid $offer) {
+
+                        $params = $offer?->getParams();
+
                         return $offer ? [
                             'data-filter' => ' ['.$offer->getOption().']',
                             'data-max' => $offer->getOption(),
-                            'data-name' => $offer->getAttr(),
+                            'data-name' => $this->translator->trans(
+                                id: $params['product_offer_value'],
+                                domain: $params['product_offer_reference'],
+                            ),
                         ] : [];
                     },
 
@@ -344,10 +355,17 @@ final class PreProductForm extends AbstractType
                         return trim($variation->getAttr());
                     },
                     'choice_attr' => function(?ProductVariationUid $variation) {
+
+                        $params = $variation?->getParams();
+
                         return $variation ? [
                             'data-filter' => ' ['.$variation->getOption().']',
                             'data-max' => $variation->getOption(),
-                            'data-name' => $variation->getAttr(),
+                            'data-name' => $this->translator->trans(
+                                id: $params['product_variation_value'],
+                                domain: $params['product_variation_reference'],
+                            ),
+
                         ] : [];
                     },
                     'translation_domain' => $CurrentProductVariationUid->getCharacteristic(),
@@ -389,11 +407,19 @@ final class PreProductForm extends AbstractType
                         return trim($modification->getAttr());
                     },
                     'choice_attr' => function(?ProductModificationUid $modification) {
+
+                        $params = $modification?->getParams();
+
                         return $modification ? [
                             'data-filter' => ' ['.$modification->getOption().']',
                             'data-max' => $modification->getOption(),
-                            'data-name' => $modification->getAttr(),
+                            'data-name' => $this->translator->trans(
+                                id: $params['product_modification_value'],
+                                domain: $params['product_modification_reference'],
+                            ),
+
                         ] : [];
+
                     },
                     'translation_domain' => $CurrentProductModificationUid->getCharacteristic(),
                     'label' => $CurrentProductModificationUid->getProperty(),

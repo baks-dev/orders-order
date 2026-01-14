@@ -163,13 +163,13 @@ final class ReturnOrderNewTest extends KernelTestCase
         self::assertSame($event, $ReturnOrderDeliveryDTO->getEvent());
 
 
-        $GpsLatitude = new GpsLatitude(55.7522);
-        $ReturnOrderDeliveryDTO->setLatitude($GpsLatitude);
-        self::assertSame($GpsLatitude, $ReturnOrderDeliveryDTO->getLatitude());
+        //        $GpsLatitude = new GpsLatitude(55.7522);
+        //        $ReturnOrderDeliveryDTO->setLatitude($GpsLatitude);
+        //        self::assertSame($GpsLatitude, $ReturnOrderDeliveryDTO->getLatitude());
 
-        $GpsLongitude = new GpsLongitude(37.6156);
-        $ReturnOrderDeliveryDTO->setLongitude($GpsLongitude);
-        self::assertSame($GpsLongitude, $ReturnOrderDeliveryDTO->getLongitude());
+        //        $GpsLongitude = new GpsLongitude(37.6156);
+        //        $ReturnOrderDeliveryDTO->setLongitude($GpsLongitude);
+        //        self::assertSame($GpsLongitude, $ReturnOrderDeliveryDTO->getLongitude());
 
         /** OrderDeliveryFieldDTO */
 

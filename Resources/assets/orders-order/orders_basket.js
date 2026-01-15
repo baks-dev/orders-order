@@ -112,8 +112,10 @@ function resolve(forms)
 
 document.querySelectorAll(".minus").forEach((function(btn)
 {
+
     btn.addEventListener("click", (function(event)
     {
+
         let inpt = document.getElementById(this.dataset.id);
         if(inpt)
         {
@@ -126,22 +128,38 @@ document.querySelectorAll(".minus").forEach((function(btn)
             orderSum(result, this.dataset.id);
             total()
         }
+
+        /** Изменение количества в корзине по клику */
+
+        const price = document.getElementById(this.dataset.id);
+        const urlModify = price.dataset.urlModify
+
+        if(urlModify)
+        {
+            if(parseInt(price.value) >= parseInt(price.dataset.min))
+            {
+                fetch(urlModify, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: 'minus',
+                    }),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                })
+            }
+        }
+
     }))
 }));
-document.querySelectorAll(".total").forEach((function(input)
-{
-    executeFunc((function initCounter()
-    {
-        if(typeof orderCounter.debounce !== "function")
-        {return false}
-        input.addEventListener("input", orderCounter.debounce(300));
-        return true
-    }))
-}));
+
+
 document.querySelectorAll(".plus").forEach((function(btn)
 {
+
     btn.addEventListener("click", (function(event)
     {
+
         let inpt = document.getElementById(this.dataset.id);
         if(inpt)
         {
@@ -154,6 +172,39 @@ document.querySelectorAll(".plus").forEach((function(btn)
             orderSum(result, this.dataset.id);
             total()
         }
+
+        /** Изменение количества в корзине по клику */
+
+        const price = document.getElementById(this.dataset.id);
+        const urlModify = price.dataset.urlModify
+
+        if(urlModify)
+        {
+            if(parseInt(price.value) <= parseInt(price.dataset.max))
+            {
+                fetch(urlModify, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: 'plus',
+                    }),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                })
+            }
+        }
+
+    }))
+}));
+
+document.querySelectorAll(".total").forEach((function(input)
+{
+    executeFunc((function initCounter()
+    {
+        if(typeof orderCounter.debounce !== "function")
+        {return false}
+        input.addEventListener("input", orderCounter.debounce(300));
+        return true
     }))
 }));
 
@@ -179,6 +230,28 @@ function orderCounter()
     {this.value = max}
     orderSum(result, this.id);
     total()
+
+    /** Изменение количества в корзине по вводу */
+
+    const urlModify = this.dataset.urlModify
+
+    if(urlModify)
+    {
+        const change = JSON.stringify({
+            action: 'change',
+            quantity: Number(this.value),
+        })
+
+        fetch(urlModify, {
+            method: "POST",
+            body: change,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+    }
+
+
 }
 
 function orderSum(result, id)

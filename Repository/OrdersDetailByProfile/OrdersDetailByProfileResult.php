@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ final readonly class OrdersDetailByProfileResult
         private ?string $delivery_geocode_longitude,
         private ?string $delivery_geocode_latitude,
         private ?string $delivery_geocode_address,
-        private ?int $order_profile_discount,
+        private int|string|null $order_profile_discount,
         private ?string $order_profile,
         private ?string $profile_avatar_ext,
         private ?bool $profile_avatar_cdn,
@@ -140,7 +140,7 @@ final readonly class OrdersDetailByProfileResult
         return $this->delivery_geocode_address;
     }
 
-    public function getOrderProfileDiscount(): ?int
+    public function getOrderProfileDiscount(): int|string|null
     {
         return $this->order_profile_discount;
     }

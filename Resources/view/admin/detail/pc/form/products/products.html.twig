@@ -19,6 +19,11 @@
     {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
     {% set card = product.vars.data.card %}
 
+    {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
+        {# Запрет на редактирвоание количества либо стоимости #}
+        {% set notEdit = true %}
+    {% endif %}
+
     <tr id='item_{{ product.vars.id }}'>
 
         <td rowspan="2">
@@ -36,14 +41,14 @@
 
                 {# <div class="col-3">
                 #}{# Обложка #}{#
-                    <a href="{{ product_path }}"
-                       class="icon rounded-4 mb-2 bg-contain p-1"
-                       style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
-                       target="_blank">
+                <a href="{{ product_path }}"
+                   class="icon rounded-4 mb-2 bg-contain p-1"
+                   style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
+                   target="_blank">
 
-                    </a>
+                </a>
 
-                </div> #}
+            </div> #}
 
                 <div class="col-8 align-self-center">
 

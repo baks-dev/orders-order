@@ -211,11 +211,16 @@
                     or order.orderStatus == 'return'
                     or order.orderStatus == 'completed'
                     or order.orderStatus == 'delivery'
-                    or order.orderStatus == 'unpaid' %}
-
+                    or order.orderStatus == 'unpaid'
+                    or order.orderStatus == 'extradition' %}
 
                 <div class="d-flex align-items-center">
                     <h5 class="text-uppercase fw-bolder py-2 w-75">Продукция</h5>
+
+
+                    {# Если заказ не Маркетплейса #}
+
+
 
                     {# СКИДКА ЗАКАЗА #}
                     <div class="fw-bold w-100 ">
@@ -241,6 +246,7 @@
                         </div>
                     </div>
 
+
                     <div class="small text-nowrap">
                         <span class="me-3 pt-3"> Позиций: &nbsp;
                             <span class="text-primary">
@@ -251,14 +257,6 @@
                 </div>
 
                 <div class="d-flex flex-column gap-3 my-3">
-
-                    {# @TODO #}
-                    {# Запрет на изменение заказа (стоимости, количество и пр.)  #}
-                    {#                    {% set notEdit = #}
-                    {#                        order.orderStatus == 'package' or #}
-                    {#                    order.orderStatus == 'extradition' or #}
-                    {#                        order.orderStatus == 'delivery' or #}
-                    {#                        order.orderStatus == 'completed' #}
 
                     {# ПРОДУКТ #}
 

@@ -49,7 +49,7 @@ final readonly class OrderDetailResult
         private ?string $order_data,
         private ?string $order_comment,
         private ?string $payment_id,
-        private string $payment_name,
+        private ?string $payment_name,
         private string $order_products,
 
         private ?string $order_delivery_currency,
@@ -116,7 +116,7 @@ final readonly class OrderDetailResult
         return new PaymentUid($this->payment_id);
     }
 
-    public function getPaymentName(): string
+    public function getPaymentName(): ?string
     {
         return $this->payment_name;
     }

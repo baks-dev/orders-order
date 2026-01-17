@@ -11,18 +11,12 @@
 
     <tbody>
 
-
     {% for productIndex,product in form.product|filter(v => v.vars.data.card is not empty) %}
 
     {% set productGroup = product.vars.id %}
 
     {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
     {% set card = product.vars.data.card %}
-
-    {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
-        {# Запрет на редактирвоание количества либо стоимости #}
-        {% set notEdit = true %}
-    {% endif %}
 
     <tr id='item_{{ product.vars.id }}'>
 

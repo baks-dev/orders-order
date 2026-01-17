@@ -3,25 +3,23 @@
 
     {% if product.price.price is defined %}
 
-        {% set isDiscount = card.productPrice.value > (product.vars.data.price.price.value) %}
+        {% set isDiscount = card.productPrice.value > product.vars.data.price.price.value %}
 
         <div class="d-flex justify-content-center align-items-center text-center">
 
-
             {# Скидка товара  #}
             {{ form_widget(product.discount, { attr: {
-                class: (notEdit is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm rounded-3 product-discount',
+                class: (notEdit is true or isDiscount is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm rounded-3 product-discount',
                 style: 'width: 80px;',
-                disabled: card.productPrice and card.productPrice.value != (product.vars.data.price.price.value),
+                disabled: card.productPrice and isDiscount is true,
                 placeholder: "± %",
                 title: "Скидка товара, %",
-                readonly:  notEdit is true ?: false
+                readonly:  notEdit is true or isDiscount is true ?: false
             } }) }}
 
 
-
             {# Стоимость #}
-            {% if ( allEditField is true or partEditField is true ) and notEdit is not true %}
+            {% if notEdit is not true and isDiscount is not true %}
                 <button type="button" class="btn btn-sm minus"
                         title="Уменьшить количество"
                         data-id='{{ product.price.price.vars.id }}'
@@ -36,16 +34,16 @@
             {% endif %}
 
             {{ form_widget(product.price.price, { attr: {
-                class: (notEdit is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm rounded-3 text-center price',
+                class: (notEdit is true or isDiscount is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm rounded-3 text-center price',
                 style: 'width: 75px;',
                 disabled: false,
                 'data-price': product.vars.data.price.price.value,
                 'data-product-group': productGroup,
                 'data-target': productGroup,
-                readonly:  notEdit is true ?: false
+                readonly:  notEdit is true or isDiscount ?: false
             } }) }}
 
-            {% if (allEditField is true or partEditField is true) and notEdit is not true %}
+            {% if notEdit is not true and isDiscount is not true %}
                 <button type="button" class="btn btn-sm plus"
                         title="Увеличить количество"
                         data-id='{{ product.price.price.vars.id }}'

@@ -213,12 +213,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 );
         }
 
-        $dbal
-            ->addSelect('order_event.created AS order_created')
-            ->addSelect('order_event.status AS order_status')
-            ->addSelect('order_event.comment AS order_comment')
-            ->addSelect('order_event.danger AS order_danger');
-
         if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
         {
             $this->status = $this->filter->getStatus();
@@ -238,6 +232,10 @@ final class AllOrdersRepository implements AllOrdersInterface
         }
 
         $dbal
+            ->addSelect('order_event.created AS order_created')
+            ->addSelect('order_event.status AS order_status')
+            ->addSelect('order_event.comment AS order_comment')
+            ->addSelect('order_event.danger AS order_danger')
             ->join(
                 'orders',
                 OrderEvent::class,
@@ -305,9 +303,8 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
         // Доставка
-        $dbal->addSelect('order_delivery.delivery_date AS delivery_date');
-
         $dbal
+            ->addSelect('order_delivery.delivery_date AS delivery_date')
             ->leftJoin(
                 'order_user',
                 OrderDelivery::class,
@@ -370,7 +367,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'delivery_event',
                 DeliveryTrans::class,
                 'delivery_trans',
-                'delivery_trans.event = delivery_event.id',
+                'delivery_trans.event = delivery_event.id AND delivery_trans.local = :local',
             );
 
 
@@ -824,14 +821,16 @@ final class AllOrdersRepository implements AllOrdersInterface
 
 
         /** По умолчанию сортировка по дате доставки */
+        $dbal->addOrderBy('order_event.danger', 'DESC');
         $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
 
         if(
-            false === ($this->status instanceof OrderStatus) ||
-            $this->status->equals(OrderStatusCompleted::class)
+            false === ($this->status instanceof OrderStatus)
+            || $this->status->equals(OrderStatusCompleted::class)
         )
         {
-            $dbal->orderBy('orders_modify.mod_date', 'DESC');
+            $dbal->orderBy('order_event.danger', 'DESC');
+            $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
         }
 
         $dbal->allGroupByExclude();

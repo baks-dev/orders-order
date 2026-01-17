@@ -42,13 +42,17 @@
                 </a>
             </li>
 
-            <a href="{{ path('orders-order:admin.document.sticker', { id : order.orderId }) }}"
-               class="dropdown-item prnt"
-               data-bs-toggle="modal"
-               data-bs-target="#modal">
+            {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
 
-                Стикеры маркировки заказа
-            </a>
+                <a href="{{ path('orders-order:admin.document.sticker', { id : order.orderId }) }}"
+                   class="dropdown-item prnt"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal">
+
+                    Стикеры маркировки заказа
+                </a>
+
+            {% endif %}
 
             {% if materials_sign %}
 

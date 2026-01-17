@@ -1,8 +1,9 @@
 {% set item_identifier = item.vars.value.const|trans %}
 
+    {# @var itemSign \BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrderResult #}
+
 {% if products_sign_items[item_identifier] is defined %}
 
-    {# @var itemSign \BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrderResult #}
     {% set itemSign = products_sign_items[item_identifier] %}
 
     <div class="text-center p-2">
@@ -23,6 +24,10 @@
         </span>
 
         {{ itemSign.smallCode }}
+    </div>
+
+    <div class="text-truncate">
+        1 {{ itemSign.comment }} 2
     </div>
 
 {% else %}

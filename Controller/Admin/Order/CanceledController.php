@@ -33,6 +33,8 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\ReturnOrderDTO;
@@ -55,6 +57,7 @@ final class CanceledController extends AbstractController
         EntityManagerInterface $EntityManager,
         CentrifugoPublishInterface $publish,
         OrderStatusHandler $OrderStatusHandler,
+        ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
     ): Response
     {
 
@@ -81,6 +84,7 @@ final class CanceledController extends AbstractController
             {
                 /** Пробуем найти по идентификатору заказа */
                 $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
+
                 if(false === ($orderMain instanceof Order))
                 {
                     continue;
@@ -91,6 +95,25 @@ final class CanceledController extends AbstractController
                 if(false === ($orderEvent instanceof OrderEvent))
                 {
                     continue;
+                }
+
+                /** Проверяем, что заказ не был отменен */
+                $isExists = $ExistOrderEventByStatusRepository
+                    ->forOrder($order->getId())
+                    ->forStatus(OrderStatusCanceled::class)
+                    ->isExists();
+
+                if(true === $isExists)
+                {
+                    return new JsonResponse(
+                        [
+                            'type' => 'success',
+                            'header' => sprintf('%s: Отмена заказа', $orderEvent->getOrderNumber()),
+                            'message' => 'Не возможно повторно отменить заказ',
+                            'status' => 400,
+                        ],
+                        400,
+                    );
                 }
 
                 /** По умолчанию заказ отменяется */

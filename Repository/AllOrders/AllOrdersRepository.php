@@ -35,6 +35,7 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
+use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -51,8 +52,12 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
@@ -808,7 +813,6 @@ final class AllOrdersRepository implements AllOrdersInterface
             }
             else
             {
-
                 $dbal
                     ->createSearchQueryBuilder($this->search)
                     ->addSearchLike('order_invariable.number')
@@ -824,13 +828,37 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal->addOrderBy('order_event.danger', 'DESC');
         $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
 
-        if(
-            false === ($this->status instanceof OrderStatus)
-            || $this->status->equals(OrderStatusCompleted::class)
-        )
+
+        if(false === ($this->status instanceof OrderStatus))
         {
-            $dbal->orderBy('order_event.danger', 'DESC');
             $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
+        }
+
+        if(true === ($this->status instanceof OrderStatus))
+        {
+            if(
+                $this->status->equals(OrderStatusPackage::class)
+                || $this->status->equals(OrderStatusDelivery::class)
+                || $this->status->equals(OrderStatusExtradition::class)
+            )
+            {
+                $dbal->orderBy('order_event.danger', 'DESC');
+                $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+            }
+
+            if($this->status->equals(OrderStatusCompleted::class))
+            {
+                $dbal->orderBy('order_event.danger', 'DESC');
+                $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
+            }
+
+            if(
+                $this->status->equals(OrderStatusCanceled::class)
+                || $this->status->equals(OrderStatusReturn::class)
+            )
+            {
+                $dbal->orderBy('orders_modify.mod_date', 'DESC');
+            }
         }
 
         $dbal->allGroupByExclude();

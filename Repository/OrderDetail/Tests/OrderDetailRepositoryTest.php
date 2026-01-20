@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Users\UsersTableTelegram\Repository\UserTableInfo\Tests;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\Tests;
 
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
@@ -36,18 +36,18 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class OrderDetailRepositoryTest extends KernelTestCase
 {
-    public function testUserTableInfoResult(): void
+    public function testOrderDetail(): void
     {
 
         /** @var OrderDetailInterface $OrderDetailInterface */
-        $OrderDetailInterface = self::getContainer()->get(OrderDetailInterface::class);
+        $OrderDetailRepository = self::getContainer()->get(OrderDetailInterface::class);
 
         self::assertTrue(true);
-        return;
+        //        return;
 
         $orderID = '';
 
-        $result = $OrderDetailInterface
+        $result = $OrderDetailRepository
             ->onOrder(new OrderUid($orderID))
             ->find();
     }

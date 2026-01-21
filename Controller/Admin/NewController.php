@@ -137,31 +137,11 @@ final class NewController extends AbstractController
                     ->forModification($product->getModification())
                     ->find();
 
-
                 /** Редирект, если продукции не найдено */
                 if(false === ($ProductUserBasketResult instanceof ProductUserBasketResult))
                 {
                     return $this->redirectToRoute('orders-order:admin.index');
                 }
-
-                //                /**
-                //                 * Если бизнес-модель не производство и на складе нет достаточного количества
-                //                 */
-                //                if(
-                //                    false === class_exists(BaksDevMaterialsStocksBundle::class) &&
-                //                    $product->getPrice()->getTotal() > $ProductUserBasketResult->getProductQuantity()
-                //                )
-                //                {
-                //                    $this->addFlash(
-                //                        'danger',
-                //                        sprintf(
-                //                            'К сожалению произошли некоторые изменения в продукции %s. Убедитесь в стоимости товара и его наличии, и добавьте товар в корзину снова.',
-                //                            $ProductUserBasketResult->getProductName(),
-                //                        ),
-                //                    );
-                //
-                //                    return $this->redirectToRoute('orders-order:admin.index');
-                //                }
 
                 /**
                  * Присваиваем стоимость продукта в заказе
@@ -204,7 +184,6 @@ final class NewController extends AbstractController
                                 && ((is_null($orderProduct->getModification()) === true && is_null($product->getModification()) === true) || $orderProduct->getModification()?->equals($product->getModification()));
                         });
 
-                        // @TODO не возможно?
                         if(true === $filter->isEmpty())
                         {
                             $logger->critical(
@@ -231,7 +210,6 @@ final class NewController extends AbstractController
                         $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
 
                         $handle = $OrderHandler->handle($OrderDTOClone);
-
                         $OrderDTO->getProduct()->removeElement($product);
 
                         $this->addFlash(
@@ -240,20 +218,14 @@ final class NewController extends AbstractController
                             'orders-order.admin',
                             $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
-
-                        /** Если ошибка при сохранении разделенного заказа - прерываем создание заказа */
-                        if(false === ($handle instanceof Order))
-                        {
-                            return $this->redirectToRoute('orders-order:admin.index');
-                        }
-
-                        /** Если успешно сохранили разделенный заказ - удаляем этот продукт из основного заказа */
-                        if(true === ($handle instanceof Order))
-                        {
-                            $OrderDTO->getProduct()->removeElement($product);
-                        }
                     }
                 }
+            }
+
+            /** Если при разделении удалили все продукты - завершаем создание заказа */
+            if(true === $OrderDTO->getProduct()->isEmpty())
+            {
+                return $this->redirectToRoute('orders-order:admin.index');
             }
 
             /** Если заказ был разделен - добавляем в номер постфикс */

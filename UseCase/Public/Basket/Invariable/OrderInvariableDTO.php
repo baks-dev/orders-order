@@ -139,4 +139,10 @@ final class OrderInvariableDTO implements OrderInvariableInterface
     {
         return $this->number;
     }
+
+    public function setNumber(string $number): OrderInvariableDTO
+    {
+        $this->number = $number;
+        return $this;
+    }
 }

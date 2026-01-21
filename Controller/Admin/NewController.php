@@ -35,6 +35,8 @@ use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderForm;
 use BaksDev\Orders\Order\UseCase\Admin\New\NewOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -49,6 +51,7 @@ final class NewController extends AbstractController
 {
     #[Route('/admin/order/new', name: 'admin.new', methods: ['GET', 'POST'])]
     public function news(
+        #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         NewOrderHandler $OrderHandler,
         ProductUserBasketInterface $userBasket,
@@ -120,6 +123,10 @@ final class NewController extends AbstractController
              * Продукты
              */
 
+            /** Постфикс для разделенных заказов */
+            $orderNumberPostfix = 0;
+            $orderNumber = $OrderDTO->getInvariable()->getNumber();
+
             /** @var NewOrderProductDTO $product */
             foreach($OrderDTO->getProduct() as $product)
             {
@@ -171,6 +178,89 @@ final class NewController extends AbstractController
                 $product->getPrice()
                     ->setPrice($basketPrice)
                     ->setCurrency($ProductUserBasketResult->getProductCurrency());
+
+                /** Пытаемся разделить только если в заказе несколько продуктов */
+                if($OrderDTO->getProduct()->count() > 1)
+                {
+                    /**
+                     * Делим заказ, если количество продукта превышает лимит - 100
+                     */
+
+                    /** Проверка лимита */
+                    if($product->getPrice()->getTotal() > 100)
+                    {
+                        /** Новый объект заказа и новой коллекцией с продуктом для разделения */
+                        $OrderDTOClone = clone $OrderDTO;
+
+                        /** Новая коллекция с продуктом для разделения */
+                        $filter = $OrderDTO->getProduct()->filter(function(
+                            NewOrderProductDTO $orderProduct
+                        ) use (
+                            $product
+                        ) {
+                            return $orderProduct->getProduct()->equals($product->getProduct())
+                                && ((is_null($orderProduct->getOffer()) === true && is_null($product->getOffer()) === true) || $orderProduct->getOffer()?->equals($product->getOffer()))
+                                && ((is_null($orderProduct->getVariation()) === true && is_null($product->getVariation()) === true) || $orderProduct->getVariation()?->equals($product->getVariation()))
+                                && ((is_null($orderProduct->getModification()) === true && is_null($product->getModification()) === true) || $orderProduct->getModification()?->equals($product->getModification()));
+                        });
+
+                        // @TODO не возможно?
+                        if(true === $filter->isEmpty())
+                        {
+                            $logger->critical(
+                                message: 'Ошибка разделения заказа',
+                                context: [self::class.':'.__LINE__],
+
+                            );
+
+                            $this->addFlash(
+                                'page.new',
+                                'danger.new',
+                                'orders-order.admin',
+                                $OrderDTOClone->getInvariable()->getNumber(),
+                            );
+
+                            return $this->redirectToRoute('orders-order:admin.index');
+                        }
+
+                        /** Новый объект заказа и новой коллекцией с продуктом для разделения */
+                        $OrderDTOClone->setProduct($filter);
+
+                        /** Номер заказа с постфиксом разделения */
+                        $orderNumberPostfix += 1;
+                        $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+
+                        $handle = $OrderHandler->handle($OrderDTOClone);
+
+                        $OrderDTO->getProduct()->removeElement($product);
+
+                        $this->addFlash(
+                            'page.new',
+                            $handle instanceof Order ? 'success.new' : 'danger.new',
+                            'orders-order.admin',
+                            $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                        );
+
+                        /** Если ошибка при сохранении разделенного заказа - прерываем создание заказа */
+                        if(false === ($handle instanceof Order))
+                        {
+                            return $this->redirectToRoute('orders-order:admin.index');
+                        }
+
+                        /** Если успешно сохранили разделенный заказ - удаляем этот продукт из основного заказа */
+                        if(true === ($handle instanceof Order))
+                        {
+                            $OrderDTO->getProduct()->removeElement($product);
+                        }
+                    }
+                }
+            }
+
+            /** Если заказ был разделен - добавляем в номер постфикс */
+            if($orderNumberPostfix !== 0)
+            {
+                $orderNumberPostfix += 1;
+                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
             }
 
             $handle = $OrderHandler->handle($OrderDTO);

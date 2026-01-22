@@ -41,6 +41,7 @@ use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -134,7 +135,7 @@ class OrderEvent extends EntityEvent
     {
         $this->id = new OrderEventUid();
         $this->modify = new OrderModify($this);
-        $this->created = new DateTimeImmutable();
+        $this->created = new DateTimeImmutable()->add(DateInterval::createFromDateString('1 minute'));
         $this->status = new OrderStatus(OrderStatusNew::class);
         $this->serv = new ArrayCollection();
         $this->product = new ArrayCollection();

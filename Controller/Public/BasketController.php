@@ -44,14 +44,15 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Reference\Money\Type\Money;
-use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Services\Repository\AllServicesByProjectProfile\AllServicesByProjectProfileInterface;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -65,8 +66,12 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
+    /** Массив разделенных заказов */
+    private array|null $orders = null;
+
     #[Route('/basket', name: 'public.basket', priority: -100)]
     public function index(
+        #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         ProductUserBasketInterface $userBasket,
         OrderHandler $handler,
@@ -388,13 +393,21 @@ class BasketController extends AbstractController
 
 
             /**
-             * Проверяем, что продукция в наличии в карточке
+             * Продукты
              */
+
+            /** Постфикс для разделенных заказов */
+            $orderNumberPostfix = 0;
+            $orderNumber = $OrderDTO->getInvariable()->getNumber();
 
             foreach($OrderDTO->getProduct() as $product)
             {
                 /** @var ProductUserBasketResult|array $ProductDetail */
                 $ProductDetail = $product->getCard();
+
+                /**
+                 * Проверяем, что продукция в наличии в карточке
+                 */
 
                 if(
                     false === $ProductDetail->getProductEvent()->equals($ProductDetail->getCurrentProductEvent())
@@ -447,13 +460,96 @@ class BasketController extends AbstractController
 
                     ]);
                 }
+
+                /**
+                 * Пытаемся разделить только если в заказе несколько продуктов
+                 */
+
+                if($OrderDTO->getProduct()->count() > 1)
+                {
+
+                    /**
+                     * Делим заказ, если количество продукта превышает лимит - 100
+                     */
+
+                    /** Проверка лимита */
+                    if($product->getPrice()->getTotal() > 100)
+                    {
+                        /**
+                         * @var $OrderDTOClone OrderDTO
+                         * Новый объект заказа и новой коллекцией с продуктом для разделения
+                         */
+                        $OrderDTOClone = clone $OrderDTO;
+
+                        /** Новая коллекция с продуктом для разделения */
+                        $filter = $OrderDTO->getProduct()->filter(function(
+                            PublicOrderProductDTO $orderProduct
+                        ) use (
+                            $product
+                        ) {
+                            return $orderProduct->getProduct()->equals($product->getProduct())
+                                && ((is_null($orderProduct->getOffer()) === true && is_null($product->getOffer()) === true) || $orderProduct->getOffer()?->equals($product->getOffer()))
+                                && ((is_null($orderProduct->getVariation()) === true && is_null($product->getVariation()) === true) || $orderProduct->getVariation()?->equals($product->getVariation()))
+                                && ((is_null($orderProduct->getModification()) === true && is_null($product->getModification()) === true) || $orderProduct->getModification()?->equals($product->getModification()));
+                        });
+
+                        /** Продолжаем создавать заказ даже при критической ошибке */
+                        if(true === $filter->isEmpty())
+                        {
+                            $logger->critical(
+                                message: 'Ошибка разделения заказа',
+                                context: [self::class.':'.__LINE__],
+
+                            );
+
+                            $this->addFlash(
+                                type: 'danger',
+                                message: 'user.order.new.danger',
+                                domain: 'user.order',
+                                arguments: $OrderDTOClone->getInvariable()->getNumber(),
+                            );
+
+                            continue;
+                        }
+
+                        /** Новый объект заказа и новой коллекцией с продуктом для разделения */
+                        $OrderDTOClone->setProduct($filter);
+
+                        /** Номер заказа с постфиксом разделения */
+                        $orderNumberPostfix += 1;
+                        $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+
+                        $handle = $handler->handle($OrderDTOClone);
+                        $OrderDTO->getProduct()->removeElement($product);
+
+                        /** Запоминаем успешно разделенный заказ */
+                        if(true === $handle instanceof Order)
+                        {
+                            $this->orders[] = $handle->getId();
+                        }
+
+                        $this->addFlash(
+                            type: $handle instanceof Order ? 'success' : 'danger',
+                            message: $handle instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
+                            domain: 'user.order',
+                            arguments: $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                        );
+                    }
+                }
             }
 
-
-            $Order = $handler->handle($OrderDTO);
-
-            if($Order instanceof Order)
+            /** Если при разделении удалили все продукты - завершаем создание заказа */
+            if(true === $OrderDTO->getProduct()->isEmpty())
             {
+                /** Если разделения были НЕ УСПЕШНЫ - редирект на basket */
+                if(null === $this->orders)
+                {
+                    /** Если разделения были успешны - редирект на success */
+                    return $this->redirectToRoute('orders-order:public.basket');
+                }
+
+                /** Если разделения были УСПЕШНЫ - редирект на success */
+
                 $this->addFlash(
                     type: 'success',
                     message: 'user.order.new.success',
@@ -466,15 +562,38 @@ class BasketController extends AbstractController
 
                 return $this->redirectToRoute(
                     route: 'orders-order:public.success',
-                    parameters: ['id' => $Order->getId()],
+                    parameters: ['id' => implode(',', $this->orders)],
                 );
             }
 
+            /** Если заказ был разделен - постфикс изменился при разделении - добавляем в номер заказа постфикс */
+            if($orderNumberPostfix !== 0)
+            {
+                $orderNumberPostfix += 1;
+                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+            }
+
+            $Order = $handler->handle($OrderDTO);
+
             $this->addFlash(
-                type: 'danger',
-                message: 'user.order.new.danger',
+                type: $Order instanceof Order ? 'success' : 'danger',
+                message: $Order instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                 domain: 'user.order',
-                arguments: $Order);
+                arguments: $Order instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
+            );
+
+            if($Order instanceof Order)
+            {
+                $this->orders[] = $Order->getId();
+
+                // Удаляем кеш
+                $AppCache->delete($key);
+
+                return $this->redirectToRoute(
+                    route: 'orders-order:public.success',
+                    parameters: ['id' => implode(',', $this->orders)],
+                );
+            }
         }
 
         return $this->render([

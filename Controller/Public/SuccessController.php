@@ -24,11 +24,9 @@
 namespace BaksDev\Orders\Order\Controller\Public;
 
 use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use DateTimeImmutable;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
@@ -39,30 +37,39 @@ class SuccessController extends AbstractController
     /* Детальная информация о заказе */
     #[Route('/basket/success/{id}', name: 'public.success')]
     public function index(
-        #[MapEntity] Order $Order,
+        string $id,
         OrderDetailInterface $orderDetail,
     ): Response
     {
+        $ids = explode(',', $id);
 
-        /** Информация о заказе */
+        /** Информация о заказах */
         $OrderDetailResult = $orderDetail
-            ->onOrder($Order->getId())
-            ->find();
+            ->inOrders($ids)
+            ->findAll();
 
-        if(false === ($OrderDetailResult instanceof OrderDetailResult))
+        if(false === $OrderDetailResult)
         {
             return $this->redirectToRoute('core:public.homepage');
         }
 
-        $diff = $OrderDetailResult->getOrderData()->diff(new DateTimeImmutable('now'));
+        /** @var array<int, OrderDetailResult> $Orders */
+        $Orders = iterator_to_array($OrderDetailResult);
 
-        if($diff->d > 1 || $diff->i > 1 || $diff->m > 1)
+        $date = new DateTimeImmutable('now');
+
+        foreach($Orders as $order)
         {
-            return $this->redirectToRoute('core:public.homepage');
+            $diff = $order->getOrderCreated()->diff($date);
+
+            if($diff->m > 1 || $diff->d > 1 || $diff->i)
+            {
+                return $this->redirectToRoute('core:public.homepage');
+            }
         }
 
         return $this->render([
-            'order' => $OrderDetailResult,
+            'orders' => $Orders,
         ]);
     }
 }

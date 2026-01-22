@@ -13,138 +13,163 @@
 
     {% for productIndex,product in form.product|filter(v => v.vars.data.card is not empty) %}
 
-    {% set productGroup = product.vars.id %}
+        {% set productGroup = product.vars.id %}
 
-    {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
-    {% set card = product.vars.data.card %}
+        {# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
+        {% set card = product.vars.data.card %}
 
-    <tr id='item_{{ product.vars.id }}'>
+        <tr id='item_{{ product.vars.id }}'>
 
-        <td rowspan="2">
+            <td rowspan="2">
 
-            <div class="row">
+                <div class="row">
 
-                {% set product_path = path('products-product:public.detail', {
-                    category : card.categoryUrl ,
-                    url : card.productUrl ,
-                    offer: card.productOfferValue,
-                    variation: card.productVariationValue,
-                    modification: card.productModificationValue,
-                    postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' })
-                }) %}
+                    {% set product_path = path('products-product:public.detail', {
+                        category : card.categoryUrl ,
+                        url : card.productUrl ,
+                        offer: card.productOfferValue,
+                        variation: card.productVariationValue,
+                        modification: card.productModificationValue,
+                        postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' })
+                    }) %}
 
-                {# <div class="col-3">
-                #}{# Обложка #}{#
-                <a href="{{ product_path }}"
-                   class="icon rounded-4 mb-2 bg-contain p-1"
-                   style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
-                   target="_blank">
-
-                </a>
-
-            </div> #}
-
-                <div class="col-8 align-self-center">
-
+                    {# <div class="col-3">
+                    #}{# Обложка #}{#
                     <a href="{{ product_path }}"
-                       class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
-                       target="_blank"
-                       style="width: 250px;">
-
-                        {{ card.productName }} <br>
-
-                        {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render') ~
-                        card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
-
-                        {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
-
-                        {{ card.productOfferPostfix }}
-                        {{ card.productVariationPostfix }}
-                        {{ card.productModificationPostfix }}
+                       class="icon rounded-4 mb-2 bg-contain p-1"
+                       style="width: 60px; height: 60px; background-image: url('{{ cdn_image_path(card.productImage, card.productImageExt, card.productImageCdn, 'min') }}')"
+                       target="_blank">
 
                     </a>
 
-                    <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
-                         data-copy="{{ card.productArticle }}">
+                </div> #}
 
-                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
-                             height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
-                            <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
-                        </svg>
-                        {{ card.productArticle }}
+                    <div class="col-8 align-self-center">
+
+                        <a href="{{ product_path }}"
+                           class="text-dark me-3 text-uppercase text-decoration-none text-truncate d-block"
+                           target="_blank"
+                           style="width: 250px;">
+
+                            {{ card.productName }} <br>
+
+                            {{ card.productVariationValue|call_twig_func(card.productVariationReference~'_render') ~
+                            card.productModificationValue|call_twig_func(card.productModificationReference~'_render') }}
+
+                            {{ card.productOfferValue|call_twig_func(card.productOfferReference~'_render') }}
+
+                            {{ card.productOfferPostfix }}
+                            {{ card.productVariationPostfix }}
+                            {{ card.productModificationPostfix }}
+
+                        </a>
+
+                        <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
+                             data-copy="{{ card.productArticle }}">
+
+                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="14"
+                                 height="14" fill="currentColor" viewBox="0 0 115.77 122.88">
+                                <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"></path>
+                            </svg>
+                            {{ card.productArticle }}
+                        </div>
+                    </div>
+
+                    {# Выводим бейдж при несоответствии цены продукта и заказа #}
+                    <div class="col position-relative mt-2">
+                        {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
+                            <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0">
+                                <strike class="small text-muted">
+                                    {{ money(card.productPrice, card.productCurrency) }}
+                                </strike>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
-                {# Выводим бейдж при несоответствии цены продукта и заказа #}
-                <div class="col position-relative mt-2">
-                    {% if card.productPrice and card.productPrice.value != (product.vars.data.price.price.value) %}
-                        <div class="badge bg-warning rounded-2 mt-1 mx-1 position-absolute end-0">
-                            <strike class="small text-muted">
-                                {{ money(card.productPrice, card.productCurrency) }}
-                            </strike>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            </td>
 
-        </td>
+            {# Стоимость, количество, скидка и т.д. #}
+            {{ include(_self|replace({ "products.html.twig": "_price.html.twig" })) }}
 
-        {# Стоимость, количество, скидка и т.д. #}
-        {{ include(_self|replace({ "products.html.twig": "_price.html.twig" })) }}
+            <td class="vertical-middle text-end">
 
-        <td class="vertical-middle text-end">
+                <li class="nav nav-item flex-grow-1 text-end" role="presentation">
 
-            <li class="nav nav-item flex-grow-1 text-end" role="presentation">
+                    {# Меню редактирования #}
+                    {{ include(_self|replace({ "products.html.twig": "_menu.html.twig" })) }}
+                </li>
 
-                {# Меню редактирования #}
-                {{ include(_self|replace({ "products.html.twig": "_menu.html.twig" })) }}
-            </li>
+            </td>
 
-        </td>
+        </tr>
 
-    </tr>
+        {% set colspan = 4 %}
 
-    {% set colspan = 4 %}
+        {% if product.price.price is defined %}
 
-    {% if product.price.price is defined %}
+            {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
 
-    {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
-    <tr>
-        <td colspan="{{ colspan }}">
-            <span class="badge text-bg-danger">Скидка до 20%</span>
+                <tr>
+                    <td colspan="{{ colspan }}">
+                        <span class="badge text-bg-danger">Скидка до 20%</span>
+
+                        <small class="ms-3"> мин. стоимость: </small>
+                        {{ money(card.productPrice.applyString('-20%'), card.productCurrency) }}
+                    </td>
+                </tr>
 
             {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
-    <tr>
-        <td colspan="{{ colspan }}">
-            <span class="badge text-bg-danger">Скидка до 15%</span>
+
+                <tr>
+                    <td colspan="{{ colspan }}">
+                        <span class="badge text-bg-danger">Скидка до 15%</span>
+
+                        <small class="ms-3"> мин. стоимость: </small>
+                        {{ money(card.productPrice.applyString('-15%'), card.productCurrency) }}
+                    </td>
+                </tr>
 
             {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
-    <tr>
-        <td colspan="{{ colspan }}">
-            <span class="badge text-bg-danger">Скидка до 10%</span>
+
+                <tr>
+                    <td colspan="{{ colspan }}">
+                        <span class="badge text-bg-danger">Скидка до 10%</span>
+
+                        <small class="ms-3"> мин. стоимость: </small>
+                        {{ money(card.productPrice.applyString('-10%'), card.productCurrency) }}
+                    </td>
+                </tr>
 
             {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
-    <tr>
-        <td colspan="{{ colspan }}">
-            <span class="badge text-bg-danger">Скидка до 5%</span>
+
+                <tr>
+                    <td colspan="{{ colspan }}">
+                        <span class="badge text-bg-danger">Скидка до 5%</span>
+
+                        <small class="ms-3"> мин. стоимость: </small>
+                        {{ money(card.productPrice.applyString('-5%'), card.productCurrency) }}
+                    </td>
+                </tr>
 
             {% else %}
-    <tr>
-        <td colspan="{{ colspan }}">
-            <span class="badge text-bg-danger">Скидка до 100%</span>
+                <tr>
+                    <td colspan="{{ colspan }}">
+                        <span class="badge text-bg-danger">Скидка до 100%</span>
+
+                        <small class="ms-3"> мин. стоимость: </small>
+                        {{ money(card.productPrice.applyString('-99%'), card.productCurrency) }}
+                    </td>
+                </tr>
 
             {% endif %}
 
-            {# Закрывает тег таблицы #}
-            <small class="ms-3"> мин. стоимость: </small>
-            {{ money(product.price.price.vars.attr.min.value * 100, card.productCurrency) }}
-
-        </td>
 
         {% else %}
 
-    <tr>
-        <td colspan="{{ colspan }}">&nbsp;</td>
+            <tr>
+                <td colspan="{{ colspan }}">&nbsp;</td>
+            </tr>
 
         {% endif %}
 
@@ -154,7 +179,7 @@
 
         {# Продукты по единицам #}
 
-        {% endfor %}
+    {% endfor %}
     </tbody>
 </table>
 

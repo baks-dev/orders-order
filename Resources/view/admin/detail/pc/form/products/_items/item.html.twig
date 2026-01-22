@@ -45,7 +45,43 @@
                 {% for item in product.item %}
 
 
-                    {% set isDiscountItem = card.productPrice.value > item.price.price.vars.data %}
+                    {# По умолчанию запрещаем предоставлять скидку #}
+                    {% set isDiscountItem = false %}
+                    {% set discountMinValue = 0 %}
+                    {% set minPriceValue = card.productPrice.value %}
+
+                    {% if is_granted('ROLE_ORDERS_DISCOUNT_20') %}
+
+                        {% set isDiscountItem = card.productPrice.applyString('-20%').value < item.price.price.vars.data %}
+                        {% set minPriceValue = card.productPrice.applyString('-20%').value %}
+                        {% set discountMinValue = -20 %}
+
+                    {% elseif is_granted('ROLE_ORDERS_DISCOUNT_15') %}
+
+                        {% set isDiscountItem = card.productPrice.applyString('-15%').value < item.price.price.vars.data %}
+                        {% set minPriceValue = card.productPrice.applyString('-15%').value %}
+                        {% set discountMinValue = -15 %}
+
+                    {% elseif is_granted('ROLE_ORDERS_DISCOUNT_10') %}
+
+                        {% set isDiscountItem = card.productPrice.applyString('-10%').value < item.price.price.vars.data %}
+                        {% set minPriceValue = card.productPrice.applyString('-10%').value %}
+                        {% set discountMinValue = -10 %}
+
+                    {% elseif is_granted('ROLE_ORDERS_DISCOUNT_5') %}
+
+                        {% set isDiscountItem = card.productPrice.applyString('-5%').value < item.price.price.vars.data %}
+                        {% set minPriceValue = card.productPrice.applyString('-5%').value %}
+                        {% set discountMinValue = -5 %}
+
+                    {% elseif is_granted('ROLE_ADMIN') %}
+
+                        {% set isDiscountItem = true %}
+                        {% set minPriceValue = card.productPrice.applyString('-99%').value %}
+                        {% set discountMinValue = -99 %}
+
+                    {% endif %}
+
 
                     <div class="d-flex justify-content-start align-items-center text-center"
                          data-item="product-item"
@@ -93,7 +129,7 @@
                         {% set class_discount = 'item-discount' %}
 
                         {# Стоимость #}
-                        {% if (allEditField is true or partEditField is true) and isDiscountItem is not true %}
+                        {% if (allEditField is true or partEditField is true) and isDiscountItem is true %}
                             <button type="button" class="btn btn-sm"
                                     title="Уменьшить количество"
                                     data-id='{{ item.price.price.vars.id }}'
@@ -105,16 +141,17 @@
                         {% endif %}
 
                         {{ form_widget(item.price.price, { attr: {
-                            class: (notEdit is true or isDiscountItem is true ? 'bg-light text-muted ' : '') ~ 'form-control-sm ' ~ class_price,
+                            class: (notEdit is true or isDiscountItem is not true ? 'bg-light text-muted ' : '') ~ 'form-control-sm ' ~ class_price,
                             style: 'width: 75px;',
                             disabled: false,
                             'data-price': item.vars.data.price.price.value,
                             'data-total': product.price.total.vars.id,
                             'data-item': productGroup,
-                            readonly:  notEdit is true or isDiscountItem is true ?: false
+                            min: minPriceValue,
+                            readonly:  notEdit is true or isDiscountItem is not true ?: false
                         } }) }}
 
-                        {% if (allEditField is true or partEditField is true) and isDiscountItem is not true %}
+                        {% if (allEditField is true or partEditField is true) and isDiscountItem is true %}
                             <button type="button" class="btn btn-sm"
                                     title="Увеличить количество"
                                     data-id='{{ item.price.price.vars.id }}'
@@ -127,22 +164,20 @@
 
                         {# Скидка товара  #}
 
-                        <div class="p-2 {{ (allEditField is true or partEditField is true) and isDiscountItem is not true ?: 'd-none' }}">
-                            <div class="input-group">
+                        <div class="p-2 {{ (allEditField is true or partEditField is true) and isDiscountItem is true ?: 'd-none' }}">
 
-                                {{ form_widget(item.price.discount, { attr: {
-                                    class: (notEdit is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm ' ~class_discount,
-                                    style: 'width: 90px;',
-                                    placeholder: "Скидка",
-                                    title: "Скидка",
-                                    'data-target': item.price.price.vars.id,
-                                    readonly:  notEdit is true ?: false
-                                } }) }}
 
-                                <span class="input-group-text {{ notEdit is true ? 'd-none' }}" id="basic-addon1">
-                                        ± %
-                                    </span>
-                            </div>
+                            {{ form_widget(item.price.discount, { attr: {
+                                class: (notEdit is true ? 'bg-light text-muted d-none ' : '') ~ 'form-control-sm ' ~class_discount,
+                                style: 'width: 90px;',
+                                placeholder: "± %",
+                                title: "± %",
+                                min: discountMinValue,
+                                'data-target': item.price.price.vars.id,
+                                readonly:  notEdit is true ?: false
+                            } }) }}
+
+
                         </div>
 
                         {# Иконка QR #}

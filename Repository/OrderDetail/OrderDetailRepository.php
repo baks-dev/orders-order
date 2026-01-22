@@ -219,6 +219,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal
             ->addSelect('event.status AS order_status')
             ->addSelect('event.comment AS order_comment')
+            ->addSelect('event.created AS order_created')
             ->join(
                 'orders',
                 OrderEvent::class,
@@ -288,7 +289,6 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_product_price',
             'order_product_price.product = order_product.id',
         );
-
 
         $dbal->join(
             'order_product',

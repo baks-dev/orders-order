@@ -56,11 +56,13 @@ class SuccessController extends AbstractController
         /** @var array<int, OrderDetailResult> $Orders */
         $Orders = iterator_to_array($OrderDetailResult);
 
+        $date = new DateTimeImmutable('now');
+
         foreach($Orders as $order)
         {
-            $diff = $order->getOrderData()->diff(new DateTimeImmutable('now'));
+            $diff = $order->getOrderCreated()->diff($date);
 
-            if($diff->m > 1 || $diff->d > 1)
+            if($diff->m > 1 || $diff->d > 1 || $diff->i)
             {
                 return $this->redirectToRoute('core:public.homepage');
             }

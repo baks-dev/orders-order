@@ -199,7 +199,7 @@ final class NewController extends AbstractController
                                 $OrderDTOClone->getInvariable()->getNumber(),
                             );
 
-                            return $this->redirectToRoute('orders-order:admin.index');
+                            continue;
                         }
 
                         /** Новый объект заказа и новой коллекцией с продуктом для разделения */

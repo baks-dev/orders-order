@@ -46,6 +46,8 @@ final readonly class OrderDetailResult
         private string $order_event,
         private string $order_number,
         private string $order_status,
+        private string $order_created,
+
         private ?string $order_data,
         private ?string $order_comment,
         private ?string $payment_id,
@@ -96,6 +98,11 @@ final readonly class OrderDetailResult
     public function getOrderStatus(): string
     {
         return $this->order_status;
+    }
+
+    public function getOrderCreated(): DateTimeImmutable
+    {
+        return new DateTimeImmutable($this->order_created);
     }
 
     /**

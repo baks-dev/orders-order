@@ -163,6 +163,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         }
 
         $builder = $this->builder();
+        $this->orders = null;
 
         $result = $builder->fetchAllHydrate(OrderDetailResult::class);
 

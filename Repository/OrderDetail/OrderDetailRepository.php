@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
-use BaksDev\Auth\Email\Type\Email\AccountEmail;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Fields\DeliveryField;
@@ -35,7 +34,6 @@ use BaksDev\Delivery\Entity\Fields\Trans\DeliveryFieldTrans;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
-use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
@@ -87,15 +85,18 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
-use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorage;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Doctrine\DBAL\ArrayParameterType;
+use Generator;
 use InvalidArgumentException;
 
 final class OrderDetailRepository implements OrderDetailInterface
 {
+    private array|null $orders = null;
+
     private OrderUid|false $order = false;
 
     private UserProfileUid|false $profile = false;
@@ -104,6 +105,19 @@ final class OrderDetailRepository implements OrderDetailInterface
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly UserProfileTokenStorage $UserProfileTokenStorage,
     ) {}
+
+    /**
+     * Фильтр по заказам
+     */
+    public function inOrders(array $orders): self
+    {
+        foreach($orders as $order)
+        {
+            $this->orders[] = new OrderUid($order);
+        }
+
+        return $this;
+    }
 
     /**
      * Фильтр по заказу
@@ -128,9 +142,31 @@ final class OrderDetailRepository implements OrderDetailInterface
      */
     public function find(): OrderDetailResult|false
     {
+        if(false === ($this->order instanceof OrderUid))
+        {
+            throw new InvalidArgumentException('Не передан обязательный параметр запроса order');
+        }
+
         $builder = $this->builder();
 
         return $builder->fetchHydrate(OrderDetailResult::class);
+    }
+
+    /**
+     * Метод возвращает Generator с информацией об заказах
+     */
+    public function findAll(): Generator|false
+    {
+        if(false === is_array($this->orders))
+        {
+            throw new InvalidArgumentException('Не передан обязательный параметр запроса orders');
+        }
+
+        $builder = $this->builder();
+
+        $result = $builder->fetchAllHydrate(OrderDetailResult::class);
+
+        return true === $result->valid() ? $result : false;
     }
 
     /**
@@ -148,15 +184,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 
     public function builder(): DBALQueryBuilder
     {
-
-        if(false === ($this->order instanceof OrderUid))
-        {
-            throw new InvalidArgumentException(sprintf(
-                'Некорректной тип для параметра запроса $this->order: %s. Ожидаемый тип %s',
-                var_export($this->order, true), OrderUid::class,
-            ));
-        }
-
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -165,13 +192,29 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
             ->addSelect('orders.number AS order_number')
-            ->from(Order::class, 'orders')
-            ->where('orders.id = :order')
-            ->setParameter(
-                key: 'order',
-                value: $this->order,
-                type: OrderUid::TYPE,
-            );
+            ->from(Order::class, 'orders');
+
+
+        if(true === $this->order instanceof OrderUid)
+        {
+            $dbal->where('orders.id = :order')
+                ->setParameter(
+                    key: 'order',
+                    value: $this->order,
+                    type: OrderUid::TYPE,
+                );
+        }
+
+
+        if(true === is_array($this->orders))
+        {
+            $dbal->andWhere('orders.id IN (:orders)')
+                ->setParameter(
+                    key: 'orders',
+                    value: $this->orders,
+                    type: ArrayParameterType::STRING,
+                );
+        }
 
         $dbal
             ->addSelect('event.status AS order_status')

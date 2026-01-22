@@ -66,6 +66,9 @@ class BasketController extends AbstractController
     /** Корзина пользователя */
     private ?ArrayCollection $products = null;
 
+    /** Массив разделенных заказов */
+    private array|null $orders = null;
+
     #[Route('/basket', name: 'public.basket', priority: -100)]
     public function index(
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
@@ -490,6 +493,7 @@ class BasketController extends AbstractController
                                 && ((is_null($orderProduct->getModification()) === true && is_null($product->getModification()) === true) || $orderProduct->getModification()?->equals($product->getModification()));
                         });
 
+                        /** Продолжаем создавать заказ даже при критической ошибке */
                         if(true === $filter->isEmpty())
                         {
                             $logger->critical(
@@ -499,13 +503,13 @@ class BasketController extends AbstractController
                             );
 
                             $this->addFlash(
-                                'page.new',
-                                'danger.new',
-                                'orders-order.admin',
-                                $OrderDTOClone->getInvariable()->getNumber(),
+                                type: 'danger',
+                                message: 'user.order.new.danger',
+                                domain: 'user.order',
+                                arguments: $OrderDTOClone->getInvariable()->getNumber(),
                             );
 
-                            return $this->redirectToRoute('orders-order:admin.index');
+                            continue;
                         }
 
                         /** Новый объект заказа и новой коллекцией с продуктом для разделения */
@@ -518,35 +522,34 @@ class BasketController extends AbstractController
                         $handle = $handler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
 
+                        /** Запоминаем успешно разделенный заказ */
+                        if(true === $handle instanceof Order)
+                        {
+                            $this->orders[] = $handle->getId();
+                        }
+
                         $this->addFlash(
-                            'page.new',
-                            $handle instanceof Order ? 'success.new' : 'danger.new',
-                            'orders-order.admin',
-                            $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                            type: $handle instanceof Order ? 'success' : 'danger',
+                            message: $handle instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
+                            domain: 'user.order',
+                            arguments: $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
                     }
                 }
-
             }
-
 
             /** Если при разделении удалили все продукты - завершаем создание заказа */
             if(true === $OrderDTO->getProduct()->isEmpty())
             {
-                return $this->redirectToRoute('orders-order:public.basket');
-            }
+                /** Если разделения были НЕ УСПЕШНЫ - редирект на basket */
+                if(null === $this->orders)
+                {
+                    /** Если разделения были успешны - редирект на success */
+                    return $this->redirectToRoute('orders-order:public.basket');
+                }
 
-            /** Если заказ был разделен - добавляем в номер постфикс */
-            if($orderNumberPostfix !== 0)
-            {
-                $orderNumberPostfix += 1;
-                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
-            }
+                /** Если разделения были УСПЕШНЫ - редирект на success */
 
-            $Order = $handler->handle($OrderDTO);
-
-            if($Order instanceof Order)
-            {
                 $this->addFlash(
                     type: 'success',
                     message: 'user.order.new.success',
@@ -559,15 +562,38 @@ class BasketController extends AbstractController
 
                 return $this->redirectToRoute(
                     route: 'orders-order:public.success',
-                    parameters: ['id' => $Order->getId()],
+                    parameters: ['id' => implode(',', $this->orders)],
                 );
             }
 
+            /** Если заказ был разделен - постфикс изменился при разделении - добавляем в номер заказа постфикс */
+            if($orderNumberPostfix !== 0)
+            {
+                $orderNumberPostfix += 1;
+                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+            }
+
+            $Order = $handler->handle($OrderDTO);
+
             $this->addFlash(
-                type: 'danger',
-                message: 'user.order.new.danger',
+                type: $Order instanceof Order ? 'success' : 'danger',
+                message: $Order instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                 domain: 'user.order',
-                arguments: $Order);
+                arguments: $Order instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
+            );
+
+            if($Order instanceof Order)
+            {
+                $this->orders[] = $Order->getId();
+
+                // Удаляем кеш
+                $AppCache->delete($key);
+
+                return $this->redirectToRoute(
+                    route: 'orders-order:public.success',
+                    parameters: ['id' => implode(',', $this->orders)],
+                );
+            }
         }
 
         return $this->render([

@@ -37,27 +37,6 @@
 
     <ul class="dropdown-menu">
 
-        {% if constant('\BaksDev\\Wildberries\\Products\\BaksDevWildberriesProductsBundle::NAMESPACE') is defined %}
-
-            <li>
-                <a href="{{ path('wildberries-products:admin.barcode.print', {
-                    product : card.productEvent,
-                    offer: card.productOfferUid,
-                    variation: card.productVariationUid,
-                    modification: card.productModificationUid,
-                    total: product.price.vars.data.total,
-                    print: true
-                }) }}"
-
-                   class="dropdown-item prnt"
-                   data-bs-toggle="modal"
-                   data-bs-target="#modal">
-                    Печать этикетки Wildberries
-                </a>
-            </li>
-
-        {% endif %}
-
         {% if order.orderStatus != 'canceled' and order.orderStatus != 'return' %}
             <li>
                 <button type="button"

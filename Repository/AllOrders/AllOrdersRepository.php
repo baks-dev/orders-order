@@ -828,10 +828,10 @@ final class AllOrdersRepository implements AllOrdersInterface
         $dbal->addOrderBy('order_event.danger', 'DESC');
         $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
 
-
+        /** Список всех заказов без переданных статусов сортируем по дате изменения */
         if(false === ($this->status instanceof OrderStatus))
         {
-            $dbal->addOrderBy('orders_modify.mod_date', 'DESC');
+            $dbal->orderBy('orders_modify.mod_date', 'DESC');
         }
 
         if(true === ($this->status instanceof OrderStatus))

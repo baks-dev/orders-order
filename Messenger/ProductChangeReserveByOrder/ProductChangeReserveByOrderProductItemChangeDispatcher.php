@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrde
 use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
@@ -98,6 +99,16 @@ final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
 
         $LastOrderDTO = new EditOrderDTO();
         $OrderEventLast->getDto($LastOrderDTO);
+
+
+        /**
+         * Если предыдущее событие было Completed «Выполнен»
+         * резерв был снят при выполнении заказа, не снимаем резерв с карточки
+         */
+        if($OrderEventLast->isStatusEquals(OrderStatusCompleted::class))
+        {
+            return;
+        }
 
 
         /**

@@ -20,12 +20,14 @@
  *  THE SOFTWARE.
  */
 
+/** Изменение кол-ва в форме добавления в корзину на странице товара  */
+
 document.querySelectorAll('.img-product').forEach((el) => el.addEventListener('click', () => document.getElementById('img-product').style.backgroundImage = el.style.backgroundImage));
 
 /* Счетчик c учетом шага увеличения/уменьшения кол-ва в форме оформления заказа  */
 document.getElementById("plus")?.addEventListener("click", () =>
 {
-    let price_total = document.getElementById("order_product_form_price_total");
+    let price_total = document.getElementById("public_order_product_form_price_total");
 
     /* Получить Шаг увеличения/уменьшения кол-ва */
     let step = price_total.dataset.step * 1;
@@ -37,7 +39,7 @@ document.getElementById("plus")?.addEventListener("click", () =>
 
     if(result <= max)
     {
-        document.getElementById("order_product_form_price_total").value = result;
+        document.getElementById("public_order_product_form_price_total").value = result;
     }
 
 });
@@ -46,7 +48,7 @@ document.getElementById("plus")?.addEventListener("click", () =>
 document.getElementById("minus")?.addEventListener("click", () =>
 {
 
-    let price_total = document.getElementById("order_product_form_price_total");
+    let price_total = document.getElementById("public_order_product_form_price_total");
 
     /* Шаг увеличения/уменьшения кол-ва */
     let step = price_total.dataset.step * 1;
@@ -62,14 +64,14 @@ document.getElementById("minus")?.addEventListener("click", () =>
             return;
         }
 
-        document.getElementById("order_product_form_price_total").value = result;
+        document.getElementById("public_order_product_form_price_total").value = result;
 
     }
 });
 
 
 /* Обработка изменения кол-ва вручную  */
-const product_price_total = document.getElementById("order_product_form_price_total");
+const product_price_total = document.getElementById("public_order_product_form_price_total");
 
 product_price_total.addEventListener("input", orderProductCounter.debounce(500));
 

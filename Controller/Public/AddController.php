@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,9 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Orders\Order\Repository\ProductEventBasket\ProductEventBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductForm;
+use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductForm;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -41,11 +42,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 #[AsController]
 class AddController extends AbstractController
 {
+    private CacheInterface $AppCache;
+
+    private string $key;
+
     private ?ArrayCollection $products = null;
 
     /**
@@ -58,6 +64,7 @@ class AddController extends AbstractController
         AppCacheInterface $cache,
         ProductEventBasketInterface $productEvent,
         ProductUserBasketInterface $productDetail,
+
         #[ParamConverter(ProductEventUid::class, key: 'product')] $event,
         #[ParamConverter(ProductOfferUid::class)] $offer = null,
         #[ParamConverter(ProductVariationUid::class)] $variation = null,
@@ -92,16 +99,69 @@ class AddController extends AbstractController
             return $this->ErrorResponse();
         }
 
-        $AddProductBasketDTO = new OrderProductDTO();
+        $AddProductBasketDTO = new PublicOrderProductDTO()
+            ->setProduct($event)
+            ->setOffer($offer)
+            ->setVariation($variation)
+            ->setModification($modification);
 
-        $AddProductBasketDTO->setProduct($event);
-        $AddProductBasketDTO->setOffer($offer);
-        $AddProductBasketDTO->setVariation($variation);
-        $AddProductBasketDTO->setModification($modification);
+        $ProductDetail = $productDetail
+            ->forEvent($AddProductBasketDTO->getProduct())
+            ->forOffer($AddProductBasketDTO->getOffer())
+            ->forVariation($AddProductBasketDTO->getVariation())
+            ->forModification($AddProductBasketDTO->getModification())
+            ->find();
+
+        $this->AppCache = $cache->init('orders-order-basket');
+        $this->key = md5($HOST.$request->getClientIp().$request->headers->get('USER-AGENT'));
+        $expires = 60 * 60; // Время кешировния 1 час - для не аутентифицированного пользователя
+
+        if($this->getUsr())
+        {
+            $expires = 60 * 60 * 24; // Время кешировния 24 часа - для аутентифицированного пользователя
+        }
+
+        // Получаем кеш
+        if($this->AppCache->hasItem($this->key))
+        {
+            $this->products = $this->AppCache->getItem($this->key)->get();
+
+            /** Если в запросе не было передано body - не реагируем */
+            if(false === $this->products->isEmpty() && false === empty($request->getContent()))
+            {
+                /** @var PublicOrderProductDTO|null $product */
+                $product = $this->products->findFirst(
+                    function(int $k, PublicOrderProductDTO $PublicOrderProductDTO) use ($AddProductBasketDTO) {
+
+                        return $PublicOrderProductDTO->getProduct()->equals($AddProductBasketDTO->getProduct())
+                            && ((is_null($PublicOrderProductDTO->getOffer()) === true && is_null($AddProductBasketDTO->getOffer()) === true) || $PublicOrderProductDTO->getOffer()?->equals($AddProductBasketDTO->getOffer()))
+                            && ((is_null($PublicOrderProductDTO->getVariation()) === true && is_null($AddProductBasketDTO->getVariation()) === true) || $PublicOrderProductDTO->getVariation()?->equals($AddProductBasketDTO->getVariation()))
+                            && ((is_null($PublicOrderProductDTO->getModification()) === true && is_null($AddProductBasketDTO->getModification()) === true) || $PublicOrderProductDTO->getModification()?->equals($AddProductBasketDTO->getModification()));
+                    },
+                );
+
+                if(true === ($product instanceof PublicOrderProductDTO))
+                {
+                    $isTotalModify = $this->totalModify($product, $ProductDetail, $request->toArray());
+
+                    if(true === $isTotalModify)
+                    {
+                        return new JsonResponse(
+                            [
+                                'type' => 'success',
+                                'header' => 'Количество товара успешно изменено',
+                                'message' => $product->getPrice()->getTotal(),
+                            ],
+                            200,
+                        );
+                    }
+                }
+            }
+        }
 
         $form = $this
             ->createForm(
-                OrderProductForm::class,
+                PublicOrderProductForm::class,
                 $AddProductBasketDTO,
                 [
                     'action' => $this->generateUrl(
@@ -112,9 +172,9 @@ class AddController extends AbstractController
                             'variation' => $AddProductBasketDTO->getVariation(),
                             'modification' => $AddProductBasketDTO->getModification(),
 
-                        ]
+                        ],
                     ),
-                ]
+                ],
             )
             ->handleRequest($request);
 
@@ -122,28 +182,13 @@ class AddController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $AppCache = $cache->init('orders-order-basket');
-            $key = md5($HOST.$request->getClientIp().$request->headers->get('USER-AGENT'));
-            $expires = 60 * 60; // Время кешировния 60 * 60 = 1 час
-
-            if($this->getUsr())
-            {
-                $expires = 60 * 60 * 24; // Время кешировния 60 * 60 * 24 = 24 часа
-            }
-
-            // Получаем кеш
-            if($AppCache->hasItem($key))
-            {
-                $this->products = ($AppCache->getItem($key))->get();
-            }
-
             if($this->products === null)
             {
                 $this->products = new ArrayCollection();
             }
 
-            /** @var OrderProductDTO $element */
-            $predicat = function($key, OrderProductDTO $element) use ($AddProductBasketDTO) {
+            /** @var PublicOrderProductDTO $element */
+            $predicat = function($key, PublicOrderProductDTO $element) use ($AddProductBasketDTO) {
                 return
                     $element->getProduct()->equals($AddProductBasketDTO->getProduct())
                     && (!$AddProductBasketDTO->getOffer() || $element->getOffer()?->equals($AddProductBasketDTO->getOffer()))
@@ -162,15 +207,15 @@ class AddController extends AbstractController
                         'name' => 'перейти в корзину',
                         'status' => 400,
                     ],
-                    400
+                    400,
                 );
             }
 
             // Удаляем кеш
-            $AppCache->delete($key);
+            $this->AppCache->delete($this->key);
 
             // получаем кеш
-            $AppCache->get($key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
+            $this->AppCache->get($this->key, function(ItemInterface $item) use ($AddProductBasketDTO, $expires) {
                 $item->expiresAfter($expires);
                 $this->products->add($AddProductBasketDTO);
 
@@ -186,16 +231,9 @@ class AddController extends AbstractController
                     'name' => 'перейти в корзину',
                     'status' => 200,
                 ],
-                200
+                200,
             );
         }
-
-        $ProductDetail = $productDetail
-            ->forEvent($AddProductBasketDTO->getProduct())
-            ->forOffer($AddProductBasketDTO->getOffer())
-            ->forVariation($AddProductBasketDTO->getVariation())
-            ->forModification($AddProductBasketDTO->getModification())
-            ->find();
 
         return $this->render([
             'form' => $form->createView(),
@@ -213,7 +251,63 @@ class AddController extends AbstractController
                 'message' => 'Ошибка при добавлении товара в корзину',
                 'status' => 400,
             ],
-            400
+            400,
         );
+    }
+
+    /** Модифицируем количество продукта в корзине */
+    private function totalModify(
+        PublicOrderProductDTO $product,
+        ProductUserBasketResult $ProductDetail,
+        array $body
+    ): bool
+    {
+        $cacheItem = $this->AppCache->getItem($this->key);
+
+        if(true === isset($body['action']))
+        {
+            $action = $body['action'];
+
+            $modifyTotal = null;
+
+            /** Изменяем количество */
+            if($action === 'change' && true === isset($body['quantity']))
+            {
+                $quantity = $body['quantity'];
+
+                /** Изменяем количество если оно в диапазоне от min до max */
+                if(
+                    $quantity >= $ProductDetail->getCategoryMinimal()
+                    && $quantity <= $ProductDetail->getProductQuantity()
+                )
+                {
+                    $modifyTotal = $quantity;
+                }
+            }
+
+            /** Уменьшаем пока общее количество больше минимального количества */
+            if($action === 'minus' && $product->getPrice()->getTotal() > $ProductDetail->getCategoryMinimal())
+            {
+                $modifyTotal = $product->getPrice()->getTotal() - 1;
+            }
+
+            /** Увеличиваем пока общее количество меньше наличия */
+            if($action === 'plus' && $product->getPrice()->getTotal() < $ProductDetail->getProductQuantity())
+            {
+                $modifyTotal = $product->getPrice()->getTotal() + 1;
+            }
+
+            /** Если было изменение цены - пересохраняем кэш */
+            if(null !== $modifyTotal)
+            {
+                $product->getPrice()->setTotal($modifyTotal);
+                $cacheItem->set($this->products);
+                $this->AppCache->save($cacheItem);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }

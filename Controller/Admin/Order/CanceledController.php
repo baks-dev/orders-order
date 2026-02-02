@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,11 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
+use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\ReturnOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,6 +57,7 @@ final class CanceledController extends AbstractController
         EntityManagerInterface $EntityManager,
         CentrifugoPublishInterface $publish,
         OrderStatusHandler $OrderStatusHandler,
+        ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
     ): Response
     {
 
@@ -79,6 +84,7 @@ final class CanceledController extends AbstractController
             {
                 /** Пробуем найти по идентификатору заказа */
                 $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
+
                 if(false === ($orderMain instanceof Order))
                 {
                     continue;
@@ -91,7 +97,34 @@ final class CanceledController extends AbstractController
                     continue;
                 }
 
+                /** Проверяем, что заказ не был отменен */
+                $isExists = $ExistOrderEventByStatusRepository
+                    ->forOrder($order->getId())
+                    ->forStatus(OrderStatusCanceled::class)
+                    ->isExists();
+
+                if(true === $isExists)
+                {
+                    return new JsonResponse(
+                        [
+                            'type' => 'success',
+                            'header' => sprintf('%s: Отмена заказа', $orderEvent->getOrderNumber()),
+                            'message' => 'Не возможно повторно отменить заказ',
+                            'status' => 400,
+                        ],
+                        400,
+                    );
+                }
+
+                /** По умолчанию заказ отменяется */
                 $orderCanceledDTO = new CanceledOrderDTO();
+
+                /** Если текущий статус Completed «Выполнен» - применяем заказу статус отмены */
+                if($orderEvent->isStatusEquals(OrderStatusCompleted::class))
+                {
+                    $orderCanceledDTO = new ReturnOrderDTO();
+                }
+
                 $orderEvent->getDto($orderCanceledDTO);
 
                 /** Присваиваем комментарий из формы только в случае, если не было комментария у заказа */
@@ -162,6 +195,17 @@ final class CanceledController extends AbstractController
                 ->send('orders');
 
             $numbers[] = $orderEvent->getOrderNumber();
+
+        }
+
+        /** Если заказ один и имеется комментарий к заказу - присваиваем комментарий из заказа */
+        if(
+            isset($orderEvent)
+            && false === empty($orderEvent->getComment())
+            && $canceledOrdersDTO->getOrders()->count() === 1
+        )
+        {
+            $canceledOrdersDTO->setComment($orderEvent->getComment());
         }
 
         return $this->render([

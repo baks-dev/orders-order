@@ -25,9 +25,15 @@ namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Generator;
 
 interface OrderDetailInterface
 {
+    /**
+     * Фильтр по заказам
+     */
+    public function inOrders(array $orders): self;
+
     /**
      * Фильтр по заказу
      */
@@ -42,6 +48,11 @@ interface OrderDetailInterface
      * Метод возвращает Result с информацией об заказе
      */
     public function find(): OrderDetailResult|false;
+
+    /**
+     * Метод возвращает Generator с информацией об заказах
+     */
+    public function findAll(): Generator|false;
 
     /**
      * @deprecated Используйте метод onOrder() + find()

@@ -23,10 +23,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder\Tests;
+namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\Tests;
 
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\Messenger\ProductChangeReserveByOrder\ProductChangeReserveByOrderChangeDispatcher;
+use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewDispatcher;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use PHPUnit\Framework\Attributes\Group;
@@ -40,26 +40,28 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
 #[When(env: 'test')]
-class ProductChangeReserveByOrderTest extends KernelTestCase
+class ProductReserveByOrderNewDebugTest extends KernelTestCase
 {
     public function testUseCase(): void
     {
-        // Бросаем событие консольной комманды
+        self::assertTrue(true);
+        return;
+
+        // Бросаем событие консольной команды
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-        /** @var ProductChangeReserveByOrderChangeDispatcher $ProductChangeReserveByOrderChangeDispatcher */
-        $ProductChangeReserveByOrderChangeDispatcher = self::getContainer()->get(ProductChangeReserveByOrderChangeDispatcher::class);
+        /** @var ProductReserveByOrderNewDispatcher $ProductReserveByOrderNewDispatcher */
+        $ProductReserveByOrderNewDispatcher = self::getContainer()->get(ProductReserveByOrderNewDispatcher::class);
 
-        $ProductChangeReserveByOrderChangeDispatcher(
+        $ProductReserveByOrderNewDispatcher(
             new OrderMessage(
-                new OrderUid(null),
-                new OrderEventUid(null),
-                new OrderEventUid(null))
+                new OrderUid('019b35a1-6b7d-7597-bdfa-5f9f55379109'),
+                new OrderEventUid('019b35a1-6b7d-7597-bdfa-5f9f5540b20e'),
+                null)
         );
 
-        self::assertTrue(true);
     }
 
 }

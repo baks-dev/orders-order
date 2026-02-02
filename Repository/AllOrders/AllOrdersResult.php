@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -79,6 +79,7 @@ final  class AllOrdersResult
         private readonly ?string $order_profile_discount, //  null
         private readonly ?string $account_email, //  null
         private readonly ?string $order_profile, //  "Пользователь"
+        private readonly ?string $order_profile_username, //  "Пользователь"
         private readonly ?string $order_user,
         //  "[{"0": 1, "profile_name": "Контактный телефон", "profile_type": "phone_field", "profile_value": "+9 (878) 787-98-98"}]"
         private readonly ?bool $order_move, //  false
@@ -367,6 +368,13 @@ final  class AllOrdersResult
 
         return json_decode($this->order_user, false, 512, JSON_THROW_ON_ERROR);
     }
+
+    public function getClientUsername(): ?string
+    {
+        return $this->order_profile_username;
+    }
+
+
 
     public function getOrganizationName(): ?object
     {

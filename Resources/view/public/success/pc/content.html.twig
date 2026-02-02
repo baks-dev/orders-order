@@ -1,24 +1,35 @@
 <main class="main container px-4">
 
+    {% set orderslength = orders|length %}
+
     <div class="mt-3">
         {{ include(_self|replace({ "content.html.twig": "breadcrumb.html.twig" })) }}
     </div>
 
-
     <section id="orders">
 
-        <h1 class="h4 text-uppercase fw-bolder py-2">Заказ {{ order.orderNumber }}</h1>
+        <h1 class="h4 text-uppercase fw-bolder py-2">Заказ {{ orderNumber }}</h1>
+
+        {% if orderslength > 1 %}
+            <div class="d-flex align-items-baseline gap-3">
+                <div>
+                    <div class="icon rounded-circle bg-contain p-2 bg-primary text-white"
+                         style="width: 10px; height: 10px;"><span class="small">!</span>
+                    </div>
+                </div>
+                <p> Ваш заказ был разделен на {{ orderslength }} отправления.</p>
+            </div>
+        {% endif %}
 
         <div class="alert alert-warning" role="alert">
 
             <div class='d-flex justify-content-between align-items-center'>
                 <div>
-                    <p>Ваш заказ был успешно оформлен и находится в процессе обработки. Наша команда уже начала работу
-                        над ним и постарается выполнить его в кратчайшие сроки.</p>
+                    <p>Ваш заказ был успешно оформлен и находится в процессе обработки. Наша команда уже начала
+                        работу над ним и постарается выполнить его в кратчайшие сроки.</p>
 
                     <p>Как только он будет готов к отправке, мы свяжемся с Вами для уточнения деталей доставки или
                         предоставления необходимой информации.</p>
-
 
                 </div>
 
@@ -31,13 +42,24 @@
 
         </div>
 
+
     </section>
+
 
     <section id="products">
         <h1 class="h6 text-uppercase fw-bolder py-2">Детали заказа</h1>
-        {{ include(_self|replace({ "content.html.twig": "products.html.twig" })) }}
-        {# Услуги #}
-        {{ include(_self|replace({ "content.html.twig": "services.html.twig" })) }}
+
+        {% for order in orders %}
+
+            {% if orderslength > 1 %}
+                <h5>Отправление {{ order.orderNumber }}</h5>
+            {% endif %}
+
+            {{ include(_self|replace({ "content.html.twig": "products.html.twig" })) }}
+
+            {# Услуги #}
+            {{ include(_self|replace({ "content.html.twig": "services.html.twig" })) }}
+        {% endfor %}
 
         <div class="py-3">
             Благодарим Вас за выбор нашей компании. Мы ценим оказанное нам доверие и стремимся предоставить Вам
@@ -47,6 +69,7 @@
 
     </section>
 
+
+    {# <hr class="mt-5 rounded-circle border-0" style="height: 20px; box-shadow: 0 20px 20px -6px #000;"> #}
+
 </main>
-
-

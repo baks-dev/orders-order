@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,44 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add;
+namespace BaksDev\Orders\Order\UseCase\Admin\Decommission;
 
+use BaksDev\Orders\Order\UseCase\Admin\Decommission\Invariable\NewDecommissionOrderInvariableForm;
+use BaksDev\Orders\Order\UseCase\Admin\Decommission\Products\NewDecommissionOrderProductForm;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class OrderProductForm extends AbstractType
+final class NewDecommissionOrderForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('price', Price\OrderPriceForm::class);
+        $builder->add('invariable', NewDecommissionOrderInvariableForm::class, ['label' => false]);
+
+        $builder->add('product', CollectionType::class, [
+            'entry_type' => NewDecommissionOrderProductForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+        ]);
+
+        $builder->add('signs', CheckboxType::class, ['required' => false]);
+
+        $builder->add('new_decommission_order', SubmitType::class, [
+            'label' => 'Save',
+            'label_html' => true,
+            'attr' => ['class' => 'btn-primary'],
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => OrderProductDTO::class,
-            'attr' => ['class' => 'order-basket']
+            'data_class' => NewDecommissionOrderDTO::class,
+            'method' => 'POST',
+            'attr' => ['class' => 'w-100'],
         ]);
     }
-
 }

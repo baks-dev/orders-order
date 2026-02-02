@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Project\OrderProjectForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\OrderUserForm;
@@ -47,7 +48,7 @@ final class OrderForm extends AbstractType
     {
         /* Коллекция продукции */
         $builder->add('product', CollectionType::class, [
-            'entry_type' => Add\OrderProductForm::class,
+            'entry_type' => PublicOrderProductForm::class,
             'entry_options' => ['label' => false],
             'label' => false,
             'by_reference' => false,
@@ -81,10 +82,9 @@ final class OrderForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if(!$data->getProduct()->isEmpty())
+                if(false === $data->getProduct()->isEmpty())
                 {
                     $form->add('usr', OrderUserForm::class, ['label' => false]);
-
 
                     /* Сохранить ******************************************************/
                     $form->add(

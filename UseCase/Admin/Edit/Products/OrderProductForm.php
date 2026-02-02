@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 
-use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
-use BaksDev\Products\Product\Repository\UpdateProductQuantity\SubProductQuantityInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceForm;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -37,7 +38,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceForm;
 
 final class OrderProductForm extends AbstractType
 {
@@ -51,10 +51,9 @@ final class OrderProductForm extends AbstractType
 
     public function __construct(
         private readonly RequestStack $request,
-        private readonly AddProductQuantityInterface $AddProductQuantity,
-        private readonly SubProductQuantityInterface $SubProductQuantity,
         private readonly Security $security,
-
+        //        private readonly AddProductQuantityInterface $AddProductQuantity,
+        //        private readonly SubProductQuantityInterface $SubProductQuantity,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -66,7 +65,36 @@ final class OrderProductForm extends AbstractType
         $builder->add('variation', HiddenType::class);
         $builder->add('modification', HiddenType::class);
 
-        /* Процент скидки для товара */
+        /**
+         * Коллекция единиц продукции
+         */
+
+        //        $builder->add('deletedItems', DeletedItemForm::class, ['label' => false]);
+
+        //        $builder->add('deletedItems', CollectionType::class, [
+        //            'entry_type' => DeletedItemForm::class,
+        //            'entry_options' => ['label' => false],
+        //            'label' => false,
+        //            'by_reference' => false,
+        //            'allow_delete' => true,
+        //            'allow_add' => true,
+        //            'prototype_name' => '__deleted-item__',
+        //        ]);
+
+        $builder->add('item', CollectionType::class, [
+            'entry_type' => OrderProductItemForm::class,
+            'entry_options' => ['label' => false],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__item__',
+        ]);
+
+        /**
+         * Процент скидки для товара
+         */
+
         $this->discount = match (true)
         {
             $this->security->isGranted('ROLE_ADMIN') => 100,
@@ -81,6 +109,10 @@ final class OrderProductForm extends AbstractType
             'attr' => ['min' => $this->discount ? $this->discount * -1 : 0],
             'required' => false,
         ]);
+
+        /**
+         * События формы
+         */
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
 
@@ -143,7 +175,7 @@ final class OrderProductForm extends AbstractType
                     $Session
                         ->getFlashBag()
                         ->add('Ошибка обновления количества',
-                            sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name'])
+                            sprintf('Стоимость товара %s или его наличие изменилось! Нельзя увеличить количество по новой цене либо на несуществующее наличие.', $card['product_name']),
                         );
 
                     $event->getForm()->addError(new FormError('Ошибка обновления количества'));
@@ -163,7 +195,7 @@ final class OrderProductForm extends AbstractType
                     $Session
                         ->getFlashBag()
                         ->add('Ошибка обновления количества ',
-                            sprintf('Недостаточное количество продукции %s для резерва', $card['product_name'])
+                            sprintf('Недостаточное количество продукции %s для резерва', $card['product_name']),
                         );
 
                     $event->getForm()->addError(new FormError('Ошибка обновления количества'));
@@ -211,7 +243,7 @@ final class OrderProductForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => OrderProductDTO::class,
-            'attr' => ['class' => 'order-basket']
+            'attr' => ['class' => 'order-basket'],
         ]);
     }
 

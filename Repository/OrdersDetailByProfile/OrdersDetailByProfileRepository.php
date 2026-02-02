@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -50,6 +50,7 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionFi
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
@@ -301,13 +302,14 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
 
         /** Информация о профиле пользователя */
         $dbal
-            ->addSelect('user_profile_info.discount AS order_profile_discount')
+            ->addSelect('user_profile_discount.value AS order_profile_discount')
             ->leftJoin(
                 'user_profile_event',
-                UserProfileInfo::class,
-                'user_profile_info',
-                'user_profile_info.profile = user_profile_event.id'
+                UserProfileDiscount::class,
+                'user_profile_discount',
+                'user_profile_discount.event = user_profile_event.id',
             );
+
 
         $dbal->leftJoin(
             'user_profile_event',

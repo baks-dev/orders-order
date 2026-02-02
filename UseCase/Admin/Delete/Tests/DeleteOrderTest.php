@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,36 +31,31 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-//use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\NewOrderTest;
-//use BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\EditOrderTest;
-
-/**
- * depends BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\NewOrderTest::class
- * depends BaksDev\Orders\Order\UseCase\Admin\NewEdit\Tests\\EditOrderTest::class
- */
 #[When(env: 'test')]
 #[Group('orders-order')]
 class DeleteOrderTest extends KernelTestCase
 {
+    #[DependsOnClass(OrderNewTest::class)]
+    #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testUseCase(): void
     {
-        self::assertTrue(true);
-        return;
-
         /** @var CurrentOrderEventInterface $OrderCurrentEvent */
         $OrderCurrentEvent = self::getContainer()->get(CurrentOrderEventInterface::class);
         $OrderEvent = $OrderCurrentEvent->forOrder(OrderUid::TEST)->find();
         self::assertNotNull($OrderEvent);
 
         /** @see OrderDeleteDTO */
-        $OrderDeleteDTO = new DeleteOrderDTO(new UserUid(), new UserProfileUid());
+        $OrderDeleteDTO = new DeleteOrderDTO();
         $OrderEvent->getDto($OrderDeleteDTO);
 
         /** @var DeleteOrderHandler $OrderHandler */

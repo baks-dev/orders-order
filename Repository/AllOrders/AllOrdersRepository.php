@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\DeliveryTransport\Entity\Transport\DeliveryTransport;
+use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
@@ -51,8 +52,12 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
@@ -70,6 +75,7 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Personal\UserProfilePersonal;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
@@ -212,12 +218,6 @@ final class AllOrdersRepository implements AllOrdersInterface
                 );
         }
 
-        $dbal
-            ->addSelect('order_event.created AS order_created')
-            ->addSelect('order_event.status AS order_status')
-            ->addSelect('order_event.comment AS order_comment')
-            ->addSelect('order_event.danger AS order_danger');
-
         if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
         {
             $this->status = $this->filter->getStatus();
@@ -237,6 +237,10 @@ final class AllOrdersRepository implements AllOrdersInterface
         }
 
         $dbal
+            ->addSelect('order_event.created AS order_created')
+            ->addSelect('order_event.status AS order_status')
+            ->addSelect('order_event.comment AS order_comment')
+            ->addSelect('order_event.danger AS order_danger')
             ->join(
                 'orders',
                 OrderEvent::class,
@@ -304,9 +308,8 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
         // Доставка
-        $dbal->addSelect('order_delivery.delivery_date AS delivery_date');
-
         $dbal
+            ->addSelect('order_delivery.delivery_date AS delivery_date')
             ->leftJoin(
                 'order_user',
                 OrderDelivery::class,
@@ -369,7 +372,7 @@ final class AllOrdersRepository implements AllOrdersInterface
                 'delivery_event',
                 DeliveryTrans::class,
                 'delivery_trans',
-                'delivery_trans.event = delivery_event.id',
+                'delivery_trans.event = delivery_event.id AND delivery_trans.local = :local',
             );
 
 
@@ -384,12 +387,21 @@ final class AllOrdersRepository implements AllOrdersInterface
             );
 
         $dbal
-            ->addSelect('user_profile_info.discount AS order_profile_discount')
+            ->addSelect('user_profile_discount.value AS order_profile_discount')
             ->leftJoin(
                 'user_profile',
-                UserProfileInfo::class,
-                'user_profile_info',
-                'user_profile_info.profile = user_profile.profile ',
+                UserProfileDiscount::class,
+                'user_profile_discount',
+                'user_profile_discount.event = user_profile.id',
+            );
+
+        $dbal
+            ->addSelect('user_profile_personal.username AS order_profile_username')
+            ->leftJoin(
+                'user_profile',
+                UserProfilePersonal::class,
+                'user_profile_personal',
+                'user_profile_personal.event = user_profile.id',
             );
 
 
@@ -435,10 +447,10 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         $dbal
             ->leftJoin(
-                'user_profile_info',
+                'order_user',
                 Account::class,
                 'account',
-                'account.id = user_profile_info.usr',
+                'account.id = order_user.usr',
             );
 
 
@@ -801,7 +813,6 @@ final class AllOrdersRepository implements AllOrdersInterface
             }
             else
             {
-
                 $dbal
                     ->createSearchQueryBuilder($this->search)
                     ->addSearchLike('order_invariable.number')
@@ -814,14 +825,41 @@ final class AllOrdersRepository implements AllOrdersInterface
 
 
         /** По умолчанию сортировка по дате доставки */
+        $dbal->addOrderBy('order_event.danger', 'DESC');
         $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
 
-        if(
-            false === ($this->status instanceof OrderStatus) ||
-            $this->status->equals(OrderStatusCompleted::class)
-        )
+        /** Список всех заказов без переданных статусов сортируем по дате изменения */
+        if(false === ($this->status instanceof OrderStatus))
         {
             $dbal->orderBy('orders_modify.mod_date', 'DESC');
+        }
+
+        if(true === ($this->status instanceof OrderStatus))
+        {
+            if(
+                $this->status->equals(OrderStatusPackage::class)
+                || $this->status->equals(OrderStatusDelivery::class)
+                || $this->status->equals(OrderStatusExtradition::class)
+            )
+            {
+                $dbal->orderBy('order_event.danger', 'DESC');
+                $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+            }
+
+            if($this->status->equals(OrderStatusCompleted::class))
+            {
+                $dbal->orderBy('order_event.danger', 'DESC');
+                $dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders_modify.mod_date END', 'ASC');
+                $dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders_modify.mod_date END', 'DESC');
+            }
+
+            if(
+                $this->status->equals(OrderStatusCanceled::class)
+                || $this->status->equals(OrderStatusReturn::class)
+            )
+            {
+                $dbal->orderBy('orders_modify.mod_date', 'DESC');
+            }
         }
 
         $dbal->allGroupByExclude();

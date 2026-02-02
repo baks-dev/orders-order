@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\Twig;
 
 use BaksDev\Core\Cache\AppCacheInterface;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -103,7 +103,7 @@ final class ProductInBasketExtension extends AbstractExtension
          * @var ArrayCollection $products
          * Проверяем, есть ли в корзине данный товар
          */
-        return $products->exists(function($key, OrderProductDTO $product) use (
+        return $products->exists(function($key, PublicOrderProductDTO $product) use (
             $event,
             $offer,
             $variation,

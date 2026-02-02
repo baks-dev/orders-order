@@ -1,0 +1,92 @@
+<div class="d-flex justify-content-start align-items-center text-center {{ notEdit ? 'd-none' }}"
+     data-item="product-item"
+     data-item-index="__item__"
+
+     id='{{ product.item.vars.prototype.vars.id }}'>
+
+
+    {# Удалить #}
+    <button type="button"
+            data-id='{{ product.item.vars.prototype.vars.id }}'
+            data-product-price='{{ product.price.price.vars.id }}'
+            data-total="{{ product.price.total.vars.id }}"
+
+            data-items-index="__item__"
+            data-items-deleted="{{ productGroup }}-items-deleted"
+            data-items-deleted-prototype="{{ productGroup }}-items-deleted-prototype"
+            class="btn btn-outline-danger border-0 py-1 px-2 delete-el">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+             fill="currentColor"
+             viewBox="0 0 16 16" class="mb-1">
+            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"></path>
+        </svg>
+    </button>
+
+
+    {% set class_price = 'item-price' %}
+    {% set class_discount = 'item-discount' %}
+
+    {# Цена #}
+    <button type="button" class="btn btn-sm"
+            title="Уменьшить количество"
+            data-id='{{ product.item.vars.prototype.price.price.vars.id }}'
+            data-action='price-minus'
+
+            data-step='100'>
+        <span class="h4 text-muted opacity-50">-</span>
+    </button>
+
+    {{ form_widget(product.item.vars.prototype.price.price, { attr: {
+        class: 'form-control-sm rounded-3 '~class_price,
+        style: 'width: 75px;',
+        disabled: false,
+        'data-price': product.price.price.vars.value,
+        'data-total': product.price.total.vars.id,
+        'data-item': productGroup,
+    } }) }}
+
+    <button type="button" class="btn btn-sm"
+            title="Увеличить количество"
+            data-id='{{ product.item.vars.prototype.price.price.vars.id }}'
+            data-action='price-plus'
+
+            data-step='100'>
+        <span class="h5 text-muted opacity-50">+</span>
+    </button>
+
+    {# Скидка #}
+    <div class="ps-2">
+        <div class="input-group">
+
+            {{ form_widget(product.item.vars.prototype.price.discount, { attr: {
+                class: 'form-control-sm '~class_discount,
+                style: 'width: 90px;',
+                placeholder: "Скидка",
+                title: "Скидка",
+                'data-target': product.item.vars.prototype.price.price.vars.id,
+
+            } }) }}
+
+            <span class="input-group-text" id="basic-addon1">
+                ± %
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="ms-2 p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-qr-code-scan" viewBox="0 0 16 16">
+            <path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5M.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5M4 4h1v1H4z"></path>
+            <path d="M7 2H2v5h5zM3 3h3v3H3zm2 8H4v1h1z"></path>
+            <path d="M7 9H2v5h5zm-4 1h3v3H3zm8-6h1v1h-1z"></path>
+            <path d="M9 2h5v5H9zm1 1v3h3V3zM8 8v2h1v1H8v1h2v-2h1v2h1v-1h2v-1h-3V8zm2 2H9V9h1zm4 2h-1v1h-2v1h3zm-4 2v-1H8v1z"></path>
+            <path d="M12 9h2V8h-2z"></path>
+        </svg>
+    </div>
+
+    не зарезервирован
+
+</div>

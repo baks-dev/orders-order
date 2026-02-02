@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,7 @@ use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\Items\PublicOrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\Delivery\Field\OrderDeliveryFieldDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\UserProfile\UserProfileDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\UserProfile\Value\ValueDTO;
@@ -223,9 +224,32 @@ final class OrderHandler extends AbstractHandler
             }
         }
 
-        $this->setCommand($command);
 
-        $this->preEventPersistOrUpdate(Order::class, OrderEvent::class);
+        /**
+         * Создаем единицу продукта по количеству продукта в заказе
+         */
+        foreach($command->getProduct() as $PublicOrderProductDTO)
+        {
+            for($i = 0; $i < $PublicOrderProductDTO->getPrice()->getTotal(); $i++)
+            {
+                $item = new PublicOrderProductItemDTO();
+
+                /**
+                 * Присваиваем цену из продукта в заказе
+                 */
+                $item
+                    ->getPrice()
+                    ->setPrice($PublicOrderProductDTO->getPrice()->getPrice())
+                    ->setCurrency($PublicOrderProductDTO->getPrice()->getCurrency());
+
+                $PublicOrderProductDTO->addItem($item);
+            }
+        }
+
+
+        $this
+            ->setCommand($command)
+            ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
 
         /* Валидация всех объектов */
         if($this->validatorCollection->isInvalid())

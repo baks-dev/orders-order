@@ -36,8 +36,8 @@
 
 
             {% if order.orderProfileDiscount %}
-                <div class="position-absolute small badge bg-danger translate-middle rounded-1 top-50 start-100">
-                    {{ order.orderProfileDiscount }} %
+                <div class="position-absolute small badge bg-danger translate-middle rounded-1 top-50 start-100 mt-1">
+                    {{ order.orderProfileDiscount }}
                 </div>
             {% endif %}
 
@@ -159,6 +159,7 @@
                     {{ order.orderProfile }}
                 </div>
 
+
                 {% if order.getOrganizationName %}
                     <div class="text-primary text-truncate"
                          style="max-width: 140px;"
@@ -172,17 +173,16 @@
                     </div>
                 {% endif %}
 
+
                 {% if order.clientName %}
 
                     <div class='mb-1 text-truncate pointer fw-bolder'
                          style="max-width: 140px;"
                          role="tooltip"
                          data-bs-toggle="tooltip"
-                         data-bs-placement="bottom"
+                         data-bs-placement="left"
                          data-bs-delay='{"show":200,"hide":100}'
-                         title='{% for client in order.clientName %}
-                            {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
-                        {% endfor %}'
+                         title='{{ order.getClientUsername }}'
                     >
                         {% for client in order.clientName %}
                             {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
@@ -192,30 +192,31 @@
                 {% endif %}
 
                 {% if order.clientPhone %}
-                    <div class='mb-1 text-truncate pointer'
+                    <div class='mb-1 text-truncate pointer copy'
                          style="max-width: 140px;"
                          role="tooltip"
                          data-bs-toggle="tooltip"
-                         data-bs-placement="bottom"
+                         data-bs-placement="left"
                          data-bs-delay='{"show":200,"hide":100}'
                          title='{{ order.clientPhone.profile_value }}'
+                         data-copy="{{ order.clientPhone.profile_value }}"
                     >
                         {{ order.clientPhone.profile_value|call_twig_func(order.clientPhone.profile_type~'_template') }}
                     </div>
                 {% endif %}
 
                 {% if order.accountEmail %}
-                    <div class="text-truncate pointer mb-1" style="max-width: 140px;">
-                        <a href="mailto:{{ order.accountEmail }}"
-                           class="text-decoration-none"
-                           role="tooltip"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="bottom"
-                           data-bs-delay='{"show":200,"hide":100}'
-                           title='{{ order.accountEmail }}'
-                        >
-                            @ {{ order.accountEmail }}
-                        </a>
+                    <div class="text-truncate pointer mb-1 copy text-primary"
+                         style="max-width: 140px;"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="left"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='{{ order.accountEmail }}'
+                         data-copy="{{ order.accountEmail }}"
+                    >
+                        @ {{ order.accountEmail }}
+
                     </div>
                 {% endif %}
 

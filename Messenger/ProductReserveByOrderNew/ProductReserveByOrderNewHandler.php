@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Repository\UpdateProductQuantity\AddProductQuantityInterface;
@@ -33,26 +34,26 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Добавить резерв на новый заказ
+ * Добавляет резерв в КАРТОЧКЕ товара
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductReserveByOrderNewHandler
 {
     public function __construct(
-        #[Target('productsProductLogger')] private LoggerInterface $logger,
-        private AddProductQuantityInterface $addProductQuantity,
-        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifier,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
+        private MessageDispatchInterface $messageDispatch,
+        private AddProductQuantityInterface $addProductQuantityRepository,
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierRepository,
     ) {}
 
     public function __invoke(ProductReserveByOrderNewMessage $message): void
     {
-
         /**
          * Всегда пробуем определить активное состояние карточки на случай обновления
          */
 
-        $CurrentProductIdentifierResult = $this->CurrentProductIdentifier
+        $CurrentProductIdentifierResult = $this->CurrentProductIdentifierRepository
             ->forEvent($message->getEvent())
             ->forOffer($message->getOffer())
             ->forVariation($message->getVariation())
@@ -62,16 +63,18 @@ final readonly class ProductReserveByOrderNewHandler
         if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
         {
             $this->logger->critical(
-                'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__],
+                message: sprintf(
+                    '%s Невозможно снять резерв с карточки товара: не найдены активные идентификаторы продукта',
+                    $message->getNumber() ?? 'orders-order',
+                ),
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
         }
 
-
         $result = $this
-            ->addProductQuantity
+            ->addProductQuantityRepository
             ->forEvent($CurrentProductIdentifierResult->getEvent())
             ->forOffer($CurrentProductIdentifierResult->getOffer())
             ->forVariation($CurrentProductIdentifierResult->getVariation())
@@ -80,12 +83,14 @@ final readonly class ProductReserveByOrderNewHandler
             ->addQuantity(false)
             ->update();
 
-
         if($result === false)
         {
             $this->logger->critical(
-                'orders-order: Невозможно добавить резерв на новый заказ: карточка не найдена',
-                [$message, self::class.':'.__LINE__]
+                message: sprintf(
+                    '%s Невозможно добавить резерв на новый заказ: карточка не найдена',
+                    $message->getNumber() ?? 'orders-order',
+                ),
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
@@ -94,16 +99,25 @@ final readonly class ProductReserveByOrderNewHandler
         if($result === 0)
         {
             $this->logger->critical(
-                'orders-order: Невозможно добавить резерв на новый заказ: недостаточное количество для резерва',
-                [$message, self::class.':'.__LINE__]
+                message: sprintf(
+                    '%s Невозможно добавить резерв на новый заказ: недостаточное количество для резерва',
+                    $message->getNumber() ?? 'orders-order',
+                ),
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
         }
 
+        $this->messageDispatch->addClearCacheOther('products-product');
+
         $this->logger->info(
-            sprintf('orders-order: Добавили %s резерва продукции в карточке', $message->getTotal()),
-            [$message, self::class.':'.__LINE__]
+            message: sprintf(
+                '%s Добавили резерв продукции в карточке. Резерв равен %s',
+                $message->getNumber() ?? 'orders-order',
+                $message->getTotal(),
+            ),
+            context: [self::class.':'.__LINE__, var_export($message, true),],
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,7 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         $AdminUserProfile = self::getContainer()->get(AdminUserProfileInterface::class);
         $UserProfileUid = $AdminUserProfile->fetchUserProfile();
 
-        if(is_null($UserProfileUid))
+        if(false === $UserProfileUid)
         {
             self::$result = false;
             echo PHP_EOL.'Не найден профиль администратора : '.self::class.PHP_EOL;
@@ -78,7 +78,7 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
         if(false === $result || false === $result->valid())
         {
             self::$result = false;
-            echo PHP_EOL.'Не найдено ни одного заказа у профиля администратора : '.self::class.PHP_EOL;
+            echo PHP_EOL.'Не найдено ни одного заказа у профиля администратора : '.self::class.':'.__LINE__.PHP_EOL;
             return;
         }
 

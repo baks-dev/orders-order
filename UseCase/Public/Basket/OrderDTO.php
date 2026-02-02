@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket;
 
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\UseCase\Public\Basket\Add\OrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Invariable\OrderInvariableDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Project\OrderProjectDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
@@ -93,7 +93,11 @@ final class OrderDTO implements OrderEventInterface
         return $this->invariable;
     }
 
-    /** Коллекция продукции в заказе */
+    /**
+     * Коллекция продукции в заказе
+     *
+     * @return ArrayCollection<int, PublicOrderProductDTO>
+     */
     public function getProduct(): ArrayCollection
     {
         return $this->product;
@@ -104,7 +108,7 @@ final class OrderDTO implements OrderEventInterface
         $this->product = $product;
     }
 
-    public function addProduct(OrderProductDTO $product): void
+    public function addProduct(PublicOrderProductDTO $product): void
     {
         if(!$this->product->contains($product))
         {
@@ -112,7 +116,7 @@ final class OrderDTO implements OrderEventInterface
         }
     }
 
-    public function removeProduct(OrderProductDTO $product): void
+    public function removeProduct(PublicOrderProductDTO $product): void
     {
         $this->product->removeElement($product);
     }

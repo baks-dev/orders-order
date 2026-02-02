@@ -23,7 +23,6 @@
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceForm;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserForm;
@@ -35,8 +34,6 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class EditOrderForm extends AbstractType
@@ -99,27 +96,34 @@ final class EditOrderForm extends AbstractType
             'required' => false,
         ]);
 
-
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            function(FormEvent $event): void {
-
-                $form = $event->getForm();
-
-                /** @var EditOrderDTO $data */
-                $data = $event->getData();
-
-                /** Если заказ выполнен - не отображаем кнопку для сохранения изменений */
-                if(false === $data->getStatus()->equals(OrderStatusCompleted::class))
-                {
-                    $form->add(
-                        'order',
-                        SubmitType::class,
-                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
-                    );
-                }
-            }
+        $builder->add(
+            'order',
+            SubmitType::class,
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
         );
+
+        // @TODO теперь можем сохранять в любом статусе
+        //
+        //        $builder->addEventListener(
+        //            FormEvents::PRE_SET_DATA,
+        //            function(FormEvent $event): void {
+        //
+        //                $form = $event->getForm();
+        //
+        //                /** @var EditOrderDTO $data */
+        //                $data = $event->getData();
+        //
+        //                /** Если заказ выполнен - не отображаем кнопку для сохранения изменений */
+        //                if(false === $data->getStatus()->equals(OrderStatusCompleted::class))
+        //                {
+        //                    $form->add(
+        //                        'order',
+        //                        SubmitType::class,
+        //                        ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+        //                    );
+        //                }
+        //            }
+        //        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

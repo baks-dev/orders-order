@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,8 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Products;
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\DeletedItem\DeletedItemDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Posting\OrderProductPostingDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Price\OrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
@@ -74,17 +76,32 @@ final class OrderProductDTO implements OrderProductInterface
     #[Assert\Valid]
     private ArrayCollection $posting;
 
+    /**
+     * Коллекция единиц товара
+     *
+     * @var ArrayCollection<int, OrderProductItemDTO> $item
+     */
+    #[Assert\Valid]
+    private ArrayCollection $item;
+
+    /**
+     * HELPERS
+     */
+
     /** Персональная скидка пользователя для товара */
     private ?int $discount = null;
 
     /** Карточка товара */
     private ProductUserBasketResult|null $card = null;
 
+    private ArrayCollection $deletedItems;
 
     public function __construct()
     {
         $this->price = new OrderPriceDTO();
         $this->posting = new ArrayCollection();
+        $this->item = new ArrayCollection();
+        $this->deletedItems = new ArrayCollection();
     }
 
     public function getOrderProductId(): OrderProductUid
@@ -103,7 +120,7 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->product;
     }
 
-    public function setProduct(ProductEventUid|string $product): void
+    public function setProduct(ProductEventUid|string $product): self
     {
         if(true === is_string($product))
         {
@@ -116,6 +133,8 @@ final class OrderProductDTO implements OrderProductInterface
         }
 
         $this->product = $product;
+
+        return $this;
     }
 
     /** Торговое предложение */
@@ -124,7 +143,7 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->offer;
     }
 
-    public function setOffer(ProductOfferUid|string|null $offer): void
+    public function setOffer(ProductOfferUid|string|null $offer): self
     {
         if(true === is_string($offer))
         {
@@ -132,6 +151,8 @@ final class OrderProductDTO implements OrderProductInterface
         }
 
         $this->offer = $offer;
+
+        return $this;
     }
 
     /** Множественный вариант торгового предложения */
@@ -140,7 +161,7 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->variation;
     }
 
-    public function setVariation(ProductVariationUid|string|null $variation): void
+    public function setVariation(ProductVariationUid|string|null $variation): self
     {
         if(true === is_string($variation))
         {
@@ -148,6 +169,8 @@ final class OrderProductDTO implements OrderProductInterface
         }
 
         $this->variation = $variation;
+
+        return $this;
     }
 
     /** Модификация множественного варианта торгового предложения  */
@@ -156,7 +179,7 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->modification;
     }
 
-    public function setModification(ProductModificationUid|string|null $modification): void
+    public function setModification(ProductModificationUid|string|null $modification): self
     {
         if(true === is_string($modification))
         {
@@ -164,6 +187,8 @@ final class OrderProductDTO implements OrderProductInterface
         }
 
         $this->modification = $modification;
+
+        return $this;
     }
 
     /** Стоимость и количество */
@@ -172,20 +197,11 @@ final class OrderProductDTO implements OrderProductInterface
         return $this->price;
     }
 
-    public function setPrice(OrderPriceDTO $price): void
+    public function setPrice(OrderPriceDTO $price): self
     {
         $this->price = $price;
-    }
 
-    /** Карточка товара */
-    public function getCard(): ?ProductUserBasketResult
-    {
-        return $this->card;
-    }
-
-    public function setCard(bool|ProductUserBasketResult $card): void
-    {
-        $this->card = $card ?: null;
+        return $this;
     }
 
     /**
@@ -197,7 +213,6 @@ final class OrderProductDTO implements OrderProductInterface
     {
         return $this->posting;
     }
-
 
     public function addPosting(OrderProductPostingDTO $posting): void
     {
@@ -216,6 +231,38 @@ final class OrderProductDTO implements OrderProductInterface
         $this->posting->removeElement($posting);
     }
 
+    /**
+     * Коллекция разделенных отправлений одного заказа
+     *
+     * @return ArrayCollection<int, OrderProductItemDTO>
+     */
+    public function getItem(): ArrayCollection
+    {
+        return $this->item;
+    }
+
+    public function addItem(OrderProductItemDTO $item): void
+    {
+        $exist = $this->item->exists(function(int $k, OrderProductItemDTO $value) use ($item) {
+            /** @var OrderProductItemDTO $item */
+            return $value->getConst()->equals($item->getConst());
+        });
+
+        if(false === $exist)
+        {
+            $this->item->add($item);
+        }
+    }
+
+    public function removeItem(OrderProductItemDTO $item): void
+    {
+        $this->item->removeElement($item);
+    }
+
+    /**
+     * HELPERS
+     */
+
     public function getDiscount(): ?int
     {
         return $this->discount;
@@ -225,5 +272,44 @@ final class OrderProductDTO implements OrderProductInterface
     {
         $this->discount = $discount;
         return $this;
+    }
+
+    /** Карточка товара */
+    public function getCard(): ?ProductUserBasketResult
+    {
+        return $this->card;
+    }
+
+    public function setCard(bool|ProductUserBasketResult $card): void
+    {
+        $this->card = $card ?: null;
+    }
+
+    /**
+     * Коллекция констант удаленных единиц продукта
+     *
+     * @return ArrayCollection<int, DeletedItemDTO>
+     */
+    public function getDeletedItems(): ArrayCollection
+    {
+        return $this->deletedItems;
+    }
+
+    public function addDeletedItem(DeletedItemDTO $item): void
+    {
+        $exist = $this->item->exists(function(int $k, DeletedItemDTO $value) use ($item) {
+            /** @var DeletedItemDTO $item */
+            return $value->getConst()->equals($item->getConst());
+        });
+
+        if(false === $exist)
+        {
+            $this->deletedItems->add($item);
+        }
+    }
+
+    public function removeDeletedItem(DeletedItemDTO $item): void
+    {
+        $this->deletedItems->removeElement($item);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderEvent */
 final class EditOrderDTO implements OrderEventInterface
 {
+    /** Идентификатор события */
+    #[Assert\Uuid]
+    private ?OrderEventUid $id = null;
+
     /** Идентификатор заказа */
     #[Assert\Uuid]
     private ?OrderUid $order = null;
@@ -47,9 +51,6 @@ final class EditOrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderUid $orders = null;
 
-    /** Идентификатор события */
-    #[Assert\Uuid]
-    private ?OrderEventUid $id = null;
 
     /** Постоянная величина */
     #[Assert\Valid]
@@ -62,7 +63,7 @@ final class EditOrderDTO implements OrderEventInterface
     /**
      * Коллекция продукции в заказе
      *
-     * @var ArrayCollection{int, OrderProductDTO} $product
+     * @var ArrayCollection<int, OrderProductDTO> $product
      */
     #[Assert\Valid]
     private ArrayCollection $product;
@@ -70,7 +71,7 @@ final class EditOrderDTO implements OrderEventInterface
     /**
      * Коллекция услуг в заказе
      *
-     * @var ArrayCollection{int, OrderServiceDTO} $product
+     * @var ArrayCollection<int, OrderServiceDTO> $product
      */
     #[Assert\Valid]
     private ArrayCollection $serv;
@@ -120,7 +121,7 @@ final class EditOrderDTO implements OrderEventInterface
     /**
      * Коллекция продукции в заказе
      *
-     * @return ArrayCollection{int, OrderProductDTO}
+     * @return ArrayCollection<int, OrderProductDTO>
      *
      */
 
@@ -137,7 +138,21 @@ final class EditOrderDTO implements OrderEventInterface
 
     public function addProduct(OrderProductDTO $product): void
     {
-        if(!$this->product->contains($product))
+        /**
+         * Проверяем продукт на уникальность в коллекции
+         */
+        $exist = $this->product->exists(function($k, OrderProductDTO $value) use ($product) {
+
+            return $value->getProduct()->equals($product->getProduct())
+                &&
+                ((is_null($value->getOffer()) && is_null($product->getOffer())) || $value->getOffer()->equals($product->getOffer()))
+                &&
+                ((is_null($value->getVariation()) && is_null($product->getVariation())) || $value->getVariation()->equals($product->getVariation()))
+                &&
+                ((is_null($value->getModification()) && is_null($product->getModification())) || $value->getModification()->equals($product->getModification()));
+        });
+
+        if(false === $exist)
         {
             $this->product->add($product);
         }
@@ -152,7 +167,7 @@ final class EditOrderDTO implements OrderEventInterface
     /**
      * Коллекция услуг в заказе
      *
-     * @return ArrayCollection{int, OrderServiceDTO}
+     * @return ArrayCollection<int, OrderServiceDTO>
      */
 
     public function getServ(): ArrayCollection
@@ -265,5 +280,13 @@ final class EditOrderDTO implements OrderEventInterface
     {
         $this->discount = $discount;
         return $this;
+    }
+
+    /**
+     * OrderNumber
+     */
+    public function getOrderNumber(): ?string
+    {
+        return $this->invariable->getNumber();
     }
 }

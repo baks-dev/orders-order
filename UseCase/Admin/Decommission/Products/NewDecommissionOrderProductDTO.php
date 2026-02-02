@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,18 +23,19 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add;
+namespace BaksDev\Orders\Order\UseCase\Admin\Decommission\Products;
 
+use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\OrderProductInterface;
-use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
+use BaksDev\Orders\Order\UseCase\Admin\Decommission\Products\Price\NewDecommissionOrderPriceDTO;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderProductDTO implements OrderProductInterface
+/** @see OrderProduct */
+final class NewDecommissionOrderProductDTO implements OrderProductInterface
 {
     /** Событие продукта */
     #[Assert\NotBlank]
@@ -49,46 +50,20 @@ final class OrderProductDTO implements OrderProductInterface
     #[Assert\Uuid]
     private ?ProductVariationUid $variation = null;
 
-    /** Модификация множественного вараинта торгового предложения  */
+    /** Модификация множественного варианта торгового предложения  */
     #[Assert\Uuid]
     private ?ProductModificationUid $modification = null;
 
     /** Стоимость и количество */
     #[Assert\Valid]
-    private Price\OrderPriceDTO $price;
+    private NewDecommissionOrderPriceDTO $price;
 
-
-    /** Карточка товара */
-    private ProductUserBasketResult|array $card;
-
-
-    public function __construct()
-    {
-        $this->price = new Price\OrderPriceDTO();
-    }
-
-
-    //    /** Идентификтаор продукта */
-    //
-    //    public function getUid(): ProductUid
-    //    {
-    //        return $this->uid;
-    //    }
-    //
-    //
-    //    public function setUid(ProductUid $uid): void
-    //    {
-    //        $this->uid = $uid;
-    //    }
-    //
 
     /** Событие продукта */
-
     public function getProduct(): ProductEventUid
     {
         return $this->product;
     }
-
 
     public function setProduct(ProductEventUid $product): self
     {
@@ -96,14 +71,11 @@ final class OrderProductDTO implements OrderProductInterface
         return $this;
     }
 
-
     /** Торговое предложение */
-
     public function getOffer(): ?ProductOfferUid
     {
         return $this->offer;
     }
-
 
     public function setOffer(ProductOfferUid|null|false $offer): self
     {
@@ -111,14 +83,11 @@ final class OrderProductDTO implements OrderProductInterface
         return $this;
     }
 
-
     /** Множественный вариант торгового предложения */
-
     public function getVariation(): ?ProductVariationUid
     {
         return $this->variation;
     }
-
 
     public function setVariation(ProductVariationUid|null|false $variation): self
     {
@@ -126,14 +95,11 @@ final class OrderProductDTO implements OrderProductInterface
         return $this;
     }
 
-
-    /** Модификация множественного варианта торгового предложения  */
-
+    /** Модификация множественного вараинта торгового предложения  */
     public function getModification(): ?ProductModificationUid
     {
         return $this->modification;
     }
-
 
     public function setModification(ProductModificationUid|null|false $modification): self
     {
@@ -141,32 +107,15 @@ final class OrderProductDTO implements OrderProductInterface
         return $this;
     }
 
-
     /** Стоимость и количество */
-
-    public function getPrice(): Price\OrderPriceDTO
+    public function getPrice(): Price\NewDecommissionOrderPriceDTO
     {
         return $this->price;
     }
 
-    public function setPrice(Price\OrderPriceDTO $price): self
+    public function setPrice(Price\NewDecommissionOrderPriceDTO $price): void
     {
         $this->price = $price;
-        return $this;
-    }
-
-
-    /** Карточка товара */
-
-    public function getCard(): ProductUserBasketResult|array
-    {
-        return $this->card;
-    }
-
-    public function setCard(ProductUserBasketResult|array $card): self
-    {
-        $this->card = $card;
-        return $this;
     }
 
 }

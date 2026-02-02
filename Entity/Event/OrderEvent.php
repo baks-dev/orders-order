@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,7 @@ use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -57,6 +58,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['status'])]
 #[ORM\Index(columns: ['created'])]
 #[ORM\Index(columns: ['profile'])]
+#[ORM\Index(columns: ['danger'])]
 class OrderEvent extends EntityEvent
 {
     /** ID */
@@ -133,9 +135,10 @@ class OrderEvent extends EntityEvent
     {
         $this->id = new OrderEventUid();
         $this->modify = new OrderModify($this);
-        $this->created = new DateTimeImmutable();
+        $this->created = new DateTimeImmutable()->add(DateInterval::createFromDateString('1 minute'));
         $this->status = new OrderStatus(OrderStatusNew::class);
         $this->serv = new ArrayCollection();
+        $this->product = new ArrayCollection();
     }
 
     public function __clone()
@@ -275,7 +278,7 @@ class OrderEvent extends EntityEvent
         return $this->usr->getClientProfile();
     }
 
-    /** @return Collection<OrderService> */
+    /** @return Collection<int, OrderService> */
     public function getServ(): Collection
     {
         return $this->serv;

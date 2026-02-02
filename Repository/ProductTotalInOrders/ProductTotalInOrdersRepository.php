@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -49,6 +49,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 #[Autoconfigure(public: true)]
 final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterface
 {
+    private bool $isPackage = true;
+
+    private bool $isUnpaid = true;
+
     private UserProfileUid|false $profile = false;
 
     private ProductUid|false $product = false;
@@ -126,25 +130,28 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         return $this;
     }
 
+    public function notPackage(): self
+    {
+
+        $this->isPackage = false;
+
+        return $this;
+    }
+
+    public function notUnpaid(): self
+    {
+
+        $this->isUnpaid = false;
+
+        return $this;
+    }
+
     /**
      * Возвращает количество продуктов, у которых есть заказы в статусах: new, phone, unpaid
      */
     public function findTotal(): int
     {
-        $builder = $this->builder();
 
-        $result = $builder->fetchOne();
-
-        if(true === empty($result))
-        {
-            return 0;
-        }
-
-        return $result;
-    }
-
-    private function builder(): DBALQueryBuilder
-    {
         if(false === ($this->product instanceof ProductUid))
         {
             throw new InvalidArgumentException('Не передан обязательный аргумент запроса: $this->product');
@@ -328,7 +335,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
         /** Количество продуктов в заказах */
 
         $dbal
-            ->addSelect('SUM(order_product_price.total) AS order_products_total')
+            //->addSelect('SUM(order_product_price.total) AS order_products_total')
             ->leftJoin(
                 'order_product',
                 OrderPrice::class,
@@ -390,15 +397,39 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                 value: [
                     OrderStatusNew::STATUS,
                     OrderStatusPhone::STATUS,
-                    OrderStatusUnpaid::STATUS,
-                    OrderStatusPackage::STATUS,
+                    $this->isUnpaid ? OrderStatusUnpaid::STATUS : false,
+                    $this->isPackage ? OrderStatusPackage::STATUS : false,
                 ],
                 type: ArrayParameterType::STRING,
             );
 
 
+        $dbal->addSelect("JSON_AGG( DISTINCT JSONB_BUILD_OBJECT (  
+        'number', order_invariable.number, 
+        'total', order_product_price.total  ) 
+        ) AS orders");
+
+
         $dbal->allGroupByExclude();
 
-        return $dbal;
+        $result = $dbal->fetchOne();
+
+        $this->isPackage = false;
+
+        if(true === empty($result))
+        {
+            return 0;
+        }
+
+        if(false === json_validate($result))
+        {
+            return 0;
+        }
+
+        $result = json_decode($result, false, 512, JSON_THROW_ON_ERROR);
+
+        // dump($result);
+
+        return array_sum(array_column($result, 'total'));
     }
 }

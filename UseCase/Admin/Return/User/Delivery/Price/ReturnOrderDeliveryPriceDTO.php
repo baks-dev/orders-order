@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,23 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Public\Basket\Add\Price;
+namespace BaksDev\Orders\Order\UseCase\Admin\Return\User\Delivery\Price;
 
-use BaksDev\Orders\Order\Entity\Products\Price\OrderPriceInterface;
+use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPriceInterface;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
-use Symfony\Component\Validator\Constraints as Assert;
 
-final class OrderPriceDTO implements OrderPriceInterface
+/** @see OrderDeliveryPrice */
+final class ReturnOrderDeliveryPriceDTO implements OrderDeliveryPriceInterface
 {
-    /** Количество в заказе */
-    #[Assert\NotBlank]
-    private int $total = 1;
-
-    /** Стоимость */
-    private ?Money $price;
+    /** Стоимость (null || 0 - бесплатно) */
+    private ?Money $price = null;
 
     /** Валюта */
-    #[Assert\NotBlank]
     private Currency $currency;
+
+    /** Расстояние, км */
+    private int $distance = 0;
 
 
     public function __construct()
@@ -49,62 +47,45 @@ final class OrderPriceDTO implements OrderPriceInterface
         $this->currency = new Currency();
     }
 
-    /** Количество в заказе */
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function setTotal(int|string $total): self
-    {
-        if(is_string($total))
-        {
-            $total = filter_var($total, FILTER_SANITIZE_NUMBER_INT);
-
-            if(empty($total))
-            {
-                $total = 1;
-            }
-
-        }
-
-        $this->total = (int) $total;
-
-        return $this;
-    }
-
-    public function addTotal(int $total): void
-    {
-        $this->total += $total;
-    }
-
-
-    /** Стоимость */
-
-    public function getPrice(): Money
+    /**
+     * Price
+     */
+    public function getPrice(): ?Money
     {
         return $this->price;
     }
 
-
-    public function setPrice(Money $price): self
+    public function setPrice(?Money $price): self
     {
         $this->price = $price;
         return $this;
     }
 
-
-    /** Валюта */
-
+    /**
+     * Currency
+     */
     public function getCurrency(): Currency
     {
         return $this->currency;
     }
 
-
     public function setCurrency(Currency $currency): self
     {
         $this->currency = $currency;
+        return $this;
+    }
+
+    /**
+     * Distance
+     */
+    public function getDistance(): int
+    {
+        return $this->distance;
+    }
+
+    public function setDistance(int $distance): self
+    {
+        $this->distance = $distance;
         return $this;
     }
 

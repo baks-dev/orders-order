@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -113,7 +113,7 @@ class PreProductForm extends AbstractType
                     },
                     function($product) {
                         return $product ? new ProductEventUid($product) : null;
-                    }
+                    },
                 ),
             );
 
@@ -136,7 +136,7 @@ class PreProductForm extends AbstractType
                 },
                 function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
-                }
+                },
             ),
         );
 
@@ -159,7 +159,7 @@ class PreProductForm extends AbstractType
                 },
                 function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
-                }
+                },
             ),
         );
 
@@ -182,7 +182,7 @@ class PreProductForm extends AbstractType
                 },
                 function($modification) {
                     return $modification ? new ProductModificationUid($modification) : null;
-                }
+                },
             ),
         );
 
@@ -258,7 +258,7 @@ class PreProductForm extends AbstractType
                         return [];
                     }
 
-                    $current = $product->getParams() === null ? null : current($product->getParams());
+                    $current = $product->getParams();
 
                     return [
                         'data-filter' => ' ['.$product->getOption().']',
@@ -267,7 +267,7 @@ class PreProductForm extends AbstractType
                         'data-product-url' => $current === null ? null : $current['product_url'],
                         'data-product-price' => $current === null ? null : $current['product_price'],
                         'data-product-currency' => $current === null ? null : $current['product_currency'],
-                            'data-image-path' => $current === null ? null : $this->ImagePathExtension->imagePath(
+                        'data-image-path' => $current === null ? null : $this->ImagePathExtension->imagePath(
                             $current['product_image'],
                             $current['product_image_ext'],
                             $current['product_image_cdn'],
@@ -276,7 +276,7 @@ class PreProductForm extends AbstractType
                     ];
                 },
                 'label' => false,
-            ]
+            ],
         );
     }
 
@@ -319,7 +319,7 @@ class PreProductForm extends AbstractType
                             return [];
                         }
 
-                        $current = $offer->getParams() === null ? null : current($offer->getParams());
+                        $current = $offer->getParams();
 
                         return [
                             'data-filter' => ' ['.$offer->getOption().']',
@@ -342,7 +342,7 @@ class PreProductForm extends AbstractType
                     'translation_domain' => $CurrentProductOfferUid->getCharacteristic(),
                     'label' => $CurrentProductOfferUid->getProperty(),
                     'placeholder' => sprintf('Выберите %s из списка...', $CurrentProductOfferUid->getProperty()),
-                ]
+                ],
             );
     }
 
@@ -383,7 +383,7 @@ class PreProductForm extends AbstractType
                             return [];
                         }
 
-                        $current = $variation->getParams() === null ? null : current($variation->getParams());
+                        $current = $variation->getParams();
 
                         return [
                             'data-filter' => ' ['.$variation->getOption().']',
@@ -399,14 +399,14 @@ class PreProductForm extends AbstractType
                                 $current['product_image'],
                                 $current['product_image_ext'],
                                 $current['product_image_cdn'],
-                            )
+                            ),
                         ];
                     },
                     'translation_domain' => $CurrentProductVariationUid->getCharacteristic(),
                     'label' => $CurrentProductVariationUid->getProperty(),
                     'placeholder' => sprintf(
                         'Выберите %s из списка...',
-                        $CurrentProductVariationUid->getProperty()
+                        $CurrentProductVariationUid->getProperty(),
                     ),
                 ],
             );
@@ -449,7 +449,7 @@ class PreProductForm extends AbstractType
                             return [];
                         }
 
-                        $current = $modification->getParams() === null ? null : current($modification->getParams());
+                        $current = $modification->getParams();
 
                         return [
                             'data-filter' => ' ['.$modification->getOption().']',
@@ -473,9 +473,9 @@ class PreProductForm extends AbstractType
                     'label' => $CurrentProductModificationUid->getProperty(),
                     'placeholder' => sprintf(
                         'Выберите %s из списка...',
-                        $CurrentProductModificationUid->getProperty()
+                        $CurrentProductModificationUid->getProperty(),
                     ),
-                ]
+                ],
             );
     }
 

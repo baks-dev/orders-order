@@ -3,11 +3,26 @@
 {# ---- ШАБЛОН ------------------------------------------------------------ #}
 {% extends Template('/public/base.html.twig') %}
 
-{% block title %}{{ 'page.index'|trans }}{% endblock %}
+{% set orderNumber = null %}
+
+{% for order in orders %}
+
+    {% if true == loop.first %}
+        {% set orderNumber = orderNumber ~ order.orderNumber %}
+    {% else %}
+        {% set orderNumber = orderNumber ~ ', ' ~order.orderNumber %}
+    {% endif %}
+
+{% endfor %}
+
+{% block title %}
+    Заказ {{ orderNumber }}
+{% endblock %}
 
 {# ---- CSS ------------------------------------------------------------ #}
  {% block stylesheets %}
      <link rel="preconnect" href="https://api-maps.yandex.ru"/>
+     {# <link rel="preconnect" href="https://yastatic.net" /> #}
      <link rel="preload"
            href="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}"/>
  {% endblock %}
@@ -19,4 +34,10 @@
 
     {{ include(_self|replace({ "template.html.twig":baks_settings.device~"/content.html.twig" })) }}
 
+{% endblock %}
+
+ {% block javascript %}
+ {# <script nonce='{{ csp_nonce() }}' async  data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" class='lazy'></script> #}
+ {# <script nonce='{{ csp_nonce() }}' async  data-src="/assets/orders-order/orders_basket.min.js?v={{ version }}" class='lazy'></script> #}
+ {# <script nonce='{{ csp_nonce() }}' async  src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"></script> #}
 {% endblock %}

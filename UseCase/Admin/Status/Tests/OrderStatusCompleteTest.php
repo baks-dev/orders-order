@@ -38,6 +38,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[Group('orders-order')]
+#[Group('orders-order-repository')]
 #[Group('orders-order-usecase')]
 #[When(env: 'test')]
 final class OrderStatusCompleteTest extends KernelTestCase

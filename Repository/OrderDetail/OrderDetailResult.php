@@ -65,7 +65,7 @@ final readonly class OrderDetailResult
         private ?string $delivery_geocode_address,
 
         private ?string $order_profile_discount,
-        private ?string $order_profile,
+        private ?string $order_profile_name,
         private ?string $account_email,
 
         private string $profile_avatar_name,
@@ -191,9 +191,9 @@ final readonly class OrderDetailResult
         return $this->order_profile_discount;
     }
 
-    public function getOrderProfile(): UserProfileUid
+    public function getOrderProfileName(): ?string
     {
-        return new UserProfileUid($this->order_profile);
+        return $this->order_profile_name;
     }
 
     public function getProfileAvatarName(): string

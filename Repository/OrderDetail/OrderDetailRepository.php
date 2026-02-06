@@ -780,7 +780,7 @@ final class OrderDetailRepository implements OrderDetailInterface
         );
 
         $dbal
-            ->addSelect('type_profile_trans.name AS order_profile')
+            ->addSelect('type_profile_trans.name AS order_profile_name')
             ->leftJoin(
                 'type_profile',
                 TypeProfileTrans::class,

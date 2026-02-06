@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -35,10 +36,11 @@ use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceDTO;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceForm;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceOrderDTO;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
+use BaksDev\Orders\Order\Repository\OrderDetailByPart\OrderDetailByPartInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintHandler;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
-use chillerlan\QRCode\QRCode;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -48,11 +50,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 #[AsController]
 #[RoleSecurity(['ROLE_USER'])]
 final class SalesInvoiceController extends AbstractController
 {
+    private array|null $orders = null;
+
     /**
      * Расходная накладная
      */
@@ -60,13 +63,15 @@ final class SalesInvoiceController extends AbstractController
     public function sales(
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
-        OrderDetailInterface $OrderDetail,
-        OrderEventPrintHandler $OrderEventPrintHandler,
+        OrderDetailInterface $OrderDetailRepository,
+        OrderDetailByPartInterface $orderDetailByPartRepository,
         UserProfileByIdInterface $UserProfileByIdRepository,
+        OrderEventPrintHandler $OrderEventPrintHandler,
         BarcodeWrite $BarcodeWrite,
         CentrifugoPublishInterface $publish,
     ): Response
     {
+
         $salesInvoiceFormDTO = new SalesInvoiceDTO();
 
         $form = $this
@@ -77,10 +82,6 @@ final class SalesInvoiceController extends AbstractController
             )
             ->handleRequest($request);
 
-        $orders = [];
-
-        $data = '';
-
         if($form->isSubmitted() && $form->has('order_form_data'))
         {
             /**
@@ -88,71 +89,111 @@ final class SalesInvoiceController extends AbstractController
              */
             foreach($salesInvoiceFormDTO->getOrderFormData() as $salesInvoiceOrderDTO)
             {
-                /** Информация о заказе */
-                $OrderInfo = $OrderDetail->onOrder($salesInvoiceOrderDTO->getOrder())->find();
 
-                if(true === empty($OrderInfo))
+                /**
+                 * Информация о заказе
+                 */
+
+                /** Если нет номера партии - единый заказ. Отдаем информацию о конкретном заказе по его номеру */
+                if(null === $salesInvoiceOrderDTO->getPart())
                 {
-                    continue;
-                }
+                    $OrderInfo = $OrderDetailRepository->onOrder($salesInvoiceOrderDTO->getOrder())->find();
 
-
-                /** Генерируем QR-код для заказа */
-                $data = sprintf('%s', $salesInvoiceOrderDTO->getOrder());
-                $BarcodeWrite
-                    ->text($data)
-                    ->type(BarcodeType::QRCode)
-                    ->format(BarcodeFormat::SVG)
-                    ->generate();
-
-                if(false === $BarcodeWrite)
-                {
-                    /**
-                     * Проверить права на исполнение
-                     * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Writer/Generate
-                     * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Reader/Decode
-                     * */
-                    throw new RuntimeException('Barcode write error');
-                }
-
-                $render = $BarcodeWrite->render();
-                $BarcodeWrite->remove();
-
-                $OrderInfo->setQrCode($render);
-
-                $orders[] = $OrderInfo;
-
-
-                if(false === $OrderInfo->isPrinted())
-                {
-                    $orderEventPrintDTO = new OrderEventPrintDTO($OrderInfo->getOrderEvent());
-                    $orderEventPrinted = $OrderEventPrintHandler->handle($orderEventPrintDTO);
-
-                    if(false === $orderEventPrinted)
+                    if(true === empty($OrderInfo))
                     {
-                        $logger->warning(
-                            'orders-order: Ошибка сохранения данных о печати накладной',
-                            [self::class.':'.__LINE__,],
-                        );
+                        continue;
                     }
+
+                    $this->process($OrderInfo, $BarcodeWrite, $OrderEventPrintHandler, $publish, $logger);
                 }
 
-                // Отправляем сокет для скрытия заказа у других менеджеров
-                $socket = $publish
-                    ->addData(['order' => (string) $OrderInfo->getOrderId()])
-                    //->addData(['profile' => (string) $this->getCurrentProfileUid()])
-                    ->send('orders');
-
-                if($socket && $socket->isError())
+                /** Если есть номер партии - заказ был разделен. Ищем связанные заказы по номеру партии */
+                if(null !== $salesInvoiceOrderDTO->getPart())
                 {
-                    return new JsonResponse($socket->getMessage());
+                    $OrdersInfo = $orderDetailByPartRepository
+                        ->onPart($salesInvoiceOrderDTO->getPart())
+                        ->findAll();
+
+                    if(false === $OrdersInfo)
+                    {
+                        continue;
+                    }
+
+                    foreach($OrdersInfo as $OrderDetailResult)
+                    {
+                        $this->process($OrderDetailResult, $BarcodeWrite, $OrderEventPrintHandler, $publish, $logger);
+                    }
                 }
             }
         }
 
+        if(true === empty($this->orders))
+        {
+            return new Response('404 Page Not Found');
+        }
+
         return $this->render([
-            'orders' => $orders,
+            'orders' => $this->orders,
             'profile' => $UserProfileByIdRepository->find(),
         ]);
+    }
+
+    private function process(
+        OrderDetailResult $OrderDetailResult,
+        BarcodeWrite $BarcodeWrite,
+        OrderEventPrintHandler $OrderEventPrintHandler,
+        CentrifugoPublishInterface $publish,
+        LoggerInterface $logger,
+    )
+    {
+        /** Генерируем QR-код для заказа */
+        $data = sprintf('%s', $OrderDetailResult->getOrderId());
+        $BarcodeWrite
+            ->text($data)
+            ->type(BarcodeType::QRCode)
+            ->format(BarcodeFormat::SVG)
+            ->generate();
+
+        if(false === $BarcodeWrite)
+        {
+            /**
+             * Проверить права на исполнение
+             * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Writer/Generate
+             * chmod +x /home/bundles.baks.dev/vendor/baks-dev/barcode/Reader/Decode
+             * */
+            throw new RuntimeException('Barcode write error');
+        }
+
+        $render = $BarcodeWrite->render();
+        $BarcodeWrite->remove();
+
+        $OrderDetailResult->setQrCode($render);
+
+        $this->orders[] = $OrderDetailResult;
+
+        if(false === $OrderDetailResult->isPrinted())
+        {
+            $orderEventPrintDTO = new OrderEventPrintDTO($OrderDetailResult->getOrderEvent());
+            $orderEventPrinted = $OrderEventPrintHandler->handle($orderEventPrintDTO);
+
+            if(false === $orderEventPrinted)
+            {
+                $logger->warning(
+                    'orders-order: Ошибка сохранения данных о печати накладной',
+                    [self::class.':'.__LINE__,],
+                );
+            }
+        }
+
+        /** Отправляем сокет для скрытия заказа у всех */
+        $socket = $publish
+            ->addData(['order' => (string) $OrderDetailResult->getOrderId()])
+            //->addData(['profile' => (string) $this->getCurrentProfileUid()])
+            ->send('orders');
+
+        if($socket && $socket->isError())
+        {
+            return new JsonResponse($socket->getMessage());
+        }
     }
 }

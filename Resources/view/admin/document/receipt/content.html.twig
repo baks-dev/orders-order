@@ -1,12 +1,23 @@
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
 {# ПЕЧАТЬ #}
 
 {% set money =  0 %}
+{% set orderNumber = null %}
+{% set orderData = null %}
 
-{% set products = order.order_products|json_decode %}
+    {% for order in orders %}
 
-{% for product in products %}
-    {% set money = (product.product_total * product.product_price) + money %}
-{% endfor %}
+        {% set orderNumber = order.orderPart ?: order.orderNumber %}
+        {% set orderData = order.orderData|date('d.m.Y') %}
+
+        {% for product in order.orderProducts %}
+
+            {% set money = (product.product_total * product.product_price) + money %}
+
+        {% endfor %}
+
+    {% endfor %}
 
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100">
 
@@ -65,7 +76,7 @@
                             </div>
 
                             <div class="d-flex flex-column border border-2 border-dark text-center">
-                                <strong class="border-bottom border-1 border-dark">{{ order.order_number }}</strong>
+                                <strong class="border-bottom border-1 border-dark">{{ orderNumber }}</strong>
                             </div>
                         </div>
 
@@ -166,8 +177,8 @@
                 <div class="fw-bolder text-center">к приходному кассовому ордеру</div>
 
                 <div class="date">
-                    № <strong>{{ order.order_number }}</strong>
-                    от <strong>{{ order.order_data|date('d.m.Y') }}</strong>
+                    № <strong>{{ orderNumber }}</strong>
+                    от <strong>{{ orderData|date('d.m.Y') }}</strong>
                 </div>
             </div>
 
@@ -236,4 +247,5 @@
         </div>
 
     </div>
+
 </div>

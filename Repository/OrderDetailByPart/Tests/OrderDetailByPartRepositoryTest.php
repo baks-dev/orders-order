@@ -24,11 +24,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetail\Tests;
+namespace BaksDev\Orders\Order\Repository\OrderDetailByPart\Tests;
 
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Repository\OrderDetailByPart\OrderDetailByPartInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\DependsOnClass;
@@ -39,26 +38,29 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[Group('orders-order')]
 #[Group('orders-order-repository')]
 #[When(env: 'test')]
-class OrderDetailRepositoryTest extends KernelTestCase
+class OrderDetailByPartRepositoryTest extends KernelTestCase
 {
     #[DependsOnClass(OrderNewTest::class)]
-    public function testOrderDetail(): void
+    public function testRepository(): void
     {
-
-        /** @var OrderDetailInterface $OrderDetailInterface */
-        $OrderDetailInterface = self::getContainer()->get(OrderDetailInterface::class);
-
         self::assertTrue(true);
 
-        $result = $OrderDetailInterface
-            ->onOrder(new OrderUid(OrderUid::TEST))
-            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
-            ->find();
+        /** @var OrderDetailByPartInterface $OrderDetailByPartInterface */
+        $OrderDetailByPartInterface = self::getContainer()->get(OrderDetailByPartInterface::class);
 
-        if(false === $result)
+        $profileUid = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
+
+        $results = $OrderDetailByPartInterface
+            ->onPart('177.036.198.848')
+            ->forProfile(new UserProfileUid($profileUid))
+            ->findAll();
+
+        if(false === $results)
         {
             return;
         }
+
+        $result = $results->current();
 
         // Вызываем все геттеры
         $reflectionClass = new \ReflectionClass(OrderDetailResult::class);

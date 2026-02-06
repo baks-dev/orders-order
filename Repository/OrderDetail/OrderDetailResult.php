@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -30,9 +31,9 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Reference\Money\Type\Money;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateMalformedStringException;
 use DateTimeImmutable;
+use ReflectionProperty;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 /** @see OrderDetailRepository */
@@ -76,8 +77,7 @@ final readonly class OrderDetailResult
         private ?bool $printed,
         private ?string $stocks,
         private ?string $order_services = null,
-
-
+        private ?string $order_part = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -191,9 +191,9 @@ final readonly class OrderDetailResult
         return $this->order_profile_discount;
     }
 
-    public function getOrderProfile(): UserProfileUid
+    public function getOrderProfile(): ?string
     {
-        return new UserProfileUid($this->order_profile);
+        return $this->order_profile;
     }
 
     public function getProfileAvatarName(): string
@@ -236,21 +236,6 @@ final readonly class OrderDetailResult
     public function isPrinted(): bool
     {
         return $this->printed === true;
-    }
-
-    public function setQrCode(string $qrcode): self
-    {
-        $qrcode = strip_tags($qrcode, ['path']);
-        $qrcode = trim($qrcode);
-
-        $this->qrcode = $qrcode;
-
-        return $this;
-    }
-
-    public function getQrcode(): string
-    {
-        return $this->qrcode;
     }
 
     public function getOrderServices(): array|null
@@ -346,5 +331,36 @@ final readonly class OrderDetailResult
         }
 
         return $stocks;
+    }
+
+    public function getOrderPart(): ?string
+    {
+        return $this->order_part;
+    }
+
+
+    /**
+     * @note Не часть запроса!!!
+     */
+
+    public function setQrCode(string $qrcode): self
+    {
+        $qrcode = strip_tags($qrcode, ['path']);
+        $qrcode = trim($qrcode);
+
+        $this->qrcode = $qrcode;
+
+        return $this;
+    }
+
+    public function getQrcode(): string
+    {
+        if(true === (new ReflectionProperty(self::class, 'qrcode')->isInitialized($this)))
+        {
+            return $this->qrcode;
+        }
+
+        // @TODO
+        return '';
     }
 }

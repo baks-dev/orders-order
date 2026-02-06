@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -517,7 +518,9 @@ class BasketController extends AbstractController
 
                         /** Номер заказа с постфиксом разделения */
                         $orderNumberPostfix += 1;
-                        $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                        $OrderDTOClone->getInvariable()
+                            ->setNumber($orderNumber.'-'.$orderNumberPostfix)
+                            ->setPart($orderNumber); // номен партии - номер заказа без префикса
 
                         $handle = $handler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
@@ -570,7 +573,9 @@ class BasketController extends AbstractController
             if($orderNumberPostfix !== 0)
             {
                 $orderNumberPostfix += 1;
-                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                $OrderDTO->getInvariable()
+                    ->setNumber($orderNumber.'-'.$orderNumberPostfix)
+                    ->setPart($orderNumber); // номен партии - номер заказа без префикса
             }
 
             $Order = $handler->handle($OrderDTO);

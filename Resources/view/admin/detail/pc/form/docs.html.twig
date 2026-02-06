@@ -15,7 +15,7 @@
         <ul class="dropdown-menu overflow-auto" style="max-height: 500px;">
 
             <li>
-                <a href="{{ path('orders-order:admin.document.sales', { print: true }) }}"
+                <a href="{{ path('orders-order:admin.document.sales', {print: true}) }}"
 
                    class="dropdown-item"
                    data-bs-toggle="modal"
@@ -24,6 +24,7 @@
                    data-method="post"
                    data-formname="sales_invoice_form"
                    data-order="{{ order.orderId }}"
+                   data-part="{{ order.orderPart }}"
 
                    data-collection-form="order_form_data" {# name коллекции из DTO #}
                    data-post-class="add-one-to-collection" {# признак одного элемента #}>
@@ -33,7 +34,7 @@
             </li>
 
             <li>
-                <a href="{{ path('orders-order:admin.document.receipt', { id : order.orderId }) }}"
+                <a href="{{ path('orders-order:admin.document.receipt', { id : order.orderId, part: order.orderPart }) }}"
                    class="dropdown-item prnt"
                    data-bs-toggle="modal"
                    data-bs-target="#modal">

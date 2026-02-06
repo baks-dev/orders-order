@@ -24,45 +24,27 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Forms\SalesInvoice;
+namespace BaksDev\Orders\Order\UseCase\Public\Basket\Posting;
 
-use BaksDev\Orders\Order\Type\Id\OrderUid;
-use Symfony\Component\Validator\Constraints as Assert;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPostingInterface;
 
-/** @see SalesInvoiceOrderForm */
-final class SalesInvoiceOrderDTO
+/** @see OrderPosting */
+final class OrderPostingDTO implements OrderPostingInterface
 {
     /**
-     * Идентификатор заказа
+     * Номер разделенного заказа
      */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    private OrderUid $order;
+    //    #[Assert\NotBlank]
+    private ?string $posting = null;
 
-    /**
-     * Общий номер партии для разделенных заказов
-     */
-    private ?string $number = null;
-
-    public function getOrder(): OrderUid
+    public function setPosting(?string $posting): OrderPostingDTO
     {
-        return $this->order;
-    }
-
-    public function setOrder(OrderUid $order): self
-    {
-        $this->order = $order;
+        $this->posting = $posting;
         return $this;
     }
 
-    public function setNumber(?string $number): self
+    public function getPosting(): ?string
     {
-        $this->number = $number;
-        return $this;
-    }
-
-    public function getNumber(): ?string
-    {
-        return $this->number;
+        return $this->posting;
     }
 }

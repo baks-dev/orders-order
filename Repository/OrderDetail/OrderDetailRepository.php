@@ -36,6 +36,7 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
@@ -218,12 +219,20 @@ final class OrderDetailRepository implements OrderDetailInterface
         }
 
         $dbal
-            ->addSelect('orders_invariable.part AS order_part')
             ->leftJoin(
                 'orders',
                 OrderInvariable::class,
                 'orders_invariable',
                 'orders_invariable.main = orders.id',
+            );
+
+        $dbal
+            ->addSelect('orders_posting.posting AS orders_posting')
+            ->leftJoin(
+                'orders',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.main = orders.id',
             );
 
         $dbal

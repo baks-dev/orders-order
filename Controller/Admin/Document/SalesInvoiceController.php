@@ -37,7 +37,7 @@ use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceForm;
 use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceOrderDTO;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
-use BaksDev\Orders\Order\Repository\OrderDetailByPart\OrderDetailByPartInterface;
+use BaksDev\Orders\Order\Repository\OrderDetailByNumber\OrderDetailByNumberInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintHandler;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
@@ -64,7 +64,7 @@ final class SalesInvoiceController extends AbstractController
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         OrderDetailInterface $OrderDetailRepository,
-        OrderDetailByPartInterface $orderDetailByPartRepository,
+        OrderDetailByNumberInterface $orderDetailByPartRepository,
         UserProfileByIdInterface $UserProfileByIdRepository,
         OrderEventPrintHandler $OrderEventPrintHandler,
         BarcodeWrite $BarcodeWrite,
@@ -95,7 +95,7 @@ final class SalesInvoiceController extends AbstractController
                  */
 
                 /** Если нет номера партии - единый заказ. Отдаем информацию о конкретном заказе по его номеру */
-                if(null === $salesInvoiceOrderDTO->getPart())
+                if(null === $salesInvoiceOrderDTO->getNumber())
                 {
                     $OrderInfo = $OrderDetailRepository->onOrder($salesInvoiceOrderDTO->getOrder())->find();
 
@@ -108,10 +108,10 @@ final class SalesInvoiceController extends AbstractController
                 }
 
                 /** Если есть номер партии - заказ был разделен. Ищем связанные заказы по номеру партии */
-                if(null !== $salesInvoiceOrderDTO->getPart())
+                if(null !== $salesInvoiceOrderDTO->getNumber())
                 {
                     $OrdersInfo = $orderDetailByPartRepository
-                        ->onPart($salesInvoiceOrderDTO->getPart())
+                        ->onNumber($salesInvoiceOrderDTO->getNumber())
                         ->findAll();
 
                     if(false === $OrdersInfo)
@@ -147,7 +147,7 @@ final class SalesInvoiceController extends AbstractController
     )
     {
         /** Генерируем QR-код для заказа */
-        $data = sprintf('%s', $OrderDetailResult->getOrderId());
+        $data = sprintf('%s', $OrderDetailResult->getOrderId()); // @TODO что зашиваем в qr???
         $BarcodeWrite
             ->text($data)
             ->type(BarcodeType::QRCode)

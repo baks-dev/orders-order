@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetailByPart;
+namespace BaksDev\Orders\Order\Repository\OrderDetailByNumber;
 
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
@@ -36,7 +36,7 @@ use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -49,7 +49,6 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -94,13 +93,9 @@ use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserPro
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Generator;
 
-final class OrderDetailByPartRepository implements OrderDetailByPartInterface
+final class OrderDetailByNumberRepository implements OrderDetailByNumberInterface
 {
-    private string|false $part = false;
-
-    private array|null $orders = null;
-
-    private OrderUid|false $order = false;
+    private string|false $number = false;
 
     private UserProfileUid|false $profile = false;
 
@@ -110,11 +105,11 @@ final class OrderDetailByPartRepository implements OrderDetailByPartInterface
     ) {}
 
     /**
-     * Общий номер партии для разделенных заказов
+     * Общий номер заказа
      */
-    public function onPart(string $part): self
+    public function onNumber(string $number): self
     {
-        $this->part = $part;
+        $this->number = $number;
         return $this;
     }
 
@@ -147,25 +142,15 @@ final class OrderDetailByPartRepository implements OrderDetailByPartInterface
             ->bindLocal();
 
         $dbal
-            ->select('orders_invariable.part AS order_part')
-            ->from(OrderInvariable::class, 'orders_invariable')
-            ->where('orders_invariable.part = :part')
-            ->setParameter(
-                key: 'part',
-                value: $this->part,
-            );
-
-        $dbal
-            ->addSelect('orders.id AS order_id')
+            ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
             ->addSelect('orders.number AS order_number')
-            ->join(
-                'orders_invariable',
-                Order::class,
-                'orders',
-                'orders.id = orders_invariable.main',
+            ->from(Order::class, 'orders')
+            ->where('orders.number = :number')
+            ->setParameter(
+                key: 'number',
+                value: $this->number,
             );
-
 
         $dbal
             ->addSelect('event.status AS order_status')
@@ -176,6 +161,15 @@ final class OrderDetailByPartRepository implements OrderDetailByPartInterface
                 OrderEvent::class,
                 'event',
                 'event.id = orders.event',
+            );
+
+        $dbal
+            ->addSelect('orders_posting.posting AS orders_posting')
+            ->leftJoin(
+                'event',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.event = event.id',
             );
 
         $dbal
@@ -730,7 +724,7 @@ final class OrderDetailByPartRepository implements OrderDetailByPartInterface
         );
 
         $dbal
-            ->addSelect('type_profile_trans.name AS order_profile')
+            ->addSelect('type_profile_trans.name AS order_profile_name')
             ->leftJoin(
                 'type_profile',
                 TypeProfileTrans::class,

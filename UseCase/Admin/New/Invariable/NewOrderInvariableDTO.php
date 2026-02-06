@@ -47,11 +47,6 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
     private string $number;
 
     /**
-     * Общий номер партии для разделенного заказа
-     */
-    private ?string $part;
-
-    /**
      * ID пользователя заказа
      */
     #[Assert\NotBlank]
@@ -126,20 +121,6 @@ final class NewOrderInvariableDTO implements OrderInvariableInterface
 
         $this->number = $number;
 
-        return $this;
-    }
-
-    /**
-     * Part
-     */
-    public function getPart(): ?string
-    {
-        return $this->part;
-    }
-
-    public function setPart(?string $part): NewOrderInvariableDTO
-    {
-        $this->part = $part;
         return $this;
     }
 }

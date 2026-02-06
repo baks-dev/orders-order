@@ -57,6 +57,7 @@ class OrderDetailRepositoryTest extends KernelTestCase
 
         if(false === $result)
         {
+            echo sprintf('%s%s ничего не тестирует %s', PHP_EOL, self::class, PHP_EOL);
             return;
         }
 

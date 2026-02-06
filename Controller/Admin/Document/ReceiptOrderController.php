@@ -30,7 +30,7 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
-use BaksDev\Orders\Order\Repository\OrderDetailByPart\OrderDetailByPartInterface;
+use BaksDev\Orders\Order\Repository\OrderDetailByNumber\OrderDetailByNumberInterface;
 use Generator;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,8 +51,8 @@ final class ReceiptOrderController extends AbstractController
     public function receipt(
         #[MapEntity] Order $Order,
         OrderDetailInterface $orderDetail,
-        OrderDetailByPartInterface $orderDetailByPartRepository,
-        #[MapQueryParameter] string|null $part = null,
+        OrderDetailByNumberInterface $orderDetailByPartRepository,
+        #[MapQueryParameter] string|null $number = null,
     ): Response
     {
 
@@ -61,7 +61,7 @@ final class ReceiptOrderController extends AbstractController
          */
 
         /** Если нет номера партии - единый заказ. Отдаем информацию о конкретном заказе по его номеру */
-        if(null === $part)
+        if(null === $number)
         {
             $OrderInfo = $orderDetail
                 ->onOrder($Order->getId())
@@ -76,10 +76,10 @@ final class ReceiptOrderController extends AbstractController
         }
 
         /** Если есть номер партии - заказ был разделен. Ищем связанные заказы по номеру партии */
-        if(null !== $part)
+        if(null !== $number)
         {
             $OrdersInfo = $orderDetailByPartRepository
-                ->onPart($part)
+                ->onNumber($number)
                 ->findAll();
 
             $this->orders = iterator_to_array($OrdersInfo);

@@ -48,12 +48,6 @@ final class OrderInvariableDTO implements OrderInvariableInterface
     private string $number;
 
     /**
-     * Общий номер партии для разделенных заказов
-     */
-    private ?string $part;
-
-
-    /**
      * ID пользователя ответственного
      */
     #[Assert\Uuid]
@@ -149,20 +143,6 @@ final class OrderInvariableDTO implements OrderInvariableInterface
     public function setNumber(string $number): OrderInvariableDTO
     {
         $this->number = $number;
-        return $this;
-    }
-
-    /**
-     * Part
-     */
-    public function getPart(): ?string
-    {
-        return $this->part;
-    }
-
-    public function setPart(?string $part): OrderInvariableDTO
-    {
-        $this->part = $part;
         return $this;
     }
 }

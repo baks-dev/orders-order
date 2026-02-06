@@ -8,7 +8,7 @@
 
     {% for order in orders %}
 
-        {% set orderNumber = order.orderPart ?: order.orderNumber %}
+        {% set orderNumber = order.orderNumber %}
         {% set orderData = order.orderData|date('d.m.Y') %}
 
         {% for product in order.orderProducts %}

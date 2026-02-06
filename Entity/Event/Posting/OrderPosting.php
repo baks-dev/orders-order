@@ -24,26 +24,23 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Entity\Invariable;
+namespace BaksDev\Orders\Order\Entity\Event\Posting;
 
 use BaksDev\Core\Entity\EntityReadonly;
-use BaksDev\Core\Type\UidType\UidType;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
-use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
-use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/* OrderInvariable */
-
+/**
+ * Информация о разделенном заказе
+ * @see OrderPostingInterface
+ */
 #[ORM\Entity]
-#[ORM\Table(name: 'orders_invariable')]
-class OrderInvariable extends EntityReadonly
+#[ORM\Table(name: 'orders_posting')]
+class OrderPosting extends EntityReadonly
 {
     /**
      * Идентификатор Main
@@ -59,47 +56,22 @@ class OrderInvariable extends EntityReadonly
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    #[ORM\OneToOne(targetEntity: OrderEvent::class, inversedBy: 'invariable')]
+    #[ORM\OneToOne(targetEntity: OrderEvent::class, inversedBy: 'posting')]
     #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
     private OrderEvent $event;
 
     /**
-     * Идентификатор заказа
-     * TODO: nullable: false
-     */
-    #[ORM\Column(type: Types::STRING, unique: false, nullable: true)]
-    private ?string $number = null;
-
-    /**
-     * ID пользователя заказа
-     */
-    #[ORM\Column(type: UserUid::TYPE, nullable: true)]
-    private ?UserUid $usr = null;
-
-    /**
-     * ID профиля заказа
-     */
-    #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
-    private ?UserProfileUid $profile = null;
-
-    /**
-     * ID токена маркетплейса
-     */
-    #[ORM\Column(type: UidType::TYPE, nullable: true)]
-    private Uuid|null $token = null;
-
-    /**
-     * Дата заказа
+     * // @TODO nullable: false
+     * Номер разделенного заказа
      */
     #[Assert\NotBlank]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $created;
+    #[ORM\Column(type: Types::STRING, unique: true, nullable: true)]
+    private ?string $posting = null;
 
     public function __construct(OrderEvent $event)
     {
         $this->event = $event;
         $this->main = $event->getMain();
-        $this->created = new DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -113,36 +85,11 @@ class OrderInvariable extends EntityReadonly
         return $this;
     }
 
-    public function getNumber(): ?string
-    {
-        return $this->number;
-    }
-
-    public function getProfile(): ?UserProfileUid
-    {
-        return $this->profile;
-    }
-
-    public function getUsr(): ?UserUid
-    {
-        return $this->usr;
-    }
-
-    public function getToken(): ?Uuid
-    {
-        return $this->token;
-    }
-
-    public function getCreated(): DateTimeImmutable
-    {
-        return $this->created;
-    }
-
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if($dto instanceof OrderInvariableInterface)
+        if($dto instanceof OrderPostingInterface)
         {
             return parent::getDto($dto);
         }
@@ -150,14 +97,18 @@ class OrderInvariable extends EntityReadonly
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
-
     public function setEntity($dto): mixed
     {
-        if($dto instanceof OrderInvariableInterface || $dto instanceof self)
+        if($dto instanceof OrderPostingInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function getPosting(): string
+    {
+        return $this->posting;
     }
 }

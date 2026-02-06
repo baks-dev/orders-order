@@ -206,12 +206,14 @@ final class NewController extends AbstractController
                         /** Новый объект заказа и новой коллекцией с продуктом для разделения */
                         $OrderDTOClone->setProduct($filter);
 
-                        /** Номер заказа с постфиксом разделения */
+                        /**
+                         * Номер постинга (разделенного заказа) с постфиксом
+                         * @note Номер у разделенных заказов общий
+                         */
                         $orderNumberPostfix += 1;
-                        $OrderDTOClone->getInvariable()
-                            ->setNumber($orderNumber.'-'.$orderNumberPostfix)
-                            ->setPart($orderNumber); // номен партии - номер заказа без префикса
+                        $OrderDTOClone->getPosting()->setPosting($orderNumber.'-'.$orderNumberPostfix);
 
+                        /** Номер разделенного заказа с постфиксом */
                         $handle = $OrderHandler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
 
@@ -219,11 +221,12 @@ final class NewController extends AbstractController
                             'page.new',
                             $handle instanceof Order ? 'success.new' : 'danger.new',
                             'orders-order.admin',
-                            $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                            $handle instanceof Order ? $OrderDTOClone->getPosting()->getPosting() ?? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
                     }
                 }
             }
+
 
             /** Если при разделении удалили все продукты - завершаем создание заказа */
             if(true === $OrderDTO->getProduct()->isEmpty())
@@ -231,13 +234,11 @@ final class NewController extends AbstractController
                 return $this->redirectToRoute('orders-order:admin.index');
             }
 
-            /** Если заказ был разделен - добавляем в номер постфикс */
+            /** Если заказ был разделен - добавляем номер постинга с постфиксом */
             if($orderNumberPostfix !== 0)
             {
                 $orderNumberPostfix += 1;
-                $OrderDTO->getInvariable()
-                    ->setNumber($orderNumber.'-'.$orderNumberPostfix)
-                    ->setPart($orderNumber); // номен партии - номер заказа без префикса
+                $OrderDTO->getPosting()->setPosting($orderNumber.'-'.$orderNumberPostfix);
             }
 
             $handle = $OrderHandler->handle($OrderDTO);
@@ -246,7 +247,7 @@ final class NewController extends AbstractController
                 'page.new',
                 $handle instanceof Order ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                $handle instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
+                $handle instanceof Order ? $OrderDTO->getPosting()->getPosting() ?? $OrderDTO->getInvariable()->getNumber() : $handle,
             );
 
             if($handle instanceof Order)

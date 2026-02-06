@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -30,7 +31,6 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Reference\Money\Type\Money;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateMalformedStringException;
 use DateTimeImmutable;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
@@ -76,8 +76,7 @@ final readonly class OrderDetailResult
         private ?bool $printed,
         private ?string $stocks,
         private ?string $order_services = null,
-
-
+        private ?string $orders_posting = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -346,5 +345,10 @@ final readonly class OrderDetailResult
         }
 
         return $stocks;
+    }
+
+    public function getOrdersPosting(): ?string
+    {
+        return $this->orders_posting;
     }
 }

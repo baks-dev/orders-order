@@ -24,10 +24,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetailByPart\Tests;
+namespace BaksDev\Orders\Order\Repository\OrderDetailByNumber\Tests;
 
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
-use BaksDev\Orders\Order\Repository\OrderDetailByPart\OrderDetailByPartInterface;
+use BaksDev\Orders\Order\Repository\OrderDetailByNumber\OrderDetailByNumberInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\DependsOnClass;
@@ -38,29 +38,32 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[Group('orders-order')]
 #[Group('orders-order-repository')]
 #[When(env: 'test')]
-class OrderDetailByPartRepositoryTest extends KernelTestCase
+class OrderDetailByNumberRepositoryTest extends KernelTestCase
 {
     #[DependsOnClass(OrderNewTest::class)]
     public function testRepository(): void
     {
         self::assertTrue(true);
 
-        /** @var OrderDetailByPartInterface $OrderDetailByPartInterface */
-        $OrderDetailByPartInterface = self::getContainer()->get(OrderDetailByPartInterface::class);
+        /** @var OrderDetailByNumberInterface $OrderDetailByPartInterface */
+        $OrderDetailByPartInterface = self::getContainer()->get(OrderDetailByNumberInterface::class);
 
-        $profileUid = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
         $results = $OrderDetailByPartInterface
-            ->onPart('177.036.198.848')
-            ->forProfile(new UserProfileUid($profileUid))
+            ->onNumber('')
+            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
             ->findAll();
 
         if(false === $results)
         {
+            echo sprintf('%s%s ничего не тестирует %s', PHP_EOL, self::class, PHP_EOL);
             return;
         }
 
+        /** @var OrderDetailResult $result */
         $result = $results->current();
+
+        $result->setQrCode('oDCBA5juFxP');
 
         // Вызываем все геттеры
         $reflectionClass = new \ReflectionClass(OrderDetailResult::class);

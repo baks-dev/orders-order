@@ -1,3 +1,5 @@
+{# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
 {# Общее количество Честных знаков #}
 {% set total = 0 %}
 
@@ -24,7 +26,7 @@
                    data-method="post"
                    data-formname="sales_invoice_form"
                    data-order="{{ order.orderId }}"
-                   data-part="{{ order.orderPart }}"
+                   data-number="{{ order.orderNumber }}"
 
                    data-collection-form="order_form_data" {# name коллекции из DTO #}
                    data-post-class="add-one-to-collection" {# признак одного элемента #}>
@@ -34,7 +36,7 @@
             </li>
 
             <li>
-                <a href="{{ path('orders-order:admin.document.receipt', { id : order.orderId, part: order.orderPart }) }}"
+                <a href="{{ path('orders-order:admin.document.receipt', { id : order.orderId, number: order.orderNumber }) }}"
                    class="dropdown-item prnt"
                    data-bs-toggle="modal"
                    data-bs-target="#modal">

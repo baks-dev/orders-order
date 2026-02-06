@@ -19,11 +19,13 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
@@ -86,6 +88,10 @@ class OrderEvent extends EntityEvent
     /** Постоянная величина Invariable */
     #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderInvariable $invariable = null;
+
+    /** Информация о разделенном заказе - EntityReadonly */
+    #[ORM\OneToOne(targetEntity: OrderPosting::class, mappedBy: 'event', cascade: ['all'])]
+    private ?OrderPosting $posting = null;
 
     /** Дата заказа */
     #[Assert\NotBlank]

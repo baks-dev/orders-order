@@ -21,7 +21,7 @@
     {% for order in orders %}
 
         {% set orderUser = order.orderUser %}
-        {% set orderNumber = order.orderPart ?: order.orderNumber %}
+        {% set orderNumber = order.orderNumber %}
         {% set orderData = order.orderData|date('d.m.Y') %}
         {% set paymentId = order.paymentId %}
         {% set paymentName = order.paymentName %}

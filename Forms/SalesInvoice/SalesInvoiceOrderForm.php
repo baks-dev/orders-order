@@ -50,7 +50,7 @@ final class SalesInvoiceOrderForm extends AbstractType
             )
         );
 
-        $builder->add('part', HiddenType::class);
+        $builder->add('number', HiddenType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

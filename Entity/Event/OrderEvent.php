@@ -74,6 +74,16 @@ class OrderEvent extends EntityEvent
     #[ORM\Column(type: OrderUid::TYPE)]
     private ?OrderUid $orders = null;
 
+    /** Статус заказа */
+    #[Assert\NotBlank]
+    #[ORM\Column(type: OrderStatus::TYPE)]
+    private OrderStatus $status;
+
+    /** Дата заказа */
+    #[Assert\NotBlank]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private DateTimeImmutable $created;
+
     /** Товары в заказе */
     #[Assert\When(expression: 'this.isServiceEmpty() === true', constraints: new Assert\Count(min: 1))]
     #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
@@ -87,15 +97,6 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderInvariable $invariable = null;
 
-    /** Дата заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $created;
-
-    /** Статус заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: OrderStatus::TYPE)]
-    private OrderStatus $status;
 
     /**
      * Ответственный

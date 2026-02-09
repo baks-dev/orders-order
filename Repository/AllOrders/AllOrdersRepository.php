@@ -849,8 +849,9 @@ final class AllOrdersRepository implements AllOrdersInterface
             if($this->status->equals(OrderStatusCompleted::class))
             {
                 $dbal->orderBy('order_event.danger', 'DESC');
-                $dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders_modify.mod_date END', 'ASC');
-                $dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders_modify.mod_date END', 'DESC');
+                $dbal->addOrderBy('orders_modify.mod_date', 'ASC');
+                //$dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders_modify.mod_date END', 'ASC');
+                //$dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders_modify.mod_date END', 'DESC');
             }
 
             if(

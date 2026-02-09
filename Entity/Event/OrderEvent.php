@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 namespace BaksDev\Orders\Order\Entity\Event;
@@ -92,16 +91,6 @@ class OrderEvent extends EntityEvent
     /** Информация о разделенном заказе - EntityReadonly */
     #[ORM\OneToOne(targetEntity: OrderPosting::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderPosting $posting = null;
-
-    /** Дата заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $created;
-
-    /** Статус заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: OrderStatus::TYPE)]
-    private OrderStatus $status;
 
     /**
      * Ответственный

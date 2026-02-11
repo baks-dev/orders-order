@@ -148,7 +148,7 @@ final class DetailController extends AbstractController
                 ->setMinPrice($serviceInfo->getPrice()->getValue());
         }
 
-        /** Динамическая форма корзины (необходима для динамического изменения полей в форме) - только пр AJAX запросах */
+        /** Динамическая форма (необходима для динамического изменения полей в форме) - только при AJAX запросах */
         if(true === $request->isXmlHttpRequest())
         {
             $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);

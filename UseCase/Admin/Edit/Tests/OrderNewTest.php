@@ -152,6 +152,12 @@ final class OrderNewTest extends KernelTestCase
         $number = $NewOrderInvariableDTO->getNumber();
         self::assertNotEmpty($number);
 
+
+        /** NewOrderPostingDTO */
+
+        $NewOrderInvariableDTO = $NewOrderDTO->getPosting(); // читаем из NewOrderDTO
+        $NewOrderInvariableDTO->setValue($NewOrderDTO->getInvariable()->getNumber());
+
         /** OrderPriceDTO */
 
         $OrderPriceDTO = new NewOrderPriceDTO();

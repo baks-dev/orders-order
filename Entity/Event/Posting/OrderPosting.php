@@ -61,12 +61,11 @@ class OrderPosting extends EntityReadonly
     private OrderEvent $event;
 
     /**
-     * // @TODO nullable: false
      * Номер разделенного заказа
      */
     #[Assert\NotBlank]
-    #[ORM\Column(type: Types::STRING, unique: true, nullable: true)]
-    private ?string $posting = null;
+    #[ORM\Column(type: Types::STRING, unique: true, nullable: false)]
+    private string $value;
 
     public function __construct(OrderEvent $event)
     {
@@ -107,8 +106,8 @@ class OrderPosting extends EntityReadonly
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
-    public function getPosting(): string
+    public function getValue(): string
     {
-        return $this->posting;
+        return $this->value;
     }
 }

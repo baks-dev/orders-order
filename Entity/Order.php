@@ -27,7 +27,6 @@ namespace BaksDev\Orders\Order\Entity;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 // Order
@@ -41,12 +40,6 @@ class Order
     #[ORM\Column(type: OrderUid::TYPE)]
     private OrderUid $id;
 
-    /**
-     * @deprecated Переносится в invariable
-     */
-    #[ORM\Column(type: Types::STRING, length: 20, unique: false, nullable: true)]
-    private ?string $number = null;
-
     /** ID События */
     #[ORM\Column(type: OrderEventUid::TYPE, unique: true)]
     private OrderEventUid $event;
@@ -54,9 +47,6 @@ class Order
     public function __construct()
     {
         $this->id = new OrderUid();
-
-        /** Генерируем идентификатор заказа */
-        /* $this->number = number_format((microtime(true) * 100), 0, '.', '.'); */
     }
 
     public function __toString(): string
@@ -78,23 +68,6 @@ class Order
         return $this;
     }
 
-    /**
-     * Number
-     * @deprecated Переносится в invariable
-     */
-    public function getNumber(): string
-    {
-        return $this->number;
-    }
-
-    /** @deprecated Переносится в invariable */
-    public function setNumber(string $number): self
-    {
-        $this->number = $number;
-        return $this;
-    }
-
-
     public function getEvent(): OrderEventUid
     {
         return $this->event;
@@ -102,19 +75,6 @@ class Order
 
     public function setEvent(OrderEventUid|OrderEvent $event): self
     {
-        if($event instanceof OrderEvent)
-        {
-            if($this->number === null && $number = $event->getOrderNumber())
-            {
-                $this->number = $number;
-            }
-        }
-
-        if($this->number === null)
-        {
-            $this->number = number_format((microtime(true) * 100), 0, '.', '.');
-        }
-
         $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
 
         return $this;

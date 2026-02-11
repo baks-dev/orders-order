@@ -76,7 +76,7 @@ final readonly class OrderDetailResult
         private ?bool $printed,
         private ?string $stocks,
         private ?string $order_services = null,
-        private ?string $orders_posting = null,
+        private ?string $order_posting_value = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -347,8 +347,8 @@ final readonly class OrderDetailResult
         return $stocks;
     }
 
-    public function getOrdersPosting(): ?string
+    public function getOrderPostingValue(): ?string
     {
-        return $this->orders_posting;
+        return $this->order_posting_value;
     }
 }

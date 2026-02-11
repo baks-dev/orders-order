@@ -27,7 +27,6 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\New\Posting;
 
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPostingInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderPosting */
 final class NewOrderPostingDTO implements OrderPostingInterface
@@ -35,17 +34,16 @@ final class NewOrderPostingDTO implements OrderPostingInterface
     /**
      * Номер разделенного заказа
      */
-    //    #[Assert\NotBlank]
-    private ?string $posting = null;
+    private string $value;
 
-    public function setPosting(?string $posting): NewOrderPostingDTO
+    public function setValue(string $value): NewOrderPostingDTO
     {
-        $this->posting = $posting;
+        $this->value = $value;
         return $this;
     }
 
-    public function getPosting(): ?string
+    public function getValue(): string
     {
-        return $this->posting;
+        return $this->value;
     }
 }

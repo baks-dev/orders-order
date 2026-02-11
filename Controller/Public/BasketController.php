@@ -521,7 +521,7 @@ class BasketController extends AbstractController
                          * @note Номер у разделенных заказов общий
                          */
                         $orderNumberPostfix += 1;
-                        $OrderDTOClone->getPosting()->setPosting($orderNumber.'-'.$orderNumberPostfix);
+                        $OrderDTOClone->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
 
                         $handle = $handler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
@@ -536,7 +536,7 @@ class BasketController extends AbstractController
                             type: $handle instanceof Order ? 'success' : 'danger',
                             message: $handle instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                             domain: 'user.order',
-                            arguments: $handle instanceof Order ? $OrderDTOClone->getPosting()->getPosting() ?? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                            arguments: $handle instanceof Order ? $OrderDTOClone->getPosting()->getValue() ?? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
                     }
                 }
@@ -574,7 +574,11 @@ class BasketController extends AbstractController
             if($orderNumberPostfix !== 0)
             {
                 $orderNumberPostfix += 1;
-                $OrderDTO->getPosting()->setPosting($orderNumber.'-'.$orderNumberPostfix);
+                $OrderDTO->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
+            }
+            else // если заказ не был разделен - номер постинга равен номеру заказа
+            {
+                $OrderDTO->getPosting()->setValue($orderNumber);
             }
 
             $Order = $handler->handle($OrderDTO);
@@ -583,7 +587,7 @@ class BasketController extends AbstractController
                 type: $Order instanceof Order ? 'success' : 'danger',
                 message: $Order instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                 domain: 'user.order',
-                arguments: $Order instanceof Order ? $OrderDTO->getPosting()->getPosting() ?? $OrderDTO->getInvariable()->getNumber() : $handle,
+                arguments: $Order instanceof Order ? $OrderDTO->getPosting()->getValue() ?? $OrderDTO->getInvariable()->getNumber() : $handle,
             );
 
             if($Order instanceof Order)

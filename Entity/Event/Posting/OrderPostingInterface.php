@@ -24,8 +24,7 @@
 
 namespace BaksDev\Orders\Order\Entity\Event\Posting;
 
-// @TODO nullable: false
 interface OrderPostingInterface
 {
-    public function getPosting(): ?string;
+    public function getValue(): string;
 }

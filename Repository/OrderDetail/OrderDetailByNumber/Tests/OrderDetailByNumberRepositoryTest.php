@@ -24,10 +24,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetailByNumber\Tests;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\Tests;
 
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\OrderDetailByNumberInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
-use BaksDev\Orders\Order\Repository\OrderDetailByNumber\OrderDetailByNumberInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\DependsOnClass;

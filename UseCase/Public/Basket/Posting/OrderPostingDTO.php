@@ -34,17 +34,16 @@ final class OrderPostingDTO implements OrderPostingInterface
     /**
      * Номер разделенного заказа
      */
-    //    #[Assert\NotBlank]
-    private ?string $posting = null;
+    private string $value;
 
-    public function setPosting(?string $posting): OrderPostingDTO
+    public function setValue(string $value): OrderPostingDTO
     {
-        $this->posting = $posting;
+        $this->value = $value;
         return $this;
     }
 
-    public function getPosting(): ?string
+    public function getValue(): string
     {
-        return $this->posting;
+        return $this->value;
     }
 }

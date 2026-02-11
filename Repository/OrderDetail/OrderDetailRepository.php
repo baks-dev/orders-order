@@ -195,7 +195,6 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal
             ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
-            ->addSelect('orders.number AS order_number')
             ->from(Order::class, 'orders');
 
         if(true === $this->order instanceof OrderUid)
@@ -219,7 +218,8 @@ final class OrderDetailRepository implements OrderDetailInterface
         }
 
         $dbal
-            ->leftJoin(
+            ->addSelect('orders_invariable.number AS order_number')
+            ->join(
                 'orders',
                 OrderInvariable::class,
                 'orders_invariable',
@@ -227,7 +227,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
         $dbal
-            ->addSelect('orders_posting.posting AS orders_posting')
+            ->addSelect('orders_posting.value AS order_posting_value')
             ->leftJoin(
                 'orders',
                 OrderPosting::class,

@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetailByNumber;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber;
 
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;

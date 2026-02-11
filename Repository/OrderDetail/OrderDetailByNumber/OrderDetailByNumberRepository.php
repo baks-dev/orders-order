@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetailByNumber;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber;
 
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
@@ -37,6 +37,7 @@ use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -142,14 +143,22 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
             ->bindLocal();
 
         $dbal
-            ->select('orders.id AS order_id')
-            ->addSelect('orders.event AS order_event')
-            ->addSelect('orders.number AS order_number')
-            ->from(Order::class, 'orders')
-            ->where('orders.number = :number')
+            ->select('orders_invariable.main AS order_id')
+            ->addSelect('orders_invariable.event AS order_event')
+            ->addSelect('orders_invariable.number AS order_number')
+            ->from(OrderInvariable::class, 'orders_invariable')
+            ->where('orders_invariable.number = :number')
             ->setParameter(
                 key: 'number',
                 value: $this->number,
+            );
+
+        $dbal
+            ->join(
+                'orders_invariable',
+                Order::class,
+                'orders',
+                'orders.id = orders_invariable.main',
             );
 
         $dbal
@@ -157,14 +166,14 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
             ->addSelect('event.comment AS order_comment')
             ->addSelect('event.created AS order_created')
             ->join(
-                'orders',
+                'orders_invariable',
                 OrderEvent::class,
                 'event',
-                'event.id = orders.event',
+                'event.id = orders_invariable.event',
             );
 
         $dbal
-            ->addSelect('orders_posting.posting AS orders_posting')
+            ->addSelect('orders_posting.value AS order_posting_value')
             ->leftJoin(
                 'event',
                 OrderPosting::class,

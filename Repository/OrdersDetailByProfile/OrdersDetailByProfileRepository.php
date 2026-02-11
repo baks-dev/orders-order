@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -31,6 +32,7 @@ use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
@@ -155,8 +157,17 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         $dbal
             ->select('orders.id AS order_id')
             ->addSelect('orders.event AS order_event')
-            ->addSelect('orders.number AS order_number')
             ->from(Order::class, 'orders');
+
+        $dbal
+            ->addSelect('orders_invariable.number AS order_number')
+            ->join(
+                'orders',
+                OrderInvariable::class,
+                'orders_invariable',
+                'orders_invariable.main = orders.id',
+            );
+
 
         /** Актуальное состояние заказа */
 

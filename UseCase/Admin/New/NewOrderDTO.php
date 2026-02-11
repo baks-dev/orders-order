@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\UseCase\Admin\New;
@@ -28,7 +29,11 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Invariable\NewOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Posting\NewOrderPostingDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\preProduct\PreProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\User\OrderUserDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -57,19 +62,33 @@ final class NewOrderDTO implements OrderEventInterface
     #[Assert\Valid]
     private ArrayCollection $serv;
 
-    /** Постоянная величина */
+    /**
+     * Постоянная величина
+     */
     #[Assert\Valid]
-    private Invariable\NewOrderInvariableDTO $invariable;
+    private NewOrderInvariableDTO $invariable;
 
-    /** Статус заказа */
+    /**
+     * Номер разделенного заказа
+     */
+    #[Assert\Valid]
+    private NewOrderPostingDTO $posting;
+
+    /**
+     * Статус заказа
+     */
     #[Assert\NotBlank]
     private OrderStatus $status;
 
-    /** Пользователь */
+    /**
+     * Пользователь
+     */
     #[Assert\Valid]
     private User\OrderUserDTO $usr;
 
-    /** Комментарий к заказу */
+    /**
+     * Комментарий к заказу
+     */
     private ?string $comment = null;
 
     /**
@@ -81,12 +100,13 @@ final class NewOrderDTO implements OrderEventInterface
 
     public function __construct()
     {
-        $this->invariable = new Invariable\NewOrderInvariableDTO();
+        $this->invariable = new NewOrderInvariableDTO();
+        $this->posting = new NewOrderPostingDTO();
 
         $this->product = new ArrayCollection();
         $this->serv = new ArrayCollection();
-        $this->usr = new User\OrderUserDTO();
-        $this->preProduct = new preProduct\PreProductDTO();
+        $this->usr = new OrderUserDTO();
+        $this->preProduct = new PreProductDTO();
         $this->status = new OrderStatus(OrderStatusNew::class);
     }
 
@@ -115,7 +135,7 @@ final class NewOrderDTO implements OrderEventInterface
         $this->product = $product;
     }
 
-    public function addProduct(Products\NewOrderProductDTO $product): void
+    public function addProduct(NewOrderProductDTO $product): void
     {
         if(!$this->product->contains($product))
         {
@@ -123,7 +143,7 @@ final class NewOrderDTO implements OrderEventInterface
         }
     }
 
-    public function removeProduct(Products\NewOrderProductDTO $product): void
+    public function removeProduct(NewOrderProductDTO $product): void
     {
         $this->product->removeElement($product);
     }
@@ -163,12 +183,12 @@ final class NewOrderDTO implements OrderEventInterface
     }
 
     /** Пользователь */
-    public function getUsr(): User\OrderUserDTO
+    public function getUsr(): OrderUserDTO
     {
         return $this->usr;
     }
 
-    public function setUsr(User\OrderUserDTO $users): void
+    public function setUsr(OrderUserDTO $users): void
     {
         $this->usr = $users;
     }
@@ -190,12 +210,12 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * PreProduct
      */
-    public function getPreProduct(): preProduct\PreProductDTO
+    public function getPreProduct(): PreProductDTO
     {
         return $this->preProduct;
     }
 
-    public function setPreProduct(preProduct\PreProductDTO $preProduct): self
+    public function setPreProduct(PreProductDTO $preProduct): self
     {
         $this->preProduct = $preProduct;
         return $this;
@@ -204,7 +224,7 @@ final class NewOrderDTO implements OrderEventInterface
     /**
      * Invariable
      */
-    public function getInvariable(): Invariable\NewOrderInvariableDTO
+    public function getInvariable(): NewOrderInvariableDTO
     {
         return $this->invariable;
     }
@@ -220,5 +240,16 @@ final class NewOrderDTO implements OrderEventInterface
     {
         $this->profile = $profile;
         return $this;
+    }
+
+    public function setPosting(NewOrderPostingDTO $posting): NewOrderDTO
+    {
+        $this->posting = $posting;
+        return $this;
+    }
+
+    public function getPosting(): NewOrderPostingDTO
+    {
+        return $this->posting;
     }
 }

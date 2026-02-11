@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -58,7 +59,6 @@ use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -151,6 +151,12 @@ final class OrderNewTest extends KernelTestCase
         /** Взываем метод $NewOrderInvariableDTO->getNumber() */
         $number = $NewOrderInvariableDTO->getNumber();
         self::assertNotEmpty($number);
+
+
+        /** NewOrderPostingDTO */
+
+        $NewOrderInvariableDTO = $NewOrderDTO->getPosting(); // читаем из NewOrderDTO
+        $NewOrderInvariableDTO->setValue($NewOrderDTO->getInvariable()->getNumber());
 
         /** OrderPriceDTO */
 
@@ -269,6 +275,7 @@ final class OrderNewTest extends KernelTestCase
         /** @var NewOrderHandler $OrderHandler */
         $OrderHandler = self::getContainer()->get(NewOrderHandler::class);
         $handle = $OrderHandler->handle($NewOrderDTO);
+
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
     }
 }

@@ -19,11 +19,13 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
@@ -74,16 +76,6 @@ class OrderEvent extends EntityEvent
     #[ORM\Column(type: OrderUid::TYPE)]
     private ?OrderUid $orders = null;
 
-    /** Статус заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: OrderStatus::TYPE)]
-    private OrderStatus $status;
-
-    /** Дата заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $created;
-
     /** Товары в заказе */
     #[Assert\When(expression: 'this.isServiceEmpty() === true', constraints: new Assert\Count(min: 1))]
     #[ORM\OneToMany(targetEntity: OrderProduct::class, mappedBy: 'event', cascade: ['all'])]
@@ -97,6 +89,19 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(targetEntity: OrderInvariable::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderInvariable $invariable = null;
 
+    /** Информация о разделенном заказе - EntityReadonly */
+    #[ORM\OneToOne(targetEntity: OrderPosting::class, mappedBy: 'event', cascade: ['all'])]
+    private ?OrderPosting $posting = null;
+
+    /** Дата заказа */
+    #[Assert\NotBlank]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private DateTimeImmutable $created;
+
+    /** Статус заказа */
+    #[Assert\NotBlank]
+    #[ORM\Column(type: OrderStatus::TYPE)]
+    private OrderStatus $status;
 
     /**
      * Ответственный

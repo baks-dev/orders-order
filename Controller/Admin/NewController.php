@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -163,7 +164,7 @@ final class NewController extends AbstractController
                 if($OrderDTO->getProduct()->count() > 1)
                 {
                     /**
-                     * Делим заказ, если количество продукта превышает лимит - 100
+                     * Делим заказ, если количество единиц продукта превышает лимит - 100 шт.
                      */
 
                     /** Проверка лимита */
@@ -205,10 +206,14 @@ final class NewController extends AbstractController
                         /** Новый объект заказа и новой коллекцией с продуктом для разделения */
                         $OrderDTOClone->setProduct($filter);
 
-                        /** Номер заказа с постфиксом разделения */
+                        /**
+                         * Номер постинга (разделенного заказа) с постфиксом
+                         * @note Номер у разделенных заказов общий
+                         */
                         $orderNumberPostfix += 1;
-                        $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                        $OrderDTOClone->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
 
+                        /** Номер разделенного заказа с постфиксом */
                         $handle = $OrderHandler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
 
@@ -216,7 +221,7 @@ final class NewController extends AbstractController
                             'page.new',
                             $handle instanceof Order ? 'success.new' : 'danger.new',
                             'orders-order.admin',
-                            $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                            $handle instanceof Order ? $OrderDTOClone->getPosting()->getValue() ?? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
                     }
                 }
@@ -228,11 +233,15 @@ final class NewController extends AbstractController
                 return $this->redirectToRoute('orders-order:admin.index');
             }
 
-            /** Если заказ был разделен - добавляем в номер постфикс */
+            /** Если заказ был разделен - постфикс изменился - добавляем номер постинга с постфиксом */
             if($orderNumberPostfix !== 0)
             {
                 $orderNumberPostfix += 1;
-                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                $OrderDTO->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
+            }
+            else // если заказ не был разделен - номер постинга равен номеру заказа
+            {
+                $OrderDTO->getPosting()->setValue($orderNumber);
             }
 
             $handle = $OrderHandler->handle($OrderDTO);
@@ -241,7 +250,7 @@ final class NewController extends AbstractController
                 'page.new',
                 $handle instanceof Order ? 'success.new' : 'danger.new',
                 'orders-order.admin',
-                $handle instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
+                $handle instanceof Order ? $OrderDTO->getPosting()->getValue() ?? $OrderDTO->getInvariable()->getNumber() : $handle,
             );
 
             if($handle instanceof Order)

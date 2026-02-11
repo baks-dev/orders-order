@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetail;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber;
 
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
@@ -49,7 +49,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -92,15 +92,11 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorage;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Doctrine\DBAL\ArrayParameterType;
 use Generator;
-use InvalidArgumentException;
 
-final class OrderDetailRepository implements OrderDetailInterface
+final class OrderDetailByNumberRepository implements OrderDetailByNumberInterface
 {
-    private array|null $orders = null;
-
-    private OrderUid|false $order = false;
+    private string|false $number = false;
 
     private UserProfileUid|false $profile = false;
 
@@ -110,24 +106,11 @@ final class OrderDetailRepository implements OrderDetailInterface
     ) {}
 
     /**
-     * Фильтр по заказам
+     * Общий номер заказа
      */
-    public function inOrders(array $orders): self
+    public function onNumber(string $number): self
     {
-        foreach($orders as $order)
-        {
-            $this->orders[] = new OrderUid($order);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Фильтр по заказу
-     */
-    public function onOrder(OrderUid $order): self
-    {
-        $this->order = $order;
+        $this->number = $number;
         return $this;
     }
 
@@ -141,49 +124,16 @@ final class OrderDetailRepository implements OrderDetailInterface
     }
 
     /**
-     * Метод возвращает Result с информацией об заказе
-     */
-    public function find(): OrderDetailResult|false
-    {
-        if(false === ($this->order instanceof OrderUid))
-        {
-            throw new InvalidArgumentException('Не передан обязательный параметр запроса order');
-        }
-
-        $builder = $this->builder();
-
-        return $builder->fetchHydrate(OrderDetailResult::class);
-    }
-
-    /**
      * Метод возвращает Generator с информацией об заказах
+     * @return Generator<int, OrderDetailResult>|false
      */
     public function findAll(): Generator|false
     {
-        if(false === is_array($this->orders))
-        {
-            throw new InvalidArgumentException('Не передан обязательный параметр запроса orders');
-        }
-
         $builder = $this->builder();
-        $this->orders = null;
 
         $result = $builder->fetchAllHydrate(OrderDetailResult::class);
 
         return true === $result->valid() ? $result : false;
-    }
-
-    /**
-     * @deprecated
-     * Метод возвращает Result с информацией об заказе
-     */
-    public function fetchDetailOrderAssociative(OrderUid $order): array|null
-    {
-        $this->onOrder($order);
-
-        $builder = $this->builder();
-
-        return $builder->fetchAssociative() ?: null;
     }
 
     public function builder(): DBALQueryBuilder
@@ -193,46 +143,22 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->bindLocal();
 
         $dbal
-            ->select('orders.id AS order_id')
-            ->addSelect('orders.event AS order_event')
-            ->from(Order::class, 'orders');
-
-        if(true === $this->order instanceof OrderUid)
-        {
-            $dbal->where('orders.id = :order')
-                ->setParameter(
-                    key: 'order',
-                    value: $this->order,
-                    type: OrderUid::TYPE,
-                );
-        }
-
-        if(true === is_array($this->orders))
-        {
-            $dbal->andWhere('orders.id IN (:orders)')
-                ->setParameter(
-                    key: 'orders',
-                    value: $this->orders,
-                    type: ArrayParameterType::STRING,
-                );
-        }
-
-        $dbal
+            ->select('orders_invariable.main AS order_id')
+            ->addSelect('orders_invariable.event AS order_event')
             ->addSelect('orders_invariable.number AS order_number')
-            ->join(
-                'orders',
-                OrderInvariable::class,
-                'orders_invariable',
-                'orders_invariable.main = orders.id',
+            ->from(OrderInvariable::class, 'orders_invariable')
+            ->where('orders_invariable.number = :number')
+            ->setParameter(
+                key: 'number',
+                value: $this->number,
             );
 
         $dbal
-            ->addSelect('orders_posting.value AS order_posting_value')
-            ->leftJoin(
+            ->join(
+                'orders_invariable',
+                Order::class,
                 'orders',
-                OrderPosting::class,
-                'orders_posting',
-                'orders_posting.main = orders.id',
+                'orders.id = orders_invariable.main',
             );
 
         $dbal
@@ -240,10 +166,19 @@ final class OrderDetailRepository implements OrderDetailInterface
             ->addSelect('event.comment AS order_comment')
             ->addSelect('event.created AS order_created')
             ->join(
-                'orders',
+                'orders_invariable',
                 OrderEvent::class,
                 'event',
-                'event.id = orders.event',
+                'event.id = orders_invariable.event',
+            );
+
+        $dbal
+            ->addSelect('orders_posting.value AS order_posting_value')
+            ->leftJoin(
+                'event',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.event = event.id',
             );
 
         $dbal
@@ -316,12 +251,14 @@ final class OrderDetailRepository implements OrderDetailInterface
             'product_event.id = order_product.product',
         );
 
+
         $dbal->leftJoin(
             'product_event',
             ProductInfo::class,
             'product_info',
             'product_info.product = product_event.main ',
         );
+
 
         $dbal->leftJoin(
             'product_event',

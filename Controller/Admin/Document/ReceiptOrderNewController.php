@@ -28,39 +28,45 @@ namespace BaksDev\Orders\Order\Controller\Admin\Document;
 
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\OrderDetailByNumberInterface;
+use Generator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS')]
-final class ReceiptOrderController extends AbstractController
+final class ReceiptOrderNewController extends AbstractController
 {
+    private Generator|array|null $orders = null;
+
     /**
      * Приходный кассовый ордер
      */
-    #[Route('/admin/order/document/receipt/{id}', name: 'admin.document.receipt', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/document/receipt/new/{number}', name: 'admin.document.receiptnew', methods: ['GET'])]
     public function receipt(
-        #[MapEntity] Order $Order,
-        OrderDetailInterface $orderDetail,
+        OrderDetailByNumberInterface $orderDetailByPartRepository,
+        string|null $number,
     ): Response
     {
 
-        /** Информация о заказе */
-        $OrderInfo = $orderDetail
-            ->onOrder($Order->getId())
+        /**
+         * Информация о заказе
+         */
+
+        $OrderDetailResult = $orderDetailByPartRepository
+            ->onNumber($number)
             ->findAll();
 
-        if(false === $OrderInfo)
+        $this->orders = iterator_to_array($OrderDetailResult);
+
+        if(true === empty($this->orders))
         {
             return new Response('404 Page Not Found');
         }
 
         return $this->render([
-            'order' => $OrderInfo
+            'orders' => $this->orders
         ]);
     }
 }

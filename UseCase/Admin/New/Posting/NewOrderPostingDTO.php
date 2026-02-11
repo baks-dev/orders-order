@@ -24,43 +24,26 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Controller\Admin\Document;
+namespace BaksDev\Orders\Order\UseCase\Admin\New\Posting;
 
-use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Attribute\Route;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPostingInterface;
 
-#[AsController]
-#[RoleSecurity('ROLE_ORDERS')]
-final class ReceiptOrderController extends AbstractController
+/** @see OrderPosting */
+final class NewOrderPostingDTO implements OrderPostingInterface
 {
     /**
-     * Приходный кассовый ордер
+     * Номер разделенного заказа
      */
-    #[Route('/admin/order/document/receipt/{id}', name: 'admin.document.receipt', methods: ['GET', 'POST'])]
-    public function receipt(
-        #[MapEntity] Order $Order,
-        OrderDetailInterface $orderDetail,
-    ): Response
+    private string $value;
+
+    public function setValue(string $value): NewOrderPostingDTO
     {
+        $this->value = $value;
+        return $this;
+    }
 
-        /** Информация о заказе */
-        $OrderInfo = $orderDetail
-            ->onOrder($Order->getId())
-            ->findAll();
-
-        if(false === $OrderInfo)
-        {
-            return new Response('404 Page Not Found');
-        }
-
-        return $this->render([
-            'order' => $OrderInfo
-        ]);
+    public function getValue(): string
+    {
+        return $this->value;
     }
 }

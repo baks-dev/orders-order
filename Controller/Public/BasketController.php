@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -515,9 +516,12 @@ class BasketController extends AbstractController
                         /** Новый объект заказа и новой коллекцией с продуктом для разделения */
                         $OrderDTOClone->setProduct($filter);
 
-                        /** Номер заказа с постфиксом разделения */
+                        /**
+                         * Номер постинга (разделенного заказа) с постфиксом
+                         * @note Номер у разделенных заказов общий
+                         */
                         $orderNumberPostfix += 1;
-                        $OrderDTOClone->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                        $OrderDTOClone->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
 
                         $handle = $handler->handle($OrderDTOClone);
                         $OrderDTO->getProduct()->removeElement($product);
@@ -532,7 +536,7 @@ class BasketController extends AbstractController
                             type: $handle instanceof Order ? 'success' : 'danger',
                             message: $handle instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                             domain: 'user.order',
-                            arguments: $handle instanceof Order ? $OrderDTOClone->getInvariable()->getNumber() : $handle,
+                            arguments: $handle instanceof Order ? $OrderDTOClone->getPosting()->getValue() ?? $OrderDTOClone->getInvariable()->getNumber() : $handle,
                         );
                     }
                 }
@@ -570,7 +574,11 @@ class BasketController extends AbstractController
             if($orderNumberPostfix !== 0)
             {
                 $orderNumberPostfix += 1;
-                $OrderDTO->getInvariable()->setNumber($orderNumber.'-'.$orderNumberPostfix);
+                $OrderDTO->getPosting()->setValue($orderNumber.'-'.$orderNumberPostfix);
+            }
+            else // если заказ не был разделен - номер постинга равен номеру заказа
+            {
+                $OrderDTO->getPosting()->setValue($orderNumber);
             }
 
             $Order = $handler->handle($OrderDTO);
@@ -579,7 +587,7 @@ class BasketController extends AbstractController
                 type: $Order instanceof Order ? 'success' : 'danger',
                 message: $Order instanceof Order ? 'user.order.new.success' : 'user.order.new.danger',
                 domain: 'user.order',
-                arguments: $Order instanceof Order ? $OrderDTO->getInvariable()->getNumber() : $handle,
+                arguments: $Order instanceof Order ? $OrderDTO->getPosting()->getValue() ?? $OrderDTO->getInvariable()->getNumber() : $handle,
             );
 
             if($Order instanceof Order)

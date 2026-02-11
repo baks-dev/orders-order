@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -29,6 +30,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Add\PublicOrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Invariable\OrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\Posting\OrderPostingDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Project\OrderProjectDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\User\OrderUserDTO;
@@ -42,29 +44,44 @@ final class OrderDTO implements OrderEventInterface
     #[Assert\Uuid]
     private ?OrderEventUid $id = null;
 
-    /** Постоянная величина */
+    /**
+     * Постоянная величина
+     */
     #[Assert\Valid]
     private readonly OrderInvariableDTO $invariable;
 
-    /** Коллекция продукции в заказе */
+    /**
+     * Номер разделенного заказа
+     */
+    #[Assert\Valid]
+    private OrderPostingDTO $posting;
+
+    /**
+     * Коллекция продукции в заказе
+     */
     #[Assert\Valid]
     private ArrayCollection $product;
 
-    /** Пользователь */
+    /**
+     * Пользователь
+     */
     #[Assert\Valid]
     private OrderUserDTO $usr;
 
-    /** Идентификатор проекта */
+    /**
+     * Идентификатор проекта
+     */
     #[Assert\Valid]
     private OrderProjectDTO $project;
 
-    /** Коллекция услуг в заказе */
+    /**
+     * Коллекция услуг в заказе
+     */
     #[Assert\Valid]
     private ArrayCollection $serv;
 
     /** Комментарий к заказу */
     private ?string $comment = null;
-
 
     public function __construct()
     {
@@ -72,6 +89,7 @@ final class OrderDTO implements OrderEventInterface
         $this->serv = new ArrayCollection();
         $this->usr = new OrderUserDTO();
         $this->invariable = new OrderInvariableDTO();
+        $this->posting = new OrderPostingDTO();
         $this->project = new OrderProjectDTO();
     }
 
@@ -175,6 +193,20 @@ final class OrderDTO implements OrderEventInterface
     public function getProject(): OrderProjectDTO
     {
         return $this->project;
+    }
+
+    /**
+     * Posting
+     */
+    public function setPosting(OrderPostingDTO $posting): OrderDTO
+    {
+        $this->posting = $posting;
+        return $this;
+    }
+
+    public function getPosting(): OrderPostingDTO
+    {
+        return $this->posting;
     }
 
 }

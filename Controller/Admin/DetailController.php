@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -28,7 +29,6 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
@@ -78,7 +78,6 @@ final class DetailController extends AbstractController
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
         CentrifugoPublishInterface $publish,
-        MessageDispatchInterface $messageDispatch,
         string $id,
 
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
@@ -149,9 +148,12 @@ final class DetailController extends AbstractController
                 ->setMinPrice($serviceInfo->getPrice()->getValue());
         }
 
-        // Динамическая форма корзины (необходима для динамического изменения полей в форме)
-        $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
-        $handleForm->handleRequest($request);
+        /** Динамическая форма (необходима для динамического изменения полей в форме) - только при AJAX запросах */
+        if(true === $request->isXmlHttpRequest())
+        {
+            $handleForm = $this->createForm(EditOrderForm::class, $OrderDTO);
+            $handleForm->handleRequest($request);
+        }
 
         // форма заказа
         $form = $this

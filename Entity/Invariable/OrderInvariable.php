@@ -43,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_invariable')]
+#[ORM\Index(columns: ['number'])]
 class OrderInvariable extends EntityReadonly
 {
     /**
@@ -65,7 +66,6 @@ class OrderInvariable extends EntityReadonly
 
     /**
      * Идентификатор заказа
-     * TODO: nullable: false
      */
     #[ORM\Column(type: Types::STRING, unique: false, nullable: true)]
     private ?string $number = null;

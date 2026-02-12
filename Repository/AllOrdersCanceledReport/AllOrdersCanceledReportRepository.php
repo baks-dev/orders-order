@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -37,6 +38,8 @@ use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
 use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
@@ -116,8 +119,13 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
                 "orders_event",
                 "
                     orders_event.id = orders.event AND
-                    orders_event.status = 'canceled'
+                    orders_event.status = :status
                 ",
+            )
+            ->setParameter(
+                key: 'status',
+                value: OrderStatusCanceled::STATUS,
+                type: OrderStatus::TYPE
             );
 
 
@@ -140,6 +148,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
                 type: Types::DATE_IMMUTABLE,
             );
 
+
         $dbal
             ->addSelect("orders_invariable.number AS number")
             ->join(
@@ -149,6 +158,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
                 "orders_invariable.main = orders.id"
                 .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ''),
             );
+
 
         if($this->profile instanceof UserProfileUid)
         {
@@ -166,6 +176,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
             "orders_product",
             "orders_product.event = orders.event",
         );
+
 
         $dbal
             ->addSelect("orders_price.price AS order_price")

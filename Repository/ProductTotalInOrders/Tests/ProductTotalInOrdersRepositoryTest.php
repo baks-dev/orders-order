@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -34,6 +35,7 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
+// @TODO зависимость на тестовые продукты
 #[When(env: 'test')]
 class ProductTotalInOrdersRepositoryTest extends KernelTestCase
 {
@@ -103,6 +105,7 @@ class ProductTotalInOrdersRepositoryTest extends KernelTestCase
             // dump($product['productName'].' всего в заказах: '.$result);
         }
 
+        echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
         self::assertTrue(true);
     }
 }

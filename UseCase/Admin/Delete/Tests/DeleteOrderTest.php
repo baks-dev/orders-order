@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -29,24 +30,21 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\Tests\OrderStatusCanceledTest;
 use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Delete\DeleteOrderHandler;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
-use BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-#[When(env: 'test')]
 #[Group('orders-order')]
+#[Group('orders-order-usecase')]
+#[When(env: 'test')]
 class DeleteOrderTest extends KernelTestCase
 {
-    #[DependsOnClass(OrderNewTest::class)]
-    #[DependsOnClass(OrderStatusCompleteTest::class)]
+    #[DependsOnClass(OrderStatusCanceledTest::class)]
     public function testUseCase(): void
     {
         /** @var CurrentOrderEventInterface $OrderCurrentEvent */

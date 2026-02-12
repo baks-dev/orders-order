@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
+// @TODO зависимость на создание сервиса
 #[Group('orders-order')]
 #[Group('orders-order-repo')]
 #[When(env: 'test')]
@@ -50,15 +51,16 @@ class AllServicePeriodByDateRepositoryTest extends KernelTestCase
         /** @var AllServicePeriodByDateInterface $AllServicePeriodByDateInterface */
         $AllServicePeriodByDateInterface = self::getContainer()->get(AllServicePeriodByDateInterface::class);
 
-        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
+        //        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
         $result = $AllServicePeriodByDateInterface
-            ->byProfile(new UserProfileUid($profile))
+            ->byProfile(new UserProfileUid(UserProfileUid::TEST))
             ->byDate(new \DateTimeImmutable('2025-09-19'))
             ->findAll(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
 
         if(false === $result || false === $result->valid())
         {
+            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
             return;
         }
 

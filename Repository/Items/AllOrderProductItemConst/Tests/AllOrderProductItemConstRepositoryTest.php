@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -36,13 +36,19 @@ class AllOrderProductItemConstRepositoryTest extends KernelTestCase
 {
     public function testRepository(): void
     {
-        self::assertTrue(true);
 
         /** @var AllOrderProductItemConstInterface $CurrentOrderProductItemInterface */
         $CurrentOrderProductItemInterface = self::getContainer()->get(AllOrderProductItemConstInterface::class);
 
         $result = $CurrentOrderProductItemInterface
             ->findAll(new OrderUid());
+
+        if(false === $result)
+        {
+            self::assertTrue(true);
+            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
+            return;
+        }
 
         $count = $CurrentOrderProductItemInterface
             ->count(new OrderUid());

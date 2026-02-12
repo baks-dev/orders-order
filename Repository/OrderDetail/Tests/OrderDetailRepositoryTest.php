@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -45,22 +46,15 @@ class OrderDetailRepositoryTest extends KernelTestCase
     #[DependsOnClass(OrderNewTest::class)]
     public function testOrderDetail(): void
     {
-
         /** @var OrderDetailInterface $OrderDetailInterface */
         $OrderDetailInterface = self::getContainer()->get(OrderDetailInterface::class);
-
-        self::assertTrue(true);
 
         $result = $OrderDetailInterface
             ->onOrder(new OrderUid(OrderUid::TEST))
             ->forProfile(new UserProfileUid(UserProfileUid::TEST))
             ->find();
 
-        if(false === $result)
-        {
-            echo sprintf('%s%s ничего не тестирует %s', PHP_EOL, self::class, PHP_EOL);
-            return;
-        }
+        self::assertTrue(($result instanceof OrderDetailResult), 'Не найден OrderDetailResult');
 
         /** Присваиваем через сеттер QRcode */
         $result->setQrCode('qrcode');
@@ -76,8 +70,10 @@ class OrderDetailRepositoryTest extends KernelTestCase
             {
                 // Вызываем метод
                 $data = $method->invoke($result);
-                //                dump($data);
+                //                                dump($data);
             }
         }
+
+        self::assertTrue(true);
     }
 }

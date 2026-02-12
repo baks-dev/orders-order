@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -27,7 +28,7 @@ namespace BaksDev\Orders\Order\Repository\AllOrdersCanceledReport\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrdersCanceledReport\AllOrdersCanceledReportInterface;
 use BaksDev\Orders\Order\Repository\AllOrdersCanceledReport\AllOrdersCanceledReportResult;
-use BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\Tests\OrderStatusCanceledTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DependsOnClass;
@@ -42,28 +43,24 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllOrdersCanceledReportRepositoryTest extends KernelTestCase
 {
-    #[DependsOnClass(OrderStatusCompleteTest::class)]
+    #[DependsOnClass(OrderStatusCanceledTest::class)]
     public function testFind(): void
     {
-        self::assertTrue(true);
+        //        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
         /** @var AllOrdersCanceledReportInterface $allProductsOrdersCanceledReportRepository */
         $allProductsOrdersCanceledReportRepository = self::getContainer()
             ->get(AllOrdersCanceledReportInterface::class);
 
-        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
 
         $result = $allProductsOrdersCanceledReportRepository
             ->from(new DateTimeImmutable())
             ->to(new DateTimeImmutable('+1 day'))
-            ->forProfile(new UserProfileUid($profile))
+            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
             ->findAll();
 
-        if(false === $result || false === $result->valid())
-        {
-            return;
-        }
-        
+        self::assertNotFalse($result, 'Не найдены заказы');
+
         foreach($result as $AllOrdersCanceledReportResult)
         {
             // Вызываем все геттеры

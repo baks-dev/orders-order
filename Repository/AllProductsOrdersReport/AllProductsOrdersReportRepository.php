@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -32,6 +33,8 @@ use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
 use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
@@ -45,11 +48,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Product;
-use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
@@ -127,8 +128,13 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "orders_event",
             "
                     orders_event.id = orders.event AND
-                    orders_event.status = 'completed'
-                ");
+                    orders_event.status = :status
+                ")
+            ->setParameter(
+                key: 'status',
+                value: OrderStatusCompleted::STATUS,
+                type: OrderStatus::TYPE
+            );
 
 
         $dbal->join(
@@ -177,7 +183,6 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 type: Types::DATE_IMMUTABLE,
             );
 
-
         $dbal
             ->leftJoin(
                 "orders_product",
@@ -192,6 +197,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             "product_info",
             "product_info.event = product_event.main",
         );
+
 
         /** ProductOffer */
 
@@ -254,6 +260,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 'category_offer_modification',
                 'category_offer_modification.id = product_modification.category_modification',
             );
+
 
         $dbal->addSelect('
             COALESCE(

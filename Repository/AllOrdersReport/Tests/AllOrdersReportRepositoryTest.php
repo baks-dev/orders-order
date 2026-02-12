@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -43,18 +44,9 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllOrdersReportRepositoryTest extends KernelTestCase
 {
-    // @TODO фикс в модуле products-product
-    //    public static function setUpBeforeClass(): void
-    //    {
-    //        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
-    //        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
-    //    }
-
     #[DependsOnClass(OrderStatusCompleteTest::class)]
     public function testFind(): void
     {
-        self::assertTrue(true);
-
         /** @var AllOrdersReportInterface $allProductsOrdersReportRepository */
         $allProductsOrdersReportRepository = self::getContainer()->get(AllOrdersReportInterface::class);
 
@@ -64,15 +56,11 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
             ->forProfile(new UserProfileUid())
             ->findAll();
 
-        if(false === $result || false === $result->valid())
-        {
-            return;
-        }
+        self::assertNotFalse($result, 'Не найдены заказы');
 
         /** @var AllOrdersReportResult $AllOrdersReportResult */
         foreach($result as $AllOrdersReportResult)
         {
-
             // Вызываем все геттеры
             $reflectionClass = new ReflectionClass(AllOrdersReportResult::class);
             $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -87,7 +75,6 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
                     // dump($data);
                 }
             }
-
         }
     }
 }

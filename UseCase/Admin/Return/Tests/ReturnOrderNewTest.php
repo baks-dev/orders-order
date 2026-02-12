@@ -19,14 +19,13 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Return\Tests;
 
-use BaksDev\Core\Type\Gps\GpsLatitude;
-use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Field\DeliveryFieldUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
@@ -56,18 +55,13 @@ use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Event\ConsoleCommandEvent;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
+#[Group('orders-order-usecase')]
 #[When(env: 'test')]
 final class ReturnOrderNewTest extends KernelTestCase
 {

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\Repository\AllServicesOrdersReport\Tests;
@@ -26,6 +27,7 @@ namespace BaksDev\Orders\Order\Repository\AllServicesOrdersReport\Tests;
 use BaksDev\Orders\Order\Repository\AllServicesOrdersReport\AllServicesOrdersReportInterface;
 use BaksDev\Orders\Order\Repository\AllServicesOrdersReport\AllServicesOrdersReportRepository;
 use BaksDev\Orders\Order\Repository\AllServicesOrdersReport\AllServicesOrdersReportResult;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Group;
 use ReflectionClass;
@@ -33,6 +35,7 @@ use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
+// @TODO зависимость на услуги
 #[Group('orders-order')]
 #[When(env: 'test')]
 final class AllServicesOrdersReportRepositoryTest extends KernelTestCase
@@ -43,19 +46,16 @@ final class AllServicesOrdersReportRepositoryTest extends KernelTestCase
         /** @var AllServicesOrdersReportRepository $AllServicesOrdersReportRepository */
         $AllServicesOrdersReportRepository = self::getContainer()->get(AllServicesOrdersReportInterface::class);
 
-        /* Получить заказы за месяц */
-        $fiveMonthsAgo = new DateTimeImmutable('last month');
-
-        /** @var \Generator $result */
         $result = $AllServicesOrdersReportRepository
-            ->from($fiveMonthsAgo)
+            ->from(new DateTimeImmutable('last month'))
             ->to(new DateTimeImmutable())
-            //            ->forProfile(new UserProfileUid())
+            ->forProfile(new UserProfileUid())
             ->findAll();
 
         if(false === $result)
         {
-            self::assertFalse(false);
+            self::assertTrue(true);
+            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
             return;
         }
 
@@ -74,12 +74,10 @@ final class AllServicesOrdersReportRepositoryTest extends KernelTestCase
                 {
                     /* Вызвать метод */
                     $data = $method->invoke($AllServicesOrdersReportResult);
-//                    dump($data);
+                    //                    dump($data);
                 }
             }
 
         }
-
-        self::assertTrue(true);
     }
 }

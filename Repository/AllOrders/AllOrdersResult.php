@@ -41,11 +41,11 @@ use DateTimeImmutable;
 
 final  class AllOrdersResult
 {
-
     public function __construct(
         private readonly string $order_id, //  "01986a30-80e8-7dc4-92db-007c0483d520"
         private readonly string $order_event, //  "01986a30-80e8-7dc4-92db-007c054183c9"
         private readonly ?string $order_number, //  "175.412.813.102"
+        private readonly ?string $order_posting, //  "175.412.813.102"
         private readonly string $order_created, //  "2025-08-02 12:50:20"
         private readonly string $order_status, //  "new"
 
@@ -117,7 +117,7 @@ final  class AllOrdersResult
 
     public function getOrderNumber(): string
     {
-        return $this->order_number ?? 'Не указан';
+        return $this->order_posting ?? 'Не указан';
     }
 
     public function getOrderCreated(): DateTimeImmutable
@@ -147,7 +147,7 @@ final  class AllOrdersResult
         {
             return true;
         }
-        
+
         if(
             class_exists(BaksDevProductsStocksBundle::class)
             && $this->getOrderStatus()->equals(OrderStatusNew::class)
@@ -435,6 +435,5 @@ final  class AllOrdersResult
     {
         return $this->project_profile_username;
     }
-
 
 }

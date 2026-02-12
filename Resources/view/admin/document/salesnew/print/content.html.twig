@@ -17,23 +17,23 @@
 {% set orderServices = [] %}
 {% set orderClient = [] %}
 
-    {% for order in orders %}
+{% set orderUserFirst = orders|first %}
 
-        {% set orderUser = order.orderUser %}
-        {% set orderNumber = order.orderNumber %}
-        {% set orderData = order.orderData|date('d.m.Y') %}
-        {% set paymentId = order.paymentId %}
-        {% set paymentName = order.paymentName %}
-        {% set orderDelivery = order.orderDelivery %}
-        {% set orderDeliveryPrice = order.orderDeliveryPrice %}
-        {% set deliveryGeocodeAddress = order.deliveryGeocodeAddress %}
-        {% set orderComment = order.orderComment %}
+{% set orderUser = orderUserFirst.orderUser %}
+{% set orderNumber = orderUserFirst.orderNumber %}
+{% set orderData = orderUserFirst.orderData|date('d.m.Y') %}
+{% set paymentId = orderUserFirst.paymentId %}
+{% set paymentName = orderUserFirst.paymentName %}
+{% set orderDelivery = orderUserFirst.orderDelivery %}
+{% set orderDeliveryPrice = orderUserFirst.orderDeliveryPrice %}
+{% set deliveryGeocodeAddress = orderUserFirst.deliveryGeocodeAddress %}
+{% set orderComment = orderUserFirst.orderComment %}
+{% set orderClient = orderUserFirst.orderClient %}
 
-        {% set orderProducts = orderProducts|merge(order.orderProducts ?: []) %}
-        {% set orderServices = orderServices|merge(order.orderServices ?: []) %}
-        {% set orderClient = orderClient|merge(order.orderClient ?: []) %}
-
-    {% endfor %}
+{% for order in orders %}
+    {% set orderProducts = orderProducts|merge(order.orderProducts ?: []) %}
+    {% set orderServices = orderServices|merge(order.orderServices ?: []) %}
+{% endfor %}
 
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
      style="overflow-y:hidden;">

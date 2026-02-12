@@ -39,6 +39,7 @@ use BaksDev\DeliveryTransport\Type\OrderStatus\OrderStatusDelivery;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
@@ -156,11 +157,20 @@ final class AllOrdersRepository implements AllOrdersInterface
 
         $dbal
             ->addSelect('order_invariable.number AS order_number')
-            ->join(
+            ->leftJoin(
                 'orders',
                 OrderInvariable::class,
                 'order_invariable',
                 'order_invariable.main = orders.id',
+            );
+
+        $dbal
+            ->addSelect('orders_posting.value AS order_posting')
+            ->leftJoin(
+                'orders',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.main = orders.id',
             );
 
 
@@ -689,7 +699,11 @@ final class AllOrdersRepository implements AllOrdersInterface
 			AS product_price",
         );
 
-        if(class_exists(BaksDevProductsStocksBundle::class))
+        if(
+            class_exists(BaksDevProductsStocksBundle::class)
+            && true === ($this->status instanceof OrderStatus)
+            && $this->status->equals(OrderStatusNew::class)
+        )
         {
             /** Получаем остаток и резерв на текущем складе */
             $dbal

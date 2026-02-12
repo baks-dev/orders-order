@@ -208,8 +208,15 @@
 
                 {% for stats in status_array %}
 
+                    {% set counter = 0 %}
+
+                    {% if query[stats.getValue()] is defined %}
+                        {% set counter = query[stats.getValue()]|length %}
+                    {% endif %}
+
+
                     {% set color = stats.color() %}
-                    {% set counter = query[stats.getValue()]|length %}
+
 
                     <div class="w-100 d-flex flex-column gap-2" style="min-width: {{ width_col }}px;">
 
@@ -267,14 +274,12 @@
                                     {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
                             </div>
 
-
-                            {% for order in query[stats.getValue()] %}
-
-                                {# КАРТОЧКА ЗАКАЗА  #}
-                                {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
-
-                            {% endfor %}
-
+                            {% if query[stats.getValue()] is defined %}
+                                {% for order in query[stats.getValue()] %}
+                                    {# КАРТОЧКА ЗАКАЗА  #}
+                                    {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
+                                {% endfor %}
+                            {% endif %}
 
                         </div>
 

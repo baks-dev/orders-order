@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -56,7 +57,7 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
                 OrderEvent::class,
                 'event',
                 'WITH',
-                'event.id = orders.event'
+                'event.id = orders_invariable.event'
             );
 
         return $orm->getOneOrNullResult() ?: false;

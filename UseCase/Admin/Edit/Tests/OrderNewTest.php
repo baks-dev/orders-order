@@ -48,6 +48,10 @@ use BaksDev\Orders\Order\UseCase\Admin\New\User\Payment\OrderPaymentDTO;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\Choice\TypePaymentCache;
 use BaksDev\Payment\Type\Id\PaymentUid;
+use BaksDev\Products\Product\Entity\Event\ProductEvent;
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -82,7 +86,6 @@ final class OrderNewTest extends KernelTestCase
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-
         $container = self::getContainer();
 
         /** @var EntityManagerInterface $em */
@@ -108,6 +111,21 @@ final class OrderNewTest extends KernelTestCase
 
     public function testUseCase(): void
     {
+        /**
+         * зависимость на создание продукта - модуль products-product
+         */
+
+        $container = self::getContainer();
+
+        /** @var EntityManagerInterface $em */
+        $em = $container->get(EntityManagerInterface::class);
+        $productEvent = $em->getRepository(ProductEvent::class)
+            ->find(ProductEventUid::TEST);
+
+
+        self::assertTrue(($productEvent instanceof ProductEvent), 'Не создан продукт для тестирования заказа');
+
+
         // $EditOrderDTO = new EditOrderDTO();
         $NewOrderDTO = new NewOrderDTO();
 
@@ -116,25 +134,39 @@ final class OrderNewTest extends KernelTestCase
         $NewOrderDTO->getInvariable()->setProfile($UserProfileUid = new  UserProfileUid());
         self::assertSame($UserProfileUid, $NewOrderDTO->getInvariable()->getProfile());
 
-        /** OrderProductDTO */
+        /**
+         * OrderProductDTO
+         */
+
+        /** Идентификаторы из тестового продукта */
+
+        /** @var ProductOffer $ProductOffer */
+        $ProductOffer = $productEvent->getOffer()->current();
+
+        /** @var ProductVariation $ProductVariation */
+        $ProductVariation = $ProductOffer->getVariation()->current();
+
+        /** @var ProductModification $ProductModification */
+        $ProductModification = $ProductVariation->getModification()->current();
 
         $OrderProductDTO = new NewOrderProductDTO();
+
         $NewOrderDTO->addProduct($OrderProductDTO);
         self::assertTrue($NewOrderDTO->getProduct()->contains($OrderProductDTO));
 
-        $product = new ProductEventUid();
+        $product = $productEvent->getId();
         $OrderProductDTO->setProduct($product);
         self::assertSame($product, $OrderProductDTO->getProduct());
 
-        $offer = new ProductOfferUid();
+        $offer = $ProductOffer->getId();
         $OrderProductDTO->setOffer($offer);
         self::assertSame($offer, $OrderProductDTO->getOffer());
 
-        $variation = new  ProductVariationUid();
+        $variation = $ProductVariation->getId();
         $OrderProductDTO->setVariation($variation);
         self::assertSame($variation, $OrderProductDTO->getVariation());
 
-        $modification = new ProductModificationUid();
+        $modification = $ProductModification->getId();
         $OrderProductDTO->setModification($modification);
         self::assertSame($modification, $OrderProductDTO->getModification());
 

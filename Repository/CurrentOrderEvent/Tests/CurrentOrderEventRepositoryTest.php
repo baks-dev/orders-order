@@ -19,25 +19,38 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\CurrentOrderEvent\Tests;
 
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
+use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
 #[When(env: 'test')]
 class CurrentOrderEventRepositoryTest extends KernelTestCase
 {
+    #[DependsOnClass(OrderNewTest::class)]
     public function testFind(): void
     {
-        self::assertTrue(true);
+        // Бросаем событие консольной команды
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
+        $dispatcher->dispatch($event, 'console.command');
 
         /** @var CurrentOrderEventInterface $CurrentOrderEventInterface */
         $CurrentOrderEventInterface = self::getContainer()->get(CurrentOrderEventInterface::class);
@@ -45,5 +58,7 @@ class CurrentOrderEventRepositoryTest extends KernelTestCase
         $OrderEvent = $CurrentOrderEventInterface
             ->forOrder(new OrderUid(OrderUid::TEST))
             ->find();
+
+        self::assertTrue(($OrderEvent instanceof OrderEvent), 'Не найден OrderEvent');
     }
 }

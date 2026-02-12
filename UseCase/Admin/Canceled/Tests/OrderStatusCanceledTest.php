@@ -24,11 +24,16 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\GetOldestUnpaidOrder\Tests;
+namespace BaksDev\Orders\Order\UseCase\Admin\Canceled\Tests;
 
-use BaksDev\Orders\Order\Repository\GetOldestUnpaidOrder\GetOldestUnpaidOrderInterface;
-use BaksDev\Orders\Order\Repository\GetOldestUnpaidOrder\GetOldestUnpaidOrderRepository;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Tests\OrderStatusCompleteTest;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -38,37 +43,43 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-// @TODO зависимость на заказ в статусе не оплачен
-#[When(env: 'test')]
 #[Group('orders-order')]
-#[Group('orders-order-repository')]
-final class GetOldestUnpaidOrderRepositoryTest extends KernelTestCase
+#[Group('orders-order-usecase')]
+#[When(env: 'test')]
+final class OrderStatusCanceledTest extends KernelTestCase
 {
-    public static function setUpBeforeClass(): void
+    #[DependsOnClass(OrderStatusCompleteTest::class)]
+    public static function testUseCase(): void
     {
+        $container = self::getContainer();
+
         // Бросаем событие консольной команды
-        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher = $container->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
-    }
 
-    public function testGet(): void
-    {
-        //        $seller = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
+        /** @var EntityManagerInterface $em */
+        $em = $container->get(EntityManagerInterface::class);
+        $Order = $em->getRepository(Order::class)
+            ->find(OrderUid::TEST);
 
-        /** @var GetOldestUnpaidOrderRepository $GetOldestUnpaidOrderRepository */
-        $GetOldestUnpaidOrderRepository = self::getContainer()->get(GetOldestUnpaidOrderInterface::class);
+        self::assertInstanceOf(Order::class, $Order);
 
-        $result = $GetOldestUnpaidOrderRepository
-            ->forSeller(new UserProfileUid(UserProfileUid::TEST))
-            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
-            ->get();
+        $OrderEvent = $em->getRepository(OrderEvent::class)
+            ->find($Order->getEvent());
 
-        if(null === $result)
-        {
-            self::assertTrue(true);
-            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
-        }
+        self::assertInstanceOf(OrderEvent::class, $OrderEvent, 'Не найдено активное событие заказа');
 
+        $CanceledOrderDTO = new CanceledOrderDTO();
+
+        $OrderEvent->getDto($CanceledOrderDTO);
+
+        $CanceledOrderDTO->setComment('отмена тестового заказа');
+
+        /** @var OrderStatusHandler $statusHandler */
+        $statusHandler = self::getContainer()->get(OrderStatusHandler::class);
+        $handle = $statusHandler->handle($CanceledOrderDTO);
+
+        self::assertTrue(($handle instanceof Order), $handle.': Ошибка OrderStatus');
     }
 }

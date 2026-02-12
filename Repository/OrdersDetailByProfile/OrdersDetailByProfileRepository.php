@@ -105,34 +105,14 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
     }
 
     /**
-     * Метод возвращает пагинатор с информацией о заказев виде массивов
-     *
-     * @deprecated
-     */
-    public function findAllWithPaginator(): PaginatorInterface
-    {
-        $result = $this->builder();
-        return $this->paginator->fetchAllAssociative($result);
-    }
-
-    /**
-     * Метод возвращает массивы с информацией о заказе
-     * @return false|Generator<array>
-     * @deprecated
-     */
-    public function findAll(): false|Generator
-    {
-        return $this->builder()->fetchAllGenerator();
-    }
-
-    /**
      * Метод возвращает резалты с информацией о заказе
      *
      * @return false|Generator<OrdersDetailByProfileResult>
      */
     public function findAllResults(): false|Generator
     {
-        return $this->builder()->fetchAllHydrate(OrdersDetailByProfileResult::class);
+        $result = $this->builder()->fetchAllHydrate(OrdersDetailByProfileResult::class);
+        return true === $result->valid() ? $result : false;
     }
 
     /** Метод возвращает пагинатор с информацией о заказе в виде резалтов */

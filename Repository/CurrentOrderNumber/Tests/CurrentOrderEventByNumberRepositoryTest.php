@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2026.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,32 +24,37 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\Tests;
+namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber\Tests;
 
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\OrderDetailByNumberInterface;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
+use BaksDev\Orders\Order\Repository\CurrentOrderNumber\CurrentOrderEventByNumberInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\ORM\Query\Expr\Join;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
-#[Group('orders-order-repository')]
 #[When(env: 'test')]
-class OrderDetailByNumberRepositoryTest extends KernelTestCase
+class CurrentOrderEventByNumberRepositoryTest extends KernelTestCase
 {
     #[DependsOnClass(OrderNewTest::class)]
     public function testRepository(): void
     {
-        /** @var OrderDetailByNumberInterface $OrderDetailByPartInterface */
-        $OrderDetailByPartInterface = self::getContainer()->get(OrderDetailByNumberInterface::class);
+        // Бросаем событие консольной команды
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
+        $dispatcher->dispatch($event, 'console.command');
 
         /**
          * @note Ищем номер тестового заказа
@@ -80,31 +85,12 @@ class OrderDetailByNumberRepositoryTest extends KernelTestCase
 
         self::assertTrue(($OrderInvariable instanceof OrderInvariable), 'Не найден номер тестового заказа');
 
-        $results = $OrderDetailByPartInterface
-            ->onNumber($OrderInvariable->getNumber())
-            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
-            ->findAll();
+        /** @var CurrentOrderEventByNumberInterface $CurrentOrderEventByNumberInterface */
+        $CurrentOrderEventByNumberInterface = self::getContainer()->get(CurrentOrderEventByNumberInterface::class);
 
-        self::assertNotFalse($results, 'Не найдена информация о заказах');
+        $OrderEvent = $CurrentOrderEventByNumberInterface
+            ->find($OrderInvariable->getNumber());
 
-        /** @var OrderDetailResult $result */
-        $result = $results->current();
-
-        $result->setQrCode('oDCBA5juFxP');
-
-        // Вызываем все геттеры
-        $reflectionClass = new \ReflectionClass(OrderDetailResult::class);
-        $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
-
-        foreach($methods as $method)
-        {
-            // Методы без аргументов
-            if($method->getNumberOfParameters() === 0)
-            {
-                // Вызываем метод
-                $data = $method->invoke($result);
-                //                dump($data);
-            }
-        }
+        self::assertTrue(($OrderEvent instanceof OrderEvent), 'Не найден OrderEvent');
     }
 }

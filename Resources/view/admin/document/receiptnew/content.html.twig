@@ -3,13 +3,9 @@
 {# ПЕЧАТЬ #}
 
 {% set money =  0 %}
-{% set orderNumber = null %}
-{% set orderData = null %}
+{% set Order = orders|first %}
 
     {% for order in orders %}
-
-        {% set orderNumber = order.orderPostingValue ?: order.orderNumber %}
-        {% set orderData = order.orderData|date('d.m.Y') %}
 
         {% for product in order.orderProducts %}
 
@@ -76,7 +72,7 @@
                             </div>
 
                             <div class="d-flex flex-column border border-2 border-dark text-center">
-                                <strong class="border-bottom border-1 border-dark">{{ orderNumber }}</strong>
+                                <strong class="border-bottom border-1 border-dark">{{ Order.orderNumber }}</strong>
                             </div>
                         </div>
 
@@ -177,8 +173,8 @@
                 <div class="fw-bolder text-center">к приходному кассовому ордеру</div>
 
                 <div class="date">
-                    № <strong>{{ orderNumber }}</strong>
-                    от <strong>{{ orderData|date('d.m.Y') }}</strong>
+                    № <strong>{{ Order.orderNumber }}</strong>
+                    от <strong>{{ Order.orderData|date('d.m.Y') }}</strong>
                 </div>
             </div>
 

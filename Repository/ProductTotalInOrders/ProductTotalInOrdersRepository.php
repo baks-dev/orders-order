@@ -19,12 +19,14 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\Repository\ProductTotalInOrders;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
@@ -46,7 +48,6 @@ use Doctrine\DBAL\ArrayParameterType;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
-#[Autoconfigure(public: true)]
 final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterface
 {
     private bool $isPackage = true;
@@ -380,6 +381,15 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
                 );
         }
 
+        /** Постинги */
+        $dbal
+            ->leftJoin(
+                'order_invariable',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.event = order_invariable.event',
+            );
+
         /** Статусы заказа */
 
         $dbal
@@ -405,7 +415,7 @@ final class ProductTotalInOrdersRepository implements ProductTotalInOrdersInterf
 
 
         $dbal->addSelect("JSON_AGG( DISTINCT JSONB_BUILD_OBJECT (  
-        'number', order_invariable.number, 
+        'number', orders_posting.value, 
         'total', order_product_price.total  ) 
         ) AS orders");
 

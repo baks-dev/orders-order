@@ -53,9 +53,6 @@ use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
-use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Reference\Currency\Type\Currencies\RUR;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
@@ -81,12 +78,12 @@ final class OrderNewTest extends KernelTestCase
 
     public static function setUpBeforeClass(): void
     {
+        $container = self::getContainer();
+
         // Бросаем событие консольной комманды
-        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher = $container->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
-
-        $container = self::getContainer();
 
         /** @var EntityManagerInterface $em */
         $em = $container->get(EntityManagerInterface::class);

@@ -27,20 +27,26 @@ namespace BaksDev\Orders\Order\Repository\Services\OneServiceById\Tests;
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdResult;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
+use BaksDev\Services\UseCase\Admin\New\Tests\NewServiceHandlerTest;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-// @TODO зависимость на создание сервиса
 #[Group('orders-order')]
 #[Group('orders-order-repo')]
 #[When(env: 'test')]
 class OneServiceByIdRepositoryTest extends KernelTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        /** Создаем тестовую услугу */
+        NewServiceHandlerTest::setUpBeforeClass();
+        new NewServiceHandlerTest('')->testUseCase();
+    }
+
     public function testRepository(): void
     {
-
         /** @var OneServiceByIdInterface $OneServiceByIdInterface */
         $OneServiceByIdInterface = self::getContainer()->get(OneServiceByIdInterface::class);
 
@@ -50,12 +56,7 @@ class OneServiceByIdRepositoryTest extends KernelTestCase
             ->byProfile(new UserProfileUid(UserProfileUid::TEST))
             ->find(new ServiceUid());
 
-        if(false === $OneServiceByIdResult)
-        {
-            self::assertTrue(true);
-            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
-            return;
-        }
+        self::assertInstanceOf(OneServiceByIdResult::class, $OneServiceByIdResult);
 
         // Вызываем все геттеры
         $reflectionClass = new \ReflectionClass(OneServiceByIdResult::class);

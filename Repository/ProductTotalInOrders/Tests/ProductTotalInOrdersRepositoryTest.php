@@ -92,10 +92,12 @@ class ProductTotalInOrdersRepositoryTest extends KernelTestCase
         /** @var ProductTotalInOrdersInterface $ProductTotalInOrdersInterface */
         $ProductTotalInOrdersInterface = self::getContainer()->get(ProductTotalInOrdersInterface::class);
 
+        $profile = $_SERVER['TEST_PROFILE'] ?? UserProfileUid::TEST;
+
         foreach(self::$products as $product)
         {
             $result = $ProductTotalInOrdersInterface
-                ->onProfile(new UserProfileUid('0196e4d2-5a80-720b-9547-176f35eaae71'))
+                ->onProfile(new UserProfileUid($profile))
                 ->onProduct($product['productId'])
                 ->onOfferConst($product['offerConst'])
                 ->onVariationConst($product['variationConst'])

@@ -26,7 +26,12 @@ namespace BaksDev\Orders\Order\Repository\Items\AllOrderProductItemConst\Tests;
 
 use BaksDev\Orders\Order\Repository\Items\AllOrderProductItemConst\AllOrderProductItemConstInterface;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\Items\Const\OrderProductItemConst;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
+use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -34,6 +39,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class AllOrderProductItemConstRepositoryTest extends KernelTestCase
 {
+    #[DependsOnClass(OrderNewTest::class)]
     public function testRepository(): void
     {
 
@@ -50,7 +56,28 @@ class AllOrderProductItemConstRepositoryTest extends KernelTestCase
             return;
         }
 
+        $OrderProductItemConst = $result->current();
+
+        self::assertInstanceOf(OrderProductItemConst::class, $OrderProductItemConst);
+
+        // Вызываем все геттеры
+        $reflectionClass = new ReflectionClass(OrderProductItemConst::class);
+        $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
+
+        foreach($methods as $method)
+        {
+            // Методы без аргументов
+            if($method->getNumberOfParameters() === 0)
+            {
+                // Вызываем метод
+                $get = $method->invoke($OrderProductItemConst);
+                //                    dump($get);
+            }
+        }
+
         $count = $CurrentOrderProductItemInterface
             ->count(new OrderUid());
+
+        self::assertTrue($count > 0);
     }
 }

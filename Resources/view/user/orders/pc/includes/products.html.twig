@@ -1,5 +1,6 @@
-{% trans_default_domain('user.status') %}
+{# @var order \BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileResult #}
 
+{% trans_default_domain('user.status') %}
 
 {% for order in orders %}
 
@@ -20,7 +21,7 @@
                         aria-expanded="false">
 
                     <span class="fs-18 mb-0 fw-bold me-2 text-decoration" title="Показать детали заказа">
-                         № {{ order.orderNumber }} от {{ order.orderData|format_datetime(pattern="d MMMM Y") }}
+                         № {{ order.orderPosting }} от {{ order.orderData|format_datetime(pattern="d MMMM Y") }}
                     </span>
 
                 </button>

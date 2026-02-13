@@ -227,7 +227,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
         $dbal
-            ->addSelect('orders_posting.value AS order_posting_value')
+            ->addSelect('orders_posting.value AS order_posting')
             ->leftJoin(
                 'orders',
                 OrderPosting::class,

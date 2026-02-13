@@ -823,13 +823,13 @@ final class AllOrdersRepository implements AllOrdersInterface
 
                 $dbal
                     ->createSearchQueryBuilder($this->search)
-                    ->addSearchLike('order_invariable.number');
+                    ->addSearchLike('orders_posting.value');
             }
             else
             {
                 $dbal
                     ->createSearchQueryBuilder($this->search)
-                    ->addSearchLike('order_invariable.number')
+                    ->addSearchLike('orders_posting.value')
                     ->addSearchLike('user_profile_value.value')
                     ->addSearchLike('product_info.article')
                     ->addSearchLike('product_variation.article')

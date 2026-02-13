@@ -41,6 +41,7 @@ final readonly class OrdersDetailByProfileResult
         private string $order_id,
         private string $order_event,
         private string $order_number,
+        private string $orders_posting,
         private string $order_status,
         private string $order_data,
         private ?string $order_comment,
@@ -72,7 +73,7 @@ final readonly class OrdersDetailByProfileResult
 
     public function getOrderNumber(): string
     {
-        return $this->order_number;
+        return $this->orders_posting;
     }
 
     public function getOrderStatus(): OrderStatus

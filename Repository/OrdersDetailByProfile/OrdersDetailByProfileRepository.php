@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -32,6 +31,7 @@ use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
@@ -148,6 +148,15 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'orders_invariable.main = orders.id',
             );
 
+        $dbal
+            ->addSelect('orders_posting.value AS orders_posting')
+            ->leftJoin(
+                'orders',
+                OrderPosting::class,
+                'orders_posting',
+                'orders_posting.main = orders.id',
+            );
+
 
         /** Актуальное состояние заказа */
 
@@ -164,12 +173,12 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                     'orders',
                     OrderEvent::class,
                     'event',
-                    'event.id = orders.event AND event.status = :status'
+                    'event.id = orders.event AND event.status = :status',
                 )
                 ->setParameter(
                     key: 'status',
                     value: $this->status,
-                    type: OrderStatus::TYPE
+                    type: OrderStatus::TYPE,
                 );
         }
         else
@@ -191,7 +200,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'orders',
                 OrderUser::class,
                 'order_user',
-                'order_user.event = orders.event'
+                'order_user.event = orders.event',
             );
 
 
@@ -201,12 +210,12 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'order_user',
                 UserProfileEvent::class,
                 'user_profile_event',
-                'user_profile_event.id = order_user.profile AND user_profile_event.profile = :profile'
+                'user_profile_event.id = order_user.profile AND user_profile_event.profile = :profile',
             )
             ->setParameter(
                 key: 'profile',
                 value: $this->profile,
-                type: UserProfileUid::TYPE
+                type: UserProfileUid::TYPE,
             );
 
         /** Оплата */
@@ -215,7 +224,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'order_user',
                 OrderPayment::class,
                 'order_product_payment',
-                'order_product_payment.usr = order_user.id'
+                'order_product_payment.usr = order_user.id',
             );
 
         $dbal
@@ -224,7 +233,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'order_product_payment',
                 Payment::class,
                 'payment',
-                'payment.id = order_product_payment.payment'
+                'payment.id = order_product_payment.payment',
             );
 
         $dbal
@@ -233,7 +242,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'order_product_payment',
                 PaymentTrans::class,
                 'payment_trans',
-                'payment_trans.event = payment.event AND payment_trans.local = :local'
+                'payment_trans.event = payment.event AND payment_trans.local = :local',
             );
 
         /** Доставка */
@@ -241,7 +250,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
             'order_user',
             OrderDelivery::class,
             'order_delivery',
-            'order_delivery.usr = order_user.id'
+            'order_delivery.usr = order_user.id',
         );
 
         $dbal
@@ -251,14 +260,14 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'order_delivery',
                 OrderDeliveryPrice::class,
                 'order_delivery_price',
-                'order_delivery_price.delivery = order_delivery.id'
+                'order_delivery_price.delivery = order_delivery.id',
             );
 
         $dbal->leftJoin(
             'order_delivery',
             DeliveryEvent::class,
             'delivery_event',
-            'delivery_event.id = order_delivery.event'
+            'delivery_event.id = order_delivery.event',
         );
 
         $dbal
@@ -267,7 +276,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'delivery_event',
                 DeliveryTrans::class,
                 'delivery_trans',
-                'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local'
+                'delivery_trans.event = order_delivery.event AND delivery_trans.local = :local',
             );
 
         $dbal
@@ -277,7 +286,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
             'delivery_event',
             DeliveryPrice::class,
             'delivery_price',
-            'delivery_price.event = delivery_event.id'
+            'delivery_price.event = delivery_event.id',
         );
 
         /** Адрес доставки */
@@ -288,7 +297,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
             'order_delivery',
             GeocodeAddress::class,
             'delivery_geocode',
-            'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude'
+            'delivery_geocode.latitude = order_delivery.latitude AND delivery_geocode.longitude = order_delivery.longitude',
         );
 
         /** Информация о профиле пользователя */
@@ -306,14 +315,14 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
             'user_profile_event',
             UserProfileValue::class,
             'user_profile_value',
-            'user_profile_value.event = user_profile_event.id'
+            'user_profile_value.event = user_profile_event.id',
         );
 
         $dbal->leftJoin(
             'user_profile_event',
             TypeProfile::class,
             'type_profile',
-            'type_profile.id = user_profile_event.type'
+            'type_profile.id = user_profile_event.type',
         );
 
         $dbal->addSelect('type_profile_trans.name AS order_profile')
@@ -321,21 +330,21 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'type_profile',
                 TypeProfileTrans::class,
                 'type_profile_trans',
-                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local'
+                'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local',
             );
 
         $dbal->leftJoin(
             'user_profile_value',
             TypeProfileSectionField::class,
             'type_profile_field',
-            'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true'
+            'type_profile_field.id = user_profile_value.field AND type_profile_field.card = true',
         );
 
         $dbal->leftJoin(
             'type_profile_field',
             TypeProfileSectionFieldTrans::class,
             'type_profile_field_trans',
-            'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local'
+            'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
         );
 
         /** Автарка профиля клиента */
@@ -348,7 +357,7 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'user_profile_event',
                 UserProfileAvatar::class,
                 'profile_avatar',
-                'profile_avatar.event = user_profile_event.id'
+                'profile_avatar.event = user_profile_event.id',
             );
 
         if(class_exists(BaksDevProductsStocksBundle::class))
@@ -358,14 +367,14 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
                 'orders',
                 ProductStockOrder::class,
                 'stock_order',
-                'stock_order.ord = orders.id'
+                'stock_order.ord = orders.id',
             );
 
             $dbal->leftJoin(
                 'stock_order',
                 ProductStockEvent::class,
                 'stock_event',
-                'stock_event.id = orders.id'
+                'stock_event.id = orders.id',
             );
 
         }

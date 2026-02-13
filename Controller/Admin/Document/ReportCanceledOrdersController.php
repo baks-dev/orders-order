@@ -201,7 +201,7 @@ final class ReportCanceledOrdersController extends AbstractController
 
                 $sheet
                     ->setCellValue('A'.$key, $data->getDate()->format('d.m.Y H:i'))
-                    ->setCellValue('B'.$key, $data->getNumber())
+                    ->setCellValue('B'.$key, $data->getOrderPosting())
                     ->setCellValue('C'.$key, $name)
                     ->setCellValue('D'.$key, str_replace(' /', '/', $strOffer))
                     ->setCellValue('E'.$key, $data->getProductArticle())

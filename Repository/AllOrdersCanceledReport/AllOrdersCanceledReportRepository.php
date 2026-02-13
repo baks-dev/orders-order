@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -30,6 +29,7 @@ use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
@@ -125,7 +125,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
             ->setParameter(
                 key: 'status',
                 value: OrderStatusCanceled::STATUS,
-                type: OrderStatus::TYPE
+                type: OrderStatus::TYPE,
             );
 
 
@@ -150,7 +150,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
 
 
         $dbal
-            ->addSelect("orders_invariable.number AS number")
+            ->addSelect("orders_invariable.number AS order_number")
             ->join(
                 "orders",
                 OrderInvariable::class,
@@ -159,6 +159,15 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
                 .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ''),
             );
 
+
+        $dbal
+            ->addSelect('orders_posting.value AS order_posting')
+            ->leftJoin(
+                "orders",
+                OrderPosting::class,
+                "orders_posting",
+                "orders_posting.main = orders.id",
+            );
 
         if($this->profile instanceof UserProfileUid)
         {

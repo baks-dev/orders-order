@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -28,7 +27,7 @@ namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber;
 
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use Doctrine\DBAL\Types\Types;
 
 final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
@@ -36,19 +35,29 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
     public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
-     * Метод возвращает текущее активное событие заказа по его номеру
+     * Метод возвращает текущее активное событие заказа по его номеру отправления
      */
     public function find(int|string $number): OrderEvent|false
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
+        //        $orm
+        //            ->from(OrderInvariable::class, 'orders_invariable')
+        //            ->where('orders_invariable.number = :order')
+        //            ->setParameter(
+        //                key: 'order',
+        //                value: (string) $number,
+        //                type: Types::STRING
+        //            );
+
+
         $orm
-            ->from(OrderInvariable::class, 'orders_invariable')
-            ->where('orders_invariable.number = :order')
+            ->from(OrderPosting::class, 'orders_posting')
+            ->where('orders_posting.value = :order')
             ->setParameter(
                 key: 'order',
                 value: (string) $number,
-                type: Types::STRING
+                type: Types::STRING,
             );
 
         $orm
@@ -57,7 +66,7 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
                 OrderEvent::class,
                 'event',
                 'WITH',
-                'event.id = orders_invariable.event'
+                'event.id = orders_posting.event',
             );
 
         return $orm->getOneOrNullResult() ?: false;

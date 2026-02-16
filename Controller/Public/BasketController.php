@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -30,6 +29,7 @@ use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Delivery\Type\Id\Choice\TypeDeliveryPickup;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult;
@@ -42,6 +42,7 @@ use BaksDev\Orders\Order\UseCase\Public\Basket\OrderDTO;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderForm;
 use BaksDev\Orders\Order\UseCase\Public\Basket\OrderHandler;
 use BaksDev\Orders\Order\UseCase\Public\Basket\Service\BasketServiceDTO;
+use BaksDev\Orders\Order\UseCase\Public\Basket\User\Delivery\Field\OrderDeliveryFieldDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Reference\Money\Type\Money;
@@ -49,6 +50,7 @@ use BaksDev\Services\Repository\AllServicesByProjectProfile\AllServicesByProject
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfileByRegionResult;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
@@ -311,46 +313,48 @@ class BasketController extends AbstractController
             $OrderInvariable->setUsr($projectUser);
 
 
-            /** Если пользователь зарегистрирован - всегда присваиваем склад проекта для упаковки заказа */
-            if($this->getUsr())
+            /**
+             * Если самовывоз - всегда присваиваем склад самовывоза
+             */
+            if($OrderDeliveryDTO->getDelivery()?->equals(TypeDeliveryPickup::TYPE))
             {
-                $OrderInvariable->setProfile($projectProfile);
+                /**
+                 * Определяем идентификатор профиля склада
+                 *
+                 * @var OrderDeliveryFieldDTO $OrderDeliveryFieldDTO
+                 */
+                $OrderDeliveryFieldDTO = $OrderDeliveryDTO->getField()->current();
+                $UserProfileUid = new UserProfileUid($OrderDeliveryFieldDTO->getValue());
+                $OrderInvariable->setProfile($UserProfileUid);
+
             }
 
+
             /**
-             * Если пользователь не авторизован - определяем ближайший к клиенту склад для упаковки заказа
-             * без учета региональности
+             * Если любой другой способ доставки кроме самовывоза - пробуем определить по региональности или проекту
              */
             else
             {
-                $profiles = $UserProfileByRegionRepository
-                    ->onlyOrders()
-                    ->findAll();
-
-                if(true === $profiles->valid())
+                /** Если пользователь зарегистрирован  */
+                if($this->getUsr())
                 {
+                    // присваиваем склад проекта для упаковки заказа
+                    $OrderInvariable->setProfile($projectProfile);
+                }
 
-                    if(
-                        (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
-                        && empty($projectProfile)
-                    )
+                /**
+                 * Если пользователь не авторизован - определяем ближайший к клиенту склад для упаковки заказа
+                 * без учета региональности
+                 */
+                else
+                {
+                    $profiles = $UserProfileByRegionRepository
+                        ->onlyOrders()
+                        ->findAll();
+
+                    if(true === $profiles->valid())
                     {
-                        /**
-                         * Если геоданные адреса доставки не определены
-                         * и НЕ УКАЗАН профиль проекта - указываем координаты склада Current
-                         *
-                         * @var UserProfileByRegionResult $UserProfileByRegionResult
-                         */
-                        $UserProfileByRegionResult = $profiles->current();
-                        $Latitude = $UserProfileByRegionResult->getLatitude();
-                        $Longitude = $UserProfileByRegionResult->getLongitude();
-                    }
 
-
-                    $warehouse = null;
-
-                    foreach($profiles as $profile)
-                    {
                         if(
                             (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
                             && empty($projectProfile)
@@ -358,36 +362,58 @@ class BasketController extends AbstractController
                         {
                             /**
                              * Если геоданные адреса доставки не определены
-                             * УКАЗАН профиль проекта - указываем координаты склада проекта
+                             * и НЕ УКАЗАН профиль проекта - указываем координаты склада Current
                              *
                              * @var UserProfileByRegionResult $UserProfileByRegionResult
                              */
-
-                            if(false === $profile->getId()->equals($projectProfile))
-                            {
-                                continue;
-                            }
-
-                            $Latitude = $profile->getLatitude();
-                            $Longitude = $profile->getLongitude();
+                            $UserProfileByRegionResult = $profiles->current();
+                            $Latitude = $UserProfileByRegionResult->getLatitude();
+                            $Longitude = $UserProfileByRegionResult->getLongitude();
                         }
 
 
-                        $distance = $GeocodeDistance
-                            ->fromLatitude($profile->getLatitude())
-                            ->fromLongitude($profile->getLongitude())
-                            ->toLatitude($Latitude)
-                            ->toLongitude($Longitude)
-                            ->getDistanceRound();
+                        $warehouse = null;
 
-                        $warehouse[$distance] = $profile->getId();
-                    }
+                        foreach($profiles as $profile)
+                        {
+                            if(
+                                (false === ($Latitude instanceof GpsLatitude) || false === ($Longitude instanceof GpsLongitude))
+                                && empty($projectProfile)
+                            )
+                            {
+                                /**
+                                 * Если геоданные адреса доставки не определены
+                                 * УКАЗАН профиль проекта - указываем координаты склада проекта
+                                 *
+                                 * @var UserProfileByRegionResult $UserProfileByRegionResult
+                                 */
 
-                    /** Если имеется склады, выбираем ближайший к клиенту */
-                    if(false === is_null($warehouse))
-                    {
-                        $minDistance = min(array_keys($warehouse));
-                        $OrderInvariable->setProfile($warehouse[$minDistance]);
+                                if(false === $profile->getId()->equals($projectProfile))
+                                {
+                                    continue;
+                                }
+
+                                $Latitude = $profile->getLatitude();
+                                $Longitude = $profile->getLongitude();
+                            }
+
+
+                            $distance = $GeocodeDistance
+                                ->fromLatitude($profile->getLatitude())
+                                ->fromLongitude($profile->getLongitude())
+                                ->toLatitude($Latitude)
+                                ->toLongitude($Longitude)
+                                ->getDistanceRound();
+
+                            $warehouse[$distance] = $profile->getId();
+                        }
+
+                        /** Если имеется склады, выбираем ближайший к клиенту */
+                        if(false === is_null($warehouse))
+                        {
+                            $minDistance = min(array_keys($warehouse));
+                            $OrderInvariable->setProfile($warehouse[$minDistance]);
+                        }
                     }
                 }
             }
@@ -518,6 +544,7 @@ class BasketController extends AbstractController
 
                         /**
                          * Номер постинга (разделенного заказа) с постфиксом
+                         *
                          * @note Номер у разделенных заказов общий
                          */
                         $orderNumberPostfix += 1;

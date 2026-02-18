@@ -51,7 +51,7 @@
             {# Стоимость #}
             {% if notEdit is not true and isDiscount is true %}
                 <button type="button" class="btn btn-sm minus"
-                        title="Уменьшить количество"
+                        title="Уменьшить цену"
                         data-id='{{ product.price.price.vars.id }}'
                         data-step='100'>
 
@@ -74,15 +74,15 @@
                 readonly:  notEdit is true or isDiscount is not true ?: false
             } }) }}
 
-            {% if notEdit is not true and isDiscount is true %}
-                <button type="button" class="btn btn-sm plus"
-                        title="Увеличить количество"
-                        data-id='{{ product.price.price.vars.id }}'
-                        data-step='100'>
 
-                    <span class="h5 text-muted opacity-50">+</span>
-                </button>
-            {% endif %}
+            <button type="button" class="btn btn-sm plus"
+                    title="Увеличить цену"
+                    data-id='{{ product.price.price.vars.id }}'
+                    data-step='100'>
+
+                <span class="h5 text-muted opacity-50">+</span>
+            </button>
+
 
         </div>
 

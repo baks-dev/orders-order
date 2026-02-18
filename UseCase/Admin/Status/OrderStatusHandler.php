@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -58,17 +57,19 @@ final class OrderStatusHandler extends AbstractHandler
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
-        $lastProfile = null;
-
-        if($command->getEvent() instanceof OrderEventUid)
-        {
-            $lastEvent = $this->getRepository(OrderEvent::class)->find($command->getEvent());
-
-            if($lastEvent instanceof OrderEvent)
-            {
-                $lastProfile = $lastEvent->getOrderProfile();
-            }
-        }
+        //        /**  */
+        //
+        //        $lastProfile = null;
+        //
+        //        if($command->getEvent() instanceof OrderEventUid)
+        //        {
+        //            $lastEvent = $this->getRepository(OrderEvent::class)->find($command->getEvent());
+        //
+        //            if($lastEvent instanceof OrderEvent)
+        //            {
+        //                $lastProfile = $lastEvent->getOrderProfile();
+        //            }
+        //        }
 
         $this
             ->setCommand($command)
@@ -100,6 +101,8 @@ final class OrderStatusHandler extends AbstractHandler
 
         /* Отправляем сообщение в шину */
         $this->messageDispatch
+            ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
+            ->addClearCacheOther('orders-order-'.$command->getStatus())
             ->addClearCacheOther('products-product')
             ->addClearCacheOther('products-stocks')
             ->dispatch(
@@ -107,7 +110,7 @@ final class OrderStatusHandler extends AbstractHandler
                     $this->main->getId(),
                     $this->main->getEvent(),
                     $command->getEvent(),
-                    $lastProfile
+                    $this->getLastEvent()?->getOrderProfile(),
                 ),
                 transport: 'orders-order',
             );

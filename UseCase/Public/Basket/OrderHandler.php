@@ -262,6 +262,7 @@ final class OrderHandler extends AbstractHandler
         /* Отправляем сообщение в шину */
         $this->messageDispatch
             ->addClearCacheOther('products-product')
+            ->addClearCacheOther('orders-order-new')
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
                 transport: 'orders-order',

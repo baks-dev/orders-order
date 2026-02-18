@@ -65,10 +65,13 @@ final class ReturnOrderHandler extends AbstractHandler
         $this->flush();
 
         /** Отправляем сообщение в шину */
-        $this->messageDispatch->dispatch(
-            message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-            transport: 'orders-order',
-        );
+        $this->messageDispatch
+            ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
+            ->addClearCacheOther('orders-order-'.$command->getStatus())
+            ->dispatch(
+                message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+                transport: 'orders-order',
+            );
 
         return $this->main;
     }

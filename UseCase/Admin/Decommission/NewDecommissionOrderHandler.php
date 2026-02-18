@@ -81,6 +81,8 @@ final class NewDecommissionOrderHandler extends AbstractHandler
         $this->messageDispatch
             ->addClearCacheOther('products-stocks')
             ->addClearCacheOther('products-product')
+            ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
+            ->addClearCacheOther('orders-order-'.$command->getStatus())
             ->dispatch(
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
                 transport: 'orders-order',

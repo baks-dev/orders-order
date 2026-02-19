@@ -308,7 +308,7 @@ final class OrderNewTest extends KernelTestCase
 
         /** @var NewOrderHandler $OrderHandler */
         $OrderHandler = self::getContainer()->get(NewOrderHandler::class);
-        $handle = $OrderHandler->handle($NewOrderDTO);
+        $handle = $OrderHandler->handle($NewOrderDTO, false);
 
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
     }

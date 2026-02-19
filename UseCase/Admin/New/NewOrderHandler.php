@@ -56,7 +56,7 @@ final class NewOrderHandler extends AbstractHandler
         parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
     }
 
-    public function handle(NewOrderDTO $command): string|Order
+    public function handle(NewOrderDTO $command, bool $isDispatch = true): string|Order
     {
         $this->setCommand($command);
 
@@ -137,15 +137,18 @@ final class NewOrderHandler extends AbstractHandler
 
         $this->flush();
 
-        /* Отправляем сообщение в шину */
-        $this->messageDispatch
-            ->addClearCacheOther('products-product')
-            ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
-            ->addClearCacheOther('orders-order-'.$command->getStatus())
-            ->dispatch(
-                message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-                transport: 'orders-order',
-            );
+        if(true === $isDispatch)
+        {
+            /* Отправляем сообщение в шину */
+            $this->messageDispatch
+                ->addClearCacheOther('products-product')
+                ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
+                ->addClearCacheOther('orders-order-'.$command->getStatus())
+                ->dispatch(
+                    message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+                    transport: 'orders-order',
+                );
+        }
 
         return $this->main;
     }

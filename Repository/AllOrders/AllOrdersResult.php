@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -117,7 +118,12 @@ final  class AllOrdersResult
 
     public function getOrderNumber(): string
     {
-        return $this->order_posting ?? 'Не указан';
+        return $this->order_number;
+    }
+
+    public function getOrderPosting(): ?string
+    {
+        return $this->order_posting;
     }
 
     public function getOrderCreated(): DateTimeImmutable

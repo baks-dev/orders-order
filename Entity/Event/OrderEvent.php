@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 namespace BaksDev\Orders\Order\Entity\Event;
@@ -215,6 +214,11 @@ class OrderEvent extends EntityEvent
     public function getOrderNumber(): ?string
     {
         return $this->invariable?->getNumber();
+    }
+
+    public function getPostingNumber(): ?string
+    {
+        return $this->posting?->getValue();
     }
 
     public function getOrderTokenIdentifier(): ?Uuid

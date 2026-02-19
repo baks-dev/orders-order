@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -30,6 +29,7 @@ use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
+use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Delivery\Entity\Event\DeliveryEvent;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
@@ -84,7 +84,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
-final class AllOrdersCTERepository //implements AllOrdersInterface
+final class AllOrdersCTERepository implements AllOrdersInterface
 {
     private array $analyze;
 
@@ -100,6 +100,7 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly PaginatorInterface $paginator,
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
@@ -139,8 +140,19 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
         return $this;
     }
 
-    public function findAll()
+
+    //public function findPaginator(): PaginatorInterface
+    // {
+
+    public function findPaginator(): PaginatorInterface
     {
+
+        /** Применяем статус если выбран в фильтре */
+        if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
+        {
+            $this->status = $this->filter->getStatus();
+        }
+
 
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)->bindLocal();
@@ -173,16 +185,20 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
                 'orders',
                 OrderEvent::class,
                 'order_event',
-                'order_event.id = orders.event AND order_event.status = :status',
+                'order_event.id = orders.event'
+                .($this->status instanceof OrderStatus ? ' AND order_event.status = :status' : ''),
             );
 
 
-        $dbal
-            ->setParameter(
-                key: 'status',
-                value: $this->status,
-                type: OrderStatus::TYPE,
-            );
+        if($this->status instanceof OrderStatus)
+        {
+            $dbal
+                ->setParameter(
+                    key: 'status',
+                    value: $this->status,
+                    type: OrderStatus::TYPE,
+                );
+        }
 
 
         $cteSelect
@@ -322,10 +338,6 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
         //                );
         //        }
 
-        if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
-        {
-            $this->status = $this->filter->getStatus();
-        }
 
         $dbal
             ->addSelect('order_event.status AS order_status')
@@ -600,67 +612,13 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
 			AS order_user",
         );
 
+
+        /**
+         * @depricated данные ключи использовались в старой версии перемещения
+         */
         $dbal->addSelect('FALSE AS order_move');
-
-
-        /** Если имеется таблица доставки транспортом - проверяем, имеется ли заказ с ошибкой погрузки транспорта */
-        if(false || class_exists(DeliveryTransport::class))
-        {
-
-            $dbalExistMoveError = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-            $dbalExistMoveError->select('1');
-
-            $dbalExistMoveError->from(ProductStockMove::class, 'move');
-            $dbalExistMoveError->where('move.ord = orders.id');
-
-            $dbalExistMoveError->join(
-                'move',
-                ProductStockEvent::class,
-                'move_event',
-                'move_event.id = move.event AND move_event.status = :error',
-            );
-
-            $dbalExistMoveError->join(
-                'move_event',
-                ProductStock::class,
-                'move_stock',
-                'move_stock.event = move_event.id',
-            );
-
-            $dbal->addSelect(sprintf('EXISTS(%s) AS move_error', $dbalExistMoveError->getSQL()));
-
-
-            $dbalExistOrderError = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-
-            $dbalExistOrderError->select('1');
-
-            $dbalExistOrderError->from(ProductStockOrder::class, 'stock_order');
-            $dbalExistOrderError->where('stock_order.ord = orders.id');
-
-            $dbalExistOrderError->join(
-                'stock_order',
-                ProductStockEvent::class,
-                'stock_order_event',
-                'stock_order_event.id = stock_order.event AND stock_order_event.status = :error',
-            );
-
-            $dbalExistOrderError->join(
-                'stock_order_event',
-                ProductStock::class,
-                'stock_order_stock',
-                'stock_order_stock.event = stock_order_event.id',
-            );
-
-
-            $dbal->addSelect(sprintf('EXISTS(%s) AS order_error', $dbalExistOrderError->getSQL()));
-
-            $dbal->setParameter('error', new ProductStockStatus(new ProductStockStatus\ProductStockStatusError()), ProductStockStatus::TYPE);
-        }
-        else
-        {
-            $dbal->addSelect('FALSE AS move_error');
-            $dbal->addSelect('FALSE AS order_error');
-        }
+        $dbal->addSelect('FALSE AS move_error');
+        $dbal->addSelect('FALSE AS order_error');
 
         /** Услуги */
 
@@ -856,11 +814,14 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
 
         $dbal->enableCache('orders-order');
 
-        return $dbal->fetchAllHydrate(AllOrdersResult::class);
+
+        return $this->paginator->fetchAllHydrate($dbal, AllOrdersResult::class);
+
+        //return $dbal->fetchAllHydrate(AllOrdersResult::class);
     }
 
     /**
-     * Обящая группировка для подзапроса и основного запроса
+     * Общая группировка для подзапроса и основного запроса
      */
     private function orderBy(DBALQueryBuilder $dbal): DBALQueryBuilder
     {
@@ -907,4 +868,6 @@ final class AllOrdersCTERepository //implements AllOrdersInterface
 
         return $dbal;
     }
+
+
 }

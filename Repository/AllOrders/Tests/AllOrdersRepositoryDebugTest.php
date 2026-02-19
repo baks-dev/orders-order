@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2026.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -28,6 +27,7 @@ namespace BaksDev\Orders\Order\Repository\AllOrders\Tests;
 
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersCTERepository;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
+use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersRepository;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -42,7 +42,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[When(env: 'test')]
 class AllOrdersRepositoryDebugTest extends KernelTestCase
 {
-
     public function testRepository(): void
     {
         // @TODO вернуть при релизе
@@ -77,7 +76,7 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
         $orders = null;
 
         /** @var AllOrdersInterface $AllOrdersRepository */
-        $AllOrdersRepository = self::getContainer()->get(AllOrdersInterface::class);
+        $AllOrdersRepository = self::getContainer()->get(AllOrdersRepository::class);
 
         $start = hrtime(true);
         $paginator = $AllOrdersRepository
@@ -86,6 +85,7 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
             ->forProfile(new UserProfileUid($profile))
             ->findPaginator()
             ->getData();
+
         $end = hrtime(true);
         $durationMs = ($end - $start) / 1e+6;
         $durationSec = $durationMs / 1000;
@@ -103,11 +103,13 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
         $AllOrdersCTERepository = self::getContainer()->get(AllOrdersCTERepository::class);
 
         $start = hrtime(true);
-        $cte = iterator_to_array($AllOrdersCTERepository
+        $cte = $AllOrdersCTERepository
             ->setLimit(24)
             ->status($status)
             ->forProfile(new UserProfileUid($profile))
-            ->findAll());
+            ->findPaginator()
+            ->getData();
+
         $end = hrtime(true);
 
         if(true === empty($cte))
@@ -127,6 +129,7 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
 
         /**
          * Paginator
+         *
          * @var AllOrdersResult $ord
          */
         foreach($paginator as $ord)
@@ -136,6 +139,7 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
 
         /**
          * CTE
+         *
          * @var AllOrdersResult $ord
          */
         foreach($cte as $ord)
@@ -173,7 +177,7 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
             $ord->getOrderId(),
             $ord->getOrderEvent(),
             $ord->getDeliveryDate()->format('Y-m-d H:i:s'),
-            $ord->getDateModify()->format('Y-m-d H:i:s')
+            $ord->getDateModify()->format('Y-m-d H:i:s'),
         );
     }
 }

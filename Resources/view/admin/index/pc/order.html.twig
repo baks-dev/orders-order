@@ -12,12 +12,12 @@
             <div class="d-flex gap-1 justify-content-between align-items-center px-2 small mt-1">
 
                 {% if (order.orderStatusEquals('new') == true and order.orderDanger is empty) or order.orderStatusEquals('new') == false %}
-                    <label for="{{ order.orderNumber }}">
+                    <label for="{{ order.orderPosting }}">
                         <input class="form-check-input m-0"
                                type="checkbox"
                                data-status="{{ order.orderStatus }}"
                                value="{{ order.orderId }}"
-                               id="{{ order.orderNumber }}"
+                               id="{{ order.orderPosting }}"
                                style="width: 18px; height: 18px;"
                         >
                     </label>
@@ -26,10 +26,10 @@
                 {% endif %}
 
                 <div class="d-flex align-items-center gap-1 text-primary pointer copy small"
-                     data-copy="{{ order.orderNumber }}">
+                     data-copy="{{ order.orderPosting }}">
 
                     <span class="small">
-                        #{{ order.orderNumber }}
+                        #{{ order.orderPosting }}
                     </span>
                 </div>
             </div>

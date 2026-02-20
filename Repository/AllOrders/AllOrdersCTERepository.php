@@ -153,25 +153,18 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             $this->status = $this->filter->getStatus();
         }
 
-
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)->bindLocal();
 
-        // cteSelect ===============================
+        /**
+         * START cteSelect ===============================
+         */
 
         $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $cteSelect
             ->select('orders.id AS order_id')
             ->from(Order::class, 'orders');
-
-        $cteSelect
-            ->join(
-                'orders',
-                OrderInvariable::class,
-                'order_invariable',
-                'order_invariable.main = orders.id',
-            );
 
         $cteSelect
             //            ->addSelect('orders.event AS order_event')
@@ -200,6 +193,35 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 );
         }
 
+        /** OrderInvariable */
+
+        $cteSelect
+            ->join(
+                'orders',
+                OrderInvariable::class,
+                'order_invariable',
+                'order_invariable.main = orders.id',
+            );
+
+
+        /** Если не выбраны все профили, то отобразить только для данного профиля/склада */
+        if($this->filter?->getAll() === false || $this->profile instanceof UserProfileUid)
+        {
+            $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
+                ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
+                : ' order_invariable.profile = :profile');
+
+            $profile = ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile();
+
+            $cteSelect->andWhere($whereExpression);
+
+            $dbal->setParameter(
+                key: 'profile',
+                value: $profile,
+                type: UserProfileUid::TYPE,
+            );
+        }
+
 
         $cteSelect
             ->leftJoin(
@@ -225,29 +247,15 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'orders_modify.event = orders.event',
             );
 
-        /** Если не выбраны все профили, то отобразить только для данного профиля/склада */
-        if($this->filter?->getAll() === false || $this->profile instanceof UserProfileUid)
-        {
-            $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
-                ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
-                : ' order_invariable.profile = :profile');
 
-            $profile = ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile();
-
-            $cteSelect->andWhere($whereExpression);
-
-            $dbal->setParameter(
-                key: 'profile',
-                value: $profile,
-                type: UserProfileUid::TYPE,
-            );
-        }
-
-        $cteSelect->setMaxResults($this->limit);
+        $cteSelect->setMaxResults($this->paginator->getLimit());
 
         $this->orderBy($cteSelect);
 
-        // cteSelect ===============================
+
+        /**
+         * END cteSelect ===============================
+         */
 
         $dbal
             ->select('orders.id AS order_id')
@@ -812,10 +820,11 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         $dbal->allGroupByExclude();
 
-        $dbal->enableCache('orders-order');
-
-
-        return $this->paginator->fetchAllHydrate($dbal, AllOrdersResult::class);
+        return $this->paginator->fetchAllHydrate(
+            $dbal,
+            AllOrdersResult::class,
+            'orders-order'.($this->status instanceof OrderStatus ? '-'.$this->status : ''),
+        );
 
         //return $dbal->fetchAllHydrate(AllOrdersResult::class);
     }

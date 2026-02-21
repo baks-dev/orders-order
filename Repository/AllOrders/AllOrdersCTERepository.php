@@ -248,7 +248,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
 
 
-        $cteSelect->setMaxResults($this->paginator->getLimit());
+        // $cteSelect->setMaxResults($this->paginator->getLimit());
 
         $this->orderBy($cteSelect);
 

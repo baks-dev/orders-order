@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -73,12 +72,12 @@ class CurrentOrderEventByNumberRepositoryTest extends KernelTestCase
             Order::class,
             'main',
             Join::WITH,
-            'main.id = orders_invariable.main AND main.id = :main'
+            'main.id = orders_invariable.main AND main.id = :main',
         )
             ->setParameter(
                 key: 'main',
                 value: OrderUid::TEST,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         $OrderInvariable = $qb->getOneOrNullResult();
@@ -88,9 +87,15 @@ class CurrentOrderEventByNumberRepositoryTest extends KernelTestCase
         /** @var CurrentOrderEventByNumberInterface $CurrentOrderEventByNumberInterface */
         $CurrentOrderEventByNumberInterface = self::getContainer()->get(CurrentOrderEventByNumberInterface::class);
 
-        $OrderEvent = $CurrentOrderEventByNumberInterface
-            ->find($OrderInvariable->getNumber());
+        $results = $CurrentOrderEventByNumberInterface
+            ->findAll($OrderInvariable->getNumber());
 
-        self::assertTrue(($OrderEvent instanceof OrderEvent), 'Не найден OrderEvent');
+        self::assertNotEmpty($results);
+
+        foreach($results as $OrderEvent)
+        {
+            self::assertTrue(($OrderEvent instanceof OrderEvent), 'Не найден OrderEvent');
+        }
+
     }
 }

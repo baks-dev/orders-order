@@ -27,7 +27,7 @@ namespace BaksDev\Orders\Order\Repository\CurrentOrderNumber;
 
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use Doctrine\DBAL\Types\Types;
 
 final readonly class CurrentOrderEventByNumberRepository implements CurrentOrderEventByNumberInterface
@@ -35,25 +35,17 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
     public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
-     * Метод возвращает текущее активное событие заказа по его номеру отправления
+     * Метод возвращает все отправления по идентификатору заказа
+     *
+     * @return array<OrderEvent>
      */
-    public function find(int|string $number): OrderEvent|false
+    public function findAll(int|string $number): array
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-        //        $orm
-        //            ->from(OrderInvariable::class, 'orders_invariable')
-        //            ->where('orders_invariable.number = :order')
-        //            ->setParameter(
-        //                key: 'order',
-        //                value: (string) $number,
-        //                type: Types::STRING
-        //            );
-
-
         $orm
-            ->from(OrderPosting::class, 'orders_posting')
-            ->where('orders_posting.value = :order')
+            ->from(OrderInvariable::class, 'orders_invariable')
+            ->where('orders_invariable.number = :order')
             ->setParameter(
                 key: 'order',
                 value: (string) $number,
@@ -66,10 +58,10 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
                 OrderEvent::class,
                 'event',
                 'WITH',
-                'event.id = orders_posting.event',
+                'event.id = orders_invariable.event',
             );
 
-        return $orm->getOneOrNullResult() ?: false;
+        return $orm->getResult();
     }
 
 }

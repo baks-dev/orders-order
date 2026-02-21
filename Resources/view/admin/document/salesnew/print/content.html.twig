@@ -29,6 +29,7 @@
 {% set deliveryGeocodeAddress = orderUserFirst.deliveryGeocodeAddress %}
 {% set orderComment = orderUserFirst.orderComment %}
 {% set orderClient = orderUserFirst.orderClient %}
+{% set orderQR = orderUserFirst.qrcode %}
 
 {% for order in orders %}
     {% set orderProducts = orderProducts|merge(order.orderProducts ?: []) %}
@@ -45,7 +46,7 @@
                  style="height: 140px; max-height: 140px; max-width: 200px; margin-left: 20px;"
                  fill="currentColor"
                  viewBox="10 10 30 30">
-                {#                {{ order.qrcode|raw }} #} {# @TODO кокой qrcode у составного заказа #}
+                {{ orderQR|raw }} }
             </svg>
         </div>
 

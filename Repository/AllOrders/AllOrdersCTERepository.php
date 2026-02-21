@@ -860,9 +860,8 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             if($this->status->equals(OrderStatusCompleted::class))
             {
                 $dbal->orderBy('order_event.danger', 'DESC');
-                $dbal->addOrderBy('orders_modify.mod_date', 'ASC');
-                //$dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders_modify.mod_date END', 'ASC');
-                //$dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders_modify.mod_date END', 'DESC');
+                $dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders.event END', 'ASC');
+                $dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders.event END', 'DESC');
             }
 
             if(

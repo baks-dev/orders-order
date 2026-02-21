@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,7 @@ use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * Статус Marketplace «Передан службе маркетплейса»
- *
- * @deprecated Не оптимально !!!
+ * Статус Marketplace «Ожидается возврат службой маркетплейса»
  */
 #[AutoconfigureTag('baks.order.status')]
 #[AutoconfigureTag('baks.security.voter')]
@@ -42,9 +40,9 @@ class OrderStatusMarketplace implements OrderStatusInterface, VoterInterface
 {
     public const string STATUS = 'marketplace';
 
-    private static int $sort = 710;
+    private static int $sort = 810;
 
-    private static string $color = '#FFC107';
+    private static string $color = '#DC3545';
 
     /** Возвращает значение (value) */
     public function getValue(): string

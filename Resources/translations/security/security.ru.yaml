@@ -76,8 +76,8 @@ ROLE_ORDERS_STATUS_UNPAID:
   desc: ''
 
 ROLE_ORDERS_STATUS_MARKETPLACE:
-  name: 'Marketplace'
-  desc: 'Передн в службу доставки маркетплейса'
+  name: 'Ожидается возврат'
+  desc: 'Ожидается возврат службой маркетплейса выполненного заказа'
 
 ROLE_ORDERS_STATUS_DELIVERY:
   name: 'Доставка'

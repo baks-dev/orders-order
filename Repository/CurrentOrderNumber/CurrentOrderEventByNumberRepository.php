@@ -39,7 +39,7 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
      *
      * @return array<OrderEvent>
      */
-    public function findAll(int|string $number): array
+    public function findAll(int|string $number): array|false
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
@@ -61,7 +61,7 @@ final readonly class CurrentOrderEventByNumberRepository implements CurrentOrder
                 'event.id = orders_invariable.event',
             );
 
-        return $orm->getResult();
+        return $orm->getResult() ?: false;
     }
 
 }

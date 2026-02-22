@@ -32,6 +32,6 @@ interface CurrentOrderEventByNumberInterface
      *
      * @return array<OrderEvent>
      */
-    public function findAll(int|string $number): array;
+    public function findAll(int|string $number): array|false;
 
 }

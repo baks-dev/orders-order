@@ -56,6 +56,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
@@ -248,7 +249,10 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
 
 
-        // $cteSelect->setMaxResults($this->paginator->getLimit());
+        if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+        {
+            $cteSelect->setMaxResults($this->paginator->getLimit());
+        }
 
         $this->orderBy($cteSelect);
 
@@ -834,15 +838,19 @@ final class AllOrdersCTERepository implements AllOrdersInterface
      */
     private function orderBy(DBALQueryBuilder $dbal): DBALQueryBuilder
     {
-        $dbal->orderBy('order_event.danger', 'DESC');
-        $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
-        $dbal->addOrderBy('orders.id', 'ASC');
+        //        $dbal->orderBy('order_event.danger', 'DESC');
+        //        $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
+        //        $dbal->addOrderBy('orders.id', 'ASC');
 
-        /** Список всех заказов без переданных статусов сортируем по дате изменения */
-        if(false === ($this->status instanceof OrderStatus))
-        {
-            $dbal->orderBy('orders_modify.mod_date', 'DESC');
-        }
+        //        /** Список всех заказов без переданных статусов сортируем по дате изменения */
+        //        if(false === ($this->status instanceof OrderStatus))
+        //        {
+        //            $dbal->orderBy('orders.event', 'DESC');
+        //        }
+
+
+        /** По умолчанию сортируем все по дате обновления */
+        $dbal->orderBy('orders.event', 'DESC');
 
         if(true === ($this->status instanceof OrderStatus))
         {
@@ -854,14 +862,25 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             {
                 $dbal->orderBy('order_event.danger', 'DESC');
                 $dbal->addOrderBy('order_delivery.delivery_date', 'ASC');
-                $dbal->addOrderBy('orders.id', 'ASC');
+                $dbal->addOrderBy('orders.event', 'DESC');
             }
 
             if($this->status->equals(OrderStatusCompleted::class))
             {
                 $dbal->orderBy('order_event.danger', 'DESC');
-                $dbal->addOrderBy('CASE WHEN order_event.danger = true THEN orders.event END', 'ASC');
-                $dbal->addOrderBy('CASE WHEN order_event.danger = false THEN orders.event END', 'DESC');
+
+                /** todo: после разделение на статус ПРЕД возвратов - поменять на DESC */
+                $dbal->addOrderBy('orders.event', 'ASC');
+            }
+
+            /**
+             * Предвозвраты сортируем по дате обновления ASC
+             *
+             * @todo далее добавить под это условие
+             */
+            if($this->status->equals(OrderStatusMarketplace::class))
+            {
+                $dbal->addOrderBy('orders.event', 'ASC');
             }
 
             if(
@@ -869,8 +888,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 || $this->status->equals(OrderStatusReturn::class)
             )
             {
-                $dbal->orderBy('orders_modify.mod_date', 'DESC');
-                $dbal->addOrderBy('orders.event', 'DESC');
+                $dbal->orderBy('orders.event', 'DESC');
             }
         }
 

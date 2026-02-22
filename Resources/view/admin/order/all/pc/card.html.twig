@@ -41,7 +41,8 @@
                 data-id='{{ item.orderId }}'
                 class="btn btn-sm btn-link fw-bolder mb-1 text-decoration-none product-name offcanvas-link"
         >
-            {{ item.orderNumber }}
+            {{ item.orderPosting ?: item.orderNumber }}
+
             <span class="badge bg-light text-dark fw-bolder p1 text-start ms-3">
                 {{ item.orderProfile }}
             </span>

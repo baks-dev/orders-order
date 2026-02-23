@@ -36,6 +36,7 @@ use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\ReturnOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
@@ -116,11 +117,21 @@ final class CanceledController extends AbstractController
                     );
                 }
 
-                /** По умолчанию заказ отменяется */
+                /** По умолчанию заказ отменяется со статусом Canceled «Отменен» */
                 $orderCanceledDTO = new CanceledOrderDTO();
 
-                /** Если текущий статус Completed «Выполнен» - применяем заказу статус отмены */
-                if($orderEvent->isStatusEquals(OrderStatusCompleted::class))
+                /**
+                 * Если текущий статус заказа
+                 *
+                 * - Completed «Выполнен»
+                 * - Marketplace «Ожидается возврат службой маркетплейса»
+                 *
+                 * - применяем заказу статус Return «Возврат»
+                 */
+                if(
+                    $orderEvent->isStatusEquals(OrderStatusCompleted::class)
+                    || $orderEvent->isStatusEquals(OrderStatusMarketplace::class)
+                )
                 {
                     $orderCanceledDTO = new ReturnOrderDTO();
                 }

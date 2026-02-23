@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\AllProductsOrdersReport\AllProductsOrdersRep
 use BaksDev\Orders\Order\Repository\AllProductsOrdersReport\AllProductsOrdersReportResult;
 use BaksDev\Reference\Money\Type\Money;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -120,10 +121,29 @@ final class ReportProductsController extends AbstractController
             $allPrice = new Money(0);
             $key = 2;
 
+
+            $bgColor = 'ffffff';
+            $lastName = null;
+
             // Запись данных
             /** @var AllProductsOrdersReportResult $data */
             foreach($result as $data)
             {
+                if($lastName !== $data->getProductName())
+                {
+                    $bgColor = $bgColor === 'c0c0c0' ? 'ffffff' : 'c0c0c0';
+                    $lastName = $data->getProductName();
+                }
+
+                // Заливка диапазона
+                $sheet
+                    ->getStyle('A'.$key.':H'.$key)
+                    ->getFill()
+                    ->setFillType(Fill::FILL_GRADIENT_LINEAR)
+                    ->getStartColor()
+                    ->setARGB($bgColor);
+
+
                 $strOffer = '';
 
                 /**

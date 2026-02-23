@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
@@ -125,10 +126,15 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             }
 
             /**
-             * Не снимаем резерв в карточке, если предыдущее событие заказа Completed «Выполнен».
-             * Резерв был списан при завершении
+             * Не снимаем резерв в карточке, если предыдущее событие заказа Completed «Выполнен»
+             * либо Marketplace «Ожидается возврат службой маркетплейса».
+             *
+             * @note Резерв был списан при завершении
              */
-            if(true === $LastOrderEvent->isStatusEquals(OrderStatusCompleted::class))
+            if(
+                true === $LastOrderEvent->isStatusEquals(OrderStatusCompleted::class)
+                || true === $LastOrderEvent->isStatusEquals(OrderStatusMarketplace::class)
+            )
             {
                 $this->logger->critical(
                     sprintf('orders-order: Не снимаем резерв с ранее выполненного заказа %s', $LastOrderEvent->getOrderNumber()),

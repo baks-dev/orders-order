@@ -53,13 +53,11 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Forms\OrderFilterInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusExtradition;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
@@ -867,28 +865,17 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
             if($this->status->equals(OrderStatusCompleted::class))
             {
-                $dbal->orderBy('order_event.danger', 'DESC');
-
                 /** todo: после разделение на статус ПРЕД возвратов - поменять на DESC */
-                $dbal->addOrderBy('orders.event', 'ASC');
+                $dbal->orderBy('order_event.danger', 'DESC');
+                $dbal->addOrderBy('orders.event', 'DESC');
             }
 
             /**
              * Предвозвраты сортируем по дате обновления ASC
-             *
-             * @todo далее добавить под это условие
              */
             if($this->status->equals(OrderStatusMarketplace::class))
             {
-                $dbal->addOrderBy('orders.event', 'ASC');
-            }
-
-            if(
-                $this->status->equals(OrderStatusCanceled::class)
-                || $this->status->equals(OrderStatusReturn::class)
-            )
-            {
-                $dbal->orderBy('orders.event', 'DESC');
+                $dbal->orderBy('orders.event', 'ASC');
             }
         }
 

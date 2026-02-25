@@ -137,9 +137,9 @@ final class ReportProductsController extends AbstractController
 
                 // Заливка диапазона
                 $sheet
-                    ->getStyle('A'.$key.':H'.$key)
+                    ->getStyle('A'.$key)
                     ->getFill()
-                    ->setFillType(Fill::FILL_GRADIENT_LINEAR)
+                    ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()
                     ->setARGB($bgColor);
 

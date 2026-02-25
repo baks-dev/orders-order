@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -50,6 +49,8 @@ use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -169,7 +170,12 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
                 'orders_invariable',
                 OrderEvent::class,
                 'event',
-                'event.id = orders_invariable.event',
+                'event.id = orders_invariable.event AND event.status != :status',
+            )
+            ->setParameter(
+                key: 'status',
+                value: OrderStatusCanceled::class,
+                type: OrderStatus::TYPE,
             );
 
         $dbal

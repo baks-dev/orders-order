@@ -126,6 +126,7 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
 
     /**
      * Метод возвращает Generator с информацией об заказах
+     *
      * @return Generator<int, OrderDetailResult>|false
      */
     public function findAll(): Generator|false
@@ -147,12 +148,24 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
             ->select('orders_invariable.main AS order_id')
             ->addSelect('orders_invariable.event AS order_event')
             ->addSelect('orders_invariable.number AS order_number')
-            ->from(OrderInvariable::class, 'orders_invariable')
+            ->from(OrderInvariable::class, 'orders_invariable');
+
+
+        $dbal
             ->where('orders_invariable.number = :number')
             ->setParameter(
                 key: 'number',
                 value: $this->number,
             );
+
+        $dbal
+            ->andWhere('orders_invariable.profile = :profile')
+            ->setParameter(
+                key: 'profile',
+                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
 
         $dbal
             ->join(
@@ -804,11 +817,6 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
                         AND product_stock_total.variation = product_variation.const
                         AND product_stock_total.modification = product_modification.const
                         AND product_stock_total.profile = :profile',
-                )
-                ->setParameter(
-                    key: 'profile',
-                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-                    type: UserProfileUid::TYPE,
                 );
 
             $dbal->addSelect("JSON_AGG

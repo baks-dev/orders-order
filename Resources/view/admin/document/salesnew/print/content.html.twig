@@ -13,8 +13,6 @@
 {% set deliveryGeocodeAddress = null %}
 {% set orderComment = null %}
 
-{% set orderProducts = [] %}
-{% set orderServices = [] %}
 {% set orderClient = [] %}
 
 {% set orderUserFirst = orders|first %}
@@ -30,11 +28,6 @@
 {% set orderComment = orderUserFirst.orderComment %}
 {% set orderClient = orderUserFirst.orderClient %}
 {% set orderQR = orderUserFirst.qrcode %}
-
-{% for order in orders %}
-    {% set orderProducts = orderProducts|merge(order.orderProducts ?: []) %}
-    {% set orderServices = orderServices|merge(order.orderServices ?: []) %}
-{% endfor %}
 
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
      style="overflow-y:hidden;">
@@ -116,7 +109,7 @@
         <tr>
             <th scope="col"> №
             <th scope="col"> Товар
-            <th scope="col"> Кол-во
+            <th scope="col"> Кол.
             <th scope="col"> Ед.
             <th scope="col"> Цена
             <th scope="col"> Сумма
@@ -125,93 +118,107 @@
         {% set money =  0 %}
         {% set counter = 0 %}
 
-        {% for card in orderProducts %}
 
+        {% for order in orders %}
 
-        {% set counter = counter + 1 %}
-        {% set money = (card.product_price * card.product_total) + money %}
+            {# Товары #}
 
-        <tr>
-            <th scope="row"> {{ counter }}
-            <td>  {# Triangle Group TR259 225/65 R17 106V #}
-
-                <strong class="h6">{{ card.product_name }}</strong> &nbsp;
-
-                {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
-                card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
-
-                {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
-
-                {# Постфикс торгового предложения #}
-                {{ card.product_offer_postfix }}
-                {# Постфикс множественного варианта #}
-                {{ card.product_variation_postfix }}
-                {# Постфикс модификации #}
-                {{ card.product_modification_postfix }}
-
-            <td> {{ card.product_total }}
-            <td> шт
-            <td> {{ money(card.product_price) }}
-            <td> {{ money((card.product_price * card.product_total)) }}
-
-                {% endfor %}
-
-                {% if orderServices and orderServices|length > 0 %}
-
-                {# Услуги #}
-                {% for service in orderServices %}
+            {% for card in order.orderProducts %}
 
                 {% set counter = counter + 1 %}
-                {% set money =  service.service_price + money %}
+                {% set money = (card.product_price * card.product_total) + money %}
 
-        <tr>
-            <th scope="row"> {{ counter }}
-            <td>    {# Шиномонтаж #}
-                <strong class="h6">{{ service.service_name }}</strong> &nbsp;
-            <td> -
-            <td> -
+                <tr>
+                    <th scope="row">
 
-            <td> {{ money(service.service_price) }}
-            <td> {{ money(service.service_price) }}
+                        {% if order.orderPosting == order.orderNumber %}
+                            {{ counter }}
+                        {% else %}
+                            {{ order.orderPosting }}
+                        {% endif %}
+
+                    </th>
+
+
+                    <td>
+                        <strong class="h6">{{ card.product_name }}</strong> &nbsp;
+
+                        <div>
+
+                            {{ card.product_variation_value|call_twig_func(card.product_variation_reference~'_render') ~
+                            card.product_modification_value|call_twig_func(card.product_modification_reference~'_render') }}
+
+                            {{ card.product_offer_value|call_twig_func(card.product_offer_reference~'_render') }}
+
+                            {# Постфикс торгового предложения #}
+                            {{ card.product_offer_postfix }}
+                            {# Постфикс множественного варианта #}
+                            {{ card.product_variation_postfix }}
+                            {# Постфикс модификации #}
+                            {{ card.product_modification_postfix }}
+
+                        </div>
+                    </td>
+
+                    <td> {{ card.product_total }}</td>
+                    <td> шт</td>
+                    <td> {{ money(card.product_price) }}</td>
+                    <td> {{ money((card.product_price * card.product_total)) }}</td>
+                </tr>
+
+
+            {% endfor %}
+
+            {# Услуги #}
+
+            {% if order.orderServices and order.orderServices|length > 0 %}
+
+
+                {% for service in order.orderServices %}
+
+                    {% set counter = counter + 1 %}
+                    {% set money =  service.service_price + money %}
+
+                    <tr>
+                        <th scope="row"> {{ counter }}</th>
+                        <td><strong class="h6">{{ service.service_name }}</strong> &nbsp;</td>
+                        <td> -</td>
+                        <td> -</td>
+
+                        <td> {{ money(service.service_price) }}</td>
+                        <td> {{ money(service.service_price) }}</td>
+                    </tr>
 
 
                 {% endfor %}
-                {% endif %}
+
+            {% endif %}
 
 
-                {% if orderDeliveryPrice.value > 0 %}
+            {# Доставка #}
+
+
+            {% if orderDeliveryPrice.value > 0 %}
 
                 {% set counter = counter + 1 %}
                 {% set money = orderDeliveryPrice.value * 100 + money %}
 
-        <tr>
-            <th scope="row"> {{ counter }}
-            <td> Доставка
+                <tr>
+                    <th scope="row"> {{ counter }}</th>
+                    <td> Доставка</td>
 
-            <td> -
-            <td> -
-            <td> {{ money(orderDeliveryPrice) }}
-            <td> {{ money(orderDeliveryPrice) }}
+                    <td> -</td>
+                    <td> -</td>
+                    <td> {{ money(orderDeliveryPrice) }} </td>
+                    <td> {{ money(orderDeliveryPrice) }} </td>
+                </tr>
+
+            {% endif %}
 
 
-                {% elseif orderDeliveryPrice.value > 0 %}
+        {% endfor %}
 
-                {% set counter = counter + 1 %}
-                {% set money =  orderDeliveryPrice.value * 100 + money %}
-
-        <tr>
-            <th scope="row"> {{ counter }}
-            <td> Доставка
-
-            <td> -
-            <td> -
-            <td> {{ money(orderDeliveryPrice) }}
-            <td> {{ money(orderDeliveryPrice) }}
-
-                {% endif %}
-
-                {% set total = money(money) %}
-
+        {% set total = money(money) %}
 
         <tfoot>
         <tr>

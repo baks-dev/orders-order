@@ -221,22 +221,54 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
         }
 
+        if(
+            $this->status instanceof OrderStatus &&
+            (
+                $this->status->equals(OrderStatusPackage::class)
+                || $this->status->equals(OrderStatusDelivery::class)
+                || $this->status->equals(OrderStatusExtradition::class)
+                || $this->filter?->getDelivery()
+            )
+        )
+        {
+            $cteSelect
+                ->leftJoin(
+                    'orders',
+                    OrderUser::class,
+                    'order_user',
+                    'order_user.event = orders.event',
+                );
 
-        $cteSelect
-            ->leftJoin(
-                'orders',
-                OrderUser::class,
-                'order_user',
-                'order_user.event = orders.event',
+            $cteSelect
+                ->leftJoin(
+                    'order_user',
+                    OrderDelivery::class,
+                    'order_delivery',
+                    'order_delivery.usr = order_user.id',
+                );
+
+            $cteSelect->setMaxResults($this->paginator->getLimit());
+        }
+
+
+        if($this->filter?->getDelivery())
+        {
+            $cteSelect
+                ->join(
+                    'order_delivery',
+                    DeliveryEvent::class,
+                    'delivery_event',
+                    'delivery_event.id = order_delivery.event AND delivery_event.main = :delivery',
+                );
+
+            $dbal->setParameter(
+                key: 'delivery',
+                value: $this->filter->getDelivery(),
+                type: DeliveryUid::TYPE,
             );
 
-        $cteSelect
-            ->leftJoin(
-                'order_user',
-                OrderDelivery::class,
-                'order_delivery',
-                'order_delivery.usr = order_user.id',
-            );
+            $cteSelect->setMaxResults($this->paginator->getLimit());
+        }
 
         $cteSelect
             ->leftJoin(

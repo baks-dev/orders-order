@@ -247,7 +247,10 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     'order_delivery.usr = order_user.id',
                 );
 
-            $cteSelect->setMaxResults($this->paginator->getLimit());
+            if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+            {
+                $cteSelect->setMaxResults($this->paginator->getLimit());
+            }
         }
 
 
@@ -267,7 +270,10 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 type: DeliveryUid::TYPE,
             );
 
-            $cteSelect->setMaxResults($this->paginator->getLimit());
+            if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+            {
+                $cteSelect->setMaxResults($this->paginator->getLimit());
+            }
         }
 
         $cteSelect

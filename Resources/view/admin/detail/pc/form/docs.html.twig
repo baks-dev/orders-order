@@ -56,8 +56,8 @@
 
             {% endif %}
 
-            {% if materials_sign %}
 
+            {% if constant('BaksDev\\Materials\\Sign\\BaksDevMaterialsSignBundle::NAMESPACE') is defined %}
                 <li>
                     <hr class="dropdown-divider">
                 </li>
@@ -66,10 +66,12 @@
                     <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
                         <h6 class="dropdown-header w-100">Честный знак</h6>
 
-                        <span data-bs-toggle="tooltip"
-                              data-bs-placement="bottom"
-                              data-bs-delay='{"show":600,"hide":100}'
-                              title="Список ссылок на все честные знаки">
+
+                        {% if materials_sign %}
+                            <span data-bs-toggle="tooltip"
+                                  data-bs-placement="bottom"
+                                  data-bs-delay='{"show":600,"hide":100}'
+                                  title="Список ссылок на все честные знаки">
 
                                 <a class="text-muted"
                                    href="{{ path('materials-sign:admin.links.list', { order: order.orderId }) }}">
@@ -82,6 +84,8 @@
                                 </a>
 
                         </span>
+                        {% endif %}
+
 
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MATERIAL_SIGN_REISSUE') %}
                             {% if order.orderStatus == 'package' %}
@@ -110,8 +114,15 @@
 
                     </div>
                 </li>
+            {% endif %}
+
+            {# @var material \BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderResult #}
+
+            {% if materials_sign %}
 
                 {% for material in materials_sign %}
+
+                    {% set total = total + product.getCounter() %}
 
                     {% set parameters = {
                         article: material.materialArticle,
@@ -173,7 +184,8 @@
 
             {% endif %}
 
-            {% if is_products_sign %}
+
+            {% if constant('BaksDev\\Products\\Sign\\BaksDevProductsSignBundle::NAMESPACE') is defined %}
 
                 <li>
                     <hr class="dropdown-divider">
@@ -182,7 +194,6 @@
                 <li>
                     <div class="d-flex gap-3 align-items-center justify-content-between w-100 p-2">
                         <h6 class="dropdown-header w-100">Честный знак</h6>
-
 
                         <span data-bs-toggle="tooltip"
                               data-bs-placement="bottom"
@@ -222,7 +233,9 @@
                         </span>
 
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCT_SIGN_REISSUE') %}
+
                             {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
+
                                 <span data-bs-toggle="tooltip"
                                       data-bs-placement="bottom"
                                       data-bs-delay='{"show":600,"hide":100}'
@@ -244,11 +257,18 @@
                                 </span>
 
                             {% endif %}
+
                         {% endif %}
 
                     </div>
                 </li>
 
+            {% endif %}
+
+
+            {# @var product \BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderResult #}
+
+            {% if products_sign %}
 
                 {% for product in products_sign %}
 
@@ -263,6 +283,7 @@
                         variation: product.productVariationConst,
                         modification: product.productModificationConst
                     } %}
+
 
                     <li>
                         <div class="dropdown-item">

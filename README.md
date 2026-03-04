@@ -8,7 +8,7 @@
 
 ## Установка
 
-``` bash
+```bash
 composer require \
 baks-dev/payment \
 baks-dev/users-address \
@@ -28,20 +28,20 @@ phpoffice/phpspreadsheet\
 
 Установка конфигурации и файловых ресурсов:
 
-``` bash
+```bash
 php bin/console baks:assets:install
 ```
 
 Для обработки сообщений асинхронно должен быть запущен воркер 'orders-order'
 
-``` bash
+```bash
 php bin/console messenger:consume orders-order
 ```
 
 Для добавления новых статусов необходимо создать сервис-класс, имплементирующий OrderStatusInterface c тегом '
 baks.order.status'
 
-``` php
+```php
 <?php
 
 namespace App\Orders\OrderStatus;
@@ -58,14 +58,14 @@ class OrderStatusCustom implements OrderStatusInterface
 
 Изменения в схеме базы данных с помощью миграции
 
-``` bash
+```bash
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
 ```
 
 ## Тестирование
 
-``` bash
+```bash
 php bin/phpunit --group=orders-order
 ```
 

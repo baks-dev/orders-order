@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -318,7 +317,6 @@ final class DetailController extends AbstractController
                 'materials_sign' => $MaterialSign,
                 'products_sign' => $ProductSign,
                 'products_sign_items' => $ProductSignItems,
-                'is_products_sign' => class_exists(BaksDevProductsSignBundle::class),
                 'profile' => $this->getProfileUid(),
                 'error' => $this->error,
             ],

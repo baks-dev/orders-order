@@ -122,7 +122,7 @@
 
                 {% for material in materials_sign %}
 
-                    {% set total = total + product.getCounter() %}
+                    {% set total = total + material.getCounter() %}
 
                     {% set parameters = {
                         article: material.materialArticle,

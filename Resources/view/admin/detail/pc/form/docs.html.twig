@@ -88,7 +88,7 @@
 
 
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MATERIAL_SIGN_REISSUE') %}
-                            {% if order.orderStatus == 'package' %}
+                            {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
                                 <span data-bs-toggle="tooltip"
                                       data-bs-placement="bottom"
                                       data-bs-delay='{"show":600,"hide":100}'

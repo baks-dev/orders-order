@@ -42,6 +42,7 @@ use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductI
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -53,6 +54,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductsReserveByOrderCancelDispatcher
 {

@@ -42,6 +42,7 @@ use BaksDev\Products\Stocks\Messenger\Products\Recalculate\RecalculateProductMes
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -54,6 +55,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * заменяет работу @see DeprecateProductChangeReserveByOrderChangeDispatcher
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 999)]
 final readonly class ProductChangeReserveByOrderProductItemChangeDispatcher
 {

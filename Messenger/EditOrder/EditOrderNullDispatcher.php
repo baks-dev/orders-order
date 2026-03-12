@@ -25,9 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\EditOrder;
 
-
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final class EditOrderNullDispatcher
 {

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,15 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User;
 
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryForm;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentForm;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByEvent\UserProfileByEventInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentForm;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryForm;
 
 final class OrderUserForm extends AbstractType
 {
@@ -54,7 +55,7 @@ final class OrderUserForm extends AbstractType
                 $data = $event->getData();
                 $form = $event->getForm();
 
-                if($data->getProfile())
+                if(($data instanceof OrderUserDTO) && ($data->getProfile() instanceof UserProfileEventUid))
                 {
                     $CurrentUserProfile = $this->currentUserProfile->findUserProfileEvent($data->getProfile());
                     $userProfileType = $CurrentUserProfile?->getType();

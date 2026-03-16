@@ -121,7 +121,7 @@ class OrderEvent extends EntityEvent
 
     /** Пользователь (Клиент) */
     #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
-    private OrderUser $usr;
+    private ?OrderUser $usr = null;
 
     /** Флаг о печати */
     #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'])]

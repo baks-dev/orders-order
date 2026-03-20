@@ -26,10 +26,10 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment;
 
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPaymentInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 
 final class OrderPaymentDTO implements OrderPaymentInterface
 {

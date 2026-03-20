@@ -57,7 +57,7 @@ final readonly class OrderEventRepository implements OrderEventInterface
             ->setParameter(
                 key: 'event',
                 value: $event,
-                type: OrderEventUid::TYPE
+                type: OrderEventUid::TYPE,
             );
 
 

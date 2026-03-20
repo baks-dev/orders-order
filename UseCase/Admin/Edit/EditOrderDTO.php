@@ -118,24 +118,6 @@ final class EditOrderDTO implements OrderEventInterface
         $this->id = null;
     }
 
-    /**
-     * Коллекция продукции в заказе
-     *
-     * @return ArrayCollection<int, OrderProductDTO>
-     *
-     */
-
-    public function getProduct(): ArrayCollection
-    {
-        return $this->product;
-    }
-
-
-    public function setProduct(ArrayCollection $product): void
-    {
-        $this->product = $product;
-    }
-
     public function addProduct(OrderProductDTO $product): void
     {
         /**
@@ -158,6 +140,22 @@ final class EditOrderDTO implements OrderEventInterface
         }
     }
 
+    /**
+     * Коллекция продукции в заказе
+     *
+     * @return ArrayCollection<int, OrderProductDTO>
+     *
+     */
+
+    public function getProduct(): ArrayCollection
+    {
+        return $this->product;
+    }
+
+    public function setProduct(ArrayCollection $product): void
+    {
+        $this->product = $product;
+    }
 
     public function removeProduct(OrderProductDTO $product): void
     {

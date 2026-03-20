@@ -93,7 +93,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'ord',
                 OrderProduct::class,
                 'products',
-                'products.event = ord.event'
+                'products.event = ord.event',
             );
 
         $dbal
@@ -103,7 +103,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'products',
                 ProductEvent::class,
                 'product_event',
-                'product_event.id = products.product'
+                'product_event.id = products.product',
             );
 
         $dbal
@@ -114,7 +114,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'products',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.id = products.offer'
+                'product_offer.id = products.offer',
             );
 
         $dbal
@@ -125,7 +125,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'products',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.id = products.variation'
+                'product_variation.id = products.variation',
             );
 
         $dbal
@@ -136,7 +136,7 @@ final class OrderProductsRepository implements OrderProductsInterface
                 'products',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.id = products.modification'
+                'product_modification.id = products.modification',
             );
 
 

@@ -94,7 +94,7 @@ final class PackageOrderProductForm extends AbstractType
 
                     return new ProductOfferUid($offer);
                 },
-            )
+            ),
         );
 
 
@@ -109,7 +109,7 @@ final class PackageOrderProductForm extends AbstractType
 
                     return new ProductVariationUid($variation);
                 },
-            )
+            ),
         );
 
         $builder->add('modification', HiddenType::class);
@@ -126,7 +126,6 @@ final class PackageOrderProductForm extends AbstractType
                 },
             ),
         );
-
 
 
         $builder->addEventListener(

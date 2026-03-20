@@ -41,11 +41,10 @@ final class PackageOrdersOrderForm extends AbstractType
                 function($order) {
                     return $order instanceof OrderUid ? $order->getValue() : $order;
                 },
-                function($order)
-                {
+                function($order) {
                     return new OrderUid($order);
-                }
-            )
+                },
+            ),
         );
     }
 

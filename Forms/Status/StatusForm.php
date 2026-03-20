@@ -38,7 +38,7 @@ final class StatusForm extends AbstractType
         $builder->add(
             'orders',
             CollectionType::class,
-            ['entry_type' => StatusOrderForm::class, 'allow_add' => true]
+            ['entry_type' => StatusOrderForm::class, 'allow_add' => true],
         );
     }
 

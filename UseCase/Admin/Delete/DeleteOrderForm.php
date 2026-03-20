@@ -48,7 +48,7 @@ final class DeleteOrderForm extends AbstractType
         $builder->add(
             'order_delete',
             SubmitType::class,
-            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']]
+            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']],
         );
     }
 
@@ -58,8 +58,8 @@ final class DeleteOrderForm extends AbstractType
             [
                 'data_class' => DeleteOrderDTO::class,
                 'method' => 'POST',
-                'attr' => ['class' => 'w-100']
-            ]
+                'attr' => ['class' => 'w-100'],
+            ],
         );
     }
 

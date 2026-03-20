@@ -34,12 +34,12 @@
         document.addEventListener("DOMContentLoaded", (event) =>
         {
             const form = document.forms.order_filter_form;
-            form.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+            form.addEventListener("change", () => { setTimeout(() => { form.submit(); }, 300); });
         });
 
         function changeDatapicker(input)
         {
-            let forms = input.closest('form');
+            let forms = input.closest("form");
             forms.submit();
         }
 

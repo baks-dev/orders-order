@@ -52,7 +52,7 @@ final class DeleteController extends AbstractController
 
         $OrderCancelDTO = new DeleteOrderDTO(
             $this->getUsr(),
-            $this->getProfileUid()
+            $this->getProfileUid(),
         );
         $OrderEvent->getDto($OrderCancelDTO);
 
@@ -74,7 +74,7 @@ final class DeleteController extends AbstractController
                 'page.delete',
                 $handle instanceof Order ? 'success.delete' : 'danger.delete',
                 'orders-order.admin',
-                $handle
+                $handle,
             );
 
             return $this->redirectToRoute('orders-order:admin.index');

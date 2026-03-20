@@ -44,26 +44,6 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class DeleteOrderTest extends KernelTestCase
 {
-    #[DependsOnClass(OrderStatusCanceledTest::class)]
-    public function testUseCase(): void
-    {
-        /** @var CurrentOrderEventInterface $OrderCurrentEvent */
-        $OrderCurrentEvent = self::getContainer()->get(CurrentOrderEventInterface::class);
-        $OrderEvent = $OrderCurrentEvent->forOrder(OrderUid::TEST)->find();
-        self::assertNotNull($OrderEvent);
-
-        /** @see OrderDeleteDTO */
-        $OrderDeleteDTO = new DeleteOrderDTO();
-        $OrderEvent->getDto($OrderDeleteDTO);
-
-        /** @var DeleteOrderHandler $OrderHandler */
-        $OrderDeleteHandler = self::getContainer()->get(DeleteOrderHandler::class);
-        $handle = $OrderDeleteHandler->handle($OrderDeleteDTO);
-
-        self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
-
-    }
-
     public static function tearDownAfterClass(): void
     {
         /** @var EntityManagerInterface $em */
@@ -88,5 +68,25 @@ class DeleteOrderTest extends KernelTestCase
 
         $em->flush();
         $em->clear();
+    }
+
+    #[DependsOnClass(OrderStatusCanceledTest::class)]
+    public function testUseCase(): void
+    {
+        /** @var CurrentOrderEventInterface $OrderCurrentEvent */
+        $OrderCurrentEvent = self::getContainer()->get(CurrentOrderEventInterface::class);
+        $OrderEvent = $OrderCurrentEvent->forOrder(OrderUid::TEST)->find();
+        self::assertNotNull($OrderEvent);
+
+        /** @see OrderDeleteDTO */
+        $OrderDeleteDTO = new DeleteOrderDTO();
+        $OrderEvent->getDto($OrderDeleteDTO);
+
+        /** @var DeleteOrderHandler $OrderHandler */
+        $OrderDeleteHandler = self::getContainer()->get(DeleteOrderHandler::class);
+        $handle = $OrderDeleteHandler->handle($OrderDeleteDTO);
+
+        self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
+
     }
 }

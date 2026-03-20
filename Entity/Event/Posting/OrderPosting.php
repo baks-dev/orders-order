@@ -36,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Информация о разделенном заказе
+ *
  * @see OrderPostingInterface
  */
 #[ORM\Entity]

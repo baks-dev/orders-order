@@ -97,14 +97,14 @@ final class OrderProductItemDTO implements OrderProductItemInterface
         return $this;
     }
 
+    public function getSign(): ?ProductSignByOrderProductItemResult
+    {
+        return $this->sign;
+    }
+
     public function setSign(?ProductSignByOrderProductItemResult $sign): OrderProductItemDTO
     {
         $this->sign = $sign;
         return $this;
-    }
-
-    public function getSign(): ?ProductSignByOrderProductItemResult
-    {
-        return $this->sign;
     }
 }

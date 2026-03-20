@@ -43,6 +43,7 @@ interface OrderDetailByNumberInterface
 
     /**
      * Метод возвращает Generator с информацией об заказах
+     *
      * @return Generator<int, OrderDetailResult>|false
      */
     public function findAll(): Generator|false;

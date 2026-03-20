@@ -59,7 +59,7 @@ return static function(ContainerConfigurator $container) {
     /* Статусы заказов */
     $services->load(
         $NAMESPACE.'Type\Status\OrderStatus\\',
-        $PATH.implode(DIRECTORY_SEPARATOR, ['Type', 'Status', 'OrderStatus'])
+        $PATH.implode(DIRECTORY_SEPARATOR, ['Type', 'Status', 'OrderStatus']),
     );
 
 
@@ -79,12 +79,12 @@ return static function(ContainerConfigurator $container) {
     {
         $services->set(
             DeliveryByProfileChoiceInterface::class,
-            DeliveryByProfileChoiceRepository::class
+            DeliveryByProfileChoiceRepository::class,
         );
 
         $services->set(
             FieldByDeliveryChoiceInterface::class,
-            FieldByDeliveryChoiceRepository::class
+            FieldByDeliveryChoiceRepository::class,
         );
     }
 
@@ -92,12 +92,12 @@ return static function(ContainerConfigurator $container) {
     {
         $services->set(
             PaymentByTypeProfileChoiceInterface::class,
-            PaymentByTypeProfileChoiceRepository::class
+            PaymentByTypeProfileChoiceRepository::class,
         );
 
         $services->set(
             FieldByPaymentChoiceInterface::class,
-            FieldByPaymentChoiceRepository::class
+            FieldByPaymentChoiceRepository::class,
         );
     }
 

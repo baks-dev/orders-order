@@ -102,9 +102,8 @@ final class OrderFilterForm extends AbstractType
 
                     $data->setStatus($sessionArray['status'] ?? null);
                 }
-            }
+            },
         );
-
 
 
         $builder->addEventListener(
@@ -140,7 +139,7 @@ final class OrderFilterForm extends AbstractType
                 /** @var OrderFilterDTO $data */
                 $data = $event->getData();
                 $this->request->getSession()->set('order_status', $data->getStatus());
-            }
+            },
         );
     }
 
@@ -150,7 +149,7 @@ final class OrderFilterForm extends AbstractType
             [
                 'data_class' => OrderFilterDTO::class,
                 'method' => 'POST',
-            ]
+            ],
         );
     }
 }

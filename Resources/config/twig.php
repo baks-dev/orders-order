@@ -30,6 +30,6 @@ return static function(TwigConfig $twig) {
 
     $twig->path(
         BaksDevOrdersOrderBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), // .'Resources/view',
-        'orders-order'
+        'orders-order',
     );
 };

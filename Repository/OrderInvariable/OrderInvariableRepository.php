@@ -80,7 +80,7 @@ final class OrderInvariableRepository implements OrderInvariableInterface
             ->setParameter(
                 key: 'main',
                 value: $this->order,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         return $orm->getQuery()->getOneOrNullResult() ?? false;

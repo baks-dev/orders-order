@@ -78,7 +78,7 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
             ProductTrans::class,
             'trans',
             'WITH',
-            'trans.event = event.id AND trans.local = :local'
+            'trans.event = event.id AND trans.local = :local',
         );
 
         $qb->setParameter('local', $Locale, Locale::TYPE);
@@ -96,7 +96,7 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
                 ProductOffer::class,
                 'offer',
                 'WITH',
-                'offer.event = event.id  AND offer.id = :offer'
+                'offer.event = event.id  AND offer.id = :offer',
             );
 
             $qb->setParameter('offer', $offer, ProductOfferUid::TYPE);
@@ -113,7 +113,7 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
                     ProductVariation::class,
                     'variation',
                     'WITH',
-                    'variation.offer = offer.id AND variation.id = :variation'
+                    'variation.offer = offer.id AND variation.id = :variation',
                 );
 
                 $qb->setParameter('variation', $variation, ProductVariationUid::TYPE);
@@ -129,7 +129,7 @@ final class ProductEventBasketRepository implements ProductEventBasketInterface
                         ProductModification::class,
                         'modification',
                         'WITH',
-                        'modification.variation = variation.id AND modification.id = :modification'
+                        'modification.variation = variation.id AND modification.id = :modification',
                     );
 
 

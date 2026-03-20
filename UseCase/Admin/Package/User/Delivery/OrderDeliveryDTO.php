@@ -47,6 +47,11 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
 
     private bool $pickup = false;
 
+    public function __construct()
+    {
+        $this->field = new ArrayCollection();
+    }
+
     /**
      * Latitude.
      */
@@ -68,19 +73,14 @@ final class OrderDeliveryDTO implements OrderDeliveryInterface
         return $this->longitude;
     }
 
-    public function setLongitude(?GpsLongitude $longitude): void
-    {
-        $this->longitude = $longitude;
-    }
-
     //    public function getGeocode()
     //    {
     //        return null;
     //    }
 
-    public function __construct()
+    public function setLongitude(?GpsLongitude $longitude): void
     {
-        $this->field = new ArrayCollection();
+        $this->longitude = $longitude;
     }
 
     //    /** Способ доставки */

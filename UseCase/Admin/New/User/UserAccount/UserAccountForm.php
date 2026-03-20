@@ -49,8 +49,8 @@ final class UserAccountForm extends AbstractType
                 function($email) {
 
                     return new AccountEmail($email);
-                }
-            )
+                },
+            ),
         );
 
 

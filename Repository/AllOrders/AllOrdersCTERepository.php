@@ -834,9 +834,10 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         {
             if(
                 preg_match('/^\d{3}\.\d{3}\.\d{3}\.\d{3}$/', $this->search->getQuery())
-                || str_starts_with($this->search->getQuery(), 'o-')
-                || str_starts_with($this->search->getQuery(), 'y-')
-                || str_starts_with($this->search->getQuery(), 'w-')
+                || str_starts_with($this->search->getQuery(), 'o-') // Озон
+                || str_starts_with($this->search->getQuery(), 'y-') // Яндекс
+                || str_starts_with($this->search->getQuery(), 'w-') // Wildberries
+                || str_starts_with($this->search->getQuery(), 'a-') // Авито
             )
             {
 

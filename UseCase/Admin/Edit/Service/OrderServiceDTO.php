@@ -37,31 +37,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** @see OrderService */
 final class OrderServiceDTO implements OrderServiceInterface
 {
+    public OrderServicePriceDTO $price;
+    public int|float $minPrice = 0;
     /** Идентификатор продукта в заказе */
     #[Assert\Uuid]
     private OrderServiceUid $id;
-
     /** Идентификатор продукта в заказе */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private ServiceUid $serv;
-
     #[Assert\NotBlank]
     private string $name;
-
     /** Стоимость */
     #[Assert\NotBlank]
     private Money $money;
-
     /** Дата */
     #[Assert\NotBlank]
     private ?DateTimeImmutable $date = null;
-
     private ServicePeriodUid|string|null $period = null;
-
-    public OrderServicePriceDTO $price;
-
-    public int|float $minPrice = 0;
 
     public function __construct()
     {

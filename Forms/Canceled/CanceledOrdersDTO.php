@@ -34,7 +34,8 @@ final class CanceledOrdersDTO
 
     private ?string $comment = null;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->orders = new ArrayCollection();
     }
 

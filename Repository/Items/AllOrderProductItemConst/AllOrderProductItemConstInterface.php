@@ -36,6 +36,7 @@ interface AllOrderProductItemConstInterface
 
     /**
      * Возвращает множество констант единиц продукции конкретного заказа
+     *
      * @return Generator<int, OrderProductItemConst>|false
      */
     public function findAll(OrderUid $ord): Generator|false;

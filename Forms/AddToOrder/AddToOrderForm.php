@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Forms\AddToOrder;
 
+use BaksDev\Orders\Order\Forms\AddToOrder\preProduct\PreProductForm;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
-use BaksDev\Orders\Order\Forms\AddToOrder\preProduct\PreProductForm;
 
 final class AddToOrderForm extends AbstractType
 {
@@ -40,7 +40,7 @@ final class AddToOrderForm extends AbstractType
         $builder->add(
             'order_add',
             ButtonType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
     }
 

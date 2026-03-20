@@ -21,31 +21,31 @@
  */
 
 basketLang = {
-    'ru': {
-        btnAdd: 'В корзину',
-        btnAddede: 'В корзине',
+    "ru" : {
+        btnAdd : "В корзину",
+        btnAddede : "В корзине",
     },
-    'en': {
-        btnAdd: 'Add to cart',
-        btnAddede: 'In the basket',
-    }
-}
+    "en" : {
+        btnAdd : "Add to cart",
+        btnAddede : "In the basket",
+    },
+};
 
 function addOrder(event)
 {
-    let forms = this.closest('form');
+    let forms = this.closest("form");
     event.preventDefault();
     submitModalForm(forms);
     return false;
 }
 
-document.querySelectorAll('.order-basket').forEach(function(forms)
+document.querySelectorAll(".order-basket").forEach(function(forms)
 {
-    const btn = forms.querySelector('button[type="submit"]');
+    const btn = forms.querySelector("button[type=\"submit\"]");
 
     if(btn)
     {
-        btn.addEventListener('click', addOrder);
+        btn.addEventListener("click", addOrder);
     }
 });
 
@@ -53,7 +53,7 @@ initDatepicker();
 
 function initDatepicker()
 {
-    let $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
+    let $elementDeliveryDate = document.querySelector("input[name*=\"[usr][delivery][deliveryDate]\"]");
 
     if($elementDeliveryDate)
     {
@@ -65,9 +65,9 @@ function initDatepicker()
             if(JrKZvcNyRepeat >= 1000)
             { return; }
 
-            if(typeof MCDatepicker === 'object')
+            if(typeof MCDatepicker === "object")
             {
-                const [day, month, year] = $elementDeliveryDate.value.split('.');
+                const [day, month, year] = $elementDeliveryDate.value.split(".");
                 $selectedDate = new Date(+year, month - 1, +day);
 
                 let currentDate = new Date();
@@ -77,21 +77,21 @@ function initDatepicker()
                 const limitDay = new Date(currentDate.setDate(currentDate.getDate() + 7));
 
                 MCDatepicker.create({
-                    el: '#' + $elementDeliveryDate.id,
-                    bodyType: 'modal',
-                    autoClose: false,
-                    closeOndblclick: true,
-                    closeOnBlur: false,
-                    customOkBTN: 'OK',
-                    customClearBTN: datapickerLang[$locale].customClearBTN,
-                    customCancelBTN: datapickerLang[$locale].customCancelBTN,
-                    firstWeekday: datapickerLang[$locale].firstWeekday,
-                    dateFormat: 'DD.MM.YYYY',
-                    customWeekDays: datapickerLang[$locale].customWeekDays,
-                    customMonths: datapickerLang[$locale].customMonths,
-                    selectedDate: $selectedDate,
-                    minDate: nextDay,
-                    maxDate: limitDay,
+                    el : "#" + $elementDeliveryDate.id,
+                    bodyType : "modal",
+                    autoClose : false,
+                    closeOndblclick : true,
+                    closeOnBlur : false,
+                    customOkBTN : "OK",
+                    customClearBTN : datapickerLang[$locale].customClearBTN,
+                    customCancelBTN : datapickerLang[$locale].customCancelBTN,
+                    firstWeekday : datapickerLang[$locale].firstWeekday,
+                    dateFormat : "DD.MM.YYYY",
+                    customWeekDays : datapickerLang[$locale].customWeekDays,
+                    customMonths : datapickerLang[$locale].customMonths,
+                    selectedDate : $selectedDate,
+                    minDate : nextDay,
+                    maxDate : limitDay,
                 });
 
                 return;
@@ -107,15 +107,15 @@ function initDatepicker()
 function resolve(forms)
 {
 
-    if(forms !== false && forms.name === 'order_product_form')
+    if(forms !== false && forms.name === "order_product_form")
     {
 
         /** Увеличиваем бейдж корзины */
-        $userbasket = document.getElementById('user_basket');
+        $userbasket = document.getElementById("user_basket");
 
         if($userbasket)
         {
-            $userbasket.classList.remove('d-none');
+            $userbasket.classList.remove("d-none");
 
             $counter = $userbasket.innerText * 1;
             $userbasket.innerText = $counter + 1;
@@ -123,30 +123,30 @@ function resolve(forms)
 
         /** Меняем кнопку submit */
 
-        let btn = forms.querySelector('button[type="submit"]');
+        let btn = forms.querySelector("button[type=\"submit\"]");
 
-        btn.classList.replace('btn-primary', 'btn-outline-primary');
-        btn.querySelector('span.basket-text').innerText = basketLang[$locale].btnAddede;
+        btn.classList.replace("btn-primary", "btn-outline-primary");
+        btn.querySelector("span.basket-text").innerText = basketLang[$locale].btnAddede;
 
-        btn.removeEventListener('click', addOrder, false);
+        btn.removeEventListener("click", addOrder, false);
 
-        btn.addEventListener('click',
+        btn.addEventListener("click",
 
             function(event)
             {
                 event.preventDefault();
                 window.location.href = "/basket";
                 return false;
-            }
+            },
         );
     }
 }
 
 /** Уменьшаем число продукции */
-document.querySelectorAll('.minus').forEach(function(btn)
+document.querySelectorAll(".minus").forEach(function(btn)
 {
 
-    btn.addEventListener('click', function(event)
+    btn.addEventListener("click", function(event)
     {
         let inpt = document.getElementById(this.dataset.id).value;
 
@@ -158,24 +158,24 @@ document.querySelectorAll('.minus').forEach(function(btn)
             return;
         }
 
-        let price = document.getElementById(this.dataset.id)
+        let price = document.getElementById(this.dataset.id);
         price.value = result;
 
-        let productItems = document.getElementById(price.dataset.productGroup + '-items')
+        let productItems = document.getElementById(price.dataset.productGroup + "-items");
 
         /** При изменении количества продукта - добавляем единицу продукта */
-        if(price.id.endsWith('total'))
+        if(price.id.endsWith("total"))
         {
-            let item = productItems.querySelector('[data-item="product-item"]');
-            let del = item.querySelector('.delete-el');
+            let item = productItems.querySelector("[data-item=\"product-item\"]");
+            let del = item.querySelector(".delete-el");
 
-            del.click()
+            del.click();
         }
 
         /** При изменении цены продукта - изменяем цену в каждой единице продукта */
-        if(price.id.endsWith('price'))
+        if(price.id.endsWith("price"))
         {
-            modifyOrderProductItemPrice(productItems, result)
+            modifyOrderProductItemPrice(productItems, result);
         }
 
         /** Пересчет Суммы */
@@ -188,9 +188,9 @@ document.querySelectorAll('.minus').forEach(function(btn)
 });
 
 /** Увеличиваем число продукции */
-document.querySelectorAll('.plus').forEach(function(btn)
+document.querySelectorAll(".plus").forEach(function(btn)
 {
-    btn.addEventListener('click', function(event)
+    btn.addEventListener("click", function(event)
     {
         let inpt = document.getElementById(this.dataset.id);
 
@@ -205,18 +205,18 @@ document.querySelectorAll('.plus').forEach(function(btn)
         inpt.value = result;
 
         /** Коллекция единиц конкретного продукта */
-        let orderProductItems = document.getElementById(inpt.dataset.productGroup + '-items')
+        let orderProductItems = document.getElementById(inpt.dataset.productGroup + "-items");
 
         /** При изменении количества продукта - добавляем единицу продукта */
-        if(inpt.id.endsWith('total'))
+        if(inpt.id.endsWith("total"))
         {
-            addOrderProductItem(orderProductItems)
+            addOrderProductItem(orderProductItems);
         }
 
         /** При изменении цены продукта - изменяем цену в каждой единице продукта */
-        if(inpt.id.endsWith('price'))
+        if(inpt.id.endsWith("price"))
         {
-            modifyOrderProductItemPrice(orderProductItems, result)
+            modifyOrderProductItemPrice(orderProductItems, result);
         }
 
         /** Пересчет Суммы */
@@ -233,35 +233,34 @@ function addOrderProductItem(items)
 {
     if(items)
     {
-        let productItems = items.querySelectorAll('[data-item="product-item"]');
+        let productItems = items.querySelectorAll("[data-item=\"product-item\"]");
 
         /** Минимальный индекс в коллекции элем енотов */
         const maxIndex = Math.max(
-            ...Array.from(productItems)
-                .map(el => parseInt(el.dataset.itemIndex))
+            ...Array.from(productItems).map(el => parseInt(el.dataset.itemIndex)),
         );
 
-        let prototype = document.getElementById(items.id + '-prototype');
+        let prototype = document.getElementById(items.id + "-prototype");
 
         let prototypeContent = prototype.innerText;
         prototypeContent = prototypeContent.replace(/__item__/g, maxIndex + 1);
 
-        const template = document.createElement('template');
+        const template = document.createElement("template");
         template.innerHTML = prototypeContent.trim();
         const inputElement = template.content.firstElementChild;
 
-        const inputElementPrice = inputElement.querySelector('#' + inputElement.id + '_price_price');
-        inputElementPrice.value = inputElementPrice.dataset.price
+        const inputElementPrice = inputElement.querySelector("#" + inputElement.id + "_price_price");
+        inputElementPrice.value = inputElementPrice.dataset.price;
 
         //items.append(inputElement)
-        prototype.after(inputElement)
+        prototype.after(inputElement);
 
         /** Элементы после вставки */
-        const itemCountAfterAdd = items.querySelectorAll('[data-item="product-item"]')
+        const itemCountAfterAdd = items.querySelectorAll("[data-item=\"product-item\"]");
 
-        items.setAttribute('data-items-count', itemCountAfterAdd.length);
+        items.setAttribute("data-items-count", itemCountAfterAdd.length);
 
-        initHsH22s6NM(items)
+        initHsH22s6NM(items);
     }
 }
 
@@ -271,13 +270,13 @@ function modifyOrderProductItemPrice(items, price_value, discount_value = null)
     if(items)
     {
         /** Изменяем цену в каждой единице продукта */
-        items.querySelectorAll('.item-price').forEach(function(price_input)
+        items.querySelectorAll(".item-price").forEach(function(price_input)
         {
-            let itemMin = price_input.getAttribute('min');
+            let itemMin = price_input.getAttribute("min");
 
             if(price_value < parseInt(itemMin))
             {
-                return
+                return;
             }
 
             price_input.value = price_value;
@@ -286,7 +285,7 @@ function modifyOrderProductItemPrice(items, price_value, discount_value = null)
         /** Изменяем скидку в каждой единице продукта */
         if(null !== discount_value)
         {
-            items.querySelectorAll('.item-discount').forEach(function(discount_input)
+            items.querySelectorAll(".item-discount").forEach(function(discount_input)
             {
                 discount_input.value = discount_value * -1;
             });
@@ -295,14 +294,14 @@ function modifyOrderProductItemPrice(items, price_value, discount_value = null)
 }
 
 /** Событие на изменение количества */
-document.querySelectorAll('.total').forEach(function(input)
+document.querySelectorAll(".total").forEach(function(input)
 {
     setTimeout(function initCounter()
     {
-        if(typeof orderCounter.debounce == 'function')
+        if(typeof orderCounter.debounce == "function")
         {
             /** Событие на изменение количество в ручную */
-            input.addEventListener('input', orderCounter.debounce(1000));
+            input.addEventListener("input", orderCounter.debounce(1000));
             return;
         }
 
@@ -313,14 +312,14 @@ document.querySelectorAll('.total').forEach(function(input)
 });
 
 /** Событие на изменение стоимости */
-document.querySelectorAll('.price').forEach(function(input)
+document.querySelectorAll(".price").forEach(function(input)
 {
     setTimeout(function initPrice()
     {
-        if(typeof orderCounter.debounce == 'function')
+        if(typeof orderCounter.debounce == "function")
         {
             /** Событие на изменение стоимости в ручную */
-            input.addEventListener('input', orderCounter.debounce(1000));
+            input.addEventListener("input", orderCounter.debounce(1000));
             return;
         }
 
@@ -334,16 +333,16 @@ document.querySelectorAll('.price').forEach(function(input)
 function orderSum(result, id)
 {
     let product_total = document.getElementById(id);
-    let product_summ = document.getElementById('summ_' + id);
+    let product_summ = document.getElementById("summ_" + id);
 
     if(product_summ)
     {
         let result_product_sum = (result * product_total.dataset.price) / 100;
 
         result_product_sum = new Intl.NumberFormat($locale, {
-            style: 'currency',
-            currency: product_total.dataset.currency === "RUR" ? "RUB" : product_total.dataset.currency,
-            maximumFractionDigits: 2
+            style : "currency",
+            currency : product_total.dataset.currency === "RUR" ? "RUB" : product_total.dataset.currency,
+            maximumFractionDigits : 2,
         }).format(result_product_sum);
 
         product_summ.innerText = result_product_sum;
@@ -356,7 +355,7 @@ function total(id = null)
     let result_total = 0;
     let currency = null;
 
-    document.querySelectorAll('.total').forEach(function(total)
+    document.querySelectorAll(".total").forEach(function(total)
     {
         // изменение в поле количество
 
@@ -371,7 +370,7 @@ function total(id = null)
             price = parseFloat(input_price.value.replace(",", ".")) * 100;
             total.dataset.price = price;
 
-            let minimal = parseFloat(input_price.getAttribute('min')) * 100;
+            let minimal = parseFloat(input_price.getAttribute("min")) * 100;
 
             /** Делаем проверку, что сумма не менше допустимой */
             if(minimal > price)
@@ -380,9 +379,9 @@ function total(id = null)
                 total.dataset.price = minimal;
                 input_price.value = minimal / 100;
 
-                let $successSupplyToast = '{ "type":"danger" , ' +
-                    '"header":"Ошибка при изменении стоимости"  , ' +
-                    '"message" : "Нельзя указать стоимость товара в заказе ниже минимально допустимой!" }';
+                let $successSupplyToast = "{ \"type\":\"danger\" , " +
+                    "\"header\":\"Ошибка при изменении стоимости\"  , " +
+                    "\"message\" : \"Нельзя указать стоимость товара в заказе ниже минимально допустимой!\" }";
 
                 createToast(JSON.parse($successSupplyToast));
 
@@ -409,13 +408,13 @@ function total(id = null)
     result_total = result_total / 100;
 
     result_product_sum = new Intl.NumberFormat($locale, {
-        style: 'currency',
-        currency: currency,
-        maximumFractionDigits: 0
+        style : "currency",
+        currency : currency,
+        maximumFractionDigits : 0,
     }).format(result_total);
 
 
-    let total_result = document.getElementById('total_result');
+    let total_result = document.getElementById("total_result");
 
     if(total_result)
     {
@@ -423,7 +422,7 @@ function total(id = null)
     }
 
 
-    let total_product_sum = document.getElementById('total_product_sum');
+    let total_product_sum = document.getElementById("total_product_sum");
 
     if(total_product_sum)
     {
@@ -432,9 +431,9 @@ function total(id = null)
 
 
     /** пересчитываем доставку */
-    let delivery = document.querySelector('input[name*="[users][delivery][delivery]"][checked="checked"]');
+    let delivery = document.querySelector("input[name*=\"[users][delivery][delivery]\"][checked=\"checked\"]");
 
-    let service_sum = document.getElementById('service_sum');
+    let service_sum = document.getElementById("service_sum");
 
     /** С учетом стоимости услуг */
     if(service_sum)
@@ -451,12 +450,12 @@ function total(id = null)
     }
 
     let result_all_sum = new Intl.NumberFormat($locale, {
-        style: 'currency',
-        currency: currency,
-        maximumFractionDigits: 0
+        style : "currency",
+        currency : currency,
+        maximumFractionDigits : 0,
     }).format(result_total);
 
-    let total_all_sum = document.getElementById('total_all_sum');
+    let total_all_sum = document.getElementById("total_all_sum");
     if(total_all_sum)
     { total_all_sum.innerText = result_all_sum; }
 
@@ -486,47 +485,47 @@ function orderCounter()
 
 
     /** Коллекция единиц конкретного продукта */
-    let orderProductItems = document.getElementById(this.dataset.productGroup + '-items')
+    let orderProductItems = document.getElementById(this.dataset.productGroup + "-items");
 
     /** Изменение количества продукта */
-    if(this.id.endsWith('total'))
+    if(this.id.endsWith("total"))
     {
 
-        let items = orderProductItems.querySelectorAll('[data-item="product-item"]');
+        let items = orderProductItems.querySelectorAll("[data-item=\"product-item\"]");
 
         if(this.value < items.length)
         {
-            console.log(' ->', 'удаляем элементы')
-            const diff = items.length - this.value
+            console.log(" ->", "удаляем элементы");
+            const diff = items.length - this.value;
 
             for(let i = 0; i < diff; i++)
             {
-                let item = orderProductItems.querySelector('[data-item="product-item"]');
-                item.remove()
+                let item = orderProductItems.querySelector("[data-item=\"product-item\"]");
+                item.remove();
             }
 
-            let itemsCountAfter = orderProductItems.querySelectorAll('[data-item="product-item"]');
-            orderProductItems.setAttribute('data-items-count', itemsCountAfter.length)
+            let itemsCountAfter = orderProductItems.querySelectorAll("[data-item=\"product-item\"]");
+            orderProductItems.setAttribute("data-items-count", itemsCountAfter.length);
         }
 
 
         if(this.value > items.length)
         {
-            console.log(' ->', 'добавляем элементы')
+            console.log(" ->", "добавляем элементы");
 
-            const diff = this.value - items.length
+            const diff = this.value - items.length;
 
             for(let i = 0; i < diff; i++)
             {
-                addOrderProductItem(orderProductItems)
+                addOrderProductItem(orderProductItems);
             }
         }
     }
 
     /** Изменение цены продукта */
-    if(this.id.endsWith('price'))
+    if(this.id.endsWith("price"))
     {
-        modifyOrderProductItemPrice(orderProductItems, this.value)
+        modifyOrderProductItemPrice(orderProductItems, this.value);
     }
 }
 
@@ -563,9 +562,9 @@ function deleteElement($row)
 
     document.getElementById($row).remove();
 
-    document.getElementById('item_' + $row).nextSibling.nextSibling.remove() // удаляем единицы продукции // @TODO
-    document.getElementById('item_' + $row).nextSibling.remove();
-    document.getElementById('item_' + $row).remove();
+    document.getElementById("item_" + $row).nextSibling.nextSibling.remove(); // удаляем единицы продукции // @TODO
+    document.getElementById("item_" + $row).nextSibling.remove();
+    document.getElementById("item_" + $row).remove();
 
     total();
 }
@@ -575,41 +574,41 @@ function success(id)
     (document.getElementById(id))?.remove();
 }
 
-document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach(function(userProfileType)
+document.querySelectorAll("input[name*=\"[usr][userProfile][type]\"]").forEach(function(userProfileType)
 {
-    userProfileType.addEventListener('change', function(event)
+    userProfileType.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitOrderForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(userPayment)
+document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach(function(userPayment)
 {
-    userPayment.addEventListener('change', function(event)
+    userPayment.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitPaymentForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(userPayment)
+document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach(function(userPayment)
 {
-    userPayment.addEventListener('change', function(event)
+    userPayment.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitDeliveryForm(forms);
         return false;
     });
 });
 
-document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
 {
-    userRegion.addEventListener('change', function(event)
+    userRegion.addEventListener("change", function(event)
     {
-        let forms = this.closest('form');
+        let forms = this.closest("form");
         submitRegionForm(forms, userRegion.id);
         return false;
     });
@@ -631,106 +630,103 @@ async function submitDeliveryForm(forms)
 
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
-    })
-        .then((response) =>
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
+    }).then((response) =>
+    {
+
+        if(response.status !== 200)
         {
+            return false;
+        }
 
-            if(response.status !== 200)
-            {
-                return false;
-            }
-
-            return response.text();
-        })
-
-        .then((data) =>
+        return response.text();
+    }).then((data) =>
+    {
+        if(data)
         {
-            if(data)
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(data, "text/html");
+
+            let user_delivery = doc.getElementById("user_delivery");
+            document.getElementById("user_delivery").replaceWith(user_delivery);
+
+            /** Пересобираем поля для способа дотсавки */
+            document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach(function(user_delivery)
             {
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(data, 'text/html');
-
-                let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
-
-                /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
+                user_delivery.addEventListener("change", function(event)
                 {
-                    user_delivery.addEventListener('change', function(event)
-                    {
 
-                        let forms = this.closest('form');
-                        submitDeliveryForm(forms);
-                        return false;
-                    });
+                    let forms = this.closest("form");
+                    submitDeliveryForm(forms);
+                    return false;
                 });
+            });
 
 
-                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+            document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
+            {
+                userRegion.addEventListener("change", function(event)
                 {
-                    userRegion.addEventListener('change', function(event)
-                    {
-                        let forms = this.closest('form');
-                        submitRegionForm(forms, userRegion.id);
-                        return false;
-                    });
+                    let forms = this.closest("form");
+                    submitRegionForm(forms, userRegion.id);
+                    return false;
                 });
+            });
 
-                /** Делаем перерасчет */
+            /** Делаем перерасчет */
 
 
-                /** Пересобирваем tooltip */
-                let tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function(tooltipTriggerEl)
+            /** Пересобирваем tooltip */
+            let tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map(function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+
+            /** Персчет всего количество */
+            total();
+
+
+            /** Сбрасываем значения геолокации */
+            document.querySelector("[data-latitude]").value = "";
+            document.querySelector("[data-longitude]").value = "";
+
+
+            limitOxMvRIBczY = 100;
+
+            setTimeout(function OxMvRIBczY()
+            {
+
+                if(typeof initAdddress == "function")
                 {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
+                    initAdddress();
+                    return;
+                }
 
-
-                /** Персчет всего количество */
-                total();
-
-
-                /** Сбрасываем значения геолокации */
-                document.querySelector('[data-latitude]').value = '';
-                document.querySelector('[data-longitude]').value = '';
-
-
-                limitOxMvRIBczY = 100;
-
-                setTimeout(function OxMvRIBczY()
+                if(limitOxMvRIBczY > 1000)
                 {
+                    return;
+                }
 
-                    if(typeof initAdddress == 'function')
-                    {
-                        initAdddress();
-                        return;
-                    }
+                limitOxMvRIBczY = limitOxMvRIBczY * 2;
 
-                    if(limitOxMvRIBczY > 1000)
-                    {
-                        return;
-                    }
+                setTimeout(OxMvRIBczY, limitOxMvRIBczY);
 
-                    limitOxMvRIBczY = limitOxMvRIBczY * 2;
+            }, 100);
 
-                    setTimeout(OxMvRIBczY, limitOxMvRIBczY);
+            initDatepicker();
 
-                }, 100);
-
-                initDatepicker();
-
-            }
-        });
+        }
+    });
 
 
     return false;
@@ -741,75 +737,73 @@ async function submitRegionForm(forms, id)
 
 
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
-    })
-        .then((response) =>
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
+    }).then((response) =>
+    {
+
+        if(response.status !== 200)
         {
+            return false;
+        }
 
-            if(response.status !== 200)
-            {
-                return false;
-            }
+        return response.text();
 
-            return response.text();
+    }).then((data) =>
+    {
 
-        })
-        .then((data) =>
+        if(data)
         {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(data, "text/html");
 
-            if(data)
+            let callId = id.replace(/_region/g, "_call");
+            let call = doc.getElementById(callId);
+
+            document.getElementById(callId).replaceWith(call);
+
+            /** Сбрасываем значения геолокации */
+            document.querySelector("[data-latitude]").value = "";
+            document.querySelector("[data-longitude]").value = "";
+
+
+            /** Определяем поле с адресом */
+
+            limitZJzxDhmvtC = 100;
+
+            setTimeout(function ZJzxDhmvtC()
             {
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(data, 'text/html');
 
-                let callId = id.replace(/_region/g, '_call');
-                let call = doc.getElementById(callId);
-
-                document.getElementById(callId).replaceWith(call);
-
-                /** Сбрасываем значения геолокации */
-                document.querySelector('[data-latitude]').value = '';
-                document.querySelector('[data-longitude]').value = '';
-
-
-                /** Определяем поле с адресом */
-
-                limitZJzxDhmvtC = 100;
-
-                setTimeout(function ZJzxDhmvtC()
+                if(typeof initAdddress == "function")
                 {
+                    initAdddress();
+                    return;
+                }
 
-                    if(typeof initAdddress == 'function')
-                    {
-                        initAdddress();
-                        return;
-                    }
+                if(limitZJzxDhmvtC > 1000)
+                {
+                    return;
+                }
 
-                    if(limitZJzxDhmvtC > 1000)
-                    {
-                        return;
-                    }
+                limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
 
-                    limitZJzxDhmvtC = limitZJzxDhmvtC * 2;
+                setTimeout(ZJzxDhmvtC, limitZJzxDhmvtC);
 
-                    setTimeout(ZJzxDhmvtC, limitZJzxDhmvtC);
+            }, 100);
 
-                }, 100);
-
-            }
-        });
+        }
+    });
 
 
     return false;
@@ -818,61 +812,59 @@ async function submitRegionForm(forms, id)
 async function submitPaymentForm(forms)
 {
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
-    })
-        .then((response) =>
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
+    }).then((response) =>
+    {
+        if(response.status !== 200)
         {
-            if(response.status !== 200)
-            {
-                return false;
-            }
+            return false;
+        }
 
-            return response.text();
+        return response.text();
 
-        })
-        .then((data) =>
+    }).then((data) =>
+    {
+        if(data)
         {
-            if(data)
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(data, "text/html");
+
+            let user_payment = doc.getElementById("user_payment");
+            document.getElementById("user_payment").replaceWith(user_payment);
+
+            document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach(function(user_payment)
             {
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(data, 'text/html');
-
-                let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
-
-                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(user_payment)
+                user_payment.addEventListener("change", function(event)
                 {
-                    user_payment.addEventListener('change', function(event)
-                    {
 
-                        let forms = this.closest('form');
-                        submitPaymentForm(forms);
-                        return false;
-                    });
+                    let forms = this.closest("form");
+                    submitPaymentForm(forms);
+                    return false;
                 });
+            });
 
 
-                /** Пересобираем поля для способа оплаты */
+            /** Пересобираем поля для способа оплаты */
 
-                /** Пересобирваем tooltip */
-                let tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function(tooltipTriggerEl)
-                {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-        });
+            /** Пересобирваем tooltip */
+            let tooltipTriggerList = [].slice.call(user_payment.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map(function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+    });
 
 
     return false;
@@ -881,147 +873,145 @@ async function submitPaymentForm(forms)
 async function submitOrderForm(forms)
 {
     const data = new FormData(forms);
-    data.delete(forms.name + '[_token]');
+    data.delete(forms.name + "[_token]");
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
-    })
-        .then((response) =>
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
+    }).then((response) =>
+    {
+        if(response.status !== 200)
         {
-            if(response.status !== 200)
-            {
-                return false;
-            }
+            return false;
+        }
 
-            return response.text();
+        return response.text();
 
-        })
-        .then((data) =>
+    }).then((data) =>
+    {
+        if(data)
         {
-            if(data)
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(data, "text/html");
+
+            /** Блок профиля пользователя */
+            let user_profile = doc.getElementById("user_profile");
+            document.getElementById("user_profile").replaceWith(user_profile);
+
+
+            /** Блок способа оплаты */
+            let user_payment = doc.getElementById("user_payment");
+            document.getElementById("user_payment").replaceWith(user_payment);
+
+
+            /** Пересобираем события способа оплаты */
+            document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach(function(userPayment)
             {
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(data, 'text/html');
-
-                /** Блок профиля пользователя */
-                let user_profile = doc.getElementById('user_profile');
-                document.getElementById('user_profile').replaceWith(user_profile);
-
-
-                /** Блок способа оплаты */
-                let user_payment = doc.getElementById('user_payment');
-                document.getElementById('user_payment').replaceWith(user_payment);
-
-
-                /** Пересобираем события способа оплаты */
-                document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach(function(userPayment)
+                userPayment.addEventListener("change", function(event)
                 {
-                    userPayment.addEventListener('change', function(event)
-                    {
-                        let replaceId = 'user_profile';
-                        let forms = this.closest('form');
-                        submitPaymentForm(forms);
-                        return false;
-                    });
+                    let replaceId = "user_profile";
+                    let forms = this.closest("form");
+                    submitPaymentForm(forms);
+                    return false;
                 });
+            });
 
-                /** Блок способа дотсавки */
-                let user_delivery = doc.getElementById('user_delivery');
-                document.getElementById('user_delivery').replaceWith(user_delivery);
+            /** Блок способа дотсавки */
+            let user_delivery = doc.getElementById("user_delivery");
+            document.getElementById("user_delivery").replaceWith(user_delivery);
 
-                /** Пересобираем поля для способа дотсавки */
-                document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach(function(user_delivery)
+            /** Пересобираем поля для способа дотсавки */
+            document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach(function(user_delivery)
+            {
+                user_delivery.addEventListener("change", function(event)
                 {
-                    user_delivery.addEventListener('change', function(event)
-                    {
 
-                        let forms = this.closest('form');
-                        submitDeliveryForm(forms);
-                        return false;
-                    });
+                    let forms = this.closest("form");
+                    submitDeliveryForm(forms);
+                    return false;
                 });
+            });
 
-                /** Персчет всего количество */
-                total();
+            /** Персчет всего количество */
+            total();
 
-                document.querySelectorAll('select.change_region_field').forEach(function(userRegion)
+            document.querySelectorAll("select.change_region_field").forEach(function(userRegion)
+            {
+                userRegion.addEventListener("change", function(event)
                 {
-                    userRegion.addEventListener('change', function(event)
-                    {
-                        let forms = this.closest('form');
-                        submitRegionForm(forms, userRegion.id);
-                        return false;
-                    });
+                    let forms = this.closest("form");
+                    submitRegionForm(forms, userRegion.id);
+                    return false;
                 });
+            });
 
 
-                /** Пересобирваем tooltip */
-                let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                tooltipTriggerList.map(function(tooltipTriggerEl)
-                {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
+            /** Пересобирваем tooltip */
+            let tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map(function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
 
-                initDatepicker();
-            }
-        });
+            initDatepicker();
+        }
+    });
 
     return false;
 }
 
 /** Скидка заказа */
-var order_discount = document.querySelector('#edit_order_form_discount');
+var order_discount = document.querySelector("#edit_order_form_discount");
 
-order_discount.addEventListener('input', function()
+order_discount.addEventListener("input", function()
 {
     const discount = this.value;
 
-    let products_discounts = document.querySelectorAll('.product-discount, .item-discount').forEach(function(product_discount)
+    let products_discounts = document.querySelectorAll(".product-discount, .item-discount").forEach(function(product_discount)
     {
         if(product_discount.disabled == false)
         {
             product_discount.value = discount;
-            product_discount.dispatchEvent(new Event('input'));
+            product_discount.dispatchEvent(new Event("input"));
         }
     });
 
 });
 
 /** Скидка товара */
-var product_discounts = document.querySelectorAll('.product-discount');
+var product_discounts = document.querySelectorAll(".product-discount");
 
 product_discounts.forEach(function(product_discount)
 {
-    product_discount.addEventListener('input', function(event)
+    product_discount.addEventListener("input", function(event)
     {
         const discount = this.value * -1;
 
         /* Родительский td */
-        let td = this.closest('td');
+        let td = this.closest("td");
 
         /* найти элемент с ценой в родельской td */
-        let price = td.querySelector('.price');
+        let price = td.querySelector(".price");
         let current_price = price.dataset.price;
 
         /* Сделать расчет скидки товара */
         let product_price = parseFloat(current_price);
-        let discount_product_price = product_price - product_price / 100 * discount // TODO
+        let discount_product_price = product_price - product_price / 100 * discount; // TODO
 
         /* Изменить значение input поля Цены товара */
         price.value = discount_product_price;
 
         /** Изменяем цену и скидку в каждой единице продукта */
-        modifyOrderProductItemPrice(document.getElementById(price.dataset.target + '-items'), price.value, discount)
+        modifyOrderProductItemPrice(document.getElementById(price.dataset.target + "-items"), price.value, discount);
 
         /* Пересчетать всего */
         total();
-    })
-})
+    });
+});

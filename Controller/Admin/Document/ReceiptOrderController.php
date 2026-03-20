@@ -60,7 +60,7 @@ final class ReceiptOrderController extends AbstractController
         }
 
         return $this->render([
-            'order' => $OrderInfo
+            'order' => $OrderInfo,
         ]);
     }
 }

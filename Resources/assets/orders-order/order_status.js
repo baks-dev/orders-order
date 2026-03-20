@@ -20,84 +20,81 @@
  *  THE SOFTWARE.
  */
 
-order_form_status = document.getElementById('order_form_status');
+order_form_status = document.getElementById("order_form_status");
 
 if(order_form_status)
 {
-    order_form_status.addEventListener('change', function(event)
+    order_form_status.addEventListener("change", function(event)
     {
         changeObjectOrderStatus(this.dataset.order, this.value);
 
-        let btn = document.getElementById('order_form_order');
-        btn.setAttribute('disabled', 'disabled');
+        let btn = document.getElementById("order_form_order");
+        btn.setAttribute("disabled", "disabled");
 
     });
 
 }
 
 /* вешаем события на модальные ссылки */
-document.querySelectorAll('.modal-link')
-    .forEach(function(item, i, arr)
-    {
-        modalLink(item);
-    });
+document.querySelectorAll(".modal-link").forEach(function(item, i, arr)
+{
+    modalLink(item);
+});
 
 
 function changeObjectOrderStatus(id, status)
 {
 
-    fetch('/admin/order/' + status + '/' + id, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
-        .then(function(response)
-        {
-            return response.status === 200 ? response.text() : false;
-        })
-        .then(function(html)
-        {
+    fetch("/admin/order/" + status + "/" + id, {headers : {"X-Requested-With" : "XMLHttpRequest"}}).then(function(response)
+    {
+        return response.status === 200 ? response.text() : false;
+    }).then(function(html)
+    {
 
-            /** Если писутствует прелоад-форма статуса - показываем в модальном окне  */
-            if(html)
+        /** Если писутствует прелоад-форма статуса - показываем в модальном окне  */
+        if(html)
+        {
+            const modal = document.getElementById("modal");
+            document.getElementById("modal").innerHTML = html;
+            new bootstrap.Modal(modal).show();
+
+            /** Инициируем LAZYLOAD  */
+            modal.addEventListener("shown.bs.modal", function(event)
             {
-                const modal = document.getElementById('modal');
-                document.getElementById('modal').innerHTML = html;
-                new bootstrap.Modal(modal).show();
 
-                /** Инициируем LAZYLOAD  */
-                modal.addEventListener('shown.bs.modal', function(event)
+                let lazy = document.createElement("script");
+                lazy.src = "/assets/" + $version + "js/lazyload.min.js";
+                document.head.appendChild(lazy);
+
+            });
+
+            modal.querySelectorAll("form").forEach(function(forms)
+            {
+
+                /* событие отправки формы */
+                forms.addEventListener("submit", function(event)
                 {
-
-                    let lazy = document.createElement('script');
-                    lazy.src = "/assets/" + $version + "js/lazyload.min.js";
-                    document.head.appendChild(lazy);
-
+                    event.preventDefault();
+                    submitModalForm(forms);
+                    return false;
                 });
+            });
 
-                modal.querySelectorAll('form').forEach(function(forms)
-                {
+            return;
+        }
 
-                    /* событие отправки формы */
-                    forms.addEventListener('submit', function(event)
-                    {
-                        event.preventDefault();
-                        submitModalForm(forms);
-                        return false;
-                    });
-                });
+        submitLink("/admin/order/status/" + status + "/" + id);
 
-                return;
-            }
-
-            submitLink('/admin/order/status/' + status + '/' + id);
-
-            // if (order_form_status)
-            // {
-            //     location.reload();
-            // }
+        // if (order_form_status)
+        // {
+        //     location.reload();
+        // }
 
 
-        }).catch(function(err)
+    }).catch(function(err)
     {
         // There was an error
-        console.warn('Something went wrong.', err);
+        console.warn("Something went wrong.", err);
     });
 }
 

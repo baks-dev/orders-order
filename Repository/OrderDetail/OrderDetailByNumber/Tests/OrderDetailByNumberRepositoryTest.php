@@ -69,12 +69,12 @@ class OrderDetailByNumberRepositoryTest extends KernelTestCase
             Order::class,
             'main',
             Join::WITH,
-            'main.id = orders_invariable.main AND main.id = :main'
+            'main.id = orders_invariable.main AND main.id = :main',
         )
             ->setParameter(
                 key: 'main',
                 value: OrderUid::TEST,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         $OrderInvariable = $qb->getOneOrNullResult();

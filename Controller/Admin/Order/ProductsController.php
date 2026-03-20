@@ -62,7 +62,7 @@ final class ProductsController extends AbstractController
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),]
+                options: ['action' => $this->generateUrl('orders-order:admin.order.products', ['id' => $Order->getId()]),],
             )
             ->handleRequest($request);
 
@@ -89,7 +89,7 @@ final class ProductsController extends AbstractController
                 'query' => $OrderProducts,
                 'search' => $searchForm->createView(),
                 'filter' => $filterForm->createView(),
-            ]
+            ],
         );
     }
 }

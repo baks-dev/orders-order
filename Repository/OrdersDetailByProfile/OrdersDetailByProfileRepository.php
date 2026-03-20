@@ -115,13 +115,6 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
         return true === $result->valid() ? $result : false;
     }
 
-    /** Метод возвращает пагинатор с информацией о заказе в виде резалтов */
-    public function findAllWithResultPaginator(): PaginatorInterface
-    {
-        $result = $this->builder();
-        return $this->paginator->fetchAllHydrate($result, OrdersDetailByProfileResult::class);
-    }
-
     /** Билдер запроса */
     private function builder(): DBALQueryBuilder
     {
@@ -385,5 +378,12 @@ final class OrdersDetailByProfileRepository implements OrdersDetailByProfileInte
 
 
         return $dbal;
+    }
+
+    /** Метод возвращает пагинатор с информацией о заказе в виде резалтов */
+    public function findAllWithResultPaginator(): PaginatorInterface
+    {
+        $result = $this->builder();
+        return $this->paginator->fetchAllHydrate($result, OrdersDetailByProfileResult::class);
     }
 }

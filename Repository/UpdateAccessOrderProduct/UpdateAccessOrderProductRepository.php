@@ -52,7 +52,7 @@ final readonly class UpdateAccessOrderProductRepository implements UpdateAccessO
             ->setParameter(
                 'product',
                 $product,
-                OrderProductUid::TYPE
+                OrderProductUid::TYPE,
             )
             ->set('access', 'access + 1');
 

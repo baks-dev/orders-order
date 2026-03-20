@@ -52,8 +52,8 @@ final class OrderPaymentFieldForm extends AbstractType
                 },
                 function($field) {
                     return new PaymentFieldUid($field);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('value', HiddenType::class, ['required' => false, 'label' => false]);
@@ -83,11 +83,11 @@ final class OrderPaymentFieldForm extends AbstractType
                                 'help' => $PaymentField->getOption(),
                                 'required' => $PaymentField->getRequired(),
                                 'constraints' => $PaymentField->getRequired() ? [new NotBlank()] : [],
-                            ]
+                            ],
                         );
                     }
                 }
-            }
+            },
         );
 
     }

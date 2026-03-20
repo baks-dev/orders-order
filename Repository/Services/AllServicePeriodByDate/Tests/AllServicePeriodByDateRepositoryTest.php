@@ -29,7 +29,10 @@ use BaksDev\Orders\Order\Repository\Services\AllServicePeriodByDate\AllServicePe
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -55,7 +58,7 @@ class AllServicePeriodByDateRepositoryTest extends KernelTestCase
 
         $result = $AllServicePeriodByDateInterface
             ->byProfile(new UserProfileUid(UserProfileUid::TEST))
-            ->byDate(new \DateTimeImmutable('2025-09-19'))
+            ->byDate(new DateTimeImmutable('2025-09-19'))
             ->findAll(new ServiceUid('019920bb-72b5-7ad9-9d29-267d7dde9258'));
 
         if(false === $result || false === $result->valid())
@@ -67,8 +70,8 @@ class AllServicePeriodByDateRepositoryTest extends KernelTestCase
         $AllServicePeriodByDateResult = $result->current();
 
         // Вызываем все геттеры
-        $reflectionClass = new \ReflectionClass(AllServicePeriodByDateResult::class);
-        $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $reflectionClass = new ReflectionClass(AllServicePeriodByDateResult::class);
+        $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
         foreach($methods as $method)
         {

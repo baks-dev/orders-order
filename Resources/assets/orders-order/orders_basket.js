@@ -1,6 +1,6 @@
 basketLang = {
-    ru: {btnAdd: "В корзину", btnAddede: "В корзине"},
-    en: {btnAdd: "Add to cart", btnAddede: "In the basket"}
+    ru : {btnAdd : "В корзину", btnAddede : "В корзине"},
+    en : {btnAdd : "Add to cart", btnAddede : "In the basket"},
 };
 
 term = 0;
@@ -10,12 +10,12 @@ function addOrder(event)
     let forms = this.closest("form");
     event.preventDefault();
     submitModalForm(forms);
-    return false
+    return false;
 }
 
 document.querySelectorAll(".order-basket").forEach((function(forms)
 {
-    const btn = forms.querySelector('button[type="submit"]');
+    const btn = forms.querySelector("button[type=\"submit\"]");
     if(btn)
     {
         const originalHandler = addOrder.bind(btn);
@@ -29,9 +29,9 @@ document.querySelectorAll(".order-basket").forEach((function(forms)
                 basketLink.className = "btn btn-success d-flex align-items-center justify-content-center py-2 fw-bold rounded-3 w-100 mb-4";
                 basketLink.style.width = "fit-content";
                 basketLink.innerHTML = `\n                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart-check-fill" viewBox="0 0 16 16">\n                        <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-1.646-7.646-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708"/>\n                    </svg>\n                `;
-                btn.parentNode.replaceChild(basketLink, btn)
-            }), 500)
-        }))
+                btn.parentNode.replaceChild(basketLink, btn);
+            }), 500);
+        }));
     }
 }));
 executeFunc(initBasketDatepicker, 300);
@@ -39,16 +39,16 @@ executeFunc(initBasketDatepicker, 300);
 function initBasketDatepicker()
 {
 
-    var $elementDeliveryDate = document.querySelector('input[name*="[usr][delivery][deliveryDate]"]');
+    var $elementDeliveryDate = document.querySelector("input[name*=\"[usr][delivery][deliveryDate]\"]");
 
     if($elementDeliveryDate === null)
     {
-        return false
+        return false;
     }
 
     if(typeof MCDatepicker !== "object")
     {
-        return false
+        return false;
     }
 
 
@@ -63,31 +63,31 @@ function initBasketDatepicker()
     const limitDay = new Date(currentDate.setDate(currentDate.getDate() + (term * 1 + 7)));
 
     MCDatepicker.create({
-        el: "#" + $elementDeliveryDate.id,
-        bodyType: "modal",
-        autoClose: false,
-        closeOndblclick: true,
-        closeOnBlur: false,
-        customOkBTN: "OK",
-        customClearBTN: datapickerLang[$locale].customClearBTN,
-        customCancelBTN: datapickerLang[$locale].customCancelBTN,
-        firstWeekday: datapickerLang[$locale].firstWeekday,
-        dateFormat: "DD.MM.YYYY",
-        customWeekDays: datapickerLang[$locale].customWeekDays,
-        customMonths: datapickerLang[$locale].customMonths,
-        selectedDate: $selectedDate,
-        minDate: nextDay,
-        maxDate: limitDay
+        el : "#" + $elementDeliveryDate.id,
+        bodyType : "modal",
+        autoClose : false,
+        closeOndblclick : true,
+        closeOnBlur : false,
+        customOkBTN : "OK",
+        customClearBTN : datapickerLang[$locale].customClearBTN,
+        customCancelBTN : datapickerLang[$locale].customCancelBTN,
+        firstWeekday : datapickerLang[$locale].firstWeekday,
+        dateFormat : "DD.MM.YYYY",
+        customWeekDays : datapickerLang[$locale].customWeekDays,
+        customMonths : datapickerLang[$locale].customMonths,
+        selectedDate : $selectedDate,
+        minDate : nextDay,
+        maxDate : limitDay,
     });
 
 
-    return true
+    return true;
 }
 
 function resolve(forms)
 {
     if(forms === false)
-    {return}
+    {return;}
     if(forms.name === "order_product_form")
     {
         $userbasket = document.getElementById("user_basket");
@@ -95,9 +95,9 @@ function resolve(forms)
         {
             $userbasket.classList.remove("d-none");
             $counter = $userbasket.innerText * 1;
-            $userbasket.innerText = $counter + 1
+            $userbasket.innerText = $counter + 1;
         }
-        let btn = forms.querySelector('button[type="submit"]');
+        let btn = forms.querySelector("button[type=\"submit\"]");
         btn.classList.replace("btn-primary", "btn-outline-primary");
         btn.querySelector("span.basket-text").innerText = basketLang[$locale].btnAddede;
         btn.removeEventListener("click", addOrder, false);
@@ -105,8 +105,8 @@ function resolve(forms)
         {
             event.preventDefault();
             window.location.href = "/basket";
-            return false
-        }))
+            return false;
+        }));
     }
 }
 
@@ -123,34 +123,34 @@ document.querySelectorAll(".minus").forEach((function(btn)
             let result = inpt.value * 1;
             result = result - step;
             if(result <= 0)
-            {return}
+            {return;}
             document.getElementById(this.dataset.id).value = result;
             orderSum(result, this.dataset.id);
-            total()
+            total();
         }
 
         /** Изменение количества в корзине по клику */
 
         const price = document.getElementById(this.dataset.id);
-        const urlModify = price.dataset.urlModify
+        const urlModify = price.dataset.urlModify;
 
         if(urlModify)
         {
             if(parseInt(price.value) >= parseInt(price.dataset.min))
             {
                 fetch(urlModify, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: 'minus',
+                    method : "POST",
+                    body : JSON.stringify({
+                        action : "minus",
                     }),
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
+                    headers : {
+                        "X-Requested-With" : "XMLHttpRequest",
                     },
-                })
+                });
             }
         }
 
-    }))
+    }));
 }));
 
 
@@ -167,34 +167,34 @@ document.querySelectorAll(".plus").forEach((function(btn)
             let result = inpt.value * 1 + step;
             let max = inpt.dataset.max * 1;
             if(result > inpt.dataset.max)
-            {return}
+            {return;}
             document.getElementById(this.dataset.id).value = result;
             orderSum(result, this.dataset.id);
-            total()
+            total();
         }
 
         /** Изменение количества в корзине по клику */
 
         const price = document.getElementById(this.dataset.id);
-        const urlModify = price.dataset.urlModify
+        const urlModify = price.dataset.urlModify;
 
         if(urlModify)
         {
             if(parseInt(price.value) <= parseInt(price.dataset.max))
             {
                 fetch(urlModify, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: 'plus',
+                    method : "POST",
+                    body : JSON.stringify({
+                        action : "plus",
                     }),
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
+                    headers : {
+                        "X-Requested-With" : "XMLHttpRequest",
                     },
-                })
+                });
             }
         }
 
-    }))
+    }));
 }));
 
 document.querySelectorAll(".total").forEach((function(input)
@@ -202,10 +202,10 @@ document.querySelectorAll(".total").forEach((function(input)
     executeFunc((function initCounter()
     {
         if(typeof orderCounter.debounce !== "function")
-        {return false}
+        {return false;}
         input.addEventListener("input", orderCounter.debounce(300));
-        return true
-    }))
+        return true;
+    }));
 }));
 
 function orderCounter()
@@ -215,40 +215,40 @@ function orderCounter()
     if(result === 0)
     {
         result = step;
-        this.value = step
+        this.value = step;
     }
     let max = this.dataset.max * 1;
     let remainder = this.value % step;
     if(remainder !== 0)
     {
         if(result < step)
-        {this.value = step}
+        {this.value = step;}
         if(result > step)
-        {this.value = result - remainder}
+        {this.value = result - remainder;}
     }
     if(result > max)
-    {this.value = max}
+    {this.value = max;}
     orderSum(result, this.id);
-    total()
+    total();
 
     /** Изменение количества в корзине по вводу */
 
-    const urlModify = this.dataset.urlModify
+    const urlModify = this.dataset.urlModify;
 
     if(urlModify)
     {
         const change = JSON.stringify({
-            action: 'change',
-            quantity: Number(this.value),
-        })
+            action : "change",
+            quantity : Number(this.value),
+        });
 
         fetch(urlModify, {
-            method: "POST",
-            body: change,
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
+            method : "POST",
+            body : change,
+            headers : {
+                "X-Requested-With" : "XMLHttpRequest",
             },
-        })
+        });
     }
 
 
@@ -261,14 +261,14 @@ function orderSum(result, id)
     {
         let result_product_sum = result * product_summ.dataset.price;
         if(product_summ.dataset.discount)
-        {result_product_sum = result_product_sum - result_product_sum / 100 * product_summ.dataset.discount}
+        {result_product_sum = result_product_sum - result_product_sum / 100 * product_summ.dataset.discount;}
         result_product_sum = result_product_sum / 100;
         result_product_sum = new Intl.NumberFormat($locale, {
-            style: "currency",
-            currency: product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
-            maximumFractionDigits: 0
+            style : "currency",
+            currency : product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
+            maximumFractionDigits : 0,
         }).format(result_product_sum);
-        product_summ.innerText = result_product_sum
+        product_summ.innerText = result_product_sum;
     }
 }
 
@@ -287,37 +287,37 @@ function total()
         {
             let result_total_value = total_value * price;
             if(discount)
-            {result_total_value = result_total_value - result_total_value / 100 * discount}
+            {result_total_value = result_total_value - result_total_value / 100 * discount;}
             result_total = result_total + result_total_value;
-            total_count_sum += total_value
+            total_count_sum += total_value;
         }
     }));
     let total_count_result = document.querySelector(".total-count");
     total_count_result ? total_count_result.innerText = total_count_sum : false;
     result_total = result_total / 100;
     result_product_sum = new Intl.NumberFormat($locale, {
-        style: "currency",
-        currency: currency ? currency : "RUB",
-        maximumFractionDigits: 0
+        style : "currency",
+        currency : currency ? currency : "RUB",
+        maximumFractionDigits : 0,
     }).format(result_total);
     let total_result = document.getElementById("total_result");
     if(total_result)
-    {total_result.innerText = result_product_sum}
+    {total_result.innerText = result_product_sum;}
     let total_product_sum = document.getElementById("total_product_sum");
     if(total_product_sum)
-    {total_product_sum.innerText = result_product_sum}
-    let delivery = document.querySelector('input[name*="[users][delivery][delivery]"][checked="checked"]');
+    {total_product_sum.innerText = result_product_sum;}
+    let delivery = document.querySelector("input[name*=\"[users][delivery][delivery]\"][checked=\"checked\"]");
     if(delivery && delivery.dataset.price)
-    {result_total = delivery.dataset.price * 1 + result_total}
+    {result_total = delivery.dataset.price * 1 + result_total;}
     result_all_sum = new Intl.NumberFormat($locale, {
-        style: "currency",
-        currency: currency ? currency : "RUB",
-        maximumFractionDigits: 0
+        style : "currency",
+        currency : currency ? currency : "RUB",
+        maximumFractionDigits : 0,
     }).format(result_total);
     let total_all_sum = document.getElementById("total_all_sum");
     if(total_all_sum)
-    {total_all_sum.innerText = result_all_sum}
-    return true
+    {total_all_sum.innerText = result_all_sum;}
+    return true;
 }
 
 document.querySelectorAll(".delete-product").forEach((function(btn)
@@ -335,35 +335,38 @@ document.querySelectorAll(".delete-product").forEach((function(btn)
                 item.remove();
                 const remainingItems = document.querySelectorAll(".delete-product");
                 if(remainingItems.length === 0)
-                {location.reload()}
-                total()
-            }), 500)
+                {location.reload();}
+                total();
+            }), 500);
         }
-        submitLink(btn.href, btn.dataset.id)
-    }))
+        submitLink(btn.href, btn.dataset.id);
+    }));
 }));
 
-function success(id){document.getElementById(id)?.remove()}
+function success(id)
+{
+    document.getElementById(id)?.remove();
+}
 
-document.querySelectorAll('input[name*="[usr][userProfile][type]"]').forEach((function(userProfileType)
+document.querySelectorAll("input[name*=\"[usr][userProfile][type]\"]").forEach((function(userProfileType)
 {
     userProfileType.addEventListener("change", (function(event)
     {
         let forms = this.closest("form");
         submitOrderForm(forms);
-        return false
-    }))
+        return false;
+    }));
 }));
-document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach((function(userPayment)
+document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach((function(userPayment)
 {
     userPayment.addEventListener("change", (function(event)
     {
         let forms = this.closest("form");
         submitPaymentForm(forms);
-        return false
-    }))
+        return false;
+    }));
 }));
-document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach((function(userDelivery)
+document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach((function(userDelivery)
 {
     userDelivery.addEventListener("change", (function(event)
     {
@@ -371,8 +374,8 @@ document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach((f
 
         let forms = this.closest("form");
         submitDeliveryForm(forms);
-        return false
-    }))
+        return false;
+    }));
 }));
 document.querySelectorAll("select.change_region_field").forEach((function(userRegion)
 {
@@ -380,8 +383,8 @@ document.querySelectorAll("select.change_region_field").forEach((function(userRe
     {
         let forms = this.closest("form");
         submitRegionForm(forms, userRegion.id);
-        return false
-    }))
+        return false;
+    }));
 }));
 
 async function submitDeliveryForm(forms)
@@ -390,18 +393,18 @@ async function submitDeliveryForm(forms)
     data.delete(forms.name + "[_token]");
     data.delete(forms.name + "[usr][delivery][deliveryDate]");
     await fetch(forms.action, {
-        method: forms.method,
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: data
+        method : forms.method,
+        cache : "no-cache",
+        credentials : "same-origin",
+        headers : {"X-Requested-With" : "XMLHttpRequest"},
+        redirect : "follow",
+        referrerPolicy : "no-referrer",
+        body : data,
     }).then((response =>
     {
         if(response.status !== 200)
-        {return false}
-        return response.text()
+        {return false;}
+        return response.text();
     })).then((data =>
     {
         if(data)
@@ -412,7 +415,7 @@ async function submitDeliveryForm(forms)
             document.getElementById("user_delivery").replaceWith(user_delivery);
 
 
-            document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach((function(user_delivery)
+            document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach((function(user_delivery)
             {
                 user_delivery.addEventListener("change", (function(event)
                 {
@@ -420,8 +423,8 @@ async function submitDeliveryForm(forms)
 
                     let forms = this.closest("form");
                     submitDeliveryForm(forms);
-                    return false
-                }))
+                    return false;
+                }));
             }));
 
 
@@ -431,13 +434,16 @@ async function submitDeliveryForm(forms)
                 {
                     let forms = this.closest("form");
                     submitRegionForm(forms, userRegion.id);
-                    return false
-                }))
+                    return false;
+                }));
             }));
 
 
-            var tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map((function(tooltipTriggerEl){return new bootstrap.Tooltip(tooltipTriggerEl)}));
+            var tooltipTriggerList = [].slice.call(user_delivery.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map((function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }));
             total();
             document.querySelector("[data-latitude]").value = "";
             document.querySelector("[data-longitude]").value = "";
@@ -448,16 +454,16 @@ async function submitDeliveryForm(forms)
             executeFunc((function OxMvRIBczY()
             {
                 if(typeof initAdddress !== "function")
-                {return false}
+                {return false;}
                 initAdddress();
-                return true
+                return true;
             }));
 
         }
 
 
     }));
-    return false
+    return false;
 }
 
 async function submitRegionForm(forms, id)
@@ -465,18 +471,18 @@ async function submitRegionForm(forms, id)
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
     await fetch(forms.action, {
-        method: forms.method,
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: data
+        method : forms.method,
+        cache : "no-cache",
+        credentials : "same-origin",
+        headers : {"X-Requested-With" : "XMLHttpRequest"},
+        redirect : "follow",
+        referrerPolicy : "no-referrer",
+        body : data,
     }).then((response =>
     {
         if(response.status !== 200)
-        {return false}
-        return response.text()
+        {return false;}
+        return response.text();
     })).then((data =>
     {
         if(data)
@@ -491,16 +497,16 @@ async function submitRegionForm(forms, id)
             executeFunc((function ZJzxDhmvtC()
             {
                 if(typeof initAdddress !== "function")
-                {return false}
+                {return false;}
                 initAdddress();
-                return true
+                return true;
             }));
             let delivery_call = document.querySelector("#" + forms.name + "_usr_delivery_field_0_value_call");
             if(delivery_call)
-            {new NiceSelect(delivery_call, {searchable: true})}
+            {new NiceSelect(delivery_call, {searchable : true});}
         }
     }));
-    return false
+    return false;
 }
 
 async function submitPaymentForm(forms)
@@ -508,18 +514,18 @@ async function submitPaymentForm(forms)
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
     await fetch(forms.action, {
-        method: forms.method,
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: data
+        method : forms.method,
+        cache : "no-cache",
+        credentials : "same-origin",
+        headers : {"X-Requested-With" : "XMLHttpRequest"},
+        redirect : "follow",
+        referrerPolicy : "no-referrer",
+        body : data,
     }).then((response =>
     {
         if(response.status !== 200)
-        {return false}
-        return response.text()
+        {return false;}
+        return response.text();
     })).then((data =>
     {
         if(data)
@@ -528,20 +534,23 @@ async function submitPaymentForm(forms)
             var doc = parser.parseFromString(data, "text/html");
             let user_payment = doc.getElementById("user_payment");
             document.getElementById("user_payment").replaceWith(user_payment);
-            document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach((function(user_payment)
+            document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach((function(user_payment)
             {
                 user_payment.addEventListener("change", (function(event)
                 {
                     let forms = this.closest("form");
                     submitPaymentForm(forms);
-                    return false
-                }))
+                    return false;
+                }));
             }));
-            var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map((function(tooltipTriggerEl){return new bootstrap.Tooltip(tooltipTriggerEl)}))
+            var tooltipTriggerList = [].slice.call(user_payment.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map((function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }));
         }
     }));
-    return false
+    return false;
 }
 
 async function submitOrderForm(forms)
@@ -549,18 +558,18 @@ async function submitOrderForm(forms)
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
     await fetch(forms.action, {
-        method: forms.method,
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: data
+        method : forms.method,
+        cache : "no-cache",
+        credentials : "same-origin",
+        headers : {"X-Requested-With" : "XMLHttpRequest"},
+        redirect : "follow",
+        referrerPolicy : "no-referrer",
+        body : data,
     }).then((response =>
     {
         if(response.status !== 200)
-        {return false}
-        return response.text()
+        {return false;}
+        return response.text();
     })).then((data =>
     {
         if(data)
@@ -571,26 +580,26 @@ async function submitOrderForm(forms)
             document.getElementById("user_profile").replaceWith(user_profile);
             let user_payment = doc.getElementById("user_payment");
             document.getElementById("user_payment").replaceWith(user_payment);
-            document.querySelectorAll('input[name*="[usr][payment][payment]"]').forEach((function(userPayment)
+            document.querySelectorAll("input[name*=\"[usr][payment][payment]\"]").forEach((function(userPayment)
             {
                 userPayment.addEventListener("change", (function(event)
                 {
                     let replaceId = "user_profile";
                     let forms = this.closest("form");
                     submitPaymentForm(forms);
-                    return false
-                }))
+                    return false;
+                }));
             }));
             let user_delivery = doc.getElementById("user_delivery");
             document.getElementById("user_delivery").replaceWith(user_delivery);
-            document.querySelectorAll('input[name*="[usr][delivery][delivery]"]').forEach((function(user_delivery)
+            document.querySelectorAll("input[name*=\"[usr][delivery][delivery]\"]").forEach((function(user_delivery)
             {
                 user_delivery.addEventListener("change", (function(event)
                 {
                     let forms = this.closest("form");
                     submitDeliveryForm(forms);
-                    return false
-                }))
+                    return false;
+                }));
             }));
             total();
             document.querySelectorAll("select.change_region_field").forEach((function(userRegion)
@@ -599,11 +608,14 @@ async function submitOrderForm(forms)
                 {
                     let forms = this.closest("form");
                     submitRegionForm(forms, userRegion.id);
-                    return false
-                }))
+                    return false;
+                }));
             }));
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map((function(tooltipTriggerEl){return new bootstrap.Tooltip(tooltipTriggerEl)}));
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+            tooltipTriggerList.map((function(tooltipTriggerEl)
+            {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }));
 
 
             executeFunc(initBasketDatepicker, 300);
@@ -611,5 +623,5 @@ async function submitOrderForm(forms)
 
         }
     }));
-    return false
+    return false;
 }

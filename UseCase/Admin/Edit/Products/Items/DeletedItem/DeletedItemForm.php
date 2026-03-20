@@ -47,8 +47,8 @@ final class DeletedItemForm extends AbstractType
                 },
                 function(string $id) {
                     return new OrderProductItemUid($id);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('product', HiddenType::class);
@@ -60,8 +60,8 @@ final class DeletedItemForm extends AbstractType
                 },
                 function(string $product) {
                     return new OrderProductUid($product);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('const', HiddenType::class);
@@ -73,8 +73,8 @@ final class DeletedItemForm extends AbstractType
                 },
                 function(string $const) {
                     return new OrderProductItemConst($const);
-                }
-            )
+                },
+            ),
         );
     }
 

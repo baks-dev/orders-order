@@ -55,21 +55,21 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
             'stock_order',
             Order::class,
             'ord',
-            'ord.id = stock_order.ord'
+            'ord.id = stock_order.ord',
         );
 
         $qbOrder->join(
             'ord',
             OrderEvent::class,
             'event',
-            'event.id = ord.event'
+            'event.id = ord.event',
         );
 
         $qbOrder->join(
             'event',
             OrderUser::class,
             'users',
-            'users.event = event.id'
+            'users.event = event.id',
         );
 
         /* Геоданные доставки заказа */
@@ -80,7 +80,7 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
             'users',
             OrderDelivery::class,
             'delivery',
-            'delivery.usr = users.id'
+            'delivery.usr = users.id',
         );
 
         $qbOrder->where('stock_order.event = :event');
@@ -98,7 +98,7 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
             'stock_move',
             ContactsRegionCall::class,
             'call',
-            'call.const = stock_move.destination '
+            'call.const = stock_move.destination ',
         );
 
         /* Геоданные склада перемещения */
@@ -109,14 +109,14 @@ final class OrderDeliveryRepository implements OrderDeliveryInterface
             'call',
             ContactsRegion::class,
             'region',
-            'region.event = call.event'
+            'region.event = call.event',
         );
 
         $qbMove->join(
             'call',
             ContactsRegionCallInfo::class,
             'call_info',
-            'call_info.call = call.id'
+            'call_info.call = call.id',
         );
 
         $qbMove->where('stock_move.event = :event');

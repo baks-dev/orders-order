@@ -200,6 +200,19 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
+    /**
+     * Метод возвращает событие самого старого (более актуального) нового заказа
+     * на указанный способ доставки и в котором имеется указанная продукция
+     */
+    public function find(): OrderEvent|false
+    {
+        $orm = $this->builder();
+
+        $orm->setMaxResults(1);
+
+        return $orm->getOneOrNullResult() ?: false;
+    }
+
     private function builder(): ORMQueryBuilder
     {
         if(false === $this->delivery)
@@ -231,7 +244,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
             ->setParameter(
                 key: 'status',
                 value: $this->status,
-                type: OrderStatus::TYPE
+                type: OrderStatus::TYPE,
             );
 
         $orm
@@ -252,7 +265,7 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
             ->setParameter(
                 key: 'delivery',
                 value: $this->delivery,
-                type: DeliveryUid::TYPE
+                type: DeliveryUid::TYPE,
             );
 
 
@@ -267,12 +280,12 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
                     product.offer '.(false === $this->offer ? ' IS NULL' : ' = :offer').' AND
                     product.variation '.(false === $this->variation ? ' IS NULL' : ' = :variation').' AND
                     product.modification '.(false === $this->modification ? ' IS NULL' : ' = :modification').'
-                '
+                ',
             )
             ->setParameter(
                 key: 'product',
                 value: $this->product,
-                type: ProductEventUid::TYPE
+                type: ProductEventUid::TYPE,
             );
 
 
@@ -301,19 +314,6 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         $orm->orderBy('delivery.deliveryDate');
 
         return $orm;
-    }
-
-    /**
-     * Метод возвращает событие самого старого (более актуального) нового заказа
-     * на указанный способ доставки и в котором имеется указанная продукция
-     */
-    public function find(): OrderEvent|false
-    {
-        $orm = $this->builder();
-
-        $orm->setMaxResults(1);
-
-        return $orm->getOneOrNullResult() ?: false;
     }
 
     /**

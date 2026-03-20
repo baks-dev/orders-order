@@ -57,6 +57,7 @@ final class NewOrderDTO implements OrderEventInterface
 
     /**
      * Коллекция продукции в заказе
+     *
      * @var ArrayCollection<int, OrderServiceDTO> $serv
      */
     #[Assert\Valid]
@@ -242,14 +243,14 @@ final class NewOrderDTO implements OrderEventInterface
         return $this;
     }
 
+    public function getPosting(): NewOrderPostingDTO
+    {
+        return $this->posting;
+    }
+
     public function setPosting(NewOrderPostingDTO $posting): NewOrderDTO
     {
         $this->posting = $posting;
         return $this;
-    }
-
-    public function getPosting(): NewOrderPostingDTO
-    {
-        return $this->posting;
     }
 }

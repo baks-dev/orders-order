@@ -85,6 +85,30 @@ final class UpdateOrderProfileRepository implements UpdateOrderProfileInterface
         return $this;
     }
 
+    /**
+     * Метод сбрасывает идентификаторы ответственных профилей заказов старше 1 часа
+     */
+    public function reset(): int|string
+    {
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $dbal->update(OrderEvent::class);
+
+        $dbal
+            ->set('profile', ':profile')
+            ->setParameter('profile', null);
+
+        $status = new OrderStatus(OrderStatusNew::class);
+
+        $dbal
+            ->andWhere("profile IS NOT NULL")
+            ->andWhere("created < NOW() - INTERVAL '1 hour'")
+            ->andWhere("status = :status")
+            ->setParameter('status', $status, OrderStatus::TYPE);
+
+
+        return $dbal->executeStatement();
+    }
 
     /**
      * Метод обновляет профиль пользователя ответственного лица
@@ -123,31 +147,6 @@ final class UpdateOrderProfileRepository implements UpdateOrderProfileInterface
 
         return $dbal->executeStatement();
 
-    }
-
-    /**
-     * Метод сбрасывает идентификаторы ответственных профилей заказов старше 1 часа
-     */
-    public function reset(): int|string
-    {
-        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-
-        $dbal->update(OrderEvent::class);
-
-        $dbal
-            ->set('profile', ':profile')
-            ->setParameter('profile', null);
-
-        $status = new OrderStatus(OrderStatusNew::class);
-
-        $dbal
-            ->andWhere("profile IS NOT NULL")
-            ->andWhere("created < NOW() - INTERVAL '1 hour'")
-            ->andWhere("status = :status")
-            ->setParameter('status', $status, OrderStatus::TYPE);
-
-
-        return $dbal->executeStatement();
     }
 
 }

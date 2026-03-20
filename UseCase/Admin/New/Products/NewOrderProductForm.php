@@ -51,8 +51,8 @@ final class NewOrderProductForm extends AbstractType
                 },
                 function($product) {
                     return new ProductEventUid($product);
-                }
-            )
+                },
+            ),
         );
 
         // Торговое предложение
@@ -66,8 +66,8 @@ final class NewOrderProductForm extends AbstractType
                 },
                 function($offer) {
                     return $offer ? new ProductOfferUid($offer) : null;
-                }
-            )
+                },
+            ),
         );
 
         // Множественный вариант
@@ -81,8 +81,8 @@ final class NewOrderProductForm extends AbstractType
                 },
                 function($variation) {
                     return $variation ? new ProductVariationUid($variation) : null;
-                }
-            )
+                },
+            ),
         );
 
         // Модификация множественного варианта
@@ -97,8 +97,8 @@ final class NewOrderProductForm extends AbstractType
                 function($modification) {
 
                     return $modification ? new ProductModificationUid($modification) : null;
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('price', Price\NewOrderPriceForm::class);
@@ -107,7 +107,7 @@ final class NewOrderProductForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => NewOrderProductDTO::class
+            'data_class' => NewOrderProductDTO::class,
         ]);
     }
 }

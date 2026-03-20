@@ -78,7 +78,7 @@ final class ValueForm extends AbstractType
                         $form->add('value', $fieldType->form(), $options);
                     }
                 }
-            }
+            },
         );
     }
 
@@ -89,7 +89,7 @@ final class ValueForm extends AbstractType
             [
                 'data_class' => ValueDTO::class,
                 'fields' => null,
-            ]
+            ],
         );
     }
 }

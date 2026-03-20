@@ -46,8 +46,8 @@ final class SalesInvoiceOrderForm extends AbstractType
                 },
                 function($order) {
                     return $order ? new OrderUid($order) : null;
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('number', HiddenType::class);

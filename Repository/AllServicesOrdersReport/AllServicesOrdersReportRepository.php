@@ -56,13 +56,6 @@ final class AllServicesOrdersReportRepository implements AllServicesOrdersReport
         private readonly DBALQueryBuilder $DBALQueryBuilder,
     ) {}
 
-    public function from(DateTimeImmutable $from): self
-    {
-        $this->from = $from;
-
-        return $this;
-    }
-
     public function to(DateTimeImmutable $to): self
     {
         $this->to = $to;
@@ -111,7 +104,7 @@ final class AllServicesOrdersReportRepository implements AllServicesOrdersReport
             ->setParameter(
                 key: 'status',
                 value: OrderStatusCompleted::STATUS,
-                type: OrderStatus::TYPE
+                type: OrderStatus::TYPE,
             );
 
 
@@ -209,7 +202,7 @@ final class AllServicesOrdersReportRepository implements AllServicesOrdersReport
             ->leftJoin('service',
                 ServicePrice::class,
                 'service_price',
-                'service.event = service_price.event'
+                'service.event = service_price.event',
             );
 
 
@@ -220,6 +213,13 @@ final class AllServicesOrdersReportRepository implements AllServicesOrdersReport
         $result = $dbal->fetchAllHydrate(AllServicesOrdersReportResult::class);
 
         return $result->valid() ? $result : false;
+    }
+
+    public function from(DateTimeImmutable $from): self
+    {
+        $this->from = $from;
+
+        return $this;
     }
 
 }

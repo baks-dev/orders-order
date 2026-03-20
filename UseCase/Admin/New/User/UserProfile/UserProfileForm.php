@@ -50,23 +50,22 @@ final class UserProfileForm extends AbstractType
         $profileChoice = $this->profileChoice->getActiveTypeProfileChoice();
         $profileChoice = iterator_to_array($profileChoice);
 
-    $builder
-        ->add('type', ChoiceType::class, [
-            'choices' => $profileChoice,
-            'choice_value' => function(?TypeProfileUid $type)
-            {
-                return $type?->getValue();
-            },
-            'choice_label' => function(TypeProfileUid $type) {
-                return $type->getAttr();
-            },
+        $builder
+            ->add('type', ChoiceType::class, [
+                'choices' => $profileChoice,
+                'choice_value' => function(?TypeProfileUid $type) {
+                    return $type?->getValue();
+                },
+                'choice_label' => function(TypeProfileUid $type) {
+                    return $type->getAttr();
+                },
 
-            'attr' => ['class' => 'd-flex gap-3'],
-            'label' => false,
-            'expanded' => false,
-            'multiple' => false,
-            'required' => true,
-        ]);
+                'attr' => ['class' => 'd-flex gap-3'],
+                'label' => false,
+                'expanded' => false,
+                'multiple' => false,
+                'required' => true,
+            ]);
 
         $builder->add('value', CollectionType::class, [
             'entry_type' => Value\ValueForm::class,
@@ -121,7 +120,7 @@ final class UserProfileForm extends AbstractType
 
 
                 }
-            }
+            },
         );
 
 
@@ -163,11 +162,11 @@ final class UserProfileForm extends AbstractType
                         'userProfile',
                         self::class,
                         [
-                            'label' => false
-                        ]
+                            'label' => false,
+                        ],
                     );
                 }
-            }
+            },
         );
     }
 
@@ -180,7 +179,7 @@ final class UserProfileForm extends AbstractType
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
                 'user_profile_type' => null,
-            ]
+            ],
         );
     }
 

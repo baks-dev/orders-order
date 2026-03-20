@@ -46,7 +46,7 @@
         setTimeout(function SpgGHaQzun()
         {
 
-            if(typeof centrifuge !== 'object')
+            if(typeof centrifuge !== "object")
             {
                 if(TTmzCXyCq > 1000) { return; }
 
@@ -55,7 +55,7 @@
             }
 
 
-            centrifuge.newSubscription('orders').on('publication', function(ctx)
+            centrifuge.newSubscription("orders").on("publication", function(ctx)
             {
                 if(ctx.data.profile !== '{{ current_profile }}')
                 {
@@ -70,7 +70,7 @@
 
             {% if opens %}
 
-                centrifuge.newSubscription('{{ opens.order_event }}').on('publication', function(ctx)
+                centrifuge.newSubscription('{{ opens.order_event }}').on("publication", function(ctx)
                 {
                     document.getElementById('product-{{ opens.order_event }}').innerHTML = ctx.data.product;
 
@@ -97,12 +97,12 @@
         /** Сокеты */
         setTimeout(function SpgGHaQzun()
         {
-            if(typeof Centrifuge === 'function')
+            if(typeof Centrifuge === "function")
             {
                 // /** Удаляем из списка у всех продукт */
-                centrifuge.newSubscription('remove').on('publication', function(ctx)
+                centrifuge.newSubscription("remove").on("publication", function(ctx)
                 {
-                    $identifier = document.getElementById('card-' + ctx.data.identifier);
+                    $identifier = document.getElementById("card-" + ctx.data.identifier);
                     if($identifier)
                     { $identifier.remove(); }
                 }).subscribe();

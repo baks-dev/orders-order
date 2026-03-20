@@ -65,7 +65,7 @@ final class ExistsOrderProductRepository implements ExistsOrderProductInterface
             'event',
             Order::class,
             'ord',
-            'ord.event = event.id'
+            'ord.event = event.id',
         );
 
 
@@ -74,7 +74,7 @@ final class ExistsOrderProductRepository implements ExistsOrderProductInterface
                 'event',
                 OrderProduct::class,
                 'product',
-                'product.event = event.id'
+                'product.event = event.id',
             );
 
         $dbal

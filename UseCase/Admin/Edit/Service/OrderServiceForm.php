@@ -74,7 +74,7 @@ final class OrderServiceForm extends AbstractType
         $builder->add('money', MoneyType::class,
             [
                 'attr' => [
-                    'data-min' => new Money(1)
+                    'data-min' => new Money(1),
                 ],
                 'label' => 'Цена',
                 'currency' => false,
@@ -169,7 +169,7 @@ final class OrderServiceForm extends AbstractType
 
                             $data = [
                                 'time' => $period->getFrom()->format('H:i').' - '.$period->getTo()->format('H:i'),
-                                'active' => $period->isOrderServiceActive()
+                                'active' => $period->isOrderServiceActive(),
                             ];
 
                             return new ServicePeriodUid($period->getPeriodId(), $data);
@@ -213,7 +213,7 @@ final class OrderServiceForm extends AbstractType
 
 
                 }
-            }
+            },
         );
     }
 

@@ -79,7 +79,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                 '
                     service_event.main = service.id  
                     AND
-                    service_event.main = :serv'
+                    service_event.main = :serv',
             )
             ->setParameter(
                 key: 'serv',
@@ -118,7 +118,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                     '
                         service_invariable.main = service.id
                         AND
-                        service_invariable.profile = :profile'
+                        service_invariable.profile = :profile',
                 );
 
             $dbal->setParameter(
@@ -136,7 +136,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                 'service',
                 ServicePrice::class,
                 'service_price',
-                'service_price.event = service.event'
+                'service_price.event = service.event',
             );
 
         /** Info */
@@ -147,7 +147,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                 'service',
                 ServiceInfo::class,
                 'service_info',
-                'service_info.event = service.event'
+                'service_info.event = service.event',
             );
 
         /** Period */
@@ -158,7 +158,7 @@ final class OneServiceByIdRepository implements OneServiceByIdInterface
                 'service',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = service.event'
+                'service_period.event = service.event',
             );
 
         return $dbal->fetchHydrate(OneServiceByIdResult::class);

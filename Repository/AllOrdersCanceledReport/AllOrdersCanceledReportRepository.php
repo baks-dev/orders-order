@@ -70,13 +70,6 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
 
     public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
-    public function from(DateTimeImmutable $from): self
-    {
-        $this->from = $from;
-
-        return $this;
-    }
-
     public function to(DateTimeImmutable $to): self
     {
         $this->to = $to;
@@ -445,6 +438,13 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
         $result = $dbal->fetchAllHydrate(AllOrdersCanceledReportResult::class);
 
         return $result->valid() ? $result : false;
+    }
+
+    public function from(DateTimeImmutable $from): self
+    {
+        $this->from = $from;
+
+        return $this;
     }
 
 }

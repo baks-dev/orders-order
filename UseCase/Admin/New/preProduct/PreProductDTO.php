@@ -139,6 +139,11 @@ final class PreProductDTO
         return $this;
     }
 
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
+
     /**
      * Discount
      */
@@ -146,10 +151,5 @@ final class PreProductDTO
     {
         $this->discount = $discount;
         return $this;
-    }
-
-    public function getDiscount(): ?int
-    {
-        return $this->discount;
     }
 }

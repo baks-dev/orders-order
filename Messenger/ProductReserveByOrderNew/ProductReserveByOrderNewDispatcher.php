@@ -71,7 +71,7 @@ final readonly class ProductReserveByOrderNewDispatcher
             ->namespace('orders-order')
             ->deduplication([
                 (string) $message->getId(),
-                self::class
+                self::class,
             ]);
 
         if($Deduplicator->isExecuted())
@@ -86,7 +86,7 @@ final readonly class ProductReserveByOrderNewDispatcher
         {
             $this->logger->critical(
                 message: 'products-sign: Не найдено событие OrderEvent',
-                context: [self::class.':'.__LINE__, var_export($message, true)]
+                context: [self::class.':'.__LINE__, var_export($message, true)],
             );
 
             return;
@@ -112,7 +112,7 @@ final readonly class ProductReserveByOrderNewDispatcher
             {
                 $this->logger->critical(
                     message: 'orders-order: Не найдено событие OrderEvent',
-                    context: [self::class.':'.__LINE__, var_export($message, true)]
+                    context: [self::class.':'.__LINE__, var_export($message, true)],
                 );
 
                 return;
@@ -168,13 +168,13 @@ final readonly class ProductReserveByOrderNewDispatcher
                     message: sprintf(
                         '%s: Снимаем резерв в карточке товара для заказа со статусом %s',
                         $OrderEvent->getOrderNumber(),
-                        $OrderEvent->getStatus()->getOrderStatusValue()
+                        $OrderEvent->getStatus()->getOrderStatusValue(),
                     ),
                     context: [
                         self::class.':'.__LINE__,
                         'deduplicator' => $Deduplicator->getKey(),
                         var_export($message, true),
-                    ]
+                    ],
                 );
 
                 $EditOrderDTO = new EditOrderDTO();
@@ -197,12 +197,12 @@ final readonly class ProductReserveByOrderNewDispatcher
                         $this->logger->debug(
                             message: sprintf(
                                 '%s: Снимаем резерв в карточке по количеству ЕДИНИЦ продукции',
-                                $EditOrderDTO->getInvariable()->getNumber()
+                                $EditOrderDTO->getInvariable()->getNumber(),
                             ),
                             context: [
                                 '$productTotal' => $productTotal,
                                 '$itemsCount' => $itemsCount,
-                                self::class.':'.__LINE__
+                                self::class.':'.__LINE__,
                             ],
                         );
                     }
@@ -229,8 +229,8 @@ final readonly class ProductReserveByOrderNewDispatcher
                             $product->getOffer(),
                             $product->getVariation(),
                             $product->getModification(),
-                            $total
-                        )
+                            $total,
+                        ),
                     );
                 }
 
@@ -252,13 +252,13 @@ final readonly class ProductReserveByOrderNewDispatcher
         $this->logger->info(
             message: sprintf('%s Добавляем резерв в карточке товара для заказ со статусом `%s`',
                 $OrderEvent->getOrderNumber(),
-                $OrderEvent->getStatus()->getOrderStatusValue()
+                $OrderEvent->getStatus()->getOrderStatusValue(),
             ),
             context: [
                 self::class.':'.__LINE__,
                 'deduplicator' => $Deduplicator->getKey(),
                 var_export($message, true),
-            ]
+            ],
         );
 
         /** Заказ */
@@ -282,7 +282,7 @@ final readonly class ProductReserveByOrderNewDispatcher
                 $this->logger->info(
                     message: sprintf(
                         '%s Добавляем резерв в соответствии с количеством ЕДИНИЦ продукции',
-                        $EditOrderDTO->getInvariable()->getNumber()
+                        $EditOrderDTO->getInvariable()->getNumber(),
                     ),
                     context: [
                         '$productTotal' => $productTotal,
@@ -298,7 +298,7 @@ final readonly class ProductReserveByOrderNewDispatcher
                     context: [
                         '$productTotal' => $productTotal,
                         '$itemsCount' => $itemsCount,
-                        self::class.':'.__LINE__
+                        self::class.':'.__LINE__,
                     ],
                 );
 
@@ -315,7 +315,7 @@ final readonly class ProductReserveByOrderNewDispatcher
                     $product->getModification(),
                     $total,
                     $OrderEvent->getOrderNumber(),
-                )
+                ),
             );
         }
 

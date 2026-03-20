@@ -208,6 +208,7 @@ final class NewController extends AbstractController
 
                         /**
                          * Номер постинга (разделенного заказа) с постфиксом
+                         *
                          * @note Номер у разделенных заказов общий
                          */
                         $orderNumberPostfix += 1;

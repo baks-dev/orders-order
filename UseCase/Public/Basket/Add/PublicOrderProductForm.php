@@ -40,7 +40,7 @@ final class PublicOrderProductForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => PublicOrderProductDTO::class,
-            'attr' => ['class' => 'order-basket']
+            'attr' => ['class' => 'order-basket'],
         ]);
     }
 

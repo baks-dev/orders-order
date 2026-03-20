@@ -71,7 +71,7 @@ final class GetOldestUnpaidOrderRepository implements GetOldestUnpaidOrderInterf
                 OrderInvariable::class,
                 'invariable',
                 'WITH',
-                'invariable.event = event.id AND invariable.profile = :seller'
+                'invariable.event = event.id AND invariable.profile = :seller',
             )
             ->setParameter('seller', $this->seller, UserProfileUid::TYPE);
 
@@ -79,7 +79,7 @@ final class GetOldestUnpaidOrderRepository implements GetOldestUnpaidOrderInterf
             OrderUser::class,
             'user',
             'WITH',
-            'user.event = event.id'
+            'user.event = event.id',
         );
 
         $orm
@@ -87,7 +87,7 @@ final class GetOldestUnpaidOrderRepository implements GetOldestUnpaidOrderInterf
                 UserProfileEvent::class,
                 'profile_event',
                 'WITH',
-                'profile_event.profile = :profile'
+                'profile_event.profile = :profile',
             )
             ->setParameter('profile', $this->profile, UserProfileUid::TYPE);
 

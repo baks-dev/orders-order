@@ -91,19 +91,19 @@ class OrderService extends EntityEvent
     }
 
     /**
-     * Id
-     */
-    public function getId(): OrderServiceUid
-    {
-        return $this->id;
-    }
-
-    /**
      * Event
      */
     public function getEvent(): OrderEventUid
     {
         return $this->event->getId();
+    }
+
+    /**
+     * Id
+     */
+    public function getId(): OrderServiceUid
+    {
+        return $this->id;
     }
 
     public function getDto($dto): mixed

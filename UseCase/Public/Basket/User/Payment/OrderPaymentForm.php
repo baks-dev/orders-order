@@ -71,8 +71,8 @@ final class OrderPaymentForm extends AbstractType
                 function($payment) {
 
                     return new PaymentUid($payment);
-                }
-            )
+                },
+            ),
         );
 
         $builder->addEventListener(
@@ -168,7 +168,7 @@ final class OrderPaymentForm extends AbstractType
                     }
 
                 }
-            }
+            },
         );
 
     }

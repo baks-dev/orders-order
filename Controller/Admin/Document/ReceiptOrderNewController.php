@@ -65,7 +65,7 @@ final class ReceiptOrderNewController extends AbstractController
         }
 
         return $this->render([
-            'orders' => $this->orders
+            'orders' => $this->orders,
         ]);
     }
 }

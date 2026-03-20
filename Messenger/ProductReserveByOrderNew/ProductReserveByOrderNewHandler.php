@@ -36,6 +36,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Добавляет резерв в КАРТОЧКЕ товара
+ *
  * @note Работа с резервами в карточке - самый высокий приоритет
  */
 #[Autoconfigure(shared: false)]

@@ -59,7 +59,7 @@ class ProductReserveByOrderCancelDebugTest extends KernelTestCase
             new OrderMessage(
                 new OrderUid('019b4ab4-9e7a-7230-8381-d5ebff9a95eb'),
                 new OrderEventUid('019b4ab5-5133-74b0-9222-f5b258f1d005'),
-                null)
+                null),
         );
 
     }

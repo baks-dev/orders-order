@@ -123,15 +123,6 @@ final class OrderDetailRepository implements OrderDetailInterface
     }
 
     /**
-     * Фильтр по заказу
-     */
-    public function onOrder(OrderUid $order): self
-    {
-        $this->order = $order;
-        return $this;
-    }
-
-    /**
      * Фильтр по профилю
      */
     public function forProfile(UserProfileUid $profile): self
@@ -153,37 +144,6 @@ final class OrderDetailRepository implements OrderDetailInterface
         $builder = $this->builder();
 
         return $builder->fetchHydrate(OrderDetailResult::class);
-    }
-
-    /**
-     * Метод возвращает Generator с информацией об заказах
-     */
-    public function findAll(): Generator|false
-    {
-        if(false === is_array($this->orders))
-        {
-            throw new InvalidArgumentException('Не передан обязательный параметр запроса orders');
-        }
-
-        $builder = $this->builder();
-        $this->orders = null;
-
-        $result = $builder->fetchAllHydrate(OrderDetailResult::class);
-
-        return true === $result->valid() ? $result : false;
-    }
-
-    /**
-     * @deprecated
-     * Метод возвращает Result с информацией об заказе
-     */
-    public function fetchDetailOrderAssociative(OrderUid $order): array|null
-    {
-        $this->onOrder($order);
-
-        $builder = $this->builder();
-
-        return $builder->fetchAssociative() ?: null;
     }
 
     public function builder(): DBALQueryBuilder
@@ -910,5 +870,45 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal->allGroupByExclude();
 
         return $dbal;
+    }
+
+    /**
+     * Метод возвращает Generator с информацией об заказах
+     */
+    public function findAll(): Generator|false
+    {
+        if(false === is_array($this->orders))
+        {
+            throw new InvalidArgumentException('Не передан обязательный параметр запроса orders');
+        }
+
+        $builder = $this->builder();
+        $this->orders = null;
+
+        $result = $builder->fetchAllHydrate(OrderDetailResult::class);
+
+        return true === $result->valid() ? $result : false;
+    }
+
+    /**
+     * @deprecated
+     * Метод возвращает Result с информацией об заказе
+     */
+    public function fetchDetailOrderAssociative(OrderUid $order): array|null
+    {
+        $this->onOrder($order);
+
+        $builder = $this->builder();
+
+        return $builder->fetchAssociative() ?: null;
+    }
+
+    /**
+     * Фильтр по заказу
+     */
+    public function onOrder(OrderUid $order): self
+    {
+        $this->order = $order;
+        return $this;
     }
 }

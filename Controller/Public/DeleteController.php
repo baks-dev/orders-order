@@ -127,7 +127,7 @@ class DeleteController extends AbstractController
                 $this->addFlash(
                     $Event->getOption(),
                     'user.basket.success.delete',
-                    'user.order'
+                    'user.order',
                 );
 
                 return $this->redirectToRoute('orders-order:public.basket', status: 200);
@@ -140,7 +140,7 @@ class DeleteController extends AbstractController
                     'message' => $translator->trans('user.basket.success.delete', domain: 'user.order'),
                     'status' => 200,
                 ],
-                200
+                200,
             );
         }
 
@@ -156,7 +156,7 @@ class DeleteController extends AbstractController
                 'message' => $translator->trans('user.basket.danger.delete', domain: 'user.order'),
                 'status' => 400,
             ],
-            400
+            400,
         );
     }
 }

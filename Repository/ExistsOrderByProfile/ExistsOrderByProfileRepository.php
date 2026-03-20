@@ -30,9 +30,9 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Products\Product\Entity\Event\ProductEvent;
 
 final readonly class ExistsOrderByProfileRepository implements ExistsOrderByProfileInterface
 {
@@ -56,7 +56,7 @@ final readonly class ExistsOrderByProfileRepository implements ExistsOrderByProf
             'invariable',
             OrderEvent::class,
             'event',
-            'event.id = invariable.event'
+            'event.id = invariable.event',
         );
 
         if($status instanceof OrderStatus)
@@ -72,7 +72,7 @@ final readonly class ExistsOrderByProfileRepository implements ExistsOrderByProf
                 'event',
                 OrderProduct::class,
                 'order_product',
-                'order_product.event = event.id'
+                'order_product.event = event.id',
             );
 
             $dbal
@@ -80,7 +80,7 @@ final readonly class ExistsOrderByProfileRepository implements ExistsOrderByProf
                     'order_product',
                     ProductEvent::class,
                     'product_event',
-                    'product_event.id = order_product.product AND product_event.main = :product'
+                    'product_event.id = order_product.product AND product_event.main = :product',
                 )
                 ->setParameter('product', $product, ProductUid::TYPE);
         }

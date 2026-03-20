@@ -29,7 +29,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 
 final class PackageOrdersOrderDTO
 {
-  private OrderUid $id;
+    private OrderUid $id;
 
     public function getId(): OrderUid
     {

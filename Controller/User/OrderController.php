@@ -58,6 +58,7 @@ class OrderController extends AbstractController
         /**
          * Проверка соответствия переданного статуса системным статусам.
          * Если передан несуществующий статус ->
+         *
          * @throws InvalidArgumentException
          */
         if(false === empty($status))

@@ -45,8 +45,8 @@ final class StatusOrderForm extends AbstractType
                 },
                 function($order) {
                     return new OrderUid($order);
-                }
-            )
+                },
+            ),
         );
     }
 

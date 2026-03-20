@@ -132,7 +132,7 @@ final class UserProfileForm extends AbstractType
                     'allow_delete' => true,
                     'allow_add' => true,
                 ]);
-            }
+            },
         );
     }
 
@@ -144,7 +144,7 @@ final class UserProfileForm extends AbstractType
                 'data_class' => UserProfileDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
-            ]
+            ],
         );
     }
 

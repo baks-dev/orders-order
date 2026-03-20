@@ -72,11 +72,11 @@ final class ValueForm extends AbstractType
                                 'label' => $field->getFieldName(),
                                 'required' => $field->isRequired(),
                                 'help' => $field->getFieldDescription(),
-                            ]
+                            ],
                         );
                     }
                 }
-            }
+            },
         );
 
 
@@ -97,7 +97,7 @@ final class ValueForm extends AbstractType
                 ]);
 
 
-            }
+            },
         );
     }
 
@@ -108,7 +108,7 @@ final class ValueForm extends AbstractType
             [
                 'data_class' => ValueDTO::class,
                 'fields' => null,
-            ]
+            ],
         );
     }
 

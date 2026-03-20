@@ -74,13 +74,6 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
-    public function from(DateTimeImmutable $from): self
-    {
-        $this->from = $from;
-
-        return $this;
-    }
-
     public function to(DateTimeImmutable $to): self
     {
         $this->to = $to;
@@ -129,7 +122,7 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->setParameter(
                 key: 'status',
                 value: OrderStatusCompleted::STATUS,
-                type: OrderStatus::TYPE
+                type: OrderStatus::TYPE,
             );
 
         $dbal
@@ -445,6 +438,13 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         $result = $dbal->fetchAllHydrate(AllOrdersReportResult::class);
 
         return $result->valid() ? $result : false;
+    }
+
+    public function from(DateTimeImmutable $from): self
+    {
+        $this->from = $from;
+
+        return $this;
     }
 
 }

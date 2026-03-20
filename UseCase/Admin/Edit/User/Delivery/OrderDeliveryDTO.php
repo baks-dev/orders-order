@@ -30,12 +30,12 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Delivery\Type\Event\DeliveryEventUid;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDeliveryInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceDTO;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Price\OrderDeliveryPriceDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\Field\OrderDeliveryFieldDTO;
 
 final class OrderDeliveryDTO implements OrderDeliveryInterface
 {

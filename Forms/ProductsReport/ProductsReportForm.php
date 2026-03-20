@@ -65,7 +65,7 @@ final class ProductsReportForm extends AbstractType
         $builder->add(
             'products_report',
             SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
 
     }

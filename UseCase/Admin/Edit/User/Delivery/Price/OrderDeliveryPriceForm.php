@@ -50,8 +50,8 @@ final class OrderDeliveryPriceForm extends AbstractType
                 },
                 function($price) {
                     return new Money($price);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add('currency', ChoiceType::class, [

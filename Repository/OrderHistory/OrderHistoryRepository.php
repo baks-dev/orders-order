@@ -84,7 +84,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'event',
                 OrderModify::class,
                 'modify',
-                'modify.event = event.id'
+                'modify.event = event.id',
             );
 
 
@@ -94,7 +94,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'event',
                 OrderUser::class,
                 'order_user',
-                'order_user.event = event.id'
+                'order_user.event = event.id',
             );
 
 
@@ -102,7 +102,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
             'modify',
             UserProfileInfo::class,
             'profile_info',
-            'profile_info.usr = modify.usr AND profile_info.active = true'
+            'profile_info.usr = modify.usr AND profile_info.active = true',
         );
 
 
@@ -112,7 +112,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'profile_info',
                 UserProfile::class,
                 'profile',
-                'profile.id = profile_info.profile'
+                'profile.id = profile_info.profile',
             );
 
         $qb
@@ -121,7 +121,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'profile',
                 UserProfilePersonal::class,
                 'profile_personal',
-                'profile_personal.event = profile.event'
+                'profile_personal.event = profile.event',
             );
 
 
@@ -133,7 +133,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'profile',
                 UserProfileAvatar::class,
                 'profile_avatar',
-                'profile_avatar.event = profile.event'
+                'profile_avatar.event = profile.event',
             );
 
         $qb->orderBy('modify.mod_date');

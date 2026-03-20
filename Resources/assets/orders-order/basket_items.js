@@ -22,7 +22,7 @@
 
 /** Изменение кол-ва в форме добавления в корзину на странице товара  */
 
-document.querySelectorAll('.img-product').forEach((el) => el.addEventListener('click', () => document.getElementById('img-product').style.backgroundImage = el.style.backgroundImage));
+document.querySelectorAll(".img-product").forEach((el) => el.addEventListener("click", () => document.getElementById("img-product").style.backgroundImage = el.style.backgroundImage));
 
 /* Счетчик c учетом шага увеличения/уменьшения кол-ва в форме оформления заказа  */
 document.getElementById("plus")?.addEventListener("click", () =>
@@ -91,7 +91,7 @@ function orderProductCounter()
     }
 
     /* Максимальное */
-    let max = this.dataset.max * 1
+    let max = this.dataset.max * 1;
 
     let remainder = this.value % step;
 

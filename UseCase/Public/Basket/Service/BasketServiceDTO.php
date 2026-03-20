@@ -25,39 +25,38 @@ namespace BaksDev\Orders\Order\UseCase\Public\Basket\Service;
 
 use BaksDev\Orders\Order\Entity\Services\OrderServiceInterface;
 use BaksDev\Orders\Order\Type\OrderService\OrderServiceUid;
+use BaksDev\Orders\Order\Type\OrderService\Period\ServicePeriodUid;
 use BaksDev\Orders\Order\Type\OrderService\Service\ServiceUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\Price\OrderServicePriceDTO;
 use BaksDev\Reference\Money\Type\Money;
-use BaksDev\Orders\Order\Type\OrderService\Period\ServicePeriodUid;
 use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class BasketServiceDTO implements OrderServiceInterface
 {
+    public OrderServicePriceDTO $price;
     /** Идентификатор продукта в заказе */
     #[Assert\Uuid]
     private OrderServiceUid $id;
-
     /** Идентификатор продукта в заказе */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     private ServiceUid $serv;
-
     #[Assert\NotBlank]
     private string $name;
-
     private ?string $preview;
-
     /** Стоимость */
     #[Assert\NotBlank]
     private Money $money;
-
     private bool $selected = false;
+    /** Дата */
+    private ?DateTimeImmutable $date = null;
+    #[Assert\Uuid]
+    private ?ServicePeriodUid $period = null;
 
-    public function setSelected(bool $selected): self
+    public function __construct()
     {
-        $this->selected = $selected;
-        return $this;
+        $this->price = new OrderServicePriceDTO();
     }
 
     public function getSelected(): bool
@@ -65,17 +64,10 @@ final class BasketServiceDTO implements OrderServiceInterface
         return $this->selected === true;
     }
 
-    /** Дата */
-    private ?DateTimeImmutable $date = null;
-
-    #[Assert\Uuid]
-    private ?ServicePeriodUid $period = null;
-
-    public OrderServicePriceDTO $price;
-
-    public function __construct()
+    public function setSelected(bool $selected): self
     {
-        $this->price = new OrderServicePriceDTO();
+        $this->selected = $selected;
+        return $this;
     }
 
     public function getId(): OrderServiceUid

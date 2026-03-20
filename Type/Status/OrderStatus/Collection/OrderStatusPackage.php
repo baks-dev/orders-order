@@ -45,12 +45,6 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
 
     private static string $color = '#8000FF';
 
-    /** Возвращает значение (value) */
-    public function getValue(): string
-    {
-        return self::STATUS;
-    }
-
     /** Сортировка */
     public static function priority(): int
     {
@@ -67,6 +61,12 @@ class OrderStatusPackage implements OrderStatusInterface, VoterInterface
     public static function getVoter(): string
     {
         return RoleOrderStatus::ROLE.'_'.mb_strtoupper(self::STATUS);
+    }
+
+    /** Возвращает значение (value) */
+    public function getValue(): string
+    {
+        return self::STATUS;
     }
 
     public function equals(RoleInterface $role): bool

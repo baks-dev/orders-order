@@ -161,7 +161,7 @@ class BasketServiceForm extends AbstractType
 
                             $data = [
                                 'date' => $from->format('H:i').'-'.$to->format('H:i'),
-                                'usage' => $period->isOrderServiceActive()
+                                'usage' => $period->isOrderServiceActive(),
                             ];
 
                             return new ServicePeriodUid($period->getPeriodId(), $data);
@@ -191,7 +191,7 @@ class BasketServiceForm extends AbstractType
                         ]);
                     }
                 }
-            }
+            },
         );
 
     }

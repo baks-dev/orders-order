@@ -67,7 +67,7 @@ final class PackageOrdersForm extends AbstractType
                 'entry_options' => ['label' => false],
                 'label' => false,
                 'allow_add' => true,
-            ]
+            ],
         );
 
         /* Перемещаемая продукция */
@@ -124,7 +124,7 @@ final class PackageOrdersForm extends AbstractType
 
                         'label' => false,
                         'required' => false,
-                    ]
+                    ],
                 );
 
                 if(false === $packageOrdersDTO->getOrders()->isEmpty())
@@ -178,7 +178,7 @@ final class PackageOrdersForm extends AbstractType
                                                 (is_null($packageOrdersProductDTO->getModification()) === true && is_null($product->getModification()) === true)
                                                 || $packageOrdersProductDTO->getModification()?->equals($product->getModification())
                                             );
-                                    }
+                                    },
                                 );
                             }
 
@@ -224,7 +224,7 @@ final class PackageOrdersForm extends AbstractType
                                                 (is_null($packageOrdersProductDTO->getModification()) === true && is_null($product->getModification()) === true)
                                                 || $packageOrdersProductDTO->getModification()?->equals($product->getModification())
                                             );
-                                    }
+                                    },
                                 )->current();
 
                                 $productDTO->setCard($productUserBasketResult)->setStock($totalStock);
@@ -244,7 +244,7 @@ final class PackageOrdersForm extends AbstractType
                                     ->setModification($product->getModification())
                                     ->setTotal($product->getTotal())
                                     ->setStock($totalStock)
-                                    ->setCard($productUserBasketResult)
+                                    ->setCard($productUserBasketResult),
                                 );
                             }
                         }

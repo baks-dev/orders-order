@@ -41,10 +41,8 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 final class SalesInvoiceControllerTest extends WebTestCase
 {
     private const string URL = '/admin/order/document/sales?print=true';
-
-    private static ?array $post_data = null;
-
     private const string ROLE = 'ROLE_USER';
+    private static ?array $post_data = null;
 
     public static function setUpBeforeClass(): void
     {
@@ -55,7 +53,7 @@ final class SalesInvoiceControllerTest extends WebTestCase
                         'order' => OrderUid::TEST,
                     ],
                 ],
-            ]
+            ],
         ];
     }
 

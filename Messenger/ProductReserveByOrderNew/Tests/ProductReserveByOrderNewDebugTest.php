@@ -59,7 +59,7 @@ class ProductReserveByOrderNewDebugTest extends KernelTestCase
             new OrderMessage(
                 new OrderUid('019b35a1-6b7d-7597-bdfa-5f9f55379109'),
                 new OrderEventUid('019b35a1-6b7d-7597-bdfa-5f9f5540b20e'),
-                null)
+                null),
         );
 
     }

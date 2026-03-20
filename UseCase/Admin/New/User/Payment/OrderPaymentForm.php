@@ -118,8 +118,8 @@ final class OrderPaymentForm extends AbstractType
                 function($payment) {
 
                     return new PaymentUid($payment);
-                }
-            )
+                },
+            ),
         );
 
 
@@ -287,7 +287,7 @@ final class OrderPaymentForm extends AbstractType
                     }
 
                 }
-            }
+            },
         );
 
     }

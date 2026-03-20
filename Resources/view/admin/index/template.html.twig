@@ -58,7 +58,7 @@
 
     setTimeout(function xA1wFjaW7B()
     {
-        if(typeof centrifuge !== 'object')
+        if(typeof centrifuge !== "object")
         {
             if(hfgsZAPeF > 1000) { return; }
 
@@ -67,9 +67,9 @@
         }
 
 
-        const publish = centrifuge.newSubscription('orders');
+        const publish = centrifuge.newSubscription("orders");
 
-        publish.on('publication', function(ctx)
+        publish.on("publication", function(ctx)
         {
             if(ctx.data.profile !== '{{ current_profile }}')
             {

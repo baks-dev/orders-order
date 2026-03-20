@@ -97,43 +97,6 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
         }
     }
 
-    /** Убирает дублирующийся неактивный период */
-    private function unique(array $periods): array
-    {
-        $activePeriods = array_filter($periods, static function($element) {
-            return $element['active_event'] === true;
-        });
-
-        $reservePeriods = array_filter($periods, static function($element) {
-            return $element['active_event'] !== true && $element['order_service_active'];
-        });
-
-        foreach($activePeriods as $key => $period)
-        {
-            foreach($reservePeriods as $del => $reserve)
-            {
-                $periodFrm = new DateTimeImmutable($period['frm'])->format('H-s-i');
-                $reserveFrm = new DateTimeImmutable($reserve['frm'])->format('H-s-i');
-
-                $periodUpto = new DateTimeImmutable($period['upto'])->format('H-s-i');
-                $reserveUpto = new DateTimeImmutable($reserve['upto'])->format('H-s-i');
-
-                if($periodFrm === $reserveFrm && $periodUpto === $reserveUpto)
-                {
-                    $activePeriods[$key]['order_service_active'] = true;
-
-                    /** Удаляем ключ на случай повторяющихся периодов */
-                    unset($reservePeriods[$del]);
-
-                    break;
-                }
-
-            }
-        }
-
-        return $activePeriods;
-    }
-
     /** Возвращает массив периодов на переданную дату с информацией об их использовании */
     private function builder(ServiceUid $service): DBALQueryBuilder
     {
@@ -159,7 +122,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 'service_event',
                 '
                     service_event.main = :serv
-                    '
+                    ',
             )
             ->setParameter(
                 key: 'serv',
@@ -198,7 +161,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                     '
                         service_invariable.main = service.id
                         AND
-                        service_invariable.profile = :profile'
+                        service_invariable.profile = :profile',
                 );
 
             $dbal->setParameter(
@@ -217,7 +180,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 'service_event',
                 ServicePeriod::class,
                 'service_period',
-                'service_period.event = service_event.id'
+                'service_period.event = service_event.id',
             );
 
         $dbal
@@ -228,7 +191,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 'orders_service',
                 '
                     orders_service.period = service_period.id 
-                    AND orders_service.date = :date'
+                    AND orders_service.date = :date',
 
             );
 
@@ -240,7 +203,7 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 'orders_service',
                 Order::class,
                 'orders',
-                'orders.event = orders_service.event'
+                'orders.event = orders_service.event',
             );
 
         $dbal
@@ -249,13 +212,13 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
                 OrderEvent::class,
                 'orders_event',
 
-                'orders_event.id = orders.event AND orders_event.status != :status'
+                'orders_event.id = orders.event AND orders_event.status != :status',
             );
 
         $dbal->setParameter(
             key: 'status',
             value: OrderStatusCanceled::STATUS,
-            type: OrderStatus::TYPE
+            type: OrderStatus::TYPE,
         );
 
         $dbal
@@ -271,5 +234,42 @@ final class AllServicePeriodByDateRepository implements AllServicePeriodByDateIn
         $dbal->orderBy('service_period.frm');
 
         return $dbal;
+    }
+
+    /** Убирает дублирующийся неактивный период */
+    private function unique(array $periods): array
+    {
+        $activePeriods = array_filter($periods, static function($element) {
+            return $element['active_event'] === true;
+        });
+
+        $reservePeriods = array_filter($periods, static function($element) {
+            return $element['active_event'] !== true && $element['order_service_active'];
+        });
+
+        foreach($activePeriods as $key => $period)
+        {
+            foreach($reservePeriods as $del => $reserve)
+            {
+                $periodFrm = new DateTimeImmutable($period['frm'])->format('H-s-i');
+                $reserveFrm = new DateTimeImmutable($reserve['frm'])->format('H-s-i');
+
+                $periodUpto = new DateTimeImmutable($period['upto'])->format('H-s-i');
+                $reserveUpto = new DateTimeImmutable($reserve['upto'])->format('H-s-i');
+
+                if($periodFrm === $reserveFrm && $periodUpto === $reserveUpto)
+                {
+                    $activePeriods[$key]['order_service_active'] = true;
+
+                    /** Удаляем ключ на случай повторяющихся периодов */
+                    unset($reservePeriods[$del]);
+
+                    break;
+                }
+
+            }
+        }
+
+        return $activePeriods;
     }
 }

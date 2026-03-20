@@ -66,15 +66,6 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
         return $result->valid() ? $result : false;
     }
 
-    /** Метод для подсчета количества возвращаемого результата */
-    public function count(OrderUid $ord): int
-    {
-        $dbal = $this->builder($ord);
-        $result = $dbal->fetchAllAssociative();
-
-        return empty($result) ? 0 : count($result);
-    }
-
     private function builder(OrderUid $ord): DBALQueryBuilder
     {
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
@@ -154,5 +145,14 @@ final class AllOrderProductItemConstRepository implements AllOrderProductItemCon
         }
 
         return $dbal;
+    }
+
+    /** Метод для подсчета количества возвращаемого результата */
+    public function count(OrderUid $ord): int
+    {
+        $dbal = $this->builder($ord);
+        $result = $dbal->fetchAllAssociative();
+
+        return empty($result) ? 0 : count($result);
     }
 }

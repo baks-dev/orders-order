@@ -54,6 +54,18 @@ class Order
         return (string) $this->id;
     }
 
+    public function getEvent(): OrderEventUid
+    {
+        return $this->event;
+    }
+
+    public function setEvent(OrderEventUid|OrderEvent $event): self
+    {
+        $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
+
+        return $this;
+    }
+
     /**
      * Id
      */
@@ -65,18 +77,6 @@ class Order
     public function setId(OrderUid $id): self
     {
         $this->id = $id;
-        return $this;
-    }
-
-    public function getEvent(): OrderEventUid
-    {
-        return $this->event;
-    }
-
-    public function setEvent(OrderEventUid|OrderEvent $event): self
-    {
-        $this->event = $event instanceof OrderEvent ? $event->getId() : $event;
-
         return $this;
     }
 }

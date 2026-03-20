@@ -59,7 +59,7 @@ class ProductChangeReserveByOrderProductItemChangeTest extends KernelTestCase
             new OrderMessage(
                 new OrderUid('019b4baa-3edc-7161-9277-bfa5e9d7588e'),
                 new OrderEventUid('019b4bad-fd19-7176-bca5-7bb0cf5ab61f'),
-                new OrderEventUid('019b4bad-47b6-772b-8842-c41fbf58ceaa'))
+                new OrderEventUid('019b4bad-47b6-772b-8842-c41fbf58ceaa')),
         );
 
     }

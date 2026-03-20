@@ -82,11 +82,6 @@ class OrderProject extends EntityReadonly
         return $this;
     }
 
-    public function getValue(): UserProfileUid
-    {
-        return $this->value;
-    }
-
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
@@ -98,7 +93,6 @@ class OrderProject extends EntityReadonly
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
-
 
     public function setEntity($dto): mixed
     {
@@ -113,6 +107,11 @@ class OrderProject extends EntityReadonly
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function getValue(): UserProfileUid
+    {
+        return $this->value;
     }
 
 }

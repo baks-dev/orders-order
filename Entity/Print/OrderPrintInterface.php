@@ -25,4 +25,4 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Entity\Print;
 
-interface OrderPrintInterface {}
+interface OrderPrintInterface { }

@@ -28,9 +28,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('baks.order.status')]
 interface OrderStatusInterface
 {
-    /** Возвращает значение (value) */
-    public function getValue(): string;
-
     /** Сортировка */
     public static function priority(): int;
 
@@ -39,4 +36,7 @@ interface OrderStatusInterface
 
     /** Правило доступа */
     public static function getVoter(): string;
+
+    /** Возвращает значение (value) */
+    public function getValue(): string;
 }

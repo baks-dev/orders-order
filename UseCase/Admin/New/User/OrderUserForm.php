@@ -44,7 +44,7 @@ final class OrderUserForm extends AbstractType
             [
                 'label' => false,
                 'constraints' => [new Valid()],
-            ]
+            ],
         );
 
         $builder->add('payment', Payment\OrderPaymentForm::class, ['label' => false,]);
@@ -69,7 +69,7 @@ final class OrderUserForm extends AbstractType
                         [
                             'label' => false,
                             'user_profile_type' => $data->getUserProfile()?->getType(),
-                        ]
+                        ],
                     );
 
                     $form->add(
@@ -78,10 +78,10 @@ final class OrderUserForm extends AbstractType
                         [
                             'label' => false,
                             'user_profile_type' => $data->getUserProfile()?->getType(),
-                        ]
+                        ],
                     );
                 }
-            }
+            },
         );
 
 
@@ -95,7 +95,7 @@ final class OrderUserForm extends AbstractType
 
                 $form->add('usr', self::class, ['label' => false]);
 
-            }
+            },
         );
     }
 
@@ -104,7 +104,7 @@ final class OrderUserForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => OrderUserDTO::class,
-            'data_user_profile_type' => null
+            'data_user_profile_type' => null,
         ]);
     }
 

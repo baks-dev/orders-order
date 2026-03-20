@@ -108,19 +108,19 @@ class OrderProduct extends EntityEvent
     }
 
     /**
-     * Id
-     */
-    public function getId(): OrderProductUid
-    {
-        return $this->id;
-    }
-
-    /**
      * Event
      */
     public function getEvent(): OrderEventUid
     {
         return $this->event->getId();
+    }
+
+    /**
+     * Id
+     */
+    public function getId(): OrderProductUid
+    {
+        return $this->id;
     }
 
     public function getDto($dto): mixed
@@ -168,6 +168,7 @@ class OrderProduct extends EntityEvent
 
     /**
      * Posting
+     *
      * @return Collection<int, OrderProductPosting>
      */
     public function getOrderPostings(): Collection
@@ -191,6 +192,7 @@ class OrderProduct extends EntityEvent
 
     /**
      * Item
+     *
      * @return Collection<int, OrderProductItem>
      */
     public function getItems(): Collection

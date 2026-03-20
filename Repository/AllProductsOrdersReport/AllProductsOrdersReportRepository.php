@@ -66,13 +66,6 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
     public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
-    public function from(DateTimeImmutable $from): self
-    {
-        $this->from = $from;
-
-        return $this;
-    }
-
     public function to(DateTimeImmutable $to): self
     {
         $this->to = $to;
@@ -451,6 +444,13 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
 
         return $result->valid() ? $result : false;
 
+    }
+
+    public function from(DateTimeImmutable $from): self
+    {
+        $this->from = $from;
+
+        return $this;
     }
 
 }

@@ -35,14 +35,14 @@ final class OrderPostingDTO implements OrderPostingInterface
      */
     private string $value;
 
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
     public function setValue(string $value): self
     {
         $this->value = $value;
         return $this;
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
     }
 }

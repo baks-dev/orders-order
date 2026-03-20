@@ -66,7 +66,7 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
             ->setParameter(
                 key: 'order',
                 value: $this->order,
-                type: OrderUid::TYPE
+                type: OrderUid::TYPE,
             );
 
         $orm
@@ -75,7 +75,7 @@ final class CurrentOrderEventRepository implements CurrentOrderEventInterface
                 OrderEvent::class,
                 'event',
                 'WITH',
-                'event.id = orders.event'
+                'event.id = orders.event',
             );
 
         return $orm->getOneOrNullResult() ?: false;

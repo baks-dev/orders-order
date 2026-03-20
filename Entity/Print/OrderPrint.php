@@ -36,7 +36,6 @@ use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** Флаг, если накладная по заказу была отпечатана */
-
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_print')]
 #[ORM\Index(columns: ['printed'])]

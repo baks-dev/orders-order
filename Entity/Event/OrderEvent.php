@@ -121,7 +121,7 @@ class OrderEvent extends EntityEvent
 
     /** Пользователь (Клиент) */
     #[ORM\OneToOne(targetEntity: OrderUser::class, mappedBy: 'event', cascade: ['all'])]
-    private ?OrderUser $usr = null;
+    private OrderUser $usr;
 
     /** Флаг о печати */
     #[ORM\OneToOne(targetEntity: OrderPrint::class, mappedBy: 'event', cascade: ['all'])]
@@ -156,11 +156,6 @@ class OrderEvent extends EntityEvent
         return (string) $this->id;
     }
 
-    public function getId(): OrderEventUid
-    {
-        return $this->id;
-    }
-
     public function getMain(): ?OrderUid
     {
         return $this->orders;
@@ -174,6 +169,11 @@ class OrderEvent extends EntityEvent
     public function setMain(OrderUid|Order $order): void
     {
         $this->orders = $order instanceof Order ? $order->getId() : $order;
+    }
+
+    public function getId(): OrderEventUid
+    {
+        return $this->id;
     }
 
     public function isInvariable(): bool
@@ -204,6 +204,14 @@ class OrderEvent extends EntityEvent
     public function isDeliveryTypeEquals(mixed $delivery): bool
     {
         return $this->usr->getDelivery()->getDeliveryType()->equals($delivery);
+    }
+
+    /**
+     * Users.
+     */
+    public function getDelivery(): ?OrderDelivery
+    {
+        return $this->usr->getDelivery();
     }
 
     public function isPaymentTypeEquals(mixed $payment): bool
@@ -272,14 +280,6 @@ class OrderEvent extends EntityEvent
     public function isProductEmpty(): bool
     {
         return $this->product->isEmpty();
-    }
-
-    /**
-     * Users.
-     */
-    public function getDelivery(): ?OrderDelivery
-    {
-        return $this->usr->getDelivery();
     }
 
     /** Идентификатор события профиля клиента */

@@ -52,7 +52,7 @@ final class CanceledOrderForm extends AbstractType
         $builder->add(
             'order_cancel',
             SubmitType::class,
-            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']]
+            ['label' => 'Cancel', 'label_html' => true, 'attr' => ['class' => 'btn-danger']],
         );
     }
 
@@ -65,7 +65,7 @@ final class CanceledOrderForm extends AbstractType
                 'attr' => ['class' => 'w-100'],
                 //'allow_extra_fields' => true,
                 //'validation_groups' => false,
-            ]
+            ],
         );
     }
 

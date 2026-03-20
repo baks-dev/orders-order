@@ -65,6 +65,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class ReturnOrderNewTest extends KernelTestCase
 {
+    public static function tearDownAfterClass(): void
+    {
+        DeleteOrderTest::tearDownAfterClass();
+    }
+
     #[DependsOnClass(DeleteOrderTest::class)]
     public function testUseCase(): void
     {
@@ -206,10 +211,5 @@ final class ReturnOrderNewTest extends KernelTestCase
         $ReturnOrderHandler = self::getContainer()->get(ReturnOrderHandler::class);
         $handle = $ReturnOrderHandler->handle($ReturnOrderDTO);
         self::assertTrue(($handle instanceof Order), $handle.': Ошибка Order');
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        DeleteOrderTest::tearDownAfterClass();
     }
 }

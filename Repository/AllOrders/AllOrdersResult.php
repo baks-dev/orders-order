@@ -130,12 +130,6 @@ final  class AllOrdersResult
         return new DateTimeImmutable($this->order_created);
     }
 
-    public function getOrderStatus(): OrderStatus
-    {
-        return new OrderStatus($this->order_status);
-    }
-
-
     public function orderStatusEquals(mixed $status): bool
     {
         return new OrderStatus($this->order_status)->equals($status);
@@ -187,14 +181,9 @@ final  class AllOrdersResult
         return $this->order_danger;
     }
 
-    public function getStockProfileUsername(): ?string
+    public function getOrderStatus(): OrderStatus
     {
-        return $this->stock_profile_username;
-    }
-
-    public function getStockProfileLocation(): ?string
-    {
-        return $this->stock_profile_location;
+        return new OrderStatus($this->order_status);
     }
 
     /** Возвращает стоимость количество продукции */
@@ -220,6 +209,16 @@ final  class AllOrdersResult
         }
 
         return $items;
+    }
+
+    public function getStockProfileUsername(): ?string
+    {
+        return $this->stock_profile_username;
+    }
+
+    public function getStockProfileLocation(): ?string
+    {
+        return $this->stock_profile_location;
     }
 
     /** Возвращает общее количество товаров в заказе */
@@ -248,6 +247,23 @@ final  class AllOrdersResult
         return $total;
     }
 
+    public function getAllServicePrice(): Money
+    {
+        $totalPrice = new Money(0);
+
+        if(false === $this->getServicePrice())
+        {
+            return new Money(0);
+        }
+
+        foreach($this->getServicePrice() as $item)
+        {
+            $totalPrice->add($item->price);
+        }
+
+        return $totalPrice;
+    }
+
     public function getServicePrice(): array|false
     {
         if(empty($this->service_price))
@@ -271,23 +287,6 @@ final  class AllOrdersResult
         }
 
         return $items;
-    }
-
-    public function getAllServicePrice(): Money
-    {
-        $totalPrice = new Money(0);
-
-        if(false === $this->getServicePrice())
-        {
-            return new Money(0);
-        }
-
-        foreach($this->getServicePrice() as $item)
-        {
-            $totalPrice->add($item->price);
-        }
-
-        return $totalPrice;
     }
 
     public function getAllProductPrice(): Money
@@ -359,6 +358,21 @@ final  class AllOrdersResult
         return $this->order_profile_discount;
     }
 
+    public function getClientUsername(): ?string
+    {
+        return $this->order_profile_username;
+    }
+
+    public function getOrganizationName(): ?object
+    {
+        /** Пробуем определить название организации */
+        $filter = array_filter($this->getOrderUser(), static function(object $element) {
+            return $element->profile_type === OrganizationField::TYPE;
+        });
+
+        return current($filter) ?: null;
+    }
+
     private function getOrderUser(): array|false
     {
         if(empty($this->order_user))
@@ -372,23 +386,6 @@ final  class AllOrdersResult
         }
 
         return json_decode($this->order_user, false, 512, JSON_THROW_ON_ERROR);
-    }
-
-    public function getClientUsername(): ?string
-    {
-        return $this->order_profile_username;
-    }
-
-
-
-    public function getOrganizationName(): ?object
-    {
-        /** Пробуем определить название организации */
-        $filter = array_filter($this->getOrderUser(), static function(object $element) {
-            return $element->profile_type === OrganizationField::TYPE;
-        });
-
-        return current($filter) ?: null;
     }
 
     public function getClientName(): array|false

@@ -62,7 +62,7 @@ final class OrderModifyListener
         {
             $data->upModifyAgent(
                 new IpAddress($this->request->getCurrentRequest()->getClientIp()), // Ip
-                $this->request->getCurrentRequest()->headers->get('User-Agent') // User-Agent
+                $this->request->getCurrentRequest()->headers->get('User-Agent'), // User-Agent
             );
         }
     }

@@ -55,14 +55,14 @@ final class SalesInvoiceOrderDTO
         return $this;
     }
 
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
+
     public function setNumber(?string $number): self
     {
         $this->number = $number;
         return $this;
-    }
-
-    public function getNumber(): ?string
-    {
-        return $this->number;
     }
 }

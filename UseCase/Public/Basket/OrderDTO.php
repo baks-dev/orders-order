@@ -195,6 +195,11 @@ final class OrderDTO implements OrderEventInterface
         return $this->project;
     }
 
+    public function getPosting(): OrderPostingDTO
+    {
+        return $this->posting;
+    }
+
     /**
      * Posting
      */
@@ -202,11 +207,6 @@ final class OrderDTO implements OrderEventInterface
     {
         $this->posting = $posting;
         return $this;
-    }
-
-    public function getPosting(): OrderPostingDTO
-    {
-        return $this->posting;
     }
 
 }

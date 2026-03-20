@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment;
 
 use BaksDev\Orders\Order\Repository\FieldByPaymentChoice\FieldByPaymentChoiceInterface;
 use BaksDev\Orders\Order\Repository\PaymentByTypeProfileChoice\PaymentByTypeProfileChoiceInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldForm;
 use BaksDev\Payment\Type\Field\PaymentFieldUid;
 use BaksDev\Payment\Type\Id\PaymentUid;
@@ -40,7 +41,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\Field\OrderPaymentFieldDTO;
 
 final class OrderPaymentForm extends AbstractType
 {
@@ -73,8 +73,8 @@ final class OrderPaymentForm extends AbstractType
                 function($payment) {
 
                     return new PaymentUid($payment);
-                }
-            )
+                },
+            ),
         );
 
         $builder->addEventListener(
@@ -191,7 +191,7 @@ final class OrderPaymentForm extends AbstractType
                     }
 
                 }
-            }
+            },
         );
 
     }

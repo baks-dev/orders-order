@@ -35,6 +35,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Снимает резерв и наличие с карточки товара
+ *
  * @note работа с резервами в карточке - самый высокий приоритет
  */
 #[Autoconfigure(shared: false)]
@@ -69,7 +70,7 @@ final readonly class ProductReserveByOrderCompleteHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: карточка не найдена',
-                [self::class.':'.__LINE__, var_export($message, true)]
+                [self::class.':'.__LINE__, var_export($message, true)],
             );
 
             return;
@@ -79,7 +80,7 @@ final readonly class ProductReserveByOrderCompleteHandler
         {
             $this->logger->critical(
                 'orders-order: Невозможно снять резерв и наличие с карточки товара выполненного заказа: недостаточное количество либо резерва',
-                [self::class.':'.__LINE__, var_export($message, true)]
+                [self::class.':'.__LINE__, var_export($message, true)],
             );
 
             return;
@@ -88,7 +89,7 @@ final readonly class ProductReserveByOrderCompleteHandler
 
         $this->logger->info(
             sprintf('orders-order: Сняли %s резерва и наличия продукции в карточке при выполненном заказе', $message->getTotal()),
-            [self::class.':'.__LINE__, var_export($message, true)]
+            [self::class.':'.__LINE__, var_export($message, true)],
         );
 
     }

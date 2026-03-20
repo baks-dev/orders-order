@@ -303,72 +303,6 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         return $this->product_image_cdn === true;
     }
 
-    /**
-     * ProductPrice
-     * @param $userDiscount - условие, учитывать ли скидку клиента
-     */
-    public function getProductPrice(bool $userDiscount = true): Money|false
-    {
-        if(empty($this->product_price))
-        {
-            return new Money(0);
-        }
-
-        /** Оригинальная цена */
-        $price = new Money($this->product_price, true);
-
-        /** Кастомная цена */
-        if(false === empty($this->promotion_price) && true === $this->promotion_active)
-        {
-            $price->applyString($this->promotion_price);
-        }
-
-        /** Скидка магазина */
-        if(false === empty($this->project_discount))
-        {
-            $price->applyString($this->project_discount);
-        }
-
-        /** Скидка пользователя */
-        if(true === $userDiscount && false === empty($this->profile_discount))
-        {
-            $price->applyString($this->profile_discount);
-        }
-
-        return $price;
-    }
-
-    public function getProductOldPrice(): Money|false
-    {
-        if(empty($this->product_old_price))
-        {
-            return false;
-        }
-
-        $price = new Money($this->product_old_price, true);
-
-        /** Кастомная цена */
-        if(false === empty($this->promotion_price) && true === $this->promotion_active)
-        {
-            $price->applyString($this->promotion_price);
-        }
-
-        /** Скидка магазина */
-        if(false === empty($this->project_discount))
-        {
-            $price->applyString($this->project_discount);
-        }
-
-        /** Скидка пользователя */
-        if(false === empty($this->profile_discount))
-        {
-            $price->applyString($this->profile_discount);
-        }
-
-        return $price;
-    }
-
-
     public function getProductCurrency(): Currency
     {
         return new Currency($this->product_currency);
@@ -378,7 +312,6 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
     {
         return $this->product_quantity;
     }
-
 
     public function getStockTotal(): int
     {
@@ -404,7 +337,6 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
 
         return max($quantity, 0);
     }
-
 
     /**
      * Category
@@ -504,6 +436,72 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         }
 
         return $discountPercent;
+    }
+
+    /**
+     * ProductPrice
+     *
+     * @param $userDiscount - условие, учитывать ли скидку клиента
+     */
+    public function getProductPrice(bool $userDiscount = true): Money|false
+    {
+        if(empty($this->product_price))
+        {
+            return new Money(0);
+        }
+
+        /** Оригинальная цена */
+        $price = new Money($this->product_price, true);
+
+        /** Кастомная цена */
+        if(false === empty($this->promotion_price) && true === $this->promotion_active)
+        {
+            $price->applyString($this->promotion_price);
+        }
+
+        /** Скидка магазина */
+        if(false === empty($this->project_discount))
+        {
+            $price->applyString($this->project_discount);
+        }
+
+        /** Скидка пользователя */
+        if(true === $userDiscount && false === empty($this->profile_discount))
+        {
+            $price->applyString($this->profile_discount);
+        }
+
+        return $price;
+    }
+
+    public function getProductOldPrice(): Money|false
+    {
+        if(empty($this->product_old_price))
+        {
+            return false;
+        }
+
+        $price = new Money($this->product_old_price, true);
+
+        /** Кастомная цена */
+        if(false === empty($this->promotion_price) && true === $this->promotion_active)
+        {
+            $price->applyString($this->promotion_price);
+        }
+
+        /** Скидка магазина */
+        if(false === empty($this->project_discount))
+        {
+            $price->applyString($this->project_discount);
+        }
+
+        /** Скидка пользователя */
+        if(false === empty($this->profile_discount))
+        {
+            $price->applyString($this->profile_discount);
+        }
+
+        return $price;
     }
 
     public function getStock(): ?int

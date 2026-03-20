@@ -99,7 +99,7 @@ final class EditOrderForm extends AbstractType
         $builder->add(
             'order',
             SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
 
         // @TODO теперь можем сохранять в любом статусе
@@ -133,7 +133,7 @@ final class EditOrderForm extends AbstractType
                 'data_class' => EditOrderDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
-            ]
+            ],
         );
     }
 }

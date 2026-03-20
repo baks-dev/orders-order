@@ -114,6 +114,12 @@ final class OrderStatusDTO implements OrderEventInterface
         return $this->comment;
     }
 
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+        return $this;
+    }
+
     public function addComment(?string $comment): self
     {
         if(empty($comment))
@@ -124,12 +130,6 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->comment = trim(str_replace($comment, '', $this->comment));
         $this->comment .= (empty($this->comment) ? '' : ', ').$comment;
 
-        return $this;
-    }
-
-    public function setComment(?string $comment): self
-    {
-        $this->comment = $comment;
         return $this;
     }
 }

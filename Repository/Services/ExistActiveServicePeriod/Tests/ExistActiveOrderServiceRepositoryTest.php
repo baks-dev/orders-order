@@ -27,6 +27,7 @@ namespace BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\Test
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\OrderService\Period\ServicePeriodUid;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
@@ -46,7 +47,7 @@ class ExistActiveOrderServiceRepositoryTest extends KernelTestCase
         $result = $ExistActiveOrderServiceInterface
             ->byEvent(new OrderEventUid('01997c20-f323-71d8-908b-b774f6ab3ad0'))
             ->byPeriod(new ServicePeriodUid('0199811b-7856-73bc-a5d7-7d171853a4b2'))
-            ->byDate(new \DateTimeImmutable('2025-09-25'))
+            ->byDate(new DateTimeImmutable('2025-09-25'))
             ->exist();
     }
 }

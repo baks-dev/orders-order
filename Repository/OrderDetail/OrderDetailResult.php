@@ -237,6 +237,11 @@ final readonly class OrderDetailResult
         return $this->printed === true;
     }
 
+    public function getQrcode(): string
+    {
+        return $this->qrcode;
+    }
+
     public function setQrCode(string $qrcode): self
     {
         $qrcode = strip_tags($qrcode, ['path']);
@@ -245,11 +250,6 @@ final readonly class OrderDetailResult
         $this->qrcode = $qrcode;
 
         return $this;
-    }
-
-    public function getQrcode(): string
-    {
-        return $this->qrcode;
     }
 
     public function getOrderServices(): array|null

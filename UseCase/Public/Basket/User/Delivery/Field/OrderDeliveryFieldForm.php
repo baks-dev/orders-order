@@ -60,8 +60,8 @@ final class OrderDeliveryFieldForm extends AbstractType
                 },
                 function($field) {
                     return new DeliveryFieldUid($field);
-                }
-            )
+                },
+            ),
         );
 
 
@@ -93,11 +93,11 @@ final class OrderDeliveryFieldForm extends AbstractType
                                 'help' => $DeliveryField->getOption(),
                                 'required' => $DeliveryField->getRequired(),
                                 'constraints' => $DeliveryField->getRequired() ? [new NotBlank()] : [],
-                            ]
+                            ],
                         );
                     }
                 }
-            }
+            },
         );
 
     }

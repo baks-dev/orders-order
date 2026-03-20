@@ -43,11 +43,10 @@ final class CanceledOrdersOrderForm extends AbstractType
                 function($order) {
                     return $order instanceof OrderUid ? $order->getValue() : $order;
                 },
-                function($order)
-                {
+                function($order) {
                     return new OrderUid($order);
-                }
-            )
+                },
+            ),
         );
     }
 
@@ -58,7 +57,7 @@ final class CanceledOrdersOrderForm extends AbstractType
                 'data_class' => CanceledOrdersOrderDTO::class,
                 'method' => 'POST',
                 'attr' => ['class' => 'w-100'],
-            ]
+            ],
         );
     }
 }

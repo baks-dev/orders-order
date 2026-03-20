@@ -26,11 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit\User;
 
 use BaksDev\Orders\Order\Entity\User\OrderUserInterface;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Symfony\Component\Validator\Constraints as Assert;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Payment\OrderPaymentDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Edit\User\Delivery\OrderDeliveryDTO;
 
 final class OrderUserDTO implements OrderUserInterface
 {

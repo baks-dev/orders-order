@@ -127,9 +127,9 @@ final class PackageOrderInvariableForm extends AbstractType
                     }
 
                     return [];
-                }
+                },
 
-            ]
+            ],
         );
 
 

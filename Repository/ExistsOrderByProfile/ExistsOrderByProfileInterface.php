@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Repository\ExistsOrderByProfile;
 
+use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 interface ExistsOrderByProfileInterface
 {

@@ -37,7 +37,9 @@ use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
 use BaksDev\Orders\Order\Repository\Services\OneServiceById\OneServiceByIdInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderForm;
@@ -50,6 +52,7 @@ use BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrder
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusProcess;
+use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusReturn;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -299,10 +302,17 @@ final class DetailController extends AbstractController
 
         if($allProductSignByOrderRepository instanceof AllProductSignByOrderInterface)
         {
+            $signStatus = match (true)
+            {
+                $OrderEvent->getStatus()->equals(OrderStatusCompleted::class) => ProductSignStatusDone::STATUS,
+                $OrderEvent->getStatus()->equals(OrderStatusReturn::class) => ProductSignStatusReturn::STATUS,
+
+                default => ProductSignStatusProcess::STATUS
+            };
+
             $ProductSignItems = $allProductSignByOrderRepository
                 ->forOrder($Order)
-                ->forStatus(ProductSignStatusProcess::STATUS)
-                ->forStatus(ProductSignStatusDone::STATUS)
+                ->forStatus($signStatus)
                 ->findAll();
         }
 

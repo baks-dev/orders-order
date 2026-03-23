@@ -92,10 +92,7 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(targetEntity: OrderPosting::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderPosting $posting = null;
 
-    /** Дата заказа */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $created;
+
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -109,6 +106,16 @@ class OrderEvent extends EntityEvent
      */
     #[ORM\Column(type: UserProfileUid::TYPE, nullable: true)]
     private ?UserProfileUid $profile = null;
+
+
+    /**
+     * Дата заказа
+     *
+     * @deprecated переносится в invariable
+     */
+    #[Assert\NotBlank]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private DateTimeImmutable $created;
 
 
     /** Идентификатор проекта */

@@ -105,46 +105,52 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
-        $dbal->from(Order::class, "orders");
+        /**
+         * START cteSelect ===============================
+         */
 
-        $dbal
-            ->addSelect('orders_event.danger')
-            ->addSelect('orders_event.comment')
-            ->join(
-                'orders',
-                OrderEvent::class,
-                "orders_event",
-                "
-                    orders_event.id = orders.event AND
-                    orders_event.status = :status
-                ",
-            )
-            ->setParameter(
-                key: 'status',
-                value: OrderStatusCompleted::STATUS,
-                type: OrderStatus::TYPE,
-            );
+        $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $dbal
-            ->addSelect('orders_modify.mod_date AS mod_date')
+        $cteSelect
+            ->from(OrderEvent::class, 'orders_event')
+            ->where('orders_event.status = :status');
+
+        $dbal->setParameter(
+            key: 'status',
+            value: OrderStatusCompleted::STATUS,
+            type: OrderStatus::TYPE,
+        );
+
+        $cteSelect
+            //->addSelect("MAX('orders_modify.mod_date') AS mod_date ")
+            //->addSelect('orders_modify.mod_date AS mod_date')
             ->join(
                 'orders',
                 OrderModify::class,
                 'orders_modify',
-                'orders_modify.event = orders.event AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
-            )
-            ->setParameter(
-                key: 'date_from',
-                value: $this->from,
-                type: Types::DATE_IMMUTABLE,
-            )
+                'orders_modify.event = orders_event.id AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
+            );
+
+        $dbal->setParameter(
+            key: 'date_from',
+            value: $this->from,
+            type: Types::DATE_IMMUTABLE,
+        )
             ->setParameter(
                 key: 'date_to',
                 value: $this->to,
                 type: Types::DATE_IMMUTABLE,
             );
 
-        $dbal
+        $cteSelect->join(
+            'orders_event',
+            Order::class,
+            'orders',
+            'orders.id = orders_event.orders',
+        );
+
+
+        $cteSelect
             ->addSelect("orders_invariable.number AS order_number")
             ->join(
                 "orders",
@@ -162,6 +168,67 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 type: UserProfileUid::TYPE,
             );
         }
+
+        $cteSelect
+            ->select('DISTINCT ON (orders_posting.value) orders_posting.value AS order_posting')
+            ->join(
+                "orders",
+                OrderPosting::class,
+                "orders_posting",
+                "orders_posting.main = orders.id",
+            );
+
+        $cteSelect->addSelect('orders_event.id AS id');
+
+        $cteSelect->orderBy('orders_posting.value, orders_modify.mod_date', 'DESC');
+
+        /**
+         * END cteSelect ===============================
+         */
+
+
+        $dbal
+            ->with('cte_orders', $cteSelect)
+            ->from('cte_orders', 'cteSelect');
+
+        $dbal
+            ->addSelect('orders_event.danger')
+            ->addSelect('orders_event.comment')
+            ->join(
+                'cteSelect',
+                OrderEvent::class,
+                'orders_event',
+                'orders_event.id = cteSelect.id',
+            );
+
+        $dbal
+            ->join(
+                'cteSelect',
+                Order::class,
+                'orders',
+                'orders.id = orders_event.orders',
+            );
+
+
+        $dbal
+            ->addSelect('orders_modify.mod_date AS mod_date')
+            ->join(
+                'orders',
+                OrderModify::class,
+                'orders_modify',
+                'orders_modify.event = orders_event.id',
+            );
+
+
+        $dbal
+            ->addSelect("orders_invariable.number AS order_number")
+            ->join(
+                "orders",
+                OrderInvariable::class,
+                "orders_invariable",
+                "orders_invariable.main = orders.id",
+            );
+
 
         $dbal
             ->addSelect("orders_posting.value AS order_posting")
@@ -435,9 +502,11 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
             ->orderBy("delivery_trans.name")
             ->addOrderBy("orders_modify.mod_date");
 
+
         $result = $dbal->fetchAllHydrate(AllOrdersReportResult::class);
 
         return $result->valid() ? $result : false;
+
     }
 
     public function from(DateTimeImmutable $from): self

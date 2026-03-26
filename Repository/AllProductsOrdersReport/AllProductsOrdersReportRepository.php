@@ -92,19 +92,66 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
      */
     public function findAll(): Generator|false
     {
+
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
-        $dbal->from(Order::class, "orders");
 
-        $dbal->join(
-            "orders",
-            OrderInvariable::class,
-            "order_invariable",
-            "order_invariable.main = orders.id"
-            .($this->profile instanceof UserProfileUid ? ' AND order_invariable.profile = :profile' : ''),
+        /**
+         * START cteSelect ===============================
+         */
+
+        $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $cteSelect
+            ->from(OrderEvent::class, 'orders_event')
+            ->where('orders_event.status = :status');
+
+        $dbal->setParameter(
+            key: 'status',
+            value: OrderStatusCompleted::STATUS,
+            type: OrderStatus::TYPE,
         );
+
+        $cteSelect
+            //->addSelect("MAX('orders_modify.mod_date') AS mod_date ")
+            //->addSelect('orders_modify.mod_date AS mod_date')
+            ->join(
+                'orders',
+                OrderModify::class,
+                'orders_modify',
+                'orders_modify.event = orders_event.id AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
+            );
+
+        $dbal->setParameter(
+            key: 'date_from',
+            value: $this->from,
+            type: Types::DATE_IMMUTABLE,
+        )
+            ->setParameter(
+                key: 'date_to',
+                value: $this->to,
+                type: Types::DATE_IMMUTABLE,
+            );
+
+        $cteSelect->join(
+            'orders_event',
+            Order::class,
+            'orders',
+            'orders.id = orders_event.orders',
+        );
+
+
+        $cteSelect
+            ->addSelect("orders_invariable.number AS order_number")
+            ->join(
+                "orders",
+                OrderInvariable::class,
+                "orders_invariable",
+                "orders_invariable.main = orders.id"
+                .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ''),
+            );
 
         if($this->profile instanceof UserProfileUid)
         {
@@ -115,6 +162,63 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             );
         }
 
+        $cteSelect
+            ->select('DISTINCT ON (orders_posting.value) orders_posting.value AS order_posting')
+            ->join(
+                "orders",
+                OrderPosting::class,
+                "orders_posting",
+                "orders_posting.main = orders.id",
+            );
+
+        $cteSelect->addSelect('orders_event.id AS id');
+
+        $cteSelect->orderBy('orders_posting.value, orders_modify.mod_date', 'DESC');
+
+        /**
+         * END cteSelect ===============================
+         */
+
+
+        $dbal
+            ->with('cte_orders', $cteSelect)
+            ->from('cte_orders', 'cteSelect');
+
+        $dbal
+            ->join(
+                'cteSelect',
+                OrderEvent::class,
+                'orders_event',
+                'orders_event.id = cteSelect.id',
+            );
+
+        $dbal
+            ->join(
+                'orders_event',
+                Order::class,
+                'orders',
+                'orders.id = orders_event.orders',
+            );
+
+
+        $dbal
+            ->join(
+                'orders',
+                OrderModify::class,
+                'orders_modify',
+                'orders_modify.event = orders_event.id',
+            );
+
+
+        $dbal
+            ->join(
+                "orders",
+                OrderInvariable::class,
+                "order_invariable",
+                "order_invariable.main = orders.id",
+            );
+
+
         $dbal
             ->leftJoin(
                 "orders",
@@ -123,27 +227,14 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_posting.main = orders.id",
             );
 
-        $dbal->join(
-            "orders",
-            OrderEvent::class,
-            "orders_event",
-            "
-                    orders_event.id = orders.event AND
-                    orders_event.status = :status
-                ")
-            ->setParameter(
-                key: 'status',
-                value: OrderStatusCompleted::STATUS,
-                type: OrderStatus::TYPE,
+
+        $dbal
+            ->join(
+                "orders",
+                OrderProduct::class,
+                "orders_product",
+                "orders_product.event = orders.event",
             );
-
-
-        $dbal->join(
-            "orders",
-            OrderProduct::class,
-            "orders_product",
-            "orders_product.event = orders.event",
-        );
 
 
         $dbal
@@ -166,24 +257,6 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "orders_price.product = orders_product.id",
             );
 
-        $dbal
-            //->addSelect('orders_modify.mod_date AS mod_date')
-            ->join(
-                'orders',
-                OrderModify::class,
-                'orders_modify',
-                'orders_modify.event = orders.event AND DATE(orders_modify.mod_date) BETWEEN :date_from AND :date_to',
-            )
-            ->setParameter(
-                key: 'date_from',
-                value: $this->from,
-                type: Types::DATE_IMMUTABLE,
-            )
-            ->setParameter(
-                key: 'date_to',
-                value: $this->to,
-                type: Types::DATE_IMMUTABLE,
-            );
 
         $dbal
             ->leftJoin(
@@ -193,12 +266,13 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 "product_event.id = orders_product.product",
             );
 
-        $dbal->leftJoin(
-            "orders_product",
-            ProductInfo::class,
-            "product_info",
-            "product_info.event = product_event.main",
-        );
+        $dbal
+            ->leftJoin(
+                "orders_product",
+                ProductInfo::class,
+                "product_info",
+                "product_info.event = product_event.main",
+            );
 
 
         /** ProductOffer */
@@ -439,6 +513,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
             ->addOrderBy("product_offer.value")
             ->addOrderBy("product_variation.value")
             ->addOrderBy("product_modification.value");
+
 
         $result = $dbal->fetchAllHydrate(AllProductsOrdersReportResult::class);
 

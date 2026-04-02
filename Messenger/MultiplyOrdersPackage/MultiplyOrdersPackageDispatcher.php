@@ -36,6 +36,7 @@ use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventBySta
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Messenger\Orders\MultiplyProductStocksPackage\MultiplyProductStocksPackageMessage;
 use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
 use Psr\Log\LoggerInterface;
@@ -135,7 +136,10 @@ final readonly class MultiplyOrdersPackageDispatcher
 
         $Deduplicator->save();
 
-        if(class_exists(MultiplyProductStocksPackageMessage::class))
+        /**
+         * Если подключен модуль складского учета - создаем складскую заявку
+         */
+        if(class_exists(BaksDevProductsStocksBundle::class))
         {
             $MultiplyProductStocksPackageMessage = new MultiplyProductStocksPackageMessage(
                 $message->getOrderId(),

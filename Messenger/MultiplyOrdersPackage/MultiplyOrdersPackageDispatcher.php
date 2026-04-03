@@ -32,9 +32,10 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
-use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Messenger\Orders\MultiplyProductStocksPackage\MultiplyProductStocksPackageMessage;
 use BaksDev\Products\Stocks\Repository\ProductStocksTotalAccess\ProductStocksTotalAccessInterface;
 use Psr\Log\LoggerInterface;
@@ -84,7 +85,7 @@ final readonly class MultiplyOrdersPackageDispatcher
             $this->logger->critical(
                 sprintf(
                     'orders-order: Ошибка при получении информации о заказе %s при упаковке',
-                    $message->getOrderId()
+                    $message->getOrderId(),
                 ),
                 [self::class],
             );
@@ -92,6 +93,16 @@ final readonly class MultiplyOrdersPackageDispatcher
             return;
         }
 
+        /**
+         * Если статус заказа Unpaid «В ожидании оплаты» - ждем возврата в NEW «Новый»
+         *
+         * @note: данная ситуация может возникнуть с Yandex заказами, которые в первую очередь
+         * создают заказа со статусом NEW «Новый» для создания резерва в карточке
+         */
+        if(true === $OrderEvent->isStatusEquals(OrderStatusUnpaid::class))
+        {
+            return;
+        }
 
         /** Делаем проверку, что статус применяется впервые */
         $isOtherExists = $this->ExistOrderEventByStatusRepository
@@ -152,9 +163,9 @@ final readonly class MultiplyOrdersPackageDispatcher
                         sprintf(
                             'Недостаточно продукции %s на складе для события заказа %s',
                             $CurrentProductIdentifierResult->getProduct(),
-                            $OrderEvent->getId()
+                            $OrderEvent->getId(),
                         ),
-                        [self::class]
+                        [self::class],
                     );
 
                     return;

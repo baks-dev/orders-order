@@ -35,17 +35,17 @@ final class MultiplyOrdersPackageMessage
 
     private string $profile;
 
-    private string $user;
+    private string $current;
 
     public function __construct(
         OrderUid $id,
         UserProfileUid $profile,
-        UserUid $user,
+        UserUid $current,
     )
     {
         $this->id = (string) $id;
         $this->profile = (string) $profile;
-        $this->user = (string) $user;
+        $this->current = (string) $current;
     }
 
     /**
@@ -57,7 +57,7 @@ final class MultiplyOrdersPackageMessage
     }
 
     /**
-     * Идентификатор профиля
+     * Идентификатор профиля склада упаковки
      */
     public function getOrderProfile(): UserProfileUid
     {
@@ -69,6 +69,6 @@ final class MultiplyOrdersPackageMessage
      */
     public function getCurrentUser(): UserUid
     {
-        return new UserUid($this->user);
+        return new UserUid($this->current);
     }
 }

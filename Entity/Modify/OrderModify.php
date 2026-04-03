@@ -138,4 +138,8 @@ class OrderModify extends EntityEvent
         return $this->action->equals($action);
     }
 
+    public function getUsr(): ?UserUid
+    {
+        return $this->usr;
+    }
 }

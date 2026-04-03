@@ -25,27 +25,31 @@ declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage;
 
-
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
-use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+<<<<<<< Updated upstream
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+=======
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
+>>>>>>> Stashed changes
 use BaksDev\Products\Stocks\Messenger\Orders\MultiplyProductStocksPackage\MultiplyProductStocksPackageMessage;
-use BaksDev\Users\User\Repository\UserTokenStorage\UserTokenStorageInterface;
+use BaksDev\Products\Stocks\Repository\ProductStocksTotalAccess\ProductStocksTotalAccessInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Метод меняет статус заказа на Package «Упаковка заказов»
+ * Метод создает складскую заявку (при наличии модуля products-stocks) и меняет статус заказа на Package «Упаковка
+ * заказов»
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 100)]
@@ -57,9 +61,9 @@ final readonly class MultiplyOrdersPackageDispatcher
         private DeduplicatorInterface $deduplicator,
         private ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
         private CentrifugoPublishInterface $publish,
-        private OrderStatusHandler $OrderStatusHandler,
         private MessageDispatchInterface $messageDispatch,
-        private UserTokenStorageInterface $UserTokenStorage
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventRepository,
+        private ProductStocksTotalAccessInterface $ProductStocksTotalAccessRepository,
     ) {}
 
     public function __invoke(MultiplyOrdersPackageMessage $message): void
@@ -83,15 +87,18 @@ final readonly class MultiplyOrdersPackageDispatcher
         if(false === ($OrderEvent instanceof OrderEvent))
         {
             $this->logger->critical(
-                sprintf('orders-order: Ошибка при получении информации о заказе при упаковке %s', $message->getOrderId()),
+                sprintf(
+                    'orders-order: Ошибка при получении информации о заказе %s при упаковке',
+                    $message->getOrderId()
+                ),
                 [self::class],
             );
 
             return;
         }
 
-        /** Делаем проверку, что статус применяется впервые  */
 
+        /** Делаем проверку, что статус применяется впервые */
         $isOtherExists = $this->ExistOrderEventByStatusRepository
             ->forOrder($OrderEvent->getMain())
             ->excludeOrderEvent($OrderEvent->getId())
@@ -104,54 +111,86 @@ final readonly class MultiplyOrdersPackageDispatcher
             return;
         }
 
+
         /** Скрываем заказ у всех пользователей */
         $this->publish
             ->addData(['order' => (string) $message->getOrderId()])
             ->send('orders');
 
-        /**
-         * Обновляем статус заказа и присваиваем профиль склада упаковки.
-         */
-        $OrderStatusDTO = new OrderStatusDTO(OrderStatusPackage::class, $OrderEvent->getId());
-        $OrderStatusDTO->setProfile($message->getUserProfile())->setComment($OrderEvent->getComment());
-
-
-        /** Авторизуем текущего пользователя для лога изменений если сообщение обрабатывается из очереди */
-        if(false === $this->UserTokenStorage->isUser())
-        {
-            $this->UserTokenStorage->authorization($message->getCurrentUser());
-        }
-
-        $Order = $this->OrderStatusHandler->handle($OrderStatusDTO);
-
-        if(false === ($Order instanceof Order))
-        {
-            $this->logger->critical(
-                sprintf('orders-order: Ошибка %s при обновлении статуса заказа на упаковке', $Order),
-                [self::class.':'.__LINE__, var_export($message, true)],
-            );
-
-            return;
-        }
-
-        $Deduplicator->save();
 
         /**
          * Если подключен модуль складского учета - создаем складскую заявку
          */
         if(class_exists(BaksDevProductsStocksBundle::class))
         {
+            /** Проверяем остаток */
+            foreach($OrderEvent->getProduct() as $OrderProduct)
+            {
+                $CurrentProductIdentifierResult = $this->CurrentProductIdentifierByEventRepository
+                    ->forEvent($OrderProduct->getProduct())
+                    ->forOffer($OrderProduct->getOffer())
+                    ->forVariation($OrderProduct->getVariation())
+                    ->forModification($OrderProduct->getModification())
+                    ->find();
+
+                if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
+                {
+                    $this->logger->critical(
+                        sprintf('Не было найдено событие продукта %s', $OrderProduct->getProduct()),
+                        [self::class],
+                    );
+
+                    return;
+                }
+
+                $total = $this->ProductStocksTotalAccessRepository
+                    ->forProfile($message->getOrderProfile())
+                    ->forProduct($CurrentProductIdentifierResult->getProduct())
+                    ->forOfferConst($CurrentProductIdentifierResult->getOfferConst())
+                    ->forVariationConst($CurrentProductIdentifierResult->getVariationConst())
+                    ->forModificationConst($CurrentProductIdentifierResult->getModificationConst())
+                    ->get();
+
+                if($total < $OrderProduct->getTotal())
+                {
+                    $this->logger->warning(
+                        sprintf(
+                            'Недостаточно продукции %s на складе для события заказа %s',
+                            $CurrentProductIdentifierResult->getProduct(),
+                            $OrderEvent->getId()
+                        ),
+                        [self::class]
+                    );
+
+                    return;
+                }
+            }
+
+
+            /** Создаем складскую заявку */
             $MultiplyProductStocksPackageMessage = new MultiplyProductStocksPackageMessage(
                 $message->getOrderId(),
-                $message->getUserProfile(),
+                $message->getOrderProfile(),
                 $message->getCurrentUser(),
             );
 
-            $this->messageDispatch->dispatch(
-                message: $MultiplyProductStocksPackageMessage,
-                transport: 'products-stocks',
-            );
+            $this->messageDispatch->dispatch(message: $MultiplyProductStocksPackageMessage, transport: 'orders-order');
+
+            $Deduplicator->save();
+            return;
         }
 
+
+        /** Бросаем сообщение на обновление статуса (если не было необходимости создавать складскую заявку) */
+        $OrdersPackageByMultiplyMessage = new OrdersPackageByMultiplyMessage(
+            $OrderEvent->getId(),
+            $message->getCurrentUser(),
+            $message->getOrderProfile(),
+            $OrderEvent->getComment(),
+        );
+
+        $this->messageDispatch->dispatch(message: $OrdersPackageByMultiplyMessage, transport: 'orders-order');
+
+        $Deduplicator->save();
     }
 }

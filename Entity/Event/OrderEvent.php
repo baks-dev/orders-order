@@ -310,4 +310,9 @@ class OrderEvent extends EntityEvent
     {
         return $this->comment;
     }
+
+    public function getModifyUser(): ?UserUid
+    {
+        return $this->modify->getUsr();
+    }
 }

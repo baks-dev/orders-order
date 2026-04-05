@@ -281,8 +281,15 @@
                         </div>
 
                         {% if order.orderStatusEquals('completed') == false %}
+
                             {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
-                                <span class="badge bg-danger small p-1">Просрочен</span>
+
+                                {% set dedline_delivery = date(order.dateModify) %}
+                                {% set difference_delivery = dedline_delivery.diff(date("now")) %}
+                                {% set day_delivery = difference.days ?: 0 %}
+
+                                <span class="badge bg-danger small p-1 {{ day_delivery > 1 ? 'd-blink' }}">Просрочен</span>
+
                             {% elseif order.deliveryDate|date('Ymd') == date("now")|date('Ymd') %}
                                 <span class="badge bg-warning text-dark small p-1">Опоздание</span>
                             {% else %}

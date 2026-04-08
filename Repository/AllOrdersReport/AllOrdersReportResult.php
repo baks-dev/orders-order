@@ -46,6 +46,7 @@ final class AllOrdersReportResult
         private readonly ?string $product_name,
         private readonly ?string $product_article,
         private readonly ?int $product_price,
+        private readonly ?string $barcodes,
 
         private readonly ?string $product_offer_value,
         private readonly ?string $product_offer_reference,
@@ -205,4 +206,32 @@ final class AllOrdersReportResult
     {
         return $this->comment;
     }
+
+    public function getOrderNumber(): string
+    {
+        return $this->order_number;
+    }
+
+    public function getBarcodes(): array|null
+    {
+        if(is_null($this->barcodes))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->barcodes))
+        {
+            return null;
+        }
+
+        $barcodes = json_decode($this->barcodes, true, 512, JSON_THROW_ON_ERROR);
+
+        if(true === empty(current($barcodes)))
+        {
+            return null;
+        }
+
+        return $barcodes;
+    }
+
 }

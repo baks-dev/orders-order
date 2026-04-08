@@ -52,7 +52,7 @@ final class AllOrdersReportRepositoryTest extends KernelTestCase
 
         $result = $allProductsOrdersReportRepository
             ->from(new DateTimeImmutable())
-            ->to(new DateTimeImmutable('+1 day'))
+            ->to(new DateTimeImmutable('+1 year'))
             ->forProfile(new UserProfileUid())
             ->findAll();
 

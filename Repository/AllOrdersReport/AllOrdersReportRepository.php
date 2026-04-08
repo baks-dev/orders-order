@@ -45,8 +45,11 @@ use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\Barcode\ProductOfferBarcode;
 use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Barcode\ProductVariationBarcode;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Barcode\ProductModificationBarcode;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice;
@@ -322,6 +325,15 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "product_offer.id = orders_product.offer",
             );
 
+        $dbal
+            ->leftJoin(
+                "orders_product",
+                ProductOfferBarcode::class,
+                "product_offer_barcode",
+                "product_offer_barcode.offer = orders_product.offer",
+            );
+
+
         /** Получаем тип торгового предложения */
         $dbal
             ->addSelect('category_offer.reference as product_offer_reference')
@@ -341,6 +353,16 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "product_variation",
                 "product_variation.id = orders_product.variation",
             );
+
+        $dbal
+            ->leftJoin(
+                "orders_product",
+                ProductVariationBarcode::class,
+                "product_variation_barcode",
+                "product_variation_barcode.variation = orders_product.variation",
+            );
+
+
 
         /** Получаем тип множественного варианта */
         $dbal
@@ -362,6 +384,15 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
                 "product_modification",
                 "product_modification.id = orders_product.modification",
             );
+
+        $dbal
+            ->leftJoin(
+                "orders_product",
+                ProductModificationBarcode::class,
+                "product_modification_barcode",
+                "product_modification_barcode.modification = orders_product.modification",
+            );
+
 
         /** Получаем тип модификации */
         $dbal
@@ -390,6 +421,31 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
 				   product_event_price.price
 				) AS product_price
 			");
+
+        /** Штрихкоды продукта */
+
+        $dbal->addSelect(
+            "
+            JSON_AGG
+                    (DISTINCT
+         			CASE
+         			    WHEN product_modification_barcode.value IS NOT NULL
+                        THEN product_modification_barcode.value
+                        
+                        WHEN product_variation_barcode.value IS NOT NULL
+                        THEN product_variation_barcode.value
+                        
+                        WHEN product_offer_barcode.value IS NOT NULL
+                        THEN product_offer_barcode.value
+                        
+                        WHEN product_info.barcode IS NOT NULL
+                        THEN product_info.barcode
+                        
+                        ELSE NULL
+                    END
+                    )
+                    AS barcodes",
+        );
 
 
         $dbal->addSelect("
@@ -501,6 +557,9 @@ final class AllOrdersReportRepository implements AllOrdersReportInterface
         $dbal
             ->orderBy("delivery_trans.name")
             ->addOrderBy("orders_modify.mod_date");
+
+
+        $dbal->allGroupByExclude();
 
 
         $result = $dbal->fetchAllHydrate(AllOrdersReportResult::class);

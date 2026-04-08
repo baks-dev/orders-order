@@ -106,19 +106,21 @@ final class ReportOrdersController extends AbstractController
                 ->setCellValue('C1', 'Наименование товара')
                 ->setCellValue('D1', 'Торговое предложение')
                 ->setCellValue('E1', 'Артикул')
-                ->setCellValue('F1', 'Стоимость продукта за единицу')
-                ->setCellValue('G1', 'Стоимость продукта в заказе за единицу')
-                ->setCellValue('H1', 'Количество продукта в заказе')
-                ->setCellValue('I1', 'Сумма')
-                ->setCellValue('J1', 'Разница в цене между продуктом и продуктом в заказе')
-                ->setCellValue('K1', 'Способ доставки')
-                ->setCellValue('L1', 'Доставка')
-                ->setCellValue('M1', 'Комментарий');
+                ->setCellValue('F1', 'Штрихкод')
+                ->setCellValue('G1', 'Стоимость продукта за единицу')
+                ->setCellValue('H1', 'Стоимость продукта в заказе за единицу')
+                ->setCellValue('I1', 'Количество продукта в заказе')
+                ->setCellValue('J1', 'Сумма')
+                ->setCellValue('K1', 'Разница в цене между продуктом и продуктом в заказе')
+                ->setCellValue('L1', 'Способ доставки')
+                ->setCellValue('M1', 'Доставка')
+                ->setCellValue('N1', 'Комментарий');
 
             $sheet->getColumnDimension('A')->setAutoSize(true);
             $sheet->getColumnDimension('B')->setAutoSize(true);
             $sheet->getColumnDimension('C')->setAutoSize(true);
             $sheet->getColumnDimension('D')->setAutoSize(true);
+            $sheet->getColumnDimension('E')->setAutoSize(true);
 
             $sheet->getColumnDimension('J')->setAutoSize(true);
             $sheet->getColumnDimension('K')->setAutoSize(true);
@@ -203,14 +205,15 @@ final class ReportOrdersController extends AbstractController
                     ->setCellValue('C'.$key, $name)
                     ->setCellValue('D'.$key, str_replace(' /', '/', $strOffer))
                     ->setCellValue('E'.$key, $data->getProductArticle())
-                    ->setCellValue('F'.$key, $productPrice->getValue())
-                    ->setCellValue('G'.$key, $orderPrice->getValue())
-                    ->setCellValue('H'.$key, $data->getTotal())
-                    ->setCellValue('I'.$key, $money->getValue())
-                    ->setCellValue('J'.$key, $profit->getValue())
-                    ->setCellValue('K'.$key, $data->getDeliveryName())
-                    ->setCellValue('L'.$key, $deliveryPrice->getValue())
-                    ->setCellValue('M'.$key, $data->getComment());
+                    ->setCellValue('F'.$key, $data->getBarcodes() ? implode(',', $data->getBarcodes()) : '')
+                    ->setCellValue('G'.$key, $productPrice->getValue())
+                    ->setCellValue('H'.$key, $orderPrice->getValue())
+                    ->setCellValue('I'.$key, $data->getTotal())
+                    ->setCellValue('J'.$key, $money->getValue())
+                    ->setCellValue('K'.$key, $profit->getValue())
+                    ->setCellValue('L'.$key, $data->getDeliveryName())
+                    ->setCellValue('M'.$key, $deliveryPrice->getValue())
+                    ->setCellValue('N'.$key, $data->getComment());
 
                 $allTotal += $data->getTotal();
                 $allPrice->add($money);
@@ -220,9 +223,9 @@ final class ReportOrdersController extends AbstractController
 
             /** Итого */
             $sheet
-                ->setCellValue('A'.$key, 'Итог')
-                ->setCellValue('G'.$key, $allTotal)
-                ->setCellValue('H'.$key, $allPrice->getValue());
+                ->setCellValue('A'.$key, 'Итого')
+                ->setCellValue('H'.$key, $allTotal)
+                ->setCellValue('I'.$key, $allPrice->getValue());
 
             $response = new StreamedResponse(function() use ($writer) {
                 $writer->save('php://output');

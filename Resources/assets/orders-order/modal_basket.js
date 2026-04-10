@@ -1,16 +1,16 @@
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,10 +18,11 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 
-basket = document.querySelector("#modal");
+//basket = document.querySelector("#modal");
 
 modal_form = null;
 clicked_button = null; /** Сохраняем ссылку на нажатую кнопку */
@@ -35,11 +36,14 @@ document.addEventListener("click", function(event)
     }
 });
 
-basket.addEventListener("shown.bs.modal", function(event)
+
+if(true === document.querySelector("#modal").classList.contains('show'))
 {
 
     executeFunc(function initModalBasket()
     {
+        const basket = document.querySelector("#modal");
+
         modal_form = basket.querySelector("form");
 
         if(!modal_form)
@@ -73,8 +77,7 @@ basket.addEventListener("shown.bs.modal", function(event)
                         {
                             clicked_button.parentNode.replaceChild(basketLink, clicked_button);
                             clicked_button = null;
-                        }
-                        catch(error)
+                        } catch(error)
                         {
 
                         }
@@ -142,8 +145,16 @@ basket.addEventListener("shown.bs.modal", function(event)
         return false;
 
     });
+}
 
-});
+
+//basket.addEventListener("shown.bs.modal", function(event)
+//{
+//    console.log('shown.bs.modal ->',)
+//
+//
+//
+//});
 
 function orderModalCounter()
 {
@@ -191,6 +202,8 @@ function orderModalCounter()
 
 function orderModalSum(result)
 {
+    const basket = document.querySelector("#modal");
+
     let product_summ = basket.querySelector("#summ_" + modal_form.name + "_price_total");
 
     let result_product_sum = result * product_summ.dataset.price;
@@ -202,9 +215,9 @@ function orderModalSum(result)
 
     result_product_sum = result_product_sum / 100;
     result_product_sum = new Intl.NumberFormat($locale, {
-        style : "currency",
-        currency : product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
-        maximumFractionDigits : 0,
+        style: "currency",
+        currency: product_summ.dataset.currency === "RUR" ? "RUB" : product_summ.dataset.currency,
+        maximumFractionDigits: 0,
     }).format(result_product_sum);
     product_summ.innerText = result_product_sum;
 

@@ -73,7 +73,10 @@ document.getElementById("minus")?.addEventListener("click", () =>
 /* Обработка изменения кол-ва вручную  */
 const product_price_total = document.getElementById("public_order_product_form_price_total");
 
-product_price_total.addEventListener("input", orderProductCounter.debounce(500));
+if(product_price_total)
+{
+    product_price_total.addEventListener("input", orderProductCounter.debounce(500));
+}
 
 function orderProductCounter()
 {

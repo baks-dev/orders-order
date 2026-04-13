@@ -35,8 +35,8 @@ document.addEventListener("click", function(event)
     }
 });
 
-basket.addEventListener("shown.bs.modal", function(event)
-{
+//basket.addEventListener("shown.bs.modal", function(event)
+//{
 
     executeFunc(function initModalBasket()
     {
@@ -143,7 +143,7 @@ basket.addEventListener("shown.bs.modal", function(event)
 
     });
 
-});
+//});
 
 function orderModalCounter()
 {

@@ -37,6 +37,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
+use DateInterval;
 use DateMalformedStringException;
 use DateTimeImmutable;
 use JsonException;
@@ -105,7 +106,97 @@ final  class ProductUserBasketResult implements ProductPriceResultInterface
         private readonly string|null $profile_discount = null,
         private readonly string|null $project_discount = null,
         private readonly string|null $stock_total = null,
+
+        private string|null $product_quantity_stocks = null,
+        private string|null $product_region_delivery = null,
     ) {}
+
+
+    /* Остатки на складе */
+    public function getProductQuantityStocks(): ?int
+    {
+        if(empty($this->product_quantity_stocks))
+        {
+            return 0;
+        }
+
+        if(false === json_validate($this->product_quantity_stocks))
+        {
+            return 0;
+        }
+
+        $decode = json_decode($this->product_quantity_stocks, false, 512, JSON_THROW_ON_ERROR);
+
+        $quantity = 0;
+
+        foreach($decode as $item)
+        {
+            $quantity += (empty($item->total) ? 0 : $item->total);
+            $quantity -= (empty($item->reserve) ? 0 : $item->reserve);
+        }
+
+        return max($quantity, 0);
+    }
+
+    /* Есть ли в данном регионе */
+    public function isProductExistRegion()
+    {
+        if(empty($this->product_quantity_stocks))
+        {
+            return false;
+        }
+
+        if(false === json_validate($this->product_quantity_stocks))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /* Сроки доставки */
+    public function getProductRegionDelivery(): DateTimeImmutable
+    {
+        /** По умолчанию доставка завтра */
+        $tomorrow = new DateTimeImmutable('+ 1 day');
+
+        if(is_null($this->product_region_delivery))
+        {
+            return $tomorrow;
+        }
+
+        if(false === json_validate($this->product_region_delivery))
+        {
+            return $tomorrow;
+        }
+
+        $delivery = json_decode($this->product_region_delivery, false, 512, JSON_THROW_ON_ERROR);
+
+        if(null === current($delivery))
+        {
+            return $tomorrow;
+        }
+
+        // Сортировка массива элементов с изображениями по root = true
+
+        usort($delivery, function($a, $b) {
+            return $a->day <=> $b->day;
+        });
+
+        $delivery = current($delivery);
+
+        $delivery = new DateTimeImmutable($delivery->value)
+            ->add(DateInterval::createFromDateString(sprintf('%s days', $delivery->day)));
+
+        if($tomorrow > $delivery)
+        {
+            return $tomorrow;
+        }
+
+        return $delivery;
+    }
+
 
     /**
      * Main

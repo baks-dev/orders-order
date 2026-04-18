@@ -873,8 +873,8 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 ->join(
                     'product_profile_region',
                     UserProfile::class,
-                    'product_region_total',
-                    'product_region_total.event = product_profile_region.event',
+                    'product_region_users_profile',
+                    'product_region_users_profile.event = product_profile_region.event',
                 );
 
 
@@ -899,18 +899,18 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
             $dbal
                 ->addSelect("JSON_AGG (
                         DISTINCT JSONB_BUILD_OBJECT (
-                            'total', stock.total,
-                            'reserve', stock.reserve
-                        )) FILTER (WHERE stock.total > stock.reserve)
+                            'total', stock_region.total,
+                            'reserve', stock_region.reserve
+                        )) FILTER (WHERE stock_region.total > stock_region.reserve)
 
                         AS product_quantity_stocks",
                 )
                 ->leftJoin(
-                    'product_region_total',
+                    'product_region_users_profile',
                     ProductStockTotal::class,
                     'stock_region',
                     '
-                    stock_region.profile = product_region_total.id AND
+                    stock_region.profile = product_region_users_profile.id AND
                     stock_region.product = product.id
 
 

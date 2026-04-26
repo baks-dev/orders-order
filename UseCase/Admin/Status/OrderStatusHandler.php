@@ -84,7 +84,7 @@ final class OrderStatusHandler extends AbstractHandler
         /**
          * Проверяем, если статус заказа может присваиваться только единожды
          */
-        if($deduplicator)
+        if($this->main instanceof Order && $deduplicator)
         {
             $exists = $this->existOrderEventByStatus
                 ->forOrder($this->main->getId())

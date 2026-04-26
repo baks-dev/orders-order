@@ -816,10 +816,34 @@ final class OrderDetailRepository implements OrderDetailInterface
                     'product_modification',
                     ProductStockTotal::class,
                     'product_stock_total',
-                    'product_stock_total.product = product_event.main
-                        AND product_stock_total.offer = product_offer.const
-                        AND product_stock_total.variation = product_variation.const
-                        AND product_stock_total.modification = product_modification.const
+                    '
+                    
+                    product_stock_total.product = product_event.main
+   
+                    AND
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN product_stock_total.offer = product_offer.const
+                            ELSE product_stock_total.offer IS NULL
+                        END
+                            
+                    AND 
+                    
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN product_stock_total.variation = product_variation.const
+                            ELSE product_stock_total.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN product_stock_total.modification = product_modification.const
+                            ELSE product_stock_total.modification IS NULL
+                        END
+                  
                         AND product_stock_total.profile = :profile',
                 )
                 ->setParameter(
@@ -842,7 +866,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             				'total', product_stock_total.total,
             				'reserve', product_stock_total.reserve
             			)
-            	) AS stocks");
+            	) FILTER ( WHERE product_stock_total.id IS NOT NULL ) AS stocks");
         }
         else
         {

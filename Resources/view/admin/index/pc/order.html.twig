@@ -284,9 +284,9 @@
 
                             {% if date("now")|date('Ymd') > order.deliveryDate|date('Ymd') %}
 
-                                {% set dedline_delivery = date(order.dateModify) %}
+                                {% set dedline_delivery = order.deliveryDate %}
                                 {% set difference_delivery = dedline_delivery.diff(date("now")) %}
-                                {% set day_delivery = difference.days ?: 0 %}
+                                {% set day_delivery = difference_delivery.days ?: 0 %}
 
                                 <span class="badge bg-danger small p-1 {{ day_delivery > 1 ? 'd-blink' }}">Просрочен</span>
 

@@ -96,6 +96,8 @@ final readonly class ProductReserveByOrderNewHandler
                 context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
+            //
+
             return;
         }
 

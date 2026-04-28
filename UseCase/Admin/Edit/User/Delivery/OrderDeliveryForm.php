@@ -133,8 +133,13 @@ final class OrderDeliveryForm extends AbstractType
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event) use ($options) {
 
-
                 $data = $event->getData();
+
+                if(false === ($data instanceof OrderDeliveryDTO))
+                {
+                    return;
+                }
+
                 $form = $event->getForm();
 
                 /**

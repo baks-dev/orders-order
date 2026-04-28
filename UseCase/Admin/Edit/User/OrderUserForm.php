@@ -52,6 +52,12 @@ final class OrderUserForm extends AbstractType
 
                 /** @var OrderUserDTO $data */
                 $data = $event->getData();
+
+                if(false === ($data instanceof OrderUserDTO))
+                {
+                    return;
+                }
+
                 $form = $event->getForm();
 
                 if($data->getProfile())

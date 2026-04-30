@@ -344,6 +344,17 @@ executeFunc(function P8X1I2diQ4()
                             lazy.src = "/assets/" + $version + "/js/lazyload.min.js";
                             document.head.appendChild(lazy);
 
+
+                            modal.querySelectorAll("form").forEach(function(forms)
+                            {
+                                /* событие отправки формы */
+                                forms.addEventListener("submit", function(event)
+                                {
+                                    event.preventDefault();
+                                    submitModalForm(forms);
+                                    return false;
+                                });
+                            });
                         }
 
                     }

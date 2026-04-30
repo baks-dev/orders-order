@@ -32,18 +32,6 @@ function initOrderPackage()
         return false;
     }
 
-    frm.addEventListener(
-        "submit",
-        function(event)
-        {
-            event.preventDefault();
-            submitModalForm(frm);
-            return false;
-        },
-        {
-            once : true,
-        });
-
     return true;
 }
 

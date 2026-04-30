@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -42,6 +43,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -320,6 +322,17 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 OrderInvariable::class,
                 'order_invariable',
                 'order_invariable.main = orders.id',
+            );
+
+        /** Блокировка */
+
+        $dbal
+            ->addSelect('orders_lock.lock')
+            ->leftJoin(
+                'orders',
+                OrderLock::class,
+                'orders_lock',
+                'orders_lock.event = orders.event',
             );
 
 

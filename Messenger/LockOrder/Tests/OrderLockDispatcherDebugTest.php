@@ -24,10 +24,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\Tests;
+namespace BaksDev\Orders\Order\Messenger\LockOrder\Tests;
 
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderLockDispatcher;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewDispatcher;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use PHPUnit\Framework\Attributes\Group;
@@ -41,29 +41,29 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
 #[When(env: 'test')]
-class ProductReserveByOrderNewDebugTest extends KernelTestCase
+class OrderLockDispatcherDebugTest extends KernelTestCase
 {
+
     public function testUseCase(): void
     {
+        /** @var OrderLockDispatcher $OrderLockDispatcher */
+        $OrderLockDispatcher = self::getContainer()->get(OrderLockDispatcher::class);
 
+        self::assertTrue(true);
+        return;
 
         // Бросаем событие консольной команды
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-        /** @var ProductReserveByOrderNewDispatcher $ProductReserveByOrderNewDispatcher */
-        $ProductReserveByOrderNewDispatcher = self::getContainer()->get(ProductReserveByOrderNewDispatcher::class);
+        $message = new OrderMessage(
+            new OrderUid('019dbaff-7b75-782c-88c3-82f11f9ad874'),
+            new OrderEventUid('019dbaff-a5fa-7e05-8ce4-ac519a617397'),
+            null);
 
-        self::assertTrue(true);
-        return;
 
-        $ProductReserveByOrderNewDispatcher(
-            new OrderMessage(
-                new OrderUid('019dd03a-f1d3-7bc6-b218-85199c4a6dc0'),
-                new OrderEventUid('019dd03a-f1d3-7cda-b218-85199c6efc74'),
-                null),
-        );
+        $OrderLockDispatcher($message);
 
     }
 

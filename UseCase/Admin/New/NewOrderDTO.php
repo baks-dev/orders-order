@@ -30,6 +30,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Invariable\NewOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\New\Lock\NewOrderLockDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Posting\NewOrderPostingDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\preProduct\PreProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\NewOrderProductDTO;
@@ -85,7 +86,13 @@ final class NewOrderDTO implements OrderEventInterface
      * Пользователь
      */
     #[Assert\Valid]
-    private User\OrderUserDTO $usr;
+    private OrderUserDTO $usr;
+
+    /**
+     * Блокировка
+     */
+    #[Assert\Valid]
+    private NewOrderLockDTO $lock;
 
     /**
      * Комментарий к заказу
@@ -109,6 +116,9 @@ final class NewOrderDTO implements OrderEventInterface
         $this->usr = new OrderUserDTO();
         $this->preProduct = new PreProductDTO();
         $this->status = new OrderStatus(OrderStatusNew::class);
+
+        /** Блокировка */
+        $this->lock = new NewOrderLockDTO();
     }
 
     public function getEvent(): ?OrderEventUid
@@ -230,6 +240,30 @@ final class NewOrderDTO implements OrderEventInterface
         return $this->invariable;
     }
 
+    /**
+     * Posting
+     */
+
+    public function getPosting(): NewOrderPostingDTO
+    {
+        return $this->posting;
+    }
+
+    public function setPosting(NewOrderPostingDTO $posting): NewOrderDTO
+    {
+        $this->posting = $posting;
+        return $this;
+    }
+
+    /**
+     * Lock
+     */
+
+    public function getLock(): NewOrderLockDTO
+    {
+        return $this->lock;
+    }
+
     /** @deprecated */
     public function getProfile(): UserProfileUid
     {
@@ -243,14 +277,4 @@ final class NewOrderDTO implements OrderEventInterface
         return $this;
     }
 
-    public function getPosting(): NewOrderPostingDTO
-    {
-        return $this->posting;
-    }
-
-    public function setPosting(NewOrderPostingDTO $posting): NewOrderDTO
-    {
-        $this->posting = $posting;
-        return $this;
-    }
 }

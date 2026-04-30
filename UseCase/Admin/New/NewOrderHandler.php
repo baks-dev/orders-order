@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -31,6 +32,7 @@ use BaksDev\Core\Validator\ValidatorCollectionInterface;
 use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
 use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\UseCase\Admin\New\Products\Items\OrderProductItemDTO;
@@ -39,10 +41,13 @@ use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\CurrentUserProfileEvent\CurrentUserProfileEventInterface;
 use BaksDev\Users\Profile\UserProfile\UseCase\User\NewEdit\UserProfileHandler;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final class NewOrderHandler extends AbstractHandler
 {
     public function __construct(
+        #[Target('ordersOrderLogger')] private readonly LoggerInterface $logger,
         private readonly UserProfileHandler $profileHandler,
         private readonly CurrentUserProfileEventInterface $currentUserProfileEvent,
 
@@ -136,6 +141,22 @@ final class NewOrderHandler extends AbstractHandler
         }
 
         $this->flush();
+
+        if($this->event instanceof OrderEvent)
+        {
+            $this->logger->info(
+                message: sprintf('%s: заказ => %s обновили статус на %s',
+                    $this->event->getPostingNumber() ?? $this->event->getOrderNumber(),
+                    ($this->event->getLock() instanceof OrderLock) ?
+                        ($this->event->getLock()->isLock() ? 'ЗАБЛОКИРОВАЛИ и' : 'НЕ БЛОКИРУЯ') : 'без блокировок',
+                    $this->event->getStatus()->getOrderStatusValue(),
+                ),
+                context: [
+                    self::class.':'.__LINE__,
+                    (string) $this->main, (string) $this->event
+                ],
+            );
+        }
 
         if(true === $isDispatch)
         {

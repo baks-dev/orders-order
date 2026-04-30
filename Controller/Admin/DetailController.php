@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -28,11 +29,14 @@ namespace BaksDev\Orders\Order\Controller\Admin;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderLockMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
 use BaksDev\Orders\Order\Repository\Services\ExistActiveServicePeriod\ExistActiveOrderServiceInterface;
@@ -47,13 +51,18 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
-use BaksDev\Products\Sign\BaksDevProductsSignBundle;
 use BaksDev\Products\Sign\Repository\AllProductSignByOrder\AllProductSignByOrderInterface;
 use BaksDev\Products\Sign\Repository\GroupProductSignsByOrder\GroupProductSignsByOrderInterface;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusDone;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusProcess;
 use BaksDev\Products\Sign\Type\Status\ProductSignStatus\ProductSignStatusReturn;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Stock\Lock\ProductStockLock;
+use BaksDev\Products\Stocks\Messenger\Lock\ProductStockLockMessage;
+use BaksDev\Products\Stocks\Repository\ProductStocksByOrder\ProductStocksByOrderInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,8 +78,11 @@ final class DetailController extends AbstractController
 
     #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: ['GET', 'POST'])]
     public function index(
+        #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         #[MapEntity] Order $Order,
+        CentrifugoPublishInterface $publish,
+        MessageDispatchInterface $messageDispatch,
         CurrentOrderEventInterface $currentOrderEventRepository,
         ProductUserBasketInterface $userBasketRepository,
         OrderDetailInterface $orderDetailRepository,
@@ -79,12 +91,12 @@ final class DetailController extends AbstractController
         ExistActiveOrderServiceInterface $existActiveOrderServiceRepository,
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
-        CentrifugoPublishInterface $publish,
         string $id,
 
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
         ?AllProductSignByOrderInterface $allProductSignByOrderRepository = null,
+        ?ProductStocksByOrderInterface $productStocksByOrderRepository = null,
     ): Response
     {
         /** Получаем активное событие заказа */
@@ -102,7 +114,7 @@ final class DetailController extends AbstractController
             ->onOrder($OrderEvent->getMain())
             ->find();
 
-        if(!$OrderInfo)
+        if(false === ($OrderInfo instanceof OrderDetailResult))
         {
             return new Response('404 Page Not Found');
         }
@@ -235,15 +247,67 @@ final class DetailController extends AbstractController
                 }
             }
 
-            $OrderHandler = $handler->handle($OrderDTO);
+            /** Синхронно блокируем заказ */
 
-            if($OrderHandler instanceof Order)
+            $OrderLockMessage = new OrderLockMessage(
+                id: $OrderEvent->getMain(),
+                context: self::class.':'.__LINE__
+            );
+
+            $messageDispatch->dispatch(message: $OrderLockMessage);
+
+            $Order = $handler->handle($OrderDTO);
+
+            if($Order instanceof Order)
             {
                 $this->addFlash('success', 'success.update', 'orders-order.admin');
             }
             else
             {
-                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderHandler);
+                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $Order);
+            }
+
+            /** Синхронно блокируем складскую заявку */
+            if(true === class_exists(BaksDevProductsStocksBundle::class))
+            {
+                /**
+                 * Находим событие складской заявки связанной с заказом
+                 *
+                 * @note при установленном модуле products-stocks у отмененного заказа должна быть созданная складская заявка
+                 */
+                $ProductStockEventArray = $productStocksByOrderRepository
+                    ->onOrder($Order->getId())
+                    ->findAll();
+
+                if(true === empty($ProductStockEventArray))
+                {
+                    $logger->warning(
+                        message: 'Не найдено складской заявки, связанной с заказом',
+                        context: [self::class.':'.__LINE__],
+                    );
+                }
+
+                if(false === empty($ProductStockEventArray))
+                {
+                    /** @note в массиве всегда одна складская заявка */
+                    foreach($ProductStockEventArray as $ProductStockEvent)
+                    {
+                        /** Если нет связи с блокировкой - пропускаем */
+                        if(false === ($ProductStockEvent->getLock() instanceof ProductStockLock))
+                        {
+                            continue;
+                        }
+
+                        /** Синхронно ставим блокировку у СЗ */
+
+                        $ProductStockLockMessage = new ProductStockLockMessage(
+                            id: $ProductStockEvent->getMain(),
+                            context: self::class.':'.__LINE__,
+                        );
+
+                        $messageDispatch->dispatch(message: $ProductStockLockMessage);
+                    }
+                }
             }
 
             return $this->redirectToReferer();
@@ -254,10 +318,13 @@ final class DetailController extends AbstractController
             ->order($OrderEvent->getMain())
             ->findAllHistory();
 
-        // Отправляем сокет для скрытия заказа у других менеджеров
+        /** Отправляем сокет для скрытия заказа у других менеджеров */
         $socket = $publish
-            ->addData(['order' => (string) $OrderEvent->getMain()])
-            ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+            ->addData([
+                'order' => (string) $OrderEvent->getMain(),
+                'profile' => (string) $this->getCurrentProfileUid(),
+                'context' => self::class.':'.__LINE__,
+            ])
             ->send('orders');
 
         if($socket && $socket->isError())

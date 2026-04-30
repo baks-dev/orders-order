@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -28,6 +29,7 @@ namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockMessage;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel\ProductsReserveByOrderCancelMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
@@ -45,12 +47,10 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Создает резерв в КАРТОЧКЕ товара при поступлении НОВОГО заказа либо списании
- * - New «Новый»
- * - Decommission «Списание»
+ * Если статус заказа New «Новый» или Decommission «Списание» - Создает резерв в КАРТОЧКЕ товара при создании или списании заказа
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
- * @note сработает с НОВЫМ заказом
+ * @note Снимает блокировку с заказа
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 999)]
@@ -58,11 +58,11 @@ final readonly class ProductReserveByOrderNewDispatcher
 {
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
-        private OrderEventInterface $orderEventRepository,
-        private CurrentOrderEventInterface $CurrentOrderEvent,
-        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $messageDispatch,
+        private OrderEventInterface $orderEventRepository,
+        private CurrentOrderEventInterface $currentOrderEventRepository,
+        private UserProfileLogisticWarehouseInterface $UserProfileLogisticWarehouseRepository,
     ) {}
 
     public function __invoke(OrderMessage $message): void
@@ -102,9 +102,9 @@ final readonly class ProductReserveByOrderNewDispatcher
         }
 
         /** Получаем активное событие заказа в случае если статус заказа изменился */
-        if(empty($OrderEvent->getOrderNumber()))
+        if(true === empty($OrderEvent->getOrderNumber()))
         {
-            $OrderEvent = $this->CurrentOrderEvent
+            $OrderEvent = $this->currentOrderEventRepository
                 ->forOrder($message->getId())
                 ->find();
 
@@ -132,11 +132,13 @@ final readonly class ProductReserveByOrderNewDispatcher
             ->isLogisticWarehouse();
 
         /**
-         * Новый заказ не имеет предыдущего события!!!
+         * Если заказ имеет предыдущее событие
+         *
+         * @note Новый заказ не имеет предыдущего события!!!
          * (за исключением случая, когда мы намеренно создали новый заказ
          * после отправки заказа из другого профиля на упаковку)
          */
-        if(false !== ($message->getLast() instanceof OrderEventUid))
+        if(true === ($message->getLast() instanceof OrderEventUid))
         {
 
             if(false === ($message->getLastProfile() instanceof UserProfileUid))
@@ -158,6 +160,17 @@ final readonly class ProductReserveByOrderNewDispatcher
             /** Если оба склада логистические - не меняем резерв */
             if(true === $isLogisticWarehouse && true === $wasLogisticWarehouse)
             {
+                /** Синхронно снимаем блокировку с заказа */
+
+                $OrderUnlockMessage = new OrderUnlockMessage(
+                    id: $OrderEvent->getMain(),
+                    context: self::class.':'.__LINE__
+                );
+
+                $this->messageDispatch->dispatch(
+                    message: $OrderUnlockMessage,
+                );
+
                 return;
             }
 
@@ -236,12 +249,34 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $Deduplicator->save();
 
+                /** Синхронно снимаем блокировку с заказа */
+
+                $OrderUnlockMessage = new OrderUnlockMessage(
+                    id: $OrderEvent->getMain(),
+                    context: self::class.':'.__LINE__
+                );
+
+                $this->messageDispatch->dispatch(
+                    message: $OrderUnlockMessage,
+                );
+
                 return;
             }
         }
 
         if(false === $isLogisticWarehouse)
         {
+            /** Синхронно снимаем блокировку с заказа */
+
+            $OrderUnlockMessage = new OrderUnlockMessage(
+                id: $OrderEvent->getMain(),
+                context: self::class.':'.__LINE__
+            );
+
+            $this->messageDispatch->dispatch(
+                message: $OrderUnlockMessage,
+            );
+
             return;
         }
 
@@ -250,7 +285,7 @@ final readonly class ProductReserveByOrderNewDispatcher
          */
 
         $this->logger->info(
-            message: sprintf('%s Добавляем резерв в карточке товара для заказ со статусом `%s`',
+            message: sprintf('%s Добавляем резерв в карточке товара для заказа со статусом `%s`',
                 $OrderEvent->getOrderNumber(),
                 $OrderEvent->getStatus()->getOrderStatusValue(),
             ),
@@ -276,20 +311,6 @@ final readonly class ProductReserveByOrderNewDispatcher
 
             /** Истинное условие */
             $isCorrectItemsCount = $productTotal === $itemsCount;
-
-            if(true === $isCorrectItemsCount)
-            {
-                $this->logger->info(
-                    message: sprintf(
-                        '%s Добавляем резерв в соответствии с количеством ЕДИНИЦ продукции',
-                        $EditOrderDTO->getInvariable()->getNumber(),
-                    ),
-                    context: [
-                        '$productTotal' => $productTotal,
-                        '$itemsCount' => $itemsCount,
-                        self::class.':'.__LINE__],
-                );
-            }
 
             if(false === $isCorrectItemsCount)
             {
@@ -319,7 +340,16 @@ final readonly class ProductReserveByOrderNewDispatcher
             );
         }
 
-        //
+        /** Синхронно снимаем блокировку с заказа */
+
+        $OrderUnlockMessage = new OrderUnlockMessage(
+            id: $OrderEvent->getMain(),
+            context: self::class.':'.__LINE__
+        );
+
+        $this->messageDispatch->dispatch(
+            message: $OrderUnlockMessage,
+        );
 
         $Deduplicator->save();
     }

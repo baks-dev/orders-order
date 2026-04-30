@@ -22,6 +22,9 @@
 
 {# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
+{# Блокировка #}
+{% set isLock = order.lock %}
+
 {% if order %}
 
     {{ form_start(form, { attr: { class: 'offcanvas-body w-100 p-0' } }) }}
@@ -511,30 +514,48 @@
 
     </div>
 
+    {% set orderCanSave = isLock == false and order.orderStatus != 'completed' and order.orderStatus != 'return' %}
 
-    <div class="w-100 d-flex justify-content-between align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
+    <div class="w-100 d-flex justify-content-{{ orderCanSave == true ? 'between' : 'end' }} align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
 
-        <div>
-            {#            {% if order.orderStatus != 'completed' %} #}
-            {#            {% endif %} #}
-            {{ form_widget(form.order, { label: '
+        {% set order_save = form_widget(form.order, { label: '
                     <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
                     <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
 		        ', attr: { class: 'btn-danger', title : "Сохранить изменения" }
-            }) }}
-        </div>
+        }) %}
 
 
-        <div class="w-50 d-flex gap-3 align-items-end justify-content-end">
+        {# Сохранение изменений #}
+        {% if orderCanSave == true %}
+
+            <div>{{ order_save|raw }}</div>
+
+        {% endif %}
+
+
+        <div class="d-flex gap-3 align-items-center justify-content-end text-end">
+
+            {# Управление блокировкой #}
+            {% if (is_granted('ROLE_ADMIN') or is_granted('ROLE_ORDERS_LOCK')) and isLock !== null %}
+
+                <a href="{{ path('orders-order:admin.lock', { id: order.orderId, lock: isLock }) }}"
+                   class="btn btn-warning border text-dark"
+                   title={{ isLock ? 'Разблокировать заказ' : 'Заблокировать заказ' }}>
+
+                    {{ isLock ? 'Разблокировать заказ' : 'Заблокировать заказ' }}
+
+                </a>
+            {% endif %}
 
             <button type="button"
-                    class="btn btn-light border text-secondary"
+                    class="btn btn-light border text-secondary fw-bold"
                     data-bs-dismiss="offcanvas"
                     title="Close">
                 <span class="text-nowrap">Закрыть без изменений</span>
             </button>
 
         </div>
+
     </div>
 
     {{ form_end(form) }}

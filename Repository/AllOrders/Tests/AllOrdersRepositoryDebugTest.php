@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -44,7 +45,6 @@ class AllOrdersRepositoryDebugTest extends KernelTestCase
 {
     public function testRepository(): void
     {
-        // @TODO вернуть при релизе
         self::assertTrue(true);
         return;
 

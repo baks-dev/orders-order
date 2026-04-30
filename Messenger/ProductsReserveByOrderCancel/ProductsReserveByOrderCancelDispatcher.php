@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -28,6 +29,7 @@ namespace BaksDev\Orders\Order\Messenger\ProductsReserveByOrderCancel;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockMessage;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderEvent\OrderEventInterface;
@@ -39,6 +41,7 @@ use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
@@ -148,7 +151,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         }
 
         /** Получаем активное событие заказа для номера и профиля склада на случай, если статус заказа изменился */
-        if(empty($OrderEvent->getOrderNumber()))
+        if(true === empty($OrderEvent->getOrderNumber()))
         {
             $OrderEvent = $this->CurrentOrderEvent
                 ->forOrder($message->getId())
@@ -172,6 +175,8 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
+        $existBaksDevProductsStocksBundle = class_exists(BaksDevProductsStocksBundle::class);
+
         /**
          * Проверяем, является ли данный профиль логистическим складом
          */
@@ -182,6 +187,26 @@ final readonly class ProductsReserveByOrderCancelDispatcher
 
         if(false === $isLogisticWarehouse)
         {
+
+            /**
+             * Если установлен модуль products-stocks -
+             * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
+             */
+            if(true === $existBaksDevProductsStocksBundle)
+            {
+                return;
+            }
+
+            /** Синхронно снимаем блокировку с заказа */
+            $OrderUnlockMessage = new OrderUnlockMessage(
+                id: $OrderEvent->getMain(),
+                context: self::class.':'.__LINE__
+            );
+
+            $this->messageDispatch->dispatch(
+                message: $OrderUnlockMessage,
+            );
+
             return;
         }
 
@@ -190,7 +215,7 @@ final readonly class ProductsReserveByOrderCancelDispatcher
          */
 
         $this->logger->info(
-            sprintf('%s: Снимаем общий резерв в карточке товара для заказ со статусом `%s`',
+            sprintf('%s: Снимаем общий резерв в карточке товара для заказ со статусом %s',
                 $OrderEvent->getOrderNumber(),
                 $OrderEvent->getStatus()->getOrderStatusValue(),
             ),
@@ -283,6 +308,26 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 transport: 'products-product',
             );
         }
+
+        /**
+         * Если установлен модуль products-stocks -
+         * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
+         */
+        if(true === $existBaksDevProductsStocksBundle)
+        {
+            $Deduplicator->save();
+            return;
+        }
+
+        /** Синхронно снимаем блокировку с заказа */
+        $OrderUnlockMessage = new OrderUnlockMessage(
+            id: $OrderEvent->getMain(),
+            context: self::class.':'.__LINE__
+        );
+
+        $this->messageDispatch->dispatch(
+            message: $OrderUnlockMessage,
+        );
 
         $Deduplicator->save();
     }

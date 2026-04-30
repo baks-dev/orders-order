@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -32,15 +33,18 @@ use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
 use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\OrderEventInterface;
+use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final class OrderStatusHandler extends AbstractHandler
 {
     public function __construct(
+        #[Target('ordersOrderLogger')] private readonly LoggerInterface $logger,
         private readonly ExistOrderEventByStatusInterface $existOrderEventByStatus,
 
         EntityManagerInterface $entityManager,
@@ -57,20 +61,6 @@ final class OrderStatusHandler extends AbstractHandler
     /** @see Order */
     public function handle(OrderEventInterface $command, bool $deduplicator = true): string|Order
     {
-        //        /**  */
-        //
-        //        $lastProfile = null;
-        //
-        //        if($command->getEvent() instanceof OrderEventUid)
-        //        {
-        //            $lastEvent = $this->getRepository(OrderEvent::class)->find($command->getEvent());
-        //
-        //            if($lastEvent instanceof OrderEvent)
-        //            {
-        //                $lastProfile = $lastEvent->getOrderProfile();
-        //            }
-        //        }
-
         $this
             ->setCommand($command)
             ->preEventPersistOrUpdate(Order::class, OrderEvent::class);
@@ -99,7 +89,23 @@ final class OrderStatusHandler extends AbstractHandler
 
         $this->flush();
 
-        /* Отправляем сообщение в шину */
+        if($this->event instanceof OrderEvent)
+        {
+            $this->logger->info(
+                message: sprintf('%s: заказ => %s обновили статус на %s',
+                    $this->event->getPostingNumber() ?? $this->event->getOrderNumber(),
+                    ($this->event->getLock() instanceof OrderLock) ?
+                        ($this->event->getLock()->isLock() ? 'ЗАБЛОКИРОВАЛИ и' : 'НЕ БЛОКИРУЯ') : 'без блокировок',
+                    $this->event->getStatus()->getOrderStatusValue(),
+                ),
+                context: [
+                    self::class.':'.__LINE__,
+                    (string) $this->main, (string) $this->event
+                ],
+            );
+        }
+
+        /** Отправляем сообщение в шину */
         $this->messageDispatch
             ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
             ->addClearCacheOther('orders-order-'.$command->getStatus())

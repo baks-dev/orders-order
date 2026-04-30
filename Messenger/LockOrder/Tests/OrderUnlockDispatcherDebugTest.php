@@ -24,11 +24,10 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\Tests;
+namespace BaksDev\Orders\Order\Messenger\LockOrder\Tests;
 
-use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Orders\Order\Messenger\ProductReserveByOrderNew\ProductReserveByOrderNewDispatcher;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockHandler;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockMessage;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -41,29 +40,28 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
 #[When(env: 'test')]
-class ProductReserveByOrderNewDebugTest extends KernelTestCase
+class OrderUnlockDispatcherDebugTest extends KernelTestCase
 {
     public function testUseCase(): void
     {
 
+        /** @var OrderUnlockHandler $OrderUnlockDispatcher */
+        $OrderUnlockDispatcher = self::getContainer()->get(OrderUnlockHandler::class);
+
+        self::assertTrue(true);
+        return;
 
         // Бросаем событие консольной команды
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-        /** @var ProductReserveByOrderNewDispatcher $ProductReserveByOrderNewDispatcher */
-        $ProductReserveByOrderNewDispatcher = self::getContainer()->get(ProductReserveByOrderNewDispatcher::class);
-
-        self::assertTrue(true);
-        return;
-
-        $ProductReserveByOrderNewDispatcher(
-            new OrderMessage(
-                new OrderUid('019dd03a-f1d3-7bc6-b218-85199c4a6dc0'),
-                new OrderEventUid('019dd03a-f1d3-7cda-b218-85199c6efc74'),
-                null),
+        $message = new OrderUnlockMessage(
+            new OrderUid('019dbf4c-be49-7357-b764-f3d12ccd5667'),
+            self::class.':'.__LINE__
         );
+
+        $OrderUnlockDispatcher($message);
 
     }
 

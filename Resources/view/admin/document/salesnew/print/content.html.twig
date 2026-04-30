@@ -73,16 +73,22 @@
         {% endfor %}
 
         {% for delivery in orderDelivery %}
+
             <li class="list-group-item">
                 {{ delivery.delivery_name }}: <strong>{{ delivery.delivery_value }}</strong>
             </li>
+
+        {% else %}
+
+            {# Если не указан адрес доставки - пробуем показать с геолокации #}
+            {% if deliveryGeocodeAddress %}
+                <li class="list-group-item">
+                    Адрес доставки:<strong> {{ deliveryGeocodeAddress }}</strong>
+                </li>
+            {% endif %}
+
         {% endfor %}
 
-        {% if deliveryGeocodeAddress %}
-            <li class="list-group-item">
-                Адрес доставки:<strong> {{ deliveryGeocodeAddress }}</strong>
-            </li>
-        {% endif %}
 
         <li class="list-group-item">
             Способ оплаты:

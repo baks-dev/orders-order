@@ -44,7 +44,7 @@
                 </a>
             </li>
 
-            {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
+            {% if order.orderStatus != 'new' %}
 
                 <a href="{{ path('orders-order:admin.document.sticker', { id : order.orderId }) }}"
                    class="dropdown-item prnt"
@@ -88,7 +88,7 @@
 
 
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MATERIAL_SIGN_REISSUE') %}
-                            {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
+                            {% if order.orderStatus != 'new' %}
                                 <span data-bs-toggle="tooltip"
                                       data-bs-placement="bottom"
                                       data-bs-delay='{"show":600,"hide":100}'
@@ -234,7 +234,7 @@
 
                         {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_PRODUCT_SIGN_REISSUE') %}
 
-                            {% if order.orderStatus != 'new' and order.orderStatus != 'completed' %}
+                            {% if order.orderStatus != 'new' %}
 
                                 <span data-bs-toggle="tooltip"
                                       data-bs-placement="bottom"

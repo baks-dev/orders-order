@@ -148,7 +148,7 @@ final class NewOrderHandler extends AbstractHandler
                 message: sprintf('%s: заказ => %s обновили статус на %s',
                     $this->event->getPostingNumber() ?? $this->event->getOrderNumber(),
                     ($this->event->getLock() instanceof OrderLock) ?
-                        ($this->event->getLock()->isLock() ? 'ЗАБЛОКИРОВАЛИ и' : 'НЕ БЛОКИРУЯ') : 'без блокировок',
+                        ($this->event->getLock()->getValue() ? 'ЗАБЛОКИРОВАЛИ и' : 'НЕ БЛОКИРУЯ') : 'без блокировок',
                     $this->event->getStatus()->getOrderStatusValue(),
                 ),
                 context: [

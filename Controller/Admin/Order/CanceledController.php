@@ -145,7 +145,6 @@ final class CanceledController extends AbstractController
                     );
                 }
 
-
                 /** По умолчанию заказ отменяется со статусом Canceled «Отменен» */
                 $orderCanceledDTO = new CanceledOrderDTO();
 
@@ -278,7 +277,7 @@ final class CanceledController extends AbstractController
             $publish
                 ->addData([
                     'order' => (string) $orderEvent->getMain(),
-                    'profile' => false,
+                    'profile' => false, // у всех
                     'context' => self::class.':'.__LINE__,
                 ])
                 ->send('orders');

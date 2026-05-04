@@ -24,60 +24,23 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\UseCase\Admin\Lock;
+namespace BaksDev\Orders\Order\UseCase\Admin\Edit\Lock;
 
 use BaksDev\Orders\Order\Entity\Lock\OrderLockInterface;
-use BaksDev\Orders\Order\Type\Event\OrderEventUid;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see OrderLock */
-final class OrderLockDTO implements OrderLockInterface
+final class EditOrderStatusLockDTO implements OrderLockInterface
 {
-    #[Assert\Uuid]
-    private readonly OrderEventUid $id;
+    /** Блокируем при создании, не перезаписывая данными из сущности */
+    private readonly true $value;
 
-    private bool $value = false;
-
-    private OrderStatus $status;
-
-    public function __construct(OrderEventUid $id, OrderStatus $status)
-    {
-        $this->id = $id;
-        $this->status = $status;
-    }
-
-    /**
-     * Event
-     */
-    public function getEvent(): OrderEventUid
-    {
-        return $this->id;
-    }
-
-    /**
-     * Lock
-     */
-
-    public function getValue(): bool
-    {
-        return $this->value;
-    }
-
-    public function unlock()
-    {
-        $this->value = false;
-        return $this;
-    }
-
-    public function lock()
+    public function __construct()
     {
         $this->value = true;
-        return $this;
     }
 
-    public function getStatus(): OrderStatus
+    public function getValue(): true
     {
-        return $this->status;
+        return $this->value;
     }
 }

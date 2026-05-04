@@ -33,7 +33,6 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSignsByOrderInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Messenger\LockOrder\OrderLockMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
@@ -79,8 +78,8 @@ final class DetailController extends AbstractController
     #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: ['GET', 'POST'])]
     public function index(
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
-        Request $request,
         #[MapEntity] Order $Order,
+        Request $request,
         CentrifugoPublishInterface $publish,
         MessageDispatchInterface $messageDispatch,
         CurrentOrderEventInterface $currentOrderEventRepository,
@@ -91,8 +90,6 @@ final class DetailController extends AbstractController
         ExistActiveOrderServiceInterface $existActiveOrderServiceRepository,
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
-        string $id,
-
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
         ?AllProductSignByOrderInterface $allProductSignByOrderRepository = null,
@@ -174,7 +171,7 @@ final class DetailController extends AbstractController
             ->createForm(
                 type: EditOrderForm::class,
                 data: $OrderDTO,
-                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $id])],
+                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $Order->getId()])],
             )
             ->handleRequest($request);
 
@@ -192,9 +189,11 @@ final class DetailController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-
             $this->refreshTokenForm($form);
 
+            /**
+             * Единицы продукции
+             */
             foreach($OrderDTO->getProduct() as $product)
             {
                 /** Еси при редактировании заказа был добавлен новый продукт - у него нет единиц продукции - нужно создать */
@@ -216,8 +215,6 @@ final class DetailController extends AbstractController
 
             /**
              * Проверка уникальности периода
-             *
-             * @var OrderServiceDTO $service
              */
             foreach($OrderDTO->getServ() as $service)
             {
@@ -247,15 +244,6 @@ final class DetailController extends AbstractController
                 }
             }
 
-            /** Синхронно блокируем заказ */
-
-            $OrderLockMessage = new OrderLockMessage(
-                id: $OrderEvent->getMain(),
-                context: self::class.':'.__LINE__
-            );
-
-            $messageDispatch->dispatch(message: $OrderLockMessage);
-
             $Order = $handler->handle($OrderDTO);
 
             if($Order instanceof Order)
@@ -267,13 +255,14 @@ final class DetailController extends AbstractController
                 $this->addFlash('danger', 'danger.update', 'orders-order.admin', $Order);
             }
 
-            /** Синхронно блокируем складскую заявку */
+            /**
+             * Синхронно блокируем складскую заявку
+             * @note при установленном модуле products-stocks у заказа должна быть созданная складская заявка
+             */
             if(true === class_exists(BaksDevProductsStocksBundle::class))
             {
                 /**
                  * Находим событие складской заявки связанной с заказом
-                 *
-                 * @note при установленном модуле products-stocks у отмененного заказа должна быть созданная складская заявка
                  */
                 $ProductStockEventArray = $productStocksByOrderRepository
                     ->onOrder($Order->getId())
@@ -385,7 +374,7 @@ final class DetailController extends AbstractController
 
         return $this->render(
             [
-                'id' => $id,
+                'id' => (string) $Order->getId(),
                 'form' => $form->createView(),
                 'order' => $OrderInfo,
                 'history' => $History,

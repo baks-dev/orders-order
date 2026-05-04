@@ -26,5 +26,5 @@ namespace BaksDev\Orders\Order\Entity\Lock;
 
 interface OrderLockInterface
 {
-    public function getLock(): bool;
+    public function getValue(): bool;
 }

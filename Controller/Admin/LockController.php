@@ -42,7 +42,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_LOCK')]
-final class OrderLockController extends AbstractController
+final class LockController extends AbstractController
 {
     /** Блокировка */
     #[Route('/admin/order/lock/{id}', name: 'admin.lock', methods: ['GET', 'POST'])]

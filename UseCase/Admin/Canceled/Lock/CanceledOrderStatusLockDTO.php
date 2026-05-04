@@ -32,15 +32,15 @@ use BaksDev\Orders\Order\Entity\Lock\OrderLockInterface;
 final class CanceledOrderStatusLockDTO implements OrderLockInterface
 {
     /** Блокируем при создании, не перезаписывая данными из сущности */
-    private readonly true $lock;
+    private readonly true $value;
 
     public function __construct()
     {
-        $this->lock = true;
+        $this->value = true;
     }
 
-    public function getLock(): true
+    public function getValue(): true
     {
-        return $this->lock;
+        return $this->value;
     }
 }

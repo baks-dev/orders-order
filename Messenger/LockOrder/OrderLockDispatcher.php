@@ -84,7 +84,7 @@ final readonly class OrderLockDispatcher
         }
 
         /** Если заказ уже заблокирован - прерываем обработчик */
-        if(true === $OrderEvent->getLock()->isLock())
+        if(true === $OrderEvent->getLock()->getValue())
         {
             $this->logger->warning(
                 message: sprintf('%s: заказ => УЖЕ ЗАБЛОКИРОВАН в статусе %s',

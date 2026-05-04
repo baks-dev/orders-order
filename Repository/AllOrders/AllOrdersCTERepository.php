@@ -327,7 +327,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         /** Блокировка */
 
         $dbal
-            ->addSelect('orders_lock.lock')
+            ->addSelect('orders_lock.value AS lock')
             ->leftJoin(
                 'orders',
                 OrderLock::class,

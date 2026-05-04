@@ -27,38 +27,13 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
 use BaksDev\Core\Entity\AbstractHandler;
-use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Core\Validator\ValidatorCollectionInterface;
-use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
-use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\EditOrder\EditOrderMessage;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
-use BaksDev\Products\Stocks\Entity\Stock\Lock\ProductStockLock;
-use BaksDev\Products\Stocks\Messenger\Lock\ProductStockLockMessage;
-use BaksDev\Products\Stocks\Repository\ProductStocksByOrder\ProductStocksByOrderInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final class EditOrderHandler extends AbstractHandler
 {
-    public function __construct(
-        #[Target('ordersOrderLogger')] private readonly LoggerInterface $logger,
-        EntityManagerInterface $entityManager,
-        MessageDispatchInterface $messageDispatch,
-        ValidatorCollectionInterface $validatorCollection,
-        ImageUploadInterface $imageUpload,
-        FileUploadInterface $fileUpload,
-
-        private readonly ?ProductStocksByOrderInterface $productStocksByOrderRepository = null,
-    )
-    {
-        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
-    }
-
     public function handle(EditOrderDTO $command): string|Order
     {
         /**
@@ -89,6 +64,12 @@ final class EditOrderHandler extends AbstractHandler
          * Отправляем сообщение в шину
          */
 
+        /** @note Для изменения связанных с заказом процессов */
+        $this->messageDispatch->dispatch(
+            message: new EditOrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+            transport: 'orders-order',
+        );
+
         $this->messageDispatch
             ->addClearCacheOther('orders-order-'.$this->getLastEvent()?->getStatus())
             ->addClearCacheOther('orders-order-'.$command->getStatus())
@@ -96,12 +77,6 @@ final class EditOrderHandler extends AbstractHandler
                 message: new OrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
                 transport: 'orders-order',
             );
-
-        /** @note Для изменения связанных с заказом процессов */
-        $this->messageDispatch->dispatch(
-            message: new EditOrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-            transport: 'orders-order',
-        );
 
         return $this->main;
     }

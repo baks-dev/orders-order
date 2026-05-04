@@ -101,7 +101,7 @@ final readonly class OrderUnlockDispatcher
          *
          * @note заказ мог быть заблокирован вручную
          */
-        if(false === $OrderEvent->getLock()->isLock())
+        if(false === $OrderEvent->getLock()->getValue())
         {
             $this->logger->warning(
                 message: sprintf('%s: заказ => УЖЕ РАЗБЛОКИРОВАН в статусе %s',

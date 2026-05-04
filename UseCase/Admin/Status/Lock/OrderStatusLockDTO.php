@@ -32,10 +32,10 @@ use BaksDev\Orders\Order\Entity\Lock\OrderLockInterface;
 final class OrderStatusLockDTO implements OrderLockInterface
 {
     /** Блокируем при создании */
-    private bool $lock = true;
+    private bool $value = true;
 
-    public function getLock(): bool
+    public function getValue(): bool
     {
-        return $this->lock;
+        return $this->value;
     }
 }

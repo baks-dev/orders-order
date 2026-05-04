@@ -28,6 +28,7 @@ namespace BaksDev\Orders\Order\Entity\Lock;
 
 use BaksDev\Core\Entity\EntityReadonly;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
@@ -38,15 +39,23 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_lock')]
-#[ORM\Index(columns: ['lock'])]
+#[ORM\Index(columns: ['value'])]
 class OrderLock extends EntityReadonly
 {
+    /**
+     * Идентификатор main
+     */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    #[ORM\Id]
+    #[ORM\Column(type: OrderUid::TYPE, nullable: false)]
+    private OrderUid $main;
+
     /**
      * Идентификатор События
      */
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    #[ORM\Id]
     #[ORM\OneToOne(targetEntity: OrderEvent::class, inversedBy: 'lock')]
     #[ORM\JoinColumn(name: 'event', referencedColumnName: 'id')]
     private OrderEvent $event;
@@ -55,16 +64,27 @@ class OrderLock extends EntityReadonly
      * Значение свойства
      */
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
-    private bool $lock = false;
+    private bool $value = false;
 
     public function __construct(OrderEvent $event)
     {
+        $this->main = $event->getMain();
         $this->event = $event;
     }
 
     public function __toString(): string
     {
         return (string) $this->event;
+    }
+
+    public function getMain(): OrderUid
+    {
+        return $this->main;
+    }
+
+    public function getValue(): bool
+    {
+        return $this->value;
     }
 
     public function getDto($dto): mixed
@@ -87,10 +107,5 @@ class OrderLock extends EntityReadonly
 
         throw new InvalidArgumentException(sprintf(
             'Class %s interface error in %s', $dto::class, self::class.':'.__LINE__));
-    }
-
-    public function isLock(): bool
-    {
-        return $this->lock;
     }
 }

@@ -85,7 +85,7 @@ final readonly class OrderUnlockHandler
         }
 
         /** Если заказ уже РАЗБЛОКИРОВАН - прерываем обработчик */
-        if(false === $OrderEvent->getLock()->isLock())
+        if(false === $OrderEvent->getLock()->getValue())
         {
             $this->logger->warning(
                 message: sprintf('%s: заказ => УЖЕ РАЗБЛОКИРОВАН в статусе %s',

@@ -31,10 +31,15 @@ use BaksDev\Orders\Order\Entity\Lock\OrderLockInterface;
 /** @see OrderLock */
 final class OrderStatusLockDTO implements OrderLockInterface
 {
-    /** Блокируем при создании */
-    private bool $value = true;
+    /** Блокируем при создании, не перезаписывая данными из сущности */
+    private readonly true $value;
 
-    public function getValue(): bool
+    public function __construct()
+    {
+        $this->value = true;
+    }
+
+    public function getValue(): true
     {
         return $this->value;
     }

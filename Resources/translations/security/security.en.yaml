@@ -35,10 +35,14 @@ ROLE_ORDERS_DISCOUNT_20:
   name: 'Discount 20%'
   desc: ''
 
+ROLE_ORDERS_LOCK:
+  name: 'Lock'
+  desc: 'Lock or unlock'
+
+# Роль статусов заказов
 ROLE_ORDERS_STATUS:
   name: 'Order statuses'
   desc: 'Rules for user access to orders of a certain status'
-
 
 ROLE_ORDERS_STATUS_NEW:
   name: 'New'

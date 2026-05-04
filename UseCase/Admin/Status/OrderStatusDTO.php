@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Status;
@@ -28,6 +29,8 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Status\Invariable\StatusOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Lock\OrderStatusLockDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Status\Modify\ModifyDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -53,14 +56,15 @@ final class OrderStatusDTO implements OrderEventInterface
      * Присваивается User в случае, если статус асинхронно меняется складской заявкой
      */
     #[Assert\Valid]
-    private Modify\ModifyDTO $modify;
+    private ModifyDTO $modify;
 
     private StatusOrderInvariableDTO $invariable;
-
 
     /** Комментарий к заказу */
     private ?string $comment = null;
 
+    /** Блокировка */
+    private OrderStatusLockDTO $lock;
 
     public function __construct(
         OrderStatus|OrderStatusInterface|string $status,
@@ -69,8 +73,10 @@ final class OrderStatusDTO implements OrderEventInterface
     {
         $this->id = $id;
         $this->status = new OrderStatus($status);
-        $this->modify = new Modify\ModifyDTO();
+        $this->modify = new ModifyDTO();
         $this->invariable = new StatusOrderInvariableDTO();
+
+        $this->lock = new OrderStatusLockDTO();
     }
 
     /** Идентификатор события */
@@ -94,7 +100,7 @@ final class OrderStatusDTO implements OrderEventInterface
     /**
      * Modify
      */
-    public function getModify(): Modify\ModifyDTO
+    public function getModify(): ModifyDTO
     {
         return $this->modify;
     }
@@ -131,5 +137,13 @@ final class OrderStatusDTO implements OrderEventInterface
         $this->comment .= (empty($this->comment) ? '' : ', ').$comment;
 
         return $this;
+    }
+
+    /**
+     * OrderLock
+     */
+    public function getLock(): OrderStatusLockDTO
+    {
+        return $this->lock;
     }
 }

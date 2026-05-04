@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2026.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,18 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
 
 namespace BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage;
 
+use BaksDev\Centrifugo\BaksDevCentrifugoBundle;
+use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Order;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockMessage;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
@@ -37,19 +42,24 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Метод меняет статус заказа на Package «Упаковка заказов»
+ *
+ * @note Снимает блокировку с заказа
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 100)]
 final readonly class OrdersPackageByMultiplyDispatcher
 {
     public function __construct(
-        #[Target('ordersOrderLogger')] private LoggerInterface $Logger,
+        #[Target('ordersOrderLogger')] private LoggerInterface $logger,
+        private MessageDispatchInterface $messageDispatch,
+        private UserTokenStorageInterface $UserTokenStorageRepository,
         private OrderStatusHandler $OrderStatusHandler,
-        private UserTokenStorageInterface $UserTokenStorage
+        private ?CentrifugoPublishInterface $centrifugoPublish = null,
     ) {}
 
     public function __invoke(OrdersPackageByMultiplyMessage $message): void
     {
+
         /**
          * Обновляем статус заказа и присваиваем профиль склада упаковки.
          */
@@ -60,26 +70,61 @@ final readonly class OrdersPackageByMultiplyDispatcher
 
 
         /** Авторизуем текущего пользователя для лога изменений если сообщение обрабатывается из очереди */
-        if(false === $this->UserTokenStorage->isUser())
+        if(false === $this->UserTokenStorageRepository->isUser())
         {
-            $this->UserTokenStorage->authorization($message->getCurrentUser());
+            $this->UserTokenStorageRepository->authorization($message->getCurrentUser());
         }
 
         $Order = $this->OrderStatusHandler->handle($OrderStatusDTO);
 
         if(false === ($Order instanceof Order))
         {
-            $this->Logger->critical(
-                sprintf('orders-order: Ошибка %s при обновлении статуса заказа на упаковке', $Order),
+            $this->logger->critical(
+                sprintf('orders-order: Ошибка %s при обновлении статуса заказа на упаковке',
+                    $Order,
+                ),
                 [self::class.':'.__LINE__, var_export($message, true)],
             );
 
             return;
         }
 
-        $this->Logger->info(
-            sprintf('Обновили статус заказа %s', $Order->getId()),
-            [self::class.':'.__LINE__, var_export($message, true)],
+        /** Синхронно снимаем блокировку с заказа */
+
+        $OrderUnlockMessage = new OrderUnlockMessage(
+            id: $Order->getId(),
+            context: self::class.':'.__LINE__
         );
+
+        $this->messageDispatch->dispatch(
+            message: $OrderUnlockMessage,
+        );
+
+        if(true === class_exists(BaksDevCentrifugoBundle::class))
+        {
+            /**
+             * Отправляем сокет для скрытия заказа
+             */
+            $socket = $this->centrifugoPublish
+                ->addData([
+                    'order' => (string) $Order->getId(),
+                    'profile' => false,
+                    'context' => self::class.':'.__LINE__,
+                ])
+                ->send('orders');
+
+            if($socket && $socket->isError())
+            {
+                $this->logger->critical(
+                    message: 'orders-order: Ошибка при отправке информации о блокировке в Centrifugo',
+                    context: [
+                        $socket->getMessage(),
+                        self::class.':'.__LINE__,
+                    ],
+                );
+            }
+        }
+
+
     }
 }

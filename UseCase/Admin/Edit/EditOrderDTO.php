@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
@@ -29,6 +30,7 @@ use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Invariable\EditOrderInvariableDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Edit\Lock\EditOrderStatusLockDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Service\OrderServiceDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\User\OrderUserDTO;
@@ -92,6 +94,12 @@ final class EditOrderDTO implements OrderEventInterface
     /** Персональная скидка пользователя для заказа */
     private ?int $discount = null;
 
+    /**
+     * Блокировка
+     */
+    #[Assert\Valid]
+    private EditOrderStatusLockDTO $lock;
+
     public function __construct(?OrderUid $order = null)
     {
         if($order)
@@ -105,6 +113,7 @@ final class EditOrderDTO implements OrderEventInterface
         $this->invariable = new EditOrderInvariableDTO();
 
         $this->serv = new ArrayCollection();
+        $this->lock = new EditOrderStatusLockDTO();
     }
 
 
@@ -286,5 +295,13 @@ final class EditOrderDTO implements OrderEventInterface
     public function getOrderNumber(): ?string
     {
         return $this->invariable->getNumber();
+    }
+
+    /**
+     * OrderLock
+     */
+    public function getLock(): EditOrderStatusLockDTO
+    {
+        return $this->lock;
     }
 }

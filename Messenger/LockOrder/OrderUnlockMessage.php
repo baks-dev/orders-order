@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2026.  Baks.dev <admin@baks.dev>
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,48 +24,36 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Forms\Canceled;
+namespace BaksDev\Orders\Order\Messenger\LockOrder;
 
-use BaksDev\Orders\Order\Forms\Canceled\Orders\CanceledOrdersOrderDTO;
-use Doctrine\Common\Collections\ArrayCollection;
+use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
-final class CanceledOrdersDTO
+final class OrderUnlockMessage
 {
-    private ArrayCollection $orders;
+    /** Идентификатор заказа */
+    private string $id;
 
-    private ?string $comment = null;
+    /** Контекст (откуда была вызвана блокировка) */
+    private ?string $context;
 
-    public function __construct()
+    public function __construct(
+        OrderUid $id,
+        ?string $context = null,
+    )
     {
-        $this->orders = new ArrayCollection();
+        $this->id = (string) $id;
+        $this->context = (string) $context;
     }
 
-    /** @return ArrayCollection<int, CanceledOrdersOrderDTO> */
-    public function getOrders(): ArrayCollection
+    /** Идентификатор заказа */
+    public function getId(): OrderUid
     {
-        return $this->orders;
+        return new OrderUid($this->id);
     }
 
-    public function setOrders(ArrayCollection $orders): self
+    public function getContext(): ?string
     {
-        $this->orders = $orders;
-        return $this;
-    }
-
-    public function addOrder(CanceledOrdersOrderDTO $order): self
-    {
-        $this->orders->add($order);
-        return $this;
-    }
-
-    public function getComment(): ?string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(?string $comment): self
-    {
-        $this->comment = $comment;
-        return $this;
+        return $this->context;
     }
 }

@@ -38,6 +38,7 @@ use BaksDev\Field\Pack\Contact\Type\ContactField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -184,6 +185,17 @@ final class OrderDetailRepository implements OrderDetailInterface
                 OrderInvariable::class,
                 'orders_invariable',
                 'orders_invariable.main = orders.id',
+            );
+
+        /** Блокировка */
+
+        $dbal
+            ->addSelect('orders_lock.value AS lock')
+            ->leftJoin(
+                'orders',
+                OrderLock::class,
+                'orders_lock',
+                'orders_lock.event = orders.event',
             );
 
         $dbal

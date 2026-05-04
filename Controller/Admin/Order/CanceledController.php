@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -27,7 +28,9 @@ namespace BaksDev\Orders\Order\Controller\Admin\Order;
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersDTO;
@@ -38,15 +41,25 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusMarketplace;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderDTO;
+use BaksDev\Orders\Order\UseCase\Admin\Canceled\CanceledOrderStatusHandler;
 use BaksDev\Orders\Order\UseCase\Admin\Canceled\ReturnOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Stock\Lock\ProductStockLock;
+use BaksDev\Products\Stocks\Messenger\Lock\ProductStockLockMessage;
+use BaksDev\Products\Stocks\Repository\ProductStocksByOrder\ProductStocksByOrderInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @note Блокирует складскую заявку
+ */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
 final class CanceledController extends AbstractController
@@ -54,14 +67,17 @@ final class CanceledController extends AbstractController
     /** Отмена заказа с указанием причины */
     #[Route('/admin/order/canceled', name: 'admin.order.canceled', methods: ['GET', 'POST'])]
     public function canceled(
+        #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
+        DeduplicatorInterface $deduplicator,
         EntityManagerInterface $EntityManager,
+        MessageDispatchInterface $messageDispatch,
         CentrifugoPublishInterface $publish,
-        OrderStatusHandler $OrderStatusHandler,
+        OrderStatusHandler $orderStatusHandler,
         ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
+        ?ProductStocksByOrderInterface $productStocksByOrderRepository = null,
     ): Response
     {
-
         $canceledOrdersDTO = new CanceledOrdersDTO();
         $canceledOrdersForm = $this->createForm(
             CanceledOrdersForm::class,
@@ -83,6 +99,18 @@ final class CanceledController extends AbstractController
 
             foreach($canceledOrdersDTO->getOrders() as $order)
             {
+                $deduplicatorExec = $deduplicator
+                    ->namespace('orders-order')
+                    ->deduplication([
+                        (string) $order->getId(),
+                        self::class,
+                    ]);
+
+                if($deduplicatorExec->isExecuted())
+                {
+                    continue;
+                }
+
                 /** Пробуем найти по идентификатору заказа */
                 $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
 
@@ -144,12 +172,58 @@ final class CanceledController extends AbstractController
                     $orderCanceledDTO->setComment($canceledOrdersDTO->getComment());
                 }
 
-                $handle = $OrderStatusHandler->handle($orderCanceledDTO);
+                $Order = $orderStatusHandler->handle($orderCanceledDTO);
 
-                if(false === ($handle instanceof Order))
+                if(false === ($Order instanceof Order))
                 {
                     $unsuccessful[] = $orderEvent->getOrderNumber();
+                    continue;
                 }
+
+                /** Синхронно блокируем складскую заявку */
+                if(true === class_exists(BaksDevProductsStocksBundle::class))
+                {
+                    /**
+                     * Находим событие складской заявки связанной с заказом
+                     *
+                     * @note при установленном модуле products-stocks у отмененного заказа должна быть созданная складская заявка
+                     */
+                    $ProductStockEventArray = $productStocksByOrderRepository
+                        ->onOrder($Order->getId())
+                        ->findAll();
+
+                    if(true === empty($ProductStockEventArray))
+                    {
+                        $logger->warning(
+                            message: 'Не найдено складской заявки, связанной с заказом',
+                            context: [self::class.':'.__LINE__],
+                        );
+                    }
+
+                    if(false === empty($ProductStockEventArray))
+                    {
+                        /** @note в массиве всегда одна складская заявка */
+                        foreach($ProductStockEventArray as $ProductStockEvent)
+                        {
+                            /** Если нет связи с блокировкой - пропускаем */
+                            if(false === ($ProductStockEvent->getLock() instanceof ProductStockLock))
+                            {
+                                continue;
+                            }
+
+                            /** Синхронно ставим блокировку у СЗ */
+
+                            $ProductStockLockMessage = new ProductStockLockMessage(
+                                id: $ProductStockEvent->getMain(),
+                                context: self::class.':'.__LINE__,
+                            );
+
+                            $messageDispatch->dispatch(message: $ProductStockLockMessage);
+                        }
+                    }
+                }
+
+                $deduplicatorExec->save();
             }
 
             if(true === empty($unsuccessful))
@@ -198,11 +272,14 @@ final class CanceledController extends AbstractController
             }
 
             /**
-             * Отправляем сокет для скрытия заказа у других менеджеров
+             * Отправляем сокет для скрытия заказа
              */
             $publish
-                ->addData(['order' => (string) $orderEvent->getMain()])
-                ->addData(['profile' => (string) $this->getCurrentProfileUid()])
+                ->addData([
+                    'order' => (string) $orderEvent->getMain(),
+                    'profile' => false, // у всех
+                    'context' => self::class.':'.__LINE__,
+                ])
                 ->send('orders');
 
             $numbers[] = $orderEvent->getOrderNumber();

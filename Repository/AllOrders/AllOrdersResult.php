@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -39,7 +40,7 @@ use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
 use DateTimeImmutable;
 
-final  class AllOrdersResult
+final class AllOrdersResult
 {
     public function __construct(
         private readonly string $order_id, //  "01986a30-80e8-7dc4-92db-007c0483d520"
@@ -58,15 +59,6 @@ final  class AllOrdersResult
         private readonly ?string $product_price,
         private readonly ?string $service_price,
 
-        //  "[{
-        //      "price": 495000,
-        //      "total": 1,
-        //      "product": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "main": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "offer": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "variation": "01986a30-80e9-7228-ae35-e26893974b5d"
-        //      "modification": "01986a30-80e9-7228-ae35-e26893974b5d"
-        //}]"
         private readonly ?string $order_currency, //  "rub"
 
         private readonly ?int $order_delivery_price, //  null
@@ -81,7 +73,6 @@ final  class AllOrdersResult
         private readonly ?string $order_profile, //  "Пользователь"
         private readonly ?string $order_profile_username, //  "Пользователь"
         private readonly ?string $order_user,
-        //  "[{"0": 1, "profile_name": "Контактный телефон", "profile_type": "phone_field", "profile_value": "+9 (878) 787-98-98"}]"
         private readonly ?bool $order_move, //  false
         private readonly ?bool $move_error, //  false
         private readonly ?bool $order_error, //  false
@@ -94,15 +85,7 @@ final  class AllOrdersResult
         private readonly ?bool $is_other_project,
         private readonly ?string $project_profile_username,
 
-        //  "[{
-        //      "price": 495000,
-        //      "total": 1,
-        //      "product": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "main": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "offer": "01986a30-80e9-7228-ae35-e26893974b5d",
-        //      "variation": "01986a30-80e9-7228-ae35-e26893974b5d"
-        //      "modification": "01986a30-80e9-7228-ae35-e26893974b5d"
-        //}]"
+        private ?bool $lock = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -436,6 +419,11 @@ final  class AllOrdersResult
     public function getProjectProfileUsername(): ?string
     {
         return $this->project_profile_username;
+    }
+
+    public function getLock(): ?bool
+    {
+        return $this->lock === true;
     }
 
 }

@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -38,7 +39,6 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\Items\OrderProductItemDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use BaksDev\Products\Stocks\Messenger\Products\Recalculate\RecalculateProductMessage;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileLogisticWarehouse\UserProfileLogisticWarehouseInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Psr\Log\LoggerInterface;
@@ -52,8 +52,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  * @note не сработает на новом заказе
- *
- * заменяет работу @see DeprecateProductChangeReserveByOrderChangeDispatcher
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 999)]

@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -29,6 +30,7 @@ use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderUnlockMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
@@ -88,7 +90,7 @@ final readonly class MultiplyOrdersPackageDispatcher
                     'orders-order: Ошибка при получении информации о заказе %s при упаковке',
                     $message->getOrderId(),
                 ),
-                [self::class],
+                [self::class.':'.__LINE__],
             );
 
             return;
@@ -129,7 +131,8 @@ final readonly class MultiplyOrdersPackageDispatcher
 
 
         /**
-         * Если подключен модуль складского учета - создаем складскую заявку
+         * Если ПОДКЛЮЧЕН модуль складского учета -
+         * создаем складскую заявку и завершаем обработчик
          */
         if(class_exists(BaksDevProductsStocksBundle::class))
         {
@@ -143,11 +146,24 @@ final readonly class MultiplyOrdersPackageDispatcher
                     ->forModification($OrderProduct->getModification())
                     ->find();
 
+                /** Не найдены идентификаторы продукции из заказа */
                 if(false === ($CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult))
                 {
                     $this->logger->critical(
-                        sprintf('Не было найдено событие продукта %s', $OrderProduct->getProduct()),
-                        [self::class],
+                        sprintf('%s: Не найдены идентификаторы продукта по заказу',
+                            $OrderEvent->getPostingNumber()),
+                        [self::class.':'.__LINE__],
+                    );
+
+                    /** Синхронно снимаем блокировку с заказа */
+
+                    $OrderUnlockMessage = new OrderUnlockMessage(
+                        id: $OrderEvent->getMain(),
+                        context: self::class.':'.__LINE__
+                    );
+
+                    $this->messageDispatch->dispatch(
+                        message: $OrderUnlockMessage,
                     );
 
                     return;
@@ -161,6 +177,7 @@ final readonly class MultiplyOrdersPackageDispatcher
                     ->forModificationConst($CurrentProductIdentifierResult->getModificationConst())
                     ->get();
 
+                /** Недостаточно продукции */
                 if($total < $OrderProduct->getTotal())
                 {
                     $this->logger->warning(
@@ -169,13 +186,23 @@ final readonly class MultiplyOrdersPackageDispatcher
                             $CurrentProductIdentifierResult->getProduct(),
                             $OrderEvent->getId(),
                         ),
-                        [self::class],
+                        [self::class.':'.__LINE__],
+                    );
+
+                    /** Синхронно снимаем блокировку с заказа */
+
+                    $OrderUnlockMessage = new OrderUnlockMessage(
+                        id: $OrderEvent->getMain(),
+                        context: self::class.':'.__LINE__
+                    );
+
+                    $this->messageDispatch->dispatch(
+                        message: $OrderUnlockMessage,
                     );
 
                     return;
                 }
             }
-
 
             /** Создаем складскую заявку */
             $MultiplyProductStocksPackageMessage = new MultiplyProductStocksPackageMessage(
@@ -184,14 +211,19 @@ final readonly class MultiplyOrdersPackageDispatcher
                 $message->getCurrentUser(),
             );
 
-            $this->messageDispatch->dispatch(message: $MultiplyProductStocksPackageMessage, transport: 'orders-order');
+            $this->messageDispatch->dispatch(
+                message: $MultiplyProductStocksPackageMessage,
+                transport: 'products-stocks'
+            );
 
             $Deduplicator->save();
             return;
         }
 
 
-        /** Бросаем сообщение на обновление статуса (если не было необходимости создавать складскую заявку) */
+        /**
+         * Если НЕ ПОДКЛЮЧЕН модуль складского учета - бросаем сообщение на обновление статуса
+         */
         $OrdersPackageByMultiplyMessage = new OrdersPackageByMultiplyMessage(
             $OrderEvent->getId(),
             $message->getCurrentUser(),
@@ -199,7 +231,10 @@ final readonly class MultiplyOrdersPackageDispatcher
             $OrderEvent->getComment(),
         );
 
-        $this->messageDispatch->dispatch(message: $OrdersPackageByMultiplyMessage, transport: 'orders-order');
+        $this->messageDispatch->dispatch(
+            message: $OrdersPackageByMultiplyMessage,
+            transport: 'orders-order'
+        );
 
         $Deduplicator->save();
     }

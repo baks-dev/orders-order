@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -26,30 +27,13 @@ declare(strict_types=1);
 namespace BaksDev\Orders\Order\UseCase\Admin\Edit;
 
 use BaksDev\Core\Entity\AbstractHandler;
-use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Core\Validator\ValidatorCollectionInterface;
-use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
-use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Messenger\EditOrder\EditOrderMessage;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
-use Doctrine\ORM\EntityManagerInterface;
 
 final class EditOrderHandler extends AbstractHandler
 {
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        MessageDispatchInterface $messageDispatch,
-        ValidatorCollectionInterface $validatorCollection,
-        ImageUploadInterface $imageUpload,
-        FileUploadInterface $fileUpload,
-
-    )
-    {
-        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
-    }
-
     public function handle(EditOrderDTO $command): string|Order
     {
         /**
@@ -80,6 +64,7 @@ final class EditOrderHandler extends AbstractHandler
          * Отправляем сообщение в шину
          */
 
+        /** @note Для изменения связанных с заказом процессов */
         $this->messageDispatch->dispatch(
             message: new EditOrderMessage($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
             transport: 'orders-order',

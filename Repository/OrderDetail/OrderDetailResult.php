@@ -91,6 +91,8 @@ final readonly class OrderDetailResult
         private ?string $order_posting = null,
 
         private ?string $order_delivery_type = null,
+
+        private ?bool $lock = null,
     ) {}
 
     public function getOrderId(): OrderUid
@@ -410,6 +412,11 @@ final readonly class OrderDetailResult
         }
 
         return $this->order_delivery_type;
+    }
+
+    public function getLock(): ?bool
+    {
+        return $this->lock;
     }
 
 }

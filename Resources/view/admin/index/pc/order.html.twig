@@ -1,27 +1,35 @@
 {# @var order \BaksDev\Orders\Order\Repository\AllOrders\AllOrdersResult #}
 
+{# Блокировка #}
+{% set isLock = order.lock %}
+
 <div class="draggable rounded-4 z-0" id="{{ order.orderId }}" tabindex="0">
 
-
     <div class="border-bottom border-4 rounded-4"
-         style="background-color: {{ order.orderDanger ? 'red' : color }}; border-color: {{ order.orderDanger ? 'red' : color }} !important;"
-    >
+         style="background-color: {{ order.orderDanger ? 'red' : color }}; border-color: {{ order.orderDanger ? 'red' : color }} !important;">
 
         <div class="card bg-light-primary rounded-4" {{ order.orderDanger ? 'style="border-color: red;"' }}>
 
             <div class="d-flex gap-1 justify-content-between align-items-center px-2 small mt-1">
 
-                {% if (order.orderStatusEquals('new') == true and order.orderDanger is empty) or order.orderStatusEquals('new') == false %}
+                {% if (order.orderStatusEquals('new') == true and order.orderDanger is empty and isLock != true) or (order.orderStatusEquals('new') == false and isLock != true) %}
                     <label for="{{ order.orderPosting }}">
                         <input class="form-check-input m-0"
                                type="checkbox"
                                data-status="{{ order.orderStatus }}"
                                value="{{ order.orderId }}"
                                id="{{ order.orderPosting }}"
-                               style="width: 18px; height: 18px;"
-                        >
+                               style="width: 18px; height: 18px;">
                     </label>
                 {% else %}
+                    <label class="fade" for="{{ order.orderPosting }}">
+                        <input class="form-check-input m-0"
+                               type="checkbox"
+                               data-status="{{ order.orderStatus }}"
+                               value="{{ order.orderId }}"
+                               id="{{ order.orderPosting }}"
+                               style="width: 18px; height: 18px;">
+                    </label>
                     <div>&nbsp;</div>
                 {% endif %}
 
@@ -47,8 +55,7 @@
                 <div class="d-flex flex-column gap-1 offcanvas-link small"
                      data-href='{{ path('orders-order:admin.detail', { id : order.orderId }) }}'
                      data-id='{{ order.orderId }}'
-                     style="cursor: help"
-                >
+                     style="cursor: help">
 
                     {% set dedline = date(order.dateModify) %}
                     {% set difference = dedline.diff(date("now")) %}
@@ -58,9 +65,7 @@
                     <div class="small">
 
                         <span class="small text-muted ">{{ order.orderCreated|format_datetime(pattern="d MMMM") }} | </span>
-                        <strong
-
-                                role="tooltip"
+                        <strong role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":600,"hide":100}'
@@ -110,17 +115,24 @@
 
                 <div class="d-flex flex-column justify-content-between gap-1">
 
+                    {# Перетаскивание заказа #}
                     <div class="text-end">
 
-                        <button type="button" class="btn btn-sm btn-light draggable-handle shadow-sm"
+                        <button type="button"
+                                class="btn btn-sm btn-light shadow-sm {{ isLock is true ? 'draggable-lock' : 'draggable-handle' }}"
                                 role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":600,"hide":100}'
-                                title="Изменить статус сделки"
-                        >
+                                title="{{ isLock is true ? 'Заказ обрабатывается' : 'Изменить статус сделки' }}">
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-arrows-move" viewBox="0 0 16 16">
+                                 class="bi bi-ban {{ isLock is true ? '' : 'd-none' }}" viewBox="0 0 16 16">
+                                <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/>
+                            </svg>
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-arrows-move {{ isLock is true ? 'd-none' : '' }}" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd"
                                       d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
                             </svg>
@@ -129,15 +141,14 @@
                     </div>
 
                     {% if order.orderComment %}
-                        <button
-                                class="btn btn-sm btn-outline-danger border-0"
+                        <button class="btn btn-sm btn-outline-danger border-0"
                                 role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":100,"hide":100}'
-                                title="{{ order.orderComment }}"
-                        >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                title="{{ order.orderComment }}">
+
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path opacity="0.3"
                                       d="M20 3H4C2.89543 3 2 3.89543 2 5V16C2 17.1046 2.89543 18 4 18H4.5C5.05228 18 5.5 18.4477 5.5 19V21.5052C5.5 22.1441 6.21212 22.5253 6.74376 22.1708L11.4885 19.0077C12.4741 18.3506 13.6321 18 14.8167 18H20C21.1046 18 22 17.1046 22 16V5C22 3.89543 21.1046 3 20 3Z"
@@ -167,9 +178,9 @@
                          data-bs-toggle="tooltip"
                          data-bs-placement="bottom"
                          data-bs-delay='{"show":200,"hide":100}'
-                         title='{{ order.getOrganizationName.profile_value }}'
-                    >
-                        {{ order.getOrganizationName.profile_value|call_twig_func(order.getOrganizationName.profile_type~'_template') }}
+                         title='{{ order.getOrganizationName.profile_value }}'>
+
+                    {{ order.getOrganizationName.profile_value|call_twig_func(order.getOrganizationName.profile_type~'_template') }}
                     </div>
                 {% endif %}
 
@@ -182,9 +193,9 @@
                          data-bs-toggle="tooltip"
                          data-bs-placement="left"
                          data-bs-delay='{"show":200,"hide":100}'
-                         title='{{ order.getClientUsername }}'
-                    >
-                        {% for client in order.clientName %}
+                         title='{{ order.getClientUsername }}'>
+
+                    {% for client in order.clientName %}
                             {{ client.profile_value|call_twig_func(client.profile_type~'_template') }}
                         {% endfor %}
                     </div>
@@ -199,9 +210,9 @@
                          data-bs-placement="left"
                          data-bs-delay='{"show":200,"hide":100}'
                          title='{{ order.clientPhone.profile_value }}'
-                         data-copy="{{ order.clientPhone.profile_value }}"
-                    >
-                        {{ order.clientPhone.profile_value|call_twig_func(order.clientPhone.profile_type~'_template') }}
+                         data-copy="{{ order.clientPhone.profile_value }}">
+
+                    {{ order.clientPhone.profile_value|call_twig_func(order.clientPhone.profile_type~'_template') }}
                     </div>
                 {% endif %}
 
@@ -213,10 +224,9 @@
                          data-bs-placement="left"
                          data-bs-delay='{"show":200,"hide":100}'
                          title='{{ order.accountEmail }}'
-                         data-copy="{{ order.accountEmail }}"
-                    >
-                        @ {{ order.accountEmail }}
+                         data-copy="{{ order.accountEmail }}">
 
+                    @ {{ order.accountEmail }}
                     </div>
                 {% endif %}
 
@@ -224,16 +234,15 @@
                 {% if order.getIsOtherProject %}
 
 
-                    <div
-                            class="d-flex gap-1 align-items-center text-truncate fw-bolder text-danger pointer"
-                            style="max-width: 140px;"
-                            role="tooltip"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-delay='{"show":200,"hide":100}'
-                            title='Заказ оформлен на сайте {{ order.projectProfileUsername }}'
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor"
+                    <div class="d-flex gap-1 align-items-center text-truncate fw-bolder text-danger pointer"
+                         style="max-width: 140px;"
+                         role="tooltip"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":200,"hide":100}'
+                         title='Заказ оформлен на сайте {{ order.projectProfileUsername }}'>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor"
                              class="bi bi-globe-americas" viewBox="0 0 16 16">
                             <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M2.04 4.326c.325 1.329 2.532 2.54 3.717 3.19.48.263.793.434.743.484q-.121.12-.242.234c-.416.396-.787.749-.758 1.266.035.634.618.824 1.214 1.017.577.188 1.168.38 1.286.983.082.417-.075.988-.22 1.52-.215.782-.406 1.48.22 1.48 1.5-.5 3.798-3.186 4-5 .138-1.243-2-2-3.5-2.5-.478-.16-.755.081-.99.284-.172.15-.322.279-.51.216-.445-.148-2.5-2-1.5-2.5.78-.39.952-.171 1.227.182.078.099.163.208.273.318.609.304.662-.132.723-.633.039-.322.081-.671.277-.867.434-.434 1.265-.791 2.028-1.12.712-.306 1.365-.587 1.579-.88A7 7 0 1 1 2.04 4.327Z"/>
                         </svg>
@@ -242,9 +251,7 @@
 
                 {% endif %}
 
-                {% if
-                    order.orderStatusEquals('delivery') == false and
-                    order.orderStatusEquals('marketplace') == false %}
+                {% if order.orderStatusEquals('delivery') == false and order.orderStatusEquals('marketplace') == false %}
 
                     <div class="border-top mt-2 small">
                         <div>
@@ -252,7 +259,6 @@
                             <span class="text-muted">{{ order.deliveryName }}</span>
 
                             {# Стоимость доставки #}
-
 
                             {# Если указана стоимость доставки #}
                             {% if order.orderDeliveryPrice %}

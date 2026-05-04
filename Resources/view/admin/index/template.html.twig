@@ -38,9 +38,9 @@
 <script nonce='{{ csp_nonce() }}' async data-src="https://api-maps.yandex.ru/2.1/?apikey={{ MAPS_YANDEX_API }}&lang={{ app.request.locale|lower }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/draggable/draggable.bundle.min.js" class="lazy"></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/plugins/nice-select2/nice-select2.min.js" class="lazy"></script>
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/order_draggable.min.js" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src='/assets/{{ version }}/plugins/datepicker/datepicker.js' class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/{{ version }}/js/copy.min.js" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/order_draggable.min.js" class='lazy'></script>
 
 {#  Сокеты  #}
 
@@ -52,34 +52,91 @@
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/centrifuge.min.js" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/socket.min.js" class='lazy'></script>#}
 
-<script nonce="{{ csp_nonce() }}">
+<script nonce="{{ csp_nonce() }}" class='lazy'>
 
-    let hfgsZAPeF = 100;
 
-    setTimeout(function xA1wFjaW7B()
-    {
-        if(typeof centrifuge !== "object")
+      if(typeof executeFunc === 'function')
+      {
+
+        executeFunc(function xA1wFjaW7B()
         {
-            if(hfgsZAPeF > 1000) { return; }
 
-            hfgsZAPeF = hfgsZAPeF * 2;
-            return setTimeout(xA1wFjaW7B, hfgsZAPeF);
-        }
-
-
-        const publish = centrifuge.newSubscription("orders");
-
-        publish.on("publication", function(ctx)
-        {
-            if(ctx.data.profile !== '{{ current_profile }}')
+            if(typeof centrifuge !== "object")
             {
-                /* Удаляем у остальных менеджеров заказ */
-                document.getElementById(ctx.data.order)?.remove();
+               return false;
             }
 
-        }).subscribe();
+            centrifuge.newSubscription("orders").on("publication", function(ctx)
+            {
+                "{{ app.environment }}" === "dev" && (console.log('ctx.data ->', ctx.data));
 
-    }, 100);
+                if(typeof ctx.data.order !== 'undefined')
+                {
+                    const order_card = document.getElementById(ctx.data.order);
+
+                    if(order_card)
+                    {
+                        const label = order_card.querySelector(`label[for="${ctx.data.number}"]`);
+
+                        let draggable = order_card.querySelector("[class*=\"draggable\"]");
+
+                        if(draggable !== null)
+                        {
+                            /** Блокируем draggable */
+                            if(ctx.data.lock === true)
+                            {
+                                let draggableMove = draggable.querySelector(".bi-arrows-move");
+                                draggableMove.classList.add("d-none");
+
+                                let draggableLock = draggable.querySelector(".bi-ban");
+                                draggableLock.classList.remove("d-none");
+
+                                /** Скрываем чекбокс выбора карточки */
+                                label?.classList.add("fade");
+
+                                draggable.classList.remove("draggable-handle");
+                                draggable.classList.add("draggable-lock");
+
+                                "{{ app.environment }}" === "dev" && (console.log(`заблокировали заказ ${ctx.data.number}`));
+
+                            }
+
+                             /** Разблокируем draggable */
+                            if(ctx.data.lock === false)
+                            {
+                                let draggableLock = draggable.querySelector(".bi-ban");
+                                draggableLock.classList.add("d-none");
+
+                                let draggableMove = draggable.querySelector(".bi-arrows-move");
+                                draggableMove.classList.remove("d-none");
+
+                                /** Показываем чекбокс выбора карточки */
+                                label?.classList.remove("fade");
+
+                                draggable.classList.remove("draggable-lock");
+                                draggable.classList.add("draggable-handle");
+
+                                "{{ app.environment }}" === "dev" && (console.log(`разблокировали заказ ${ctx.data.number}`));
+                            }
+                        }
+                    }
+
+
+                    if(typeof ctx.data.profile !== 'undefined' && ctx.data.profile !== '{{ current_profile }}')
+                    {
+                        /** Удаляем у остальных менеджеров заказ */
+                        document.getElementById(ctx.data.order)?.remove();
+                    }
+                }
+
+            }).subscribe();
+
+
+            return true;
+
+        }, 100);
+
+    }
 
 </script>
 

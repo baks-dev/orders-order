@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 namespace BaksDev\Orders\Order\Entity\Event;
@@ -27,6 +28,7 @@ use BaksDev\Core\Entity\EntityEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
+use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Modify\OrderModify;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Print\OrderPrint;
@@ -38,7 +40,6 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
-use BaksDev\Services\Entity\Service;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -140,6 +141,12 @@ class OrderEvent extends EntityEvent
     /** Выделить заказ */
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $danger = false;
+
+    /**
+     * Блокировка заказа
+     */
+    #[ORM\OneToOne(targetEntity: OrderLock::class, mappedBy: 'event', cascade: ['all'], fetch: 'EAGER')]
+    private ?OrderLock $lock = null;
 
 
     public function __construct()
@@ -329,5 +336,10 @@ class OrderEvent extends EntityEvent
     public function getModifyUser(): ?UserUid
     {
         return $this->modify->getUsr();
+    }
+
+    public function getLock(): ?OrderLock
+    {
+        return $this->lock;
     }
 }

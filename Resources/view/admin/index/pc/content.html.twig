@@ -22,15 +22,14 @@
                 Добавить заказ
             </a>
 
-            <button
-                    class="btn btn-light opacity-25"
+            <button class="btn btn-light opacity-25"
                     role="tooltip"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
                     data-bs-delay='{"show":600,"hide":100}'
-                    title="Управление заказами"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-boxes"
+                    title="Управление заказами">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fil l="currentColor" class="bi bi-boxes"
                      viewBox="0 0 16 16">
                     <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434L7.752.066ZM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567L4.25 7.504ZM7.5 9.933l-2.75 1.571v3.134l2.75-1.571V9.933Zm1 3.134 2.75 1.571v-3.134L8.5 9.933v3.134Zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567-2.742 1.567Zm2.242-2.433V3.504L8.5 5.076V8.21l2.75-1.572ZM7.5 8.21V5.076L4.75 3.504v3.134L7.5 8.21ZM5.258 2.643 8 4.21l2.742-1.567L8 1.076 5.258 2.643ZM15 9.933l-2.75 1.571v3.134L15 13.067V9.933ZM3.75 14.638v-3.134L1 9.933v3.134l2.75 1.571Z"/>
                 </svg>
@@ -44,9 +43,9 @@
                    data-bs-toggle="tooltip"
                    data-bs-placement="bottom"
                    data-bs-delay='{"show":600,"hide":100}'
-                   title="Упаковка заказов"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                   title="Упаковка заказов">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                          class="bi bi-box-seam" viewBox="0 0 16 16">
                         <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
                     </svg>
@@ -61,9 +60,9 @@
                    data-bs-toggle="tooltip"
                    data-bs-placement="bottom"
                    data-bs-delay='{"show":600,"hide":100}'
-                   title="Выдача заказов"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                   title="Выдача заказов">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                          class="bi bi-card-checklist" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
                               d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1z"/>
@@ -75,16 +74,15 @@
             {% endif %}
 
 
-            <a
-                    href="{{ path('orders-order:admin.order.all') }}"
-                    class="btn btn-light"
-                    role="tooltip"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="bottom"
-                    data-bs-delay='{"show":600,"hide":100}'
-                    title="Список заказов"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+            <a href="{{ path('orders-order:admin.order.all') }}"
+               class="btn btn-light"
+               role="tooltip"
+               data-bs-toggle="tooltip"
+               data-bs-placement="bottom"
+               data-bs-delay='{"show":600,"hide":100}'
+               title="Список заказов">
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
                      class="bi bi-card-checklist" viewBox="0 0 16 16">
                     <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
                     <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
@@ -98,9 +96,8 @@
                         class="btn btn-outline-success d-flex gap-2 align-items-center dropdown-toggle "
                         type="button"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"
+                        aria-expanded="false">
 
-                >
                     <div class="d-flex gap-1 align-items-center">
                         {{ 'Отчет'|trans({}, 'core.btn') }}
 
@@ -119,9 +116,9 @@
                         <a href="{{ path('orders-order:admin.document.report.orders') }}"
                            class="dropdown-item"
                            data-bs-toggle="modal"
-                           data-bs-target="#modal"
-                        >
-                            Отчет о заказах
+                           data-bs-target="#modal">
+
+                        Отчет о заказах
                         </a>
                     </li>
 
@@ -129,9 +126,9 @@
                         <a href="{{ path('orders-order:admin.document.report.orders.canceled') }}"
                            class="dropdown-item"
                            data-bs-toggle="modal"
-                           data-bs-target="#modal"
-                        >
-                            Отчет об отмененных заказах
+                           data-bs-target="#modal">
+
+                        Отчет об отмененных заказах
                         </a>
                     </li>
 
@@ -139,9 +136,9 @@
                         <a href="{{ path('orders-order:admin.document.report.products') }}"
                            class="dropdown-item"
                            data-bs-toggle="modal"
-                           data-bs-target="#modal"
-                        >
-                            Отчет о продуктах
+                           data-bs-target="#modal">
+
+                        Отчет о продуктах
                         </a>
                     </li>
 
@@ -151,9 +148,9 @@
                             <a href="{{ path('orders-order:admin.document.report.services') }}"
                                class="dropdown-item"
                                data-bs-toggle="modal"
-                               data-bs-target="#modal"
-                            >
-                                Отчет об услугах
+                               data-bs-target="#modal">
+
+                            Отчет об услугах
                             </a>
                         </li>
                     {% endif %}
@@ -227,8 +224,7 @@
                              stats.getValue() == 'delivery'  or
                              stats.getValue() == 'extradition'  or
                              stats.getValue() == 'completed'
-                             ? 'restricted' }}"
-                        >
+                             ? 'restricted' }}">
 
 
                             {% set href = null %}
@@ -257,8 +253,7 @@
                                                    type="checkbox"
                                                    value="all"
                                                    id="check-all"
-                                                   style="width: 11px; height: 11px;"
-                                            >
+                                                   style="width: 11px; height: 11px;">
                                         </label>
 
                                     {% endif %}

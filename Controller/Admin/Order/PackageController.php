@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare (strict_types=1);
@@ -35,11 +36,13 @@ use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Forms\Package\Orders\PackageOrdersOrderDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersDTO;
 use BaksDev\Orders\Order\Forms\Package\PackageOrdersForm;
+use BaksDev\Orders\Order\Messenger\LockOrder\OrderLockMessage;
 use BaksDev\Orders\Order\Messenger\MultiplyOrdersPackage\MultiplyOrdersPackageMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Repository\ExistOrderEventByStatus\ExistOrderEventByStatusInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Status\OrderStatusHandler;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -51,6 +54,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Упаковка (сборка) заказов
+ *
+ * @note Блокируем заказ
  */
 #[AsController]
 #[RoleSecurity('ROLE_ORDERS_STATUS')]
@@ -60,11 +65,11 @@ final class PackageController extends AbstractController
     public function package(
         Request $request,
         CentrifugoPublishInterface $publish,
-        CurrentOrderEventInterface $currentOrderEventRepository,
-        ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
         MessageDispatchInterface $messageDispatch,
         DeduplicatorInterface $deduplicator,
-        OrderStatusHandler $OrderStatusHandler
+        CurrentOrderEventInterface $currentOrderEventRepository,
+        ExistOrderEventByStatusInterface $ExistOrderEventByStatusRepository,
+        OrderStatusHandler $OrderStatusHandler,
     ): Response
     {
         $packageOrdersForm = $this
@@ -88,12 +93,28 @@ final class PackageController extends AbstractController
 
             $CurrentUserUid = $this->getCurrentUsr();
 
+            if($packageOrdersDTO->getOrders()->isEmpty())
+            {
+                return new JsonResponse(
+                    [
+                        'type' => 'danger',
+                        'header' => 'Упаковка заказов',
+                        'message' => 'Не надено ни одного заказа для упаковки',
+                        'status' => 200,
+                    ],
+                    200,
+                );
+            }
+
             /** @var PackageOrdersOrderDTO $packageOrderDTO */
             foreach($packageOrdersDTO->getOrders() as $packageOrderDTO)
             {
                 /** Скрываем заказ у всех пользователей */
                 $publish
-                    ->addData(['order' => (string) $packageOrderDTO->getId()])
+                    ->addData([
+                        'order' => (string) $packageOrderDTO->getId(),
+                        'context' => self::class.':'.__LINE__,
+                    ])
                     ->send('orders');
 
                 $Deduplicator = $deduplicator
@@ -119,21 +140,58 @@ final class PackageController extends AbstractController
                 }
 
                 /** Проверяем, что заказ не был отменен */
-                $isExists = $ExistOrderEventByStatusRepository
+                $isExistByStatusCanceled = $ExistOrderEventByStatusRepository
                     ->forOrder($OrderEvent->getMain())
                     ->forStatus(OrderStatusCanceled::class)
                     ->isExists();
 
-                if(true === $isExists)
+                if(true === $isExistByStatusCanceled)
                 {
                     $unsuccessful[] = $OrderEvent->getOrderNumber();
+
+                    $Deduplicator->save();
+                    continue;
+                }
+
+                /**
+                 * Проверяем, что статус Package «Упаковка заказов» присваиваться впервые
+                 */
+                $isExistByStatusPackage = $ExistOrderEventByStatusRepository
+                    ->forOrder($OrderEvent->getMain())
+                    ->forStatus(OrderStatusPackage::class)
+                    ->isExists();
+
+
+                if(true === $isExistByStatusPackage)
+                {
+                    $unsuccessful[] = $OrderEvent->getOrderNumber();
+
+                    $Deduplicator->save();
+                    continue;
+                }
+
+                if(true === $isExistByStatusCanceled)
+                {
+                    $unsuccessful[] = $OrderEvent->getOrderNumber();
+
+                    $Deduplicator->save();
                     continue;
                 }
 
                 $ordersNumbers[] = $OrderEvent->getOrderNumber();
 
+                /** Синхронно блокируем заказ */
 
-                /** Если заказ перенаправляется на другой склад - только указываем новый склад */
+                $OrderLockMessage = new OrderLockMessage(
+                    id: $OrderEvent->getMain(),
+                    context: self::class.':'.__LINE__
+                );
+
+                $messageDispatch->dispatch(
+                    message: $OrderLockMessage
+                );
+
+                /** Если заказ перенаправляется на другой склад - указываем новый склад */
                 if(
                     $OrderEvent->getOrderProfile() instanceof UserProfileUid
                     && false === $OrderEvent->getOrderProfile()->equals($packageOrdersDTO->getProfile())
@@ -150,8 +208,9 @@ final class PackageController extends AbstractController
 
                     $OrderEvent->getDto($OrderStatusDTO);
 
-                    $OrderStatusDTO
-                        ->addComment(sprintf('Важно! Заказ отправлен на сборку с другого магазина региона (%s)', $request->getHost()));
+                    $OrderStatusDTO->addComment(
+                        sprintf('Важно! Заказ отправлен на сборку с другого магазина (региона) (%s)', $request->getHost())
+                    );
 
                     $Order = $OrderStatusHandler->handle(
                         command: $OrderStatusDTO,
@@ -162,6 +221,8 @@ final class PackageController extends AbstractController
                     {
                         $unsuccessful[] = $OrderEvent->getOrderNumber();
                     }
+
+                    $Deduplicator->save();
 
                     continue;
                 }
@@ -183,19 +244,22 @@ final class PackageController extends AbstractController
                 $Deduplicator->save();
             }
 
+
+            /** Если не было неудачных попыток упаковки заказа */
             if(true === empty($unsuccessful))
             {
                 return new JsonResponse(
                     [
                         'type' => 'success',
                         'header' => 'Упаковка заказов',
-                        'message' => 'Статусы заказов '.implode(',', $ordersNumbers).' успешно обновлены',
+                        'message' => 'Начать процесс упаковки заказов: '.implode(',', $ordersNumbers),
                         'status' => 200,
                     ],
                     200,
                 );
             }
 
+            /** Сообщение с удачными попытками упаковки заказа */
             if(false === empty($ordersNumbers))
             {
                 $this->addFlash('success',
@@ -205,6 +269,7 @@ final class PackageController extends AbstractController
                 );
             }
 
+            /** Сообщение с НЕ удачными попытками упаковки заказа */
             $this->addFlash(
                 'page.package',
                 'danger.package',

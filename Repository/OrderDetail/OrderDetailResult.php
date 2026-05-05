@@ -56,7 +56,7 @@ final readonly class OrderDetailResult
     public function __construct(
         private string $order_id,
         private string $order_event,
-        private string $order_number,
+        private ?string $order_number,
         private string $order_status,
         private string $order_created,
 
@@ -107,7 +107,7 @@ final readonly class OrderDetailResult
 
     public function getOrderNumber(): string
     {
-        return $this->order_number;
+        return $this->order_number ?: $this->getOrderPosting();
     }
 
     public function getOrderStatus(): string

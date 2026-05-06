@@ -103,6 +103,11 @@ class OrderProductItem extends EntityEvent
         return (string) $this->id;
     }
 
+    public function getConst(): OrderProductItemConst
+    {
+        return $this->const;
+    }
+
     public function getDto($dto): mixed
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;

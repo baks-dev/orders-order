@@ -33,6 +33,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
@@ -91,8 +92,12 @@ final readonly class OrderUnlockDispatcher
          * Если установлен модуль products-stocks -
          * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
          */
-        if(true === class_exists(BaksDevProductsStocksBundle::class))
+        if(
+            true === class_exists(BaksDevProductsStocksBundle::class) &&
+            false === $OrderEvent->getStatus()->equals(OrderStatusNew::class)
+        )
         {
+
             return;
         }
 
@@ -116,7 +121,7 @@ final readonly class OrderUnlockDispatcher
 
         $OrderLockDTO = new OrderLockDTO(
             $OrderEvent->getId(),
-            $OrderEvent->getStatus()
+            $OrderEvent->getStatus(),
         );
 
         $OrderEvent->getLock()->getDto($OrderLockDTO);

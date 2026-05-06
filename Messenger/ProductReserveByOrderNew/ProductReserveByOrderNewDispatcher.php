@@ -47,7 +47,8 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Если статус заказа New «Новый» или Decommission «Списание» - Создает резерв в КАРТОЧКЕ товара при создании или списании заказа
+ * Если статус заказа New «Новый» или Decommission «Списание» - Создает резерв в КАРТОЧКЕ товара при создании или
+ * списании заказа
  *
  * @note Работа с резервами в карточке - самый высокий приоритет
  * @note Снимает блокировку с заказа
@@ -140,15 +141,23 @@ final readonly class ProductReserveByOrderNewDispatcher
          */
         if(true === ($message->getLast() instanceof OrderEventUid))
         {
-
-            if(false === ($message->getLastProfile() instanceof UserProfileUid))
-            {
-                return;
-            }
-
             /** Если это не первое событие заказа и профиль его не менялся, не меняем резерв */
-            if($UserProfileUid->equals($message->getLastProfile()))
+            if(
+                false === ($message->getLastProfile() instanceof UserProfileUid)
+                || $UserProfileUid->equals($message->getLastProfile())
+            )
             {
+                /** Синхронно снимаем блокировку с заказа */
+
+                $OrderUnlockMessage = new OrderUnlockMessage(
+                    id: $OrderEvent->getMain(),
+                    context: self::class.':'.__LINE__,
+                );
+
+                $this->messageDispatch->dispatch(
+                    message: $OrderUnlockMessage,
+                );
+
                 return;
             }
 
@@ -164,7 +173,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $OrderUnlockMessage = new OrderUnlockMessage(
                     id: $OrderEvent->getMain(),
-                    context: self::class.':'.__LINE__
+                    context: self::class.':'.__LINE__,
                 );
 
                 $this->messageDispatch->dispatch(
@@ -253,7 +262,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $OrderUnlockMessage = new OrderUnlockMessage(
                     id: $OrderEvent->getMain(),
-                    context: self::class.':'.__LINE__
+                    context: self::class.':'.__LINE__,
                 );
 
                 $this->messageDispatch->dispatch(
@@ -270,7 +279,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
             $OrderUnlockMessage = new OrderUnlockMessage(
                 id: $OrderEvent->getMain(),
-                context: self::class.':'.__LINE__
+                context: self::class.':'.__LINE__,
             );
 
             $this->messageDispatch->dispatch(
@@ -344,7 +353,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
         $OrderUnlockMessage = new OrderUnlockMessage(
             id: $OrderEvent->getMain(),
-            context: self::class.':'.__LINE__
+            context: self::class.':'.__LINE__,
         );
 
         $this->messageDispatch->dispatch(

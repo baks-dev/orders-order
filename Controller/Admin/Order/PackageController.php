@@ -135,11 +135,16 @@ final class PackageController extends AbstractController
 
                 if(false === ($OrderEvent instanceof OrderEvent))
                 {
-                    $unsuccessful[] = $OrderEvent->getOrderNumber();
                     continue;
                 }
 
-                /** Проверяем, что заказ не был отменен */
+
+                $orderPostingNumber = $OrderEvent->getPostingNumber() ?: $OrderEvent->getOrderNumber();
+
+                /**
+                 * Проверяем, что заказ не был отменен
+                 */
+
                 $isExistByStatusCanceled = $ExistOrderEventByStatusRepository
                     ->forOrder($OrderEvent->getMain())
                     ->forStatus(OrderStatusCanceled::class)
@@ -147,48 +152,37 @@ final class PackageController extends AbstractController
 
                 if(true === $isExistByStatusCanceled)
                 {
-                    $unsuccessful[] = $OrderEvent->getOrderNumber();
-
-                    $Deduplicator->save();
+                    $unsuccessful[] = $orderPostingNumber;
                     continue;
                 }
 
                 /**
                  * Проверяем, что статус Package «Упаковка заказов» присваиваться впервые
                  */
+
                 $isExistByStatusPackage = $ExistOrderEventByStatusRepository
                     ->forOrder($OrderEvent->getMain())
                     ->forStatus(OrderStatusPackage::class)
                     ->isExists();
 
-
                 if(true === $isExistByStatusPackage)
                 {
-                    $unsuccessful[] = $OrderEvent->getOrderNumber();
-
+                    $unsuccessful[] = $orderPostingNumber;
                     $Deduplicator->save();
                     continue;
                 }
 
-                if(true === $isExistByStatusCanceled)
-                {
-                    $unsuccessful[] = $OrderEvent->getOrderNumber();
-
-                    $Deduplicator->save();
-                    continue;
-                }
-
-                $ordersNumbers[] = $OrderEvent->getOrderNumber();
+                $ordersNumbers[] = $orderPostingNumber;
 
                 /** Синхронно блокируем заказ */
 
                 $OrderLockMessage = new OrderLockMessage(
                     id: $OrderEvent->getMain(),
-                    context: self::class.':'.__LINE__
+                    context: self::class.':'.__LINE__,
                 );
 
                 $messageDispatch->dispatch(
-                    message: $OrderLockMessage
+                    message: $OrderLockMessage,
                 );
 
                 /** Если заказ перенаправляется на другой склад - указываем новый склад */
@@ -209,7 +203,7 @@ final class PackageController extends AbstractController
                     $OrderEvent->getDto($OrderStatusDTO);
 
                     $OrderStatusDTO->addComment(
-                        sprintf('Важно! Заказ отправлен на сборку с другого магазина (региона) (%s)', $request->getHost())
+                        sprintf('Важно! Заказ отправлен на сборку с другого магазина (региона) (%s)', $request->getHost()),
                     );
 
                     $Order = $OrderStatusHandler->handle(
@@ -219,7 +213,7 @@ final class PackageController extends AbstractController
 
                     if(false === $Order instanceof Order)
                     {
-                        $unsuccessful[] = $OrderEvent->getOrderNumber();
+                        $unsuccessful[] = $orderPostingNumber;
                     }
 
                     $Deduplicator->save();
@@ -246,13 +240,13 @@ final class PackageController extends AbstractController
 
 
             /** Если не было неудачных попыток упаковки заказа */
-            if(true === empty($unsuccessful))
+            if(true === empty($unsuccessful) && false === empty($ordersNumbers))
             {
                 return new JsonResponse(
                     [
                         'type' => 'success',
                         'header' => 'Упаковка заказов',
-                        'message' => 'Начать процесс упаковки заказов: '.implode(',', $ordersNumbers),
+                        'message' => 'Процесс упаковки заказов: '.implode(',', $ordersNumbers),
                         'status' => 200,
                     ],
                     200,

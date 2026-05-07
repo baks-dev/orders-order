@@ -34,8 +34,8 @@ final class AllOrdersReportResult
 {
     public function __construct(
 
-        private readonly string $order_number,
-        private readonly string $order_posting,
+        private readonly ?string $order_number,
+        private readonly ?string $order_posting,
         private readonly string $mod_date,
 
         private readonly int $order_price,
@@ -209,7 +209,7 @@ final class AllOrdersReportResult
 
     public function getOrderNumber(): string
     {
-        return $this->order_number;
+        return $this->order_number ?: $this->getOrderPosting();
     }
 
     public function getBarcodes(): array|null

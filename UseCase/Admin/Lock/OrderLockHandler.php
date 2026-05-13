@@ -56,9 +56,9 @@ final class OrderLockHandler extends AbstractHandler
 
         $this->flush();
 
-        $this->messageDispatch
-            ->addClearCacheOther('orders-order')
-            ->addClearCacheOther('orders-order-'.$command->getStatus()->getOrderStatusValue());
+        $this
+            ->messageDispatch
+            ->addClearCacheOther('orders-order');
 
         return $entity;
     }

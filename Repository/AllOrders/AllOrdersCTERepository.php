@@ -877,7 +877,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         return $this->paginator->fetchAllHydrate(
             $dbal,
             AllOrdersResult::class,
-            'orders-order'.($this->status instanceof OrderStatus ? '-'.$this->status : ''),
+            'orders-order',
         );
 
         //return $dbal->fetchAllHydrate(AllOrdersResult::class);

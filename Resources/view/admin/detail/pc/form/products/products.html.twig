@@ -30,7 +30,7 @@
                         offer: card.productOfferValue,
                         variation: card.productVariationValue,
                         modification: card.productModificationValue,
-                        postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-' })
+                        postfix: (card.productModificationPostfix ?: card.productVariationPostfix ?: card.productOfferPostfix ?: null )|replace({ '/': '-', ' ': '~' })
                     }) %}
 
                     {# <div class="col-3">

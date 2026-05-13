@@ -188,7 +188,7 @@
                     offer: product.product_offer_value,
                     variation: product.product_variation_value,
                     modification: product.product_modification_value,
-                    postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-' })
+                    postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-', ' ': '~' })
                 }) }}"
                    class="icon rounded-4 mb-2 lazy bg-contain p-1"
                    data-bg="{{ cdn_image_path(product.product_image, product.product_image_ext, product.product_image_cdn, 'min') }}"
@@ -203,7 +203,7 @@
                         offer: product.product_offer_value,
                         variation: product.product_variation_value,
                         modification: product.product_modification_value,
-                        postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-' })
+                        postfix: (product.product_modification_postfix ?: product.product_variation_postfix ?: product.product_offer_postfix ?: null )|replace({ '/': '-', ' ': '~' })
                     }) }}"
 
                        class="fs-14 text-black fw-bold text-uppercase mb-0 list-group-item best-offers-item">

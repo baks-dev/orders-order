@@ -1096,7 +1096,7 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                 'product_project',
                 '
                     product_project.product = product.id
-                    '.(true === $dbal->bindProjectProfile()
+                    '.(true === $dbal->isProjectProfile()
                     ? 'AND product_project.profile = :'.$dbal::PROJECT_PROFILE_KEY
                     : 'AND product_project.profile IS NULL'),
             );

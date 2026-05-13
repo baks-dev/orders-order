@@ -441,7 +441,7 @@ final class AllOrdersCanceledReportRepository implements AllOrdersCanceledReport
                 'product_project',
                 '
                     product_project.product = product_event.main
-                    '.(true === $dbal->bindProjectProfile()
+                    '.(true === $dbal->isProjectProfile()
                     ? 'AND product_project.profile = :'.$dbal::PROJECT_PROFILE_KEY
                     : 'AND product_project.profile IS NULL'),
             );

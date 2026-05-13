@@ -34,7 +34,7 @@ final class OrderUnlockMessage
     /** Идентификатор заказа */
     private string $id;
 
-    /** Контекст (откуда была вызвана блокировка) */
+    /** Контекст (откуда была вызвана разблокировка) */
     private ?string $context;
 
     public function __construct(

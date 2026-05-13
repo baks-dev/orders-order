@@ -29,11 +29,14 @@ namespace BaksDev\Orders\Order\Messenger\LockOrder;
 use BaksDev\Centrifugo\BaksDevCentrifugoBundle;
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
@@ -54,8 +57,8 @@ final readonly class OrderUnlockDispatcher
     public function __construct(
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private CurrentOrderEventInterface $currentOrderEventRepository,
+        private MessageDispatchInterface $dispatch,
         private OrderLockHandler $orderLockHandler,
-
         private ?CentrifugoPublishInterface $centrifugoPublish = null,
     ) {}
 
@@ -88,18 +91,61 @@ final readonly class OrderUnlockDispatcher
             return;
         }
 
+        /** Если заказ уже РАЗБЛОКИРОВАН - прерываем обработчик */
+        if(false === $OrderEvent->getLock()->getValue())
+        {
+            return;
+        }
+
         /**
-         * Если установлен модуль products-stocks -
-         * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
+         *   Всегда разблокируем статусы:
+         *   - New «Новый»
+         *   - Unpaid «В ожидании оплаты»
+         *   - Phone «Не дозвонились»
+         *
          */
         if(
-            true === class_exists(BaksDevProductsStocksBundle::class) &&
-            false === $OrderEvent->getStatus()->equals(OrderStatusNew::class)
+            true === $OrderEvent->getStatus()->equals(OrderStatusNew::class)
+            || true === $OrderEvent->getStatus()->equals(OrderStatusUnpaid::class)
+            || true === $OrderEvent->getStatus()->equals(OrderStatusPhone::class)
         )
         {
 
+            /** @see OrderUnlockHandler */
+            $OrderUnlockMessage = new OrderUnlockMessage($message->getId());
+
+            $this->dispatch->dispatch(
+                message: $OrderUnlockMessage,
+                transport: 'orders-order',
+            );
+
             return;
         }
+
+
+        /**
+         *
+         * Если установлен модуль products-stocks -
+         * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
+         *
+         */
+        if(true === class_exists(BaksDevProductsStocksBundle::class))
+        {
+            return;
+        }
+
+        /** @see OrderUnlockHandler */
+        $OrderUnlockMessage = new OrderUnlockMessage($message->getId());
+
+        $this->dispatch->dispatch(
+            message: $OrderUnlockMessage,
+            transport: 'orders-order',
+        );
+
+        return;
+
+        /** DEPRICATE */
+
 
         /**
          * Если заказ уже РАЗБЛОКИРОВАН - прерываем обработчик

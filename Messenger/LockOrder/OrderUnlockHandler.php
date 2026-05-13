@@ -100,7 +100,7 @@ final readonly class OrderUnlockHandler
 
         $OrderLockDTO = new OrderLockDTO(
             $OrderEvent->getId(),
-            $OrderEvent->getStatus()
+            $OrderEvent->getStatus(),
         );
 
         $OrderEvent->getLock()->getDto($OrderLockDTO);

@@ -34,7 +34,6 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
 use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockDTO;
@@ -99,14 +98,12 @@ final readonly class OrderUnlockDispatcher
 
         /**
          *   Всегда разблокируем статусы:
-         *   - New «Новый»
          *   - Unpaid «В ожидании оплаты»
          *   - Phone «Не дозвонились»
          *
          */
         if(
-            true === $OrderEvent->getStatus()->equals(OrderStatusNew::class)
-            || true === $OrderEvent->getStatus()->equals(OrderStatusUnpaid::class)
+            true === $OrderEvent->getStatus()->equals(OrderStatusUnpaid::class)
             || true === $OrderEvent->getStatus()->equals(OrderStatusPhone::class)
         )
         {
@@ -121,7 +118,6 @@ final readonly class OrderUnlockDispatcher
 
             return;
         }
-
 
         /**
          *

@@ -86,6 +86,12 @@ final class AllOrdersReportResult
     {
         $price = new Money($this->product_price, true);
 
+        /* Торговая наценка с учетом сезонности */
+        if(false === empty($this->season_percent))
+        {
+            $price->applyString($this->season_percent);
+        }
+
         /**
          * Применяем настройки цены профиля проекта к стоимости товара
          */
@@ -100,12 +106,6 @@ final class AllOrdersReportResult
         if(false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);
-        }
-
-        /* Торговая наценка с учетом сезонности */
-        if(false === empty($this->season_percent))
-        {
-            $price->applyString($this->season_percent);
         }
 
         return $price;

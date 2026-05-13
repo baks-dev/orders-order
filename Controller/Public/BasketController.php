@@ -124,7 +124,7 @@ class BasketController extends AbstractController
 
         /** Присваиваем пользователя (клиента) */
         $OrderUserDTO = $OrderDTO->getUsr();
-        $OrderUserDTO->setUsr($this->getUsr()?->getId() ?: new UserUid());
+        $OrderUserDTO->setUsr($this->getUsr() ? $this->getUsr()->getId() : new UserUid());
 
         // Получаем продукцию, добавленную в корзину и присваиваем актуальные значения
         if(false === $this->products->isEmpty())

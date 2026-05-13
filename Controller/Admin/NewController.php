@@ -63,7 +63,7 @@ final class NewController extends AbstractController
 
         /** Присваиваем заказу пользователя, который создал заказ */
         $OrderDTO->getInvariable()
-            ->setUsr($this->getUsr()?->getId())
+            ->setUsr($this->getUsr()->getId())
             ->setProfile($this->getProfileUid());
 
         // Форма

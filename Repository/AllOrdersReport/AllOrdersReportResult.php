@@ -67,8 +67,9 @@ final class AllOrdersReportResult
         private readonly ?string $comment,
 
         private string|null $profile_discount = null,
-        private string|null $project_discount = null
+        private string|null $project_discount = null,
 
+        private string|null $season_percent = null,
     ) {}
 
     public function getDate(): DateTimeImmutable
@@ -99,6 +100,12 @@ final class AllOrdersReportResult
         if(false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);
+        }
+
+        /* Торговая наценка с учетом сезонности */
+        if(false === empty($this->season_percent))
+        {
+            $price->applyString($this->season_percent);
         }
 
         return $price;

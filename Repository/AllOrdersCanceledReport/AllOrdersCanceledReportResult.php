@@ -35,7 +35,7 @@ final readonly class AllOrdersCanceledReportResult
     public function __construct(
 
         private string $order_number,
-        private string $order_posting,
+        private ?string $order_posting,
 
         private string $mod_date,
 
@@ -67,7 +67,9 @@ final readonly class AllOrdersCanceledReportResult
         private ?string $comment,
 
         private string|null $profile_discount = null,
-        private string|null $project_discount = null
+        private string|null $project_discount = null,
+
+        private string|null $season_percent = null,
 
     ) {}
 
@@ -76,7 +78,7 @@ final readonly class AllOrdersCanceledReportResult
         return new DateTimeImmutable($this->mod_date);
     }
 
-    public function getOrderPosting(): string
+    public function getOrderPosting(): ?string
     {
         return $this->order_posting;
     }
@@ -104,6 +106,12 @@ final readonly class AllOrdersCanceledReportResult
         if(false === empty($this->profile_discount))
         {
             $price->applyString($this->profile_discount);
+        }
+
+        /* Торговая наценка с учетом сезонности */
+        if(false === empty($this->season_percent))
+        {
+            $price->applyString($this->season_percent);
         }
 
         return $price;

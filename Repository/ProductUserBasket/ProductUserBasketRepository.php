@@ -58,6 +58,8 @@ use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Price\ProductPrice;
 use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\ProductInvariable;
+use BaksDev\Products\Product\Entity\Project\ProductProject;
+use BaksDev\Products\Product\Entity\Project\Season\ProductProjectSeason;
 use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
@@ -77,6 +79,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Region\UserProfileRegion;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -1083,6 +1086,35 @@ final class ProductUserBasketRepository implements ProductUserBasketInterface
                         project_profile_discount.event = project_profile.event',
                 );
         }
+
+
+        /* Получить товарную наценку (скидку) по сезонности с учетом текущего месяца */
+        $dbal
+            ->leftJoin(
+                'product',
+                ProductProject::class,
+                'product_project',
+                '
+                    product_project.product = product.id
+                    '.(true === $dbal->bindProjectProfile()
+                    ? 'AND product_project.profile = :'.$dbal::PROJECT_PROFILE_KEY
+                    : 'AND product_project.profile IS NULL'),
+            );
+
+        $dbal
+            ->addSelect('product_project_season.percent as season_percent')
+            ->leftJoin(
+                'product_project',
+                ProductProjectSeason::class,
+                'product_project_season',
+                'product_project_season.project = product_project.id
+                     AND product_project_season.month = :month',
+            )
+            ->setParameter(
+                key: 'month',
+                value: (int) date('n'),
+                type: ParameterType::INTEGER,
+            );
 
         $dbal->allGroupByExclude();
 

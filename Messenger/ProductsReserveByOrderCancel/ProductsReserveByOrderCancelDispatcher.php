@@ -113,6 +113,21 @@ final readonly class ProductsReserveByOrderCancelDispatcher
         }
 
         /**
+         * Снимаем блокировку с заказа в очереди
+         */
+
+        $OrderUnlockMessage = new OrderUnlockMessage(
+            id: $OrderEvent->getMain(),
+            context: self::class.':'.__LINE__,
+        );
+
+        $this->messageDispatch->dispatch(
+            message: $OrderUnlockMessage,
+            transport: 'orders-order-low',
+        );
+
+
+        /**
          * Если статус текущего - Canceled «Отменен» - получаем предыдущее событие заказа
          */
         if(true === $OrderEvent->isStatusEquals(OrderStatusCanceled::class))
@@ -176,8 +191,6 @@ final readonly class ProductsReserveByOrderCancelDispatcher
             return;
         }
 
-        $existBaksDevProductsStocksBundle = class_exists(BaksDevProductsStocksBundle::class);
-
         /**
          * Проверяем, является ли данный профиль логистическим складом
          */
@@ -188,26 +201,6 @@ final readonly class ProductsReserveByOrderCancelDispatcher
 
         if(false === $isLogisticWarehouse)
         {
-
-            /**
-             * Если установлен модуль products-stocks -
-             * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
-             */
-            if(true === $existBaksDevProductsStocksBundle)
-            {
-                return;
-            }
-
-            /** Синхронно снимаем блокировку с заказа */
-            $OrderUnlockMessage = new OrderUnlockMessage(
-                id: $OrderEvent->getMain(),
-                context: self::class.':'.__LINE__
-            );
-
-            $this->messageDispatch->dispatch(
-                message: $OrderUnlockMessage,
-            );
-
             return;
         }
 
@@ -309,26 +302,6 @@ final readonly class ProductsReserveByOrderCancelDispatcher
                 transport: 'products-product',
             );
         }
-
-        /**
-         * Если установлен модуль products-stocks -
-         * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
-         */
-        if(true === $existBaksDevProductsStocksBundle)
-        {
-            $Deduplicator->save();
-            return;
-        }
-
-        /** Синхронно снимаем блокировку с заказа */
-        $OrderUnlockMessage = new OrderUnlockMessage(
-            id: $OrderEvent->getMain(),
-            context: self::class.':'.__LINE__
-        );
-
-        $this->messageDispatch->dispatch(
-            message: $OrderUnlockMessage,
-        );
 
         $Deduplicator->save();
     }

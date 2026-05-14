@@ -1,0 +1,51 @@
+{# dto \BaksDev\Orders\Order\Forms\OrderService\AddOrderServiceToOrderDTO  #}
+
+<div class="d-flex gap-3 align-content-center">
+
+    <div class="w-75">
+        {{ form_row(form.serv, {
+            label: 'Категория',
+            placeholder: 'Выберите услугу из списка...',
+            attr: { 'data-select' : 'select2' }
+        }) }}
+    </div>
+
+    {% if form.price is defined %}
+        <div class="w-50" id="field_{{ form.price.vars.name }}">
+            {{ form_row(form.price,
+                {
+                    label: 'Цена',
+                }
+            ) }}
+        </div>
+    {% endif %}
+
+
+    {% if form.date is defined %}
+        <div class="w-50" id="field_{{ form.date.vars.name }}">
+            {{ form_row(form.date,
+                {
+                    label: 'Дата',
+                }
+            ) }}
+        </div>
+    {% endif %}
+
+
+    {% if form.period is defined %}
+        <div class="w-50" id="field_{{ form.period.vars.name }}">
+            {{ form_row(form.period, {
+                label: 'Период времени',
+                placeholder: 'Выберите период...',
+                attr: { 'data-select' : 'select2', class:  'mb-0'},
+            }) }}
+        </div>
+    {% endif %}
+
+    {% if form.name is defined %}
+        <div id="field_{{ form.name.vars.name }}">
+            {{ form_row(form.name) }}
+        </div>
+    {% endif %}
+
+</div>

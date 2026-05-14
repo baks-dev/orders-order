@@ -1,0 +1,54 @@
+{{ form_start(form,
+    { attr: { style: 'min-width: 837px; max-width: 837px;' } }
+) }}
+
+<div class="pe-auto border-bottom">
+
+    <div class="d-flex align-items-center justify-content-start p-1">
+
+        <button class="btn btn-secondary w-100"
+                type="button" role="button"
+                data-bs-dismiss="collapse">
+
+                <span class="svg-icon svg-icon-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none">
+                        <rect x="6" y="11" width="12" height="2" rx="1" fill="currentColor"></rect>
+                    </svg>
+                </span>
+
+            Скрыть
+        </button>
+    </div>
+
+    <div class="p-3">
+        <div class="tab-content w-100">
+
+            {{ include(_self|replace({ "content.html.twig": "form/services.html.twig" })) }}
+
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-start p-2 border-top">
+
+        <div class="flex-grow-1">
+            &nbsp;
+        </div>
+
+        <div id="service_buttons" class="d-flex gap-3">
+
+            {% if form.order_service_add is defined %}
+
+                {{ form_widget(form.order_service_add, {
+                    label: '
+                        <span>'~ 'btn.add'|trans({}, 'core.btn') ~'</span>
+                        <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>',
+                }) }}
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+
+{{ form_end(form) }}

@@ -27,7 +27,11 @@
 
 {% if order %}
 
-    {{ form_start(form, { attr: { class: 'offcanvas-body w-100 p-0' } }) }}
+    {{ form_start(form, { attr: {
+        'class': 'offcanvas-body w-100 p-0',
+        'data-id': order.orderId,
+        'data-posting': order.orderPosting
+    } }) }}
 
     <div class='px-3 mb-3'>
 

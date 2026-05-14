@@ -35,7 +35,11 @@
                     value : form.vars.data.comment is not empty ? form.vars.data.comment,
                     attr: { placeholder : 'Укажите причину отмены' } }) }}
 
-                {{ form_widget(form.orders) }}
+                {% for order in form.orders %}
+                    {{ form_widget(order.id) }}
+                {% endfor %}
+
+
             </div>
 
         </div>

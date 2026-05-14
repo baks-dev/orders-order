@@ -130,7 +130,7 @@
 
                         {# Стоимость #}
                         {% if (allEditField is true or partEditField is true) and isDiscountItem is true %}
-                            <button type="button" class="btn btn-sm"
+                            <button type="button" class="btn btn-sm border-0"
                                     title="Уменьшить количество"
                                     data-id='{{ item.price.price.vars.id }}'
                                     data-action='price-minus'
@@ -152,7 +152,7 @@
                         } }) }}
 
                         {% if (allEditField is true or partEditField is true) and isDiscountItem is true %}
-                            <button type="button" class="btn btn-sm"
+                            <button type="button" class="btn btn-sm border-0"
                                     title="Увеличить количество"
                                     data-id='{{ item.price.price.vars.id }}'
                                     data-action='price-plus'

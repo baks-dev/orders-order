@@ -250,15 +250,26 @@ final class DetailController extends AbstractController
 
             if($OrderHandle instanceof Order)
             {
-                $this->addFlash('success', 'success.update', 'orders-order.admin');
+                $flash = $this->addFlash(
+                    type: $OrderDTO->getOrderNumber(),
+                    message: 'success.update',
+                    domain: 'orders-order.admin',
+                    status: 200,
+                );
             }
             else
             {
-                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderHandle);
+                $flash = $this->addFlash(
+                    $OrderDTO->getOrderNumber(),
+                    'danger.update',
+                    'orders-order.admin', $OrderHandle,
+                    status: 400,
+                );
             }
 
             /**
              * Синхронно блокируем складскую заявку
+             *
              * @note при установленном модуле products-stocks у заказа должна быть созданная складская заявка
              */
             if(true === class_exists(BaksDevProductsStocksBundle::class))
@@ -276,7 +287,6 @@ final class DetailController extends AbstractController
                         message: 'Не найдено складской заявки, связанной с заказом',
                         context: [self::class.':'.__LINE__],
                     );
-
 
                 }
 
@@ -303,7 +313,7 @@ final class DetailController extends AbstractController
                 }
             }
 
-            return $this->redirectToReferer();
+            return $flash ?: $this->redirectToReferer();
         }
 
         /** История изменения статусов */

@@ -259,6 +259,7 @@ final class CanceledController extends AbstractController
         {
             /** Пробуем найти по идентификатору заказа */
             $orderMain = $EntityManager->getRepository(Order::class)->find($order->getId());
+
             if(false === ($orderMain instanceof Order))
             {
                 continue;

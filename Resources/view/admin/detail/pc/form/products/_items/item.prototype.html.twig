@@ -28,7 +28,7 @@
     {% set class_discount = 'item-discount' %}
 
     {# Цена #}
-    <button type="button" class="btn btn-sm"
+    <button type="button" class="btn btn-sm border-0"
             title="Уменьшить количество"
             data-id='{{ product.item.vars.prototype.price.price.vars.id }}'
             data-action='price-minus'
@@ -46,7 +46,7 @@
         'data-item': productGroup,
     } }) }}
 
-    <button type="button" class="btn btn-sm"
+    <button type="button" class="btn btn-sm border-0"
             title="Увеличить количество"
             data-id='{{ product.item.vars.prototype.price.price.vars.id }}'
             data-action='price-plus'

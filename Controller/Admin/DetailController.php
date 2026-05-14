@@ -244,15 +244,17 @@ final class DetailController extends AbstractController
                 }
             }
 
-            $Order = $handler->handle($OrderDTO);
+            // Новый тип значения (строка) не совпадает с разрешенным типом параметра и может вводить ложные положительные значения, связанные с типами.
 
-            if($Order instanceof Order)
+            $OrderHandle = $handler->handle($OrderDTO);
+
+            if($OrderHandle instanceof Order)
             {
                 $this->addFlash('success', 'success.update', 'orders-order.admin');
             }
             else
             {
-                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $Order);
+                $this->addFlash('danger', 'danger.update', 'orders-order.admin', $OrderHandle);
             }
 
             /**
@@ -274,6 +276,8 @@ final class DetailController extends AbstractController
                         message: 'Не найдено складской заявки, связанной с заказом',
                         context: [self::class.':'.__LINE__],
                     );
+
+
                 }
 
                 if(false === empty($ProductStockEventArray))

@@ -71,7 +71,7 @@ final readonly class ProductReserveByOrderNewDispatcher
         $Deduplicator = $this->deduplicator
             ->namespace('orders-order')
             ->deduplication([
-                (string) $message->getId(),
+                $message,
                 self::class,
             ]);
 
@@ -124,6 +124,17 @@ final readonly class ProductReserveByOrderNewDispatcher
 
         if(false === ($UserProfileUid instanceof UserProfileUid))
         {
+            /** Снимаем блокировку с заказа в очереди */
+            $OrderUnlockMessage = new OrderUnlockMessage(
+                id: $OrderEvent->getMain(),
+                context: self::class.':'.__LINE__,
+            );
+
+            $this->messageDispatch->dispatch(
+                message: $OrderUnlockMessage,
+                transport: 'orders-order',
+            );
+
             return;
         }
 

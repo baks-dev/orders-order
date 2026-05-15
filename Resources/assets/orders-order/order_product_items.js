@@ -22,6 +22,7 @@
 
 executeFunc(function editOrderProductItems()
 {
+
     let productItems = document.querySelectorAll("[data-group=\"product-items\"]");
 
     if(typeof productItems === "undefined" || productItems === null)
@@ -34,13 +35,9 @@ executeFunc(function editOrderProductItems()
     return true;
 });
 
-
 /** Изменяем цену в каждой единице продукта */
 function initHsH22s6NM(item)
 {
-    let forms = item.closest("form");
-    submitOrderCanvasForm(forms);
-
     const changePriceBtn = item.querySelectorAll("[data-action*=\"price\"]");
 
     changePriceBtn.forEach(changeOrderProductItemPriceByClick);
@@ -56,116 +53,6 @@ function initHsH22s6NM(item)
     const deletItems = item.querySelectorAll(".delete-el");
 
     deletItems.forEach(deleteOrderProductItem);
-}
-
-
-async function submitOrderCanvasForm(forms)
-{
-    let order_submit_btn = document.getElementById(forms.name + "_order");
-
-    if(typeof order_submit_btn == "object")
-    {
-        forms.addEventListener("submit", function(event)
-        {
-            event.preventDefault();
-            disabledElementsForm(forms);
-
-            const data = new FormData(forms);
-
-            fetch(forms.action, {
-                method : forms.method, // *GET, POST, PUT, DELETE, etc.
-                //mode: 'same-origin', // no-cors, *cors, same-origin
-                cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-                credentials : "same-origin", // include, *same-origin, omit
-                headers : {
-                    // 'X-Requested-With': 'XMLHttpChange'
-                    "X-Requested-With" : "XMLHttpRequest",
-                },
-                redirect : "follow", // manual, *follow, error
-                referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                body : data, // body data type must match "Content-Type" header
-            })
-
-                /** Выводим сообщение в случае ошибки */
-                //.then((response) => response)
-                .then((response) =>
-                {
-                    if(!response.ok)
-                    { // проверяем, успешен ли ответ (статус 200-299)
-                        throw new Error(`Ошибка HTTP: ${response.status}`);
-                    }
-
-                    return response.json(); // парсим JSON
-
-                })
-
-
-                /** Блокируем заказ в случае успешной отправки формы */
-                .then(data =>
-            {
-                /** Показываем сообщение об успешном изменении заказа */
-                createToast(data);
-
-                /** Блокируем карточку товара в канбане */
-                const order_card = document.getElementById(forms.dataset.id);
-
-                if(order_card)
-                {
-                    const label = order_card.querySelector(`label[for="${forms.dataset.posting}"]`);
-
-                    let draggable = order_card.querySelector("[class*=\"draggable\"]");
-
-                    if(draggable !== null)
-                    {
-                        /** Блокируем draggable */
-                        let draggableMove = draggable.querySelector(".bi-arrows-move");
-                        draggableMove.classList.add("d-none");
-
-                        let draggableLock = draggable.querySelector(".bi-ban");
-                        draggableLock.classList.remove("d-none");
-
-                        /** Скрываем чекбокс выбора карточки */
-                        label?.classList.add("fade");
-
-                        draggable.classList.remove("draggable-handle");
-                        draggable.classList.add("draggable-lock");
-                    }
-                }
-
-                var myOffcanvas = document.getElementById("offcanvas");
-
-                if(myOffcanvas)
-                {
-                    let bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(myOffcanvas);
-                    bsOffcanvas.hide();
-                }
-
-                // работаем с данными
-            })
-
-                /** Ошибка запроса */
-                .catch(error =>
-            {
-
-                let $successSupplyToast = "{ \"type\":\"danger\" , " +
-                    "\"header\":\"Ошибка при обновлении заказа\"  , " +
-                    "\"message\" : \"Повторите попытку позже либо обратитесь к администратору ресурса за дополнительной информацией\" }";
-
-                createToast(JSON.parse($successSupplyToast));
-
-                var myOffcanvas = document.getElementById("offcanvas");
-
-                if(myOffcanvas)
-                {
-                    let bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(myOffcanvas);
-                    bsOffcanvas.hide();
-                }
-            });
-        });
-
-    }
-
-
 }
 
 /** Удаление элементов по кнопке */

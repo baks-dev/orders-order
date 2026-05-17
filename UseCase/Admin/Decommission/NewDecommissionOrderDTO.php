@@ -60,6 +60,9 @@ final class NewDecommissionOrderDTO implements OrderEventInterface
     /** Идентификатор складского места на складе */
     private ProductStockTotalUid|false $storage = false;
 
+    #[Assert\NotBlank]
+    private ?string $comment = null;
+
     public function __construct()
     {
         $this->invariable = new NewDecommissionOrderInvariableDTO();
@@ -145,6 +148,17 @@ final class NewDecommissionOrderDTO implements OrderEventInterface
     public function setStorage(ProductStockTotalUid|false $storage): self
     {
         $this->storage = $storage;
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
         return $this;
     }
 }

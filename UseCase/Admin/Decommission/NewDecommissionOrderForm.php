@@ -31,6 +31,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -45,6 +46,8 @@ final class NewDecommissionOrderForm extends AbstractType
             'entry_options' => ['label' => false],
             'label' => false,
         ]);
+
+        $builder->add('comment', TextareaType::class);
 
         $builder->add('signs', CheckboxType::class, ['required' => false]);
 

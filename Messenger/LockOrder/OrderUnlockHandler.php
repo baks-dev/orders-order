@@ -117,6 +117,8 @@ final readonly class OrderUnlockHandler
                 ),
                 context: [self::class.':'.__LINE__],
             );
+
+            return;
         }
 
         $this->logger->info(

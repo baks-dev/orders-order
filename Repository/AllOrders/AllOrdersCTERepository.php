@@ -878,6 +878,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             $dbal,
             AllOrdersResult::class,
             'orders-order',
+            '5 minutes',
         );
 
         //return $dbal->fetchAllHydrate(AllOrdersResult::class);

@@ -518,7 +518,7 @@
 
     </div>
 
-    {% set orderCanSave = isLock == false and order.orderStatus != 'completed' and order.orderStatus != 'return' %}
+    {% set orderCanSave = isLock == false and order.orderStatus != 'canceled' and order.orderStatus != 'return' %}
 
     <div class="w-100 d-flex justify-content-{{ orderCanSave == true ? 'between' : 'end' }} align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
 

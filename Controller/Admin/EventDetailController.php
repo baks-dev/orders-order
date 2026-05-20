@@ -34,7 +34,7 @@ use BaksDev\Materials\Sign\Repository\GroupMaterialSignsByOrder\GroupMaterialSig
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByEvent\OrderDetailByEventInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Orders\Order\Repository\OrderHistory\OrderHistoryInterface;
 use BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketInterface;
@@ -59,6 +59,7 @@ use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Lock\ProductStockLock;
 use BaksDev\Products\Stocks\Messenger\Lock\ProductStockLockMessage;
 use BaksDev\Products\Stocks\Repository\ProductStocksByOrder\ProductStocksByOrderInterface;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -67,57 +68,58 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 #[AsController]
-#[RoleSecurity('ROLE_ORDERS')]
-final class DetailController extends AbstractController
+#[RoleSecurity('ROLE_ORDERS_HISTORY')]
+final class EventDetailController extends AbstractController
 {
     private string|null $error = null;
 
-    #[Route('/admin/order/detail/{id}', name: 'admin.detail', methods: ['GET', 'POST'])]
+    #[Route('/admin/order/detail/event/{OrderEvent}', name: 'admin.event.detail', methods: ['GET', 'POST'])]
     public function index(
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
-        #[MapEntity] Order $Order,
+        #[MapEntity] OrderEvent $OrderEvent,
         Request $request,
         CentrifugoPublishInterface $publish,
         MessageDispatchInterface $messageDispatch,
-        CurrentOrderEventInterface $currentOrderEventRepository,
+        CurrentOrderEventInterface $CurrentOrderEventRepository,
         ProductUserBasketInterface $userBasketRepository,
-        OrderDetailInterface $orderDetailRepository,
         OrderHistoryInterface $orderHistoryRepository,
         OneServiceByIdInterface $oneServiceByIdRepository,
         ExistActiveOrderServiceInterface $existActiveOrderServiceRepository,
         OrderStatusCollection $collection,
         EditOrderHandler $handler,
+        OrderDetailByEventInterface $OrderDetailByEventRepository,
         ?GroupMaterialSignsByOrderInterface $GroupMaterialSignsByOrder = null,
         ?GroupProductSignsByOrderInterface $GroupProductSignsByOrder = null,
         ?AllProductSignByOrderInterface $allProductSignByOrderRepository = null,
         ?ProductStocksByOrderInterface $productStocksByOrderRepository = null,
     ): Response
     {
-        /** Получаем активное событие заказа */
-        $OrderEvent = $currentOrderEventRepository
-            ->forOrder($Order->getId())
+        $currentEvent = $CurrentOrderEventRepository
+            ->forOrder($OrderEvent->getMain())
             ->find();
 
-        if(false === ($OrderEvent instanceof OrderEvent))
+        if(false === $currentEvent)
         {
-            throw new RouteNotFoundException('Page Not Found');
+            throw new InvalidArgumentException(sprintf('Не удалось найти текущее событие для заказа %s', $OrderEvent->getMain()));
         }
 
+        $isCurrent = $currentEvent->getId()->equals($OrderEvent->getId());
+
+
         /** Информация о заказе */
-        $OrderInfo = $orderDetailRepository
-            ->onOrder($OrderEvent->getMain())
-            ->find();
+        $OrderInfo = $OrderDetailByEventRepository->find($OrderEvent->getId());
 
         if(false === ($OrderInfo instanceof OrderDetailResult))
         {
             return new Response('404 Page Not Found');
         }
 
-        $OrderDTO = new EditOrderDTO($Order->getId());
+
+        $OrderDTO = new EditOrderDTO($OrderEvent->getMain());
         $OrderEvent->getDto($OrderDTO);
+
 
         /**
          * Продукты в заказе
@@ -137,6 +139,7 @@ final class DetailController extends AbstractController
             $product->setCard($ProductUserBasketResult);
         }
 
+
         /**
          * Услуги в заказе
          */
@@ -144,9 +147,7 @@ final class DetailController extends AbstractController
         /** @var OrderServiceDTO $serv */
         foreach($OrderDTO->getServ() as $serv)
         {
-            $serviceInfo = $oneServiceByIdRepository
-                //->byProfile($this->getProfileUid()) // проблема с перемещением заказа с одного региона в другой
-                ->find($serv->getServ());
+            $serviceInfo = $oneServiceByIdRepository->find($serv->getServ());
 
             if(false === $serviceInfo)
             {
@@ -159,6 +160,7 @@ final class DetailController extends AbstractController
                 ->setMinPrice($serviceInfo->getPrice()->getValue());
         }
 
+
         /** Динамическая форма (необходима для динамического изменения полей в форме) - только при AJAX запросах */
         if(true === $request->isXmlHttpRequest())
         {
@@ -166,12 +168,16 @@ final class DetailController extends AbstractController
             $handleForm->handleRequest($request);
         }
 
+
         // форма заказа
         $form = $this
             ->createForm(
                 type: EditOrderForm::class,
                 data: $OrderDTO,
-                options: ['action' => $this->generateUrl('orders-order:admin.detail', ['id' => $Order->getId()])],
+                options: ['action' => $this->generateUrl(
+                    'orders-order:admin.event.detail',
+                    ['OrderEvent' => $OrderEvent->getId()]
+                )],
             )
             ->handleRequest($request);
 
@@ -187,7 +193,7 @@ final class DetailController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        if($form->isSubmitted() && $form->isValid())
+        if($form->isSubmitted() && $form->isValid() && true === $isCurrent)
         {
             $this->refreshTokenForm($form);
 
@@ -278,7 +284,7 @@ final class DetailController extends AbstractController
                  * Находим событие складской заявки связанной с заказом
                  */
                 $ProductStockEventArray = $productStocksByOrderRepository
-                    ->onOrder($Order->getId())
+                    ->onOrder($OrderEvent->getMain())
                     ->findAll();
 
                 if(true === empty($ProductStockEventArray))
@@ -316,10 +322,12 @@ final class DetailController extends AbstractController
             return $flash ?: $this->redirectToReferer();
         }
 
+
         /** История изменения статусов */
-        $history = $orderHistoryRepository
+        $History = $orderHistoryRepository
             ->order($OrderEvent->getMain())
             ->findAllHistoryResult();
+
 
         /** Отправляем сокет для скрытия заказа у других менеджеров */
         $socket = $publish
@@ -330,10 +338,12 @@ final class DetailController extends AbstractController
             ])
             ->send('orders');
 
+
         if($socket && $socket->isError())
         {
             return new JsonResponse($socket->getMessage());
         }
+
 
         /**
          * Получаем честные знаки на сырье
@@ -341,10 +351,10 @@ final class DetailController extends AbstractController
 
         $MaterialSign = false;
 
-        if($GroupMaterialSignsByOrder)
+        if(($GroupMaterialSignsByOrder instanceof GroupMaterialSignsByOrderInterface) && $isCurrent)
         {
             $MaterialSign = $GroupMaterialSignsByOrder
-                ->forOrder($Order)
+                ->forOrder($OrderEvent->getMain())
                 ->findAll();
 
             if(false === $MaterialSign || false === $MaterialSign->valid())
@@ -353,12 +363,13 @@ final class DetailController extends AbstractController
             }
         }
 
+
         $ProductSign = false;
 
-        if($GroupProductSignsByOrder instanceof GroupProductSignsByOrderInterface)
+        if(($GroupProductSignsByOrder instanceof GroupProductSignsByOrderInterface) && $isCurrent)
         {
             $ProductSign = $GroupProductSignsByOrder
-                ->forOrder($Order)
+                ->forOrder($OrderEvent->getMain())
                 ->findAll();
 
             if(false === $ProductSign || false === $ProductSign->valid())
@@ -367,10 +378,11 @@ final class DetailController extends AbstractController
             }
         }
 
+
         /** Информация о Честных знаках по заказу */
         $ProductSignItems = false;
 
-        if($allProductSignByOrderRepository instanceof AllProductSignByOrderInterface)
+        if(($allProductSignByOrderRepository instanceof AllProductSignByOrderInterface) && $isCurrent)
         {
             $signStatus = match (true)
             {
@@ -381,17 +393,17 @@ final class DetailController extends AbstractController
             };
 
             $ProductSignItems = $allProductSignByOrderRepository
-                ->forOrder($Order)
+                ->forOrder($OrderEvent->getMain())
                 ->forStatus($signStatus)
                 ->findAll();
         }
 
         return $this->render(
             [
-                'id' => (string) $Order->getId(),
+                'id' => (string) $OrderEvent->getMain(),
                 'form' => $form->createView(),
                 'order' => $OrderInfo,
-                'history' => $history,
+                'history' => $History,
                 'status' => $collection->from(($OrderInfo->getOrderStatus() ?? OrderStatusNew::STATUS)),
                 'statuses' => $collection,
                 'materials_sign' => $MaterialSign,
@@ -399,6 +411,7 @@ final class DetailController extends AbstractController
                 'products_sign_items' => $ProductSignItems,
                 'profile' => $this->getProfileUid(),
                 'error' => $this->error,
+                'is_current' => $isCurrent,
             ],
         );
     }

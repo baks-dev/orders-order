@@ -92,5 +92,9 @@ ROLE_ORDERS_STATUS_DECOMMISSION:
   desc: ''
 
 ROLE_ORDERS_REPORT_ORDERS_ALL:
-  name: 'Очет по всем складам'
+  name: 'Отчет по всем складам'
+  desc: ''
+
+ROLE_ORDERS_HISTORY:
+  name: 'Просмотр предыдущих событий заказа'
   desc: ''

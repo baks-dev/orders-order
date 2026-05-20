@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2026.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,24 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderHistory;
+namespace BaksDev\Orders\Order\Security;
 
-use BaksDev\Orders\Order\Entity\Order;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
-use Generator;
+use BaksDev\Users\Profile\Group\Security\RoleInterface;
+use BaksDev\Users\Profile\Group\Security\VoterInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-interface OrderHistoryInterface
+#[AutoconfigureTag('baks.security.voter')]
+class VoterHistory implements VoterInterface
 {
-    public function order(Order|OrderUid|string $order): self;
+    public const string VOTER = 'HISTORY';
 
+    public static function getVoter(): string
+    {
+        return Role::ROLE.'_'.self::VOTER;
+    }
 
-    /**
-     * @deprecated
-     * Получаем информацию о предыдущих событиях заказа (в виде массива))
-     */
-    public function findAllHistory(): array;
-
-
-    /**
-     * Получаем информацию о предыдущих событиях заказа (в виде резалта))
-     * @return Generator<OrderHistoryResult>
-     */
-    public function findAllHistoryResult(): Generator;
+    public function equals(RoleInterface $role): bool
+    {
+        return Role::ROLE === $role->getRole();
+    }
 }

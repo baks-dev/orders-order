@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrderDetail;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByEvent;
 
 use BaksDev\Auth\Email\Entity\Account;
 use BaksDev\Auth\Email\Entity\Event\AccountEvent;
@@ -50,7 +50,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
-use BaksDev\Orders\Order\Type\Id\OrderUid;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -73,10 +73,6 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
-use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
-use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
-use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
-use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Services\BaksDevServicesBundle;
 use BaksDev\Services\Entity\Event\Info\ServiceInfo;
 use BaksDev\Services\Entity\Event\Period\ServicePeriod;
@@ -91,92 +87,39 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorage;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Doctrine\DBAL\ArrayParameterType;
-use Generator;
-use InvalidArgumentException;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 
-final class OrderDetailRepository implements OrderDetailInterface
+final readonly class OrderDetailByEventRepository implements OrderDetailByEventInterface
 {
-    private array|null $orders = null;
+    public function __construct(private DBALQueryBuilder $DBALQueryBuilder) {}
 
-    private OrderUid|false $order = false;
-
-    private UserProfileUid|false $profile = false;
-
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly UserProfileTokenStorage $UserProfileTokenStorage,
-    ) {}
-
-    /**
-     * Фильтр по заказам
-     */
-    public function inOrders(array $orders): self
-    {
-        foreach($orders as $order)
-        {
-            $this->orders[] = new OrderUid($order);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Фильтр для получения информации по остаткам продукции на текущем складе
-    */
-    public function forProfile(UserProfileUid $profile): self
-    {
-        $this->profile = $profile;
-        return $this;
-    }
 
     /**
      * Метод возвращает Result с информацией об заказе
      */
-    public function find(): OrderDetailResult|false
-    {
-        if(false === ($this->order instanceof OrderUid))
-        {
-            throw new InvalidArgumentException('Не передан обязательный параметр запроса order');
-        }
-
-        $builder = $this->builder();
-
-        return $builder->fetchHydrate(OrderDetailResult::class);
-    }
-
-    public function builder(): DBALQueryBuilder
+    public function find(OrderEventUid $orderEvent): OrderDetailResult|false
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
         $dbal
-            ->select('orders.id AS order_id')
-            ->addSelect('orders.event AS order_event')
-            ->from(Order::class, 'orders');
+            ->select('event.id as order_event')
+            ->addSelect('event.status AS order_status')
+            ->addSelect('event.comment AS order_comment')
+            ->addSelect('event.created AS order_created')
+            ->from(OrderEvent::class, 'event')
+            ->where('event.id = :event')
+            ->setParameter('event', $orderEvent, OrderEventUid::TYPE);
 
-        if(true === $this->order instanceof OrderUid)
-        {
-            $dbal->where('orders.id = :order')
-                ->setParameter(
-                    key: 'order',
-                    value: $this->order,
-                    type: OrderUid::TYPE,
-                );
-        }
-
-        if(true === is_array($this->orders))
-        {
-            $dbal->andWhere('orders.id IN (:orders)')
-                ->setParameter(
-                    key: 'orders',
-                    value: $this->orders,
-                    type: ArrayParameterType::STRING,
-                );
-        }
+        $dbal
+            ->addSelect('orders.id AS order_id')
+            ->join(
+                'event',
+                Order::class,
+                'orders',
+                'orders.id = event.orders'
+            );
 
         $dbal
             ->addSelect('orders_invariable.number AS order_number')
@@ -195,7 +138,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'orders',
                 OrderLock::class,
                 'orders_lock',
-                'orders_lock.event = orders.event',
+                'orders_lock.event = event.id',
             );
 
         $dbal
@@ -208,30 +151,19 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
         $dbal
-            ->addSelect('event.status AS order_status')
-            ->addSelect('event.comment AS order_comment')
-            ->addSelect('event.created AS order_created')
-            ->join(
-                'orders',
-                OrderEvent::class,
-                'event',
-                'event.id = orders.event',
-            );
-
-        $dbal
             ->addSelect('order_print.printed as printed')
             ->leftJoin(
                 'event',
                 OrderPrint::class,
                 'order_print',
-                'order_print.event = orders.id',
+                'order_print.event = event.id',
             );
 
         $dbal->leftJoin(
             'orders',
             OrderUser::class,
             'order_user',
-            'order_user.event = orders.event',
+            'order_user.event = event.id',
         );
 
 
@@ -265,13 +197,14 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'payment_trans.event = payment.event AND payment_trans.local = :local',
             );
 
+
         /* Продукция в заказе  */
 
         $dbal->leftJoin(
             'orders',
             OrderProduct::class,
             'order_product',
-            'order_product.event = orders.event',
+            'order_product.event = event.id',
         );
 
         $dbal->leftJoin(
@@ -534,7 +467,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'orders',
                 OrderService::class,
                 'order_service',
-                'order_service.event = orders.event',
+                'order_service.event = event.id',
             );
 
             $dbal->leftJoin(
@@ -742,25 +675,6 @@ final class OrderDetailRepository implements OrderDetailInterface
             'user_profile_value.event = user_profile.id',
         );
 
-        /** Выбираем только контактный номер и телефон */
-        //        $dbal
-        //            ->leftJoin(
-        //                'user_profile_value',
-        //                TypeProfileSectionField::class,
-        //                'type_section_field_client',
-        //                '
-        //                        type_section_field_client.id = user_profile_value.field AND
-        //                        (
-        //                            type_section_field_client.type = :field_phone
-        //                            OR type_section_field_client.type = :field_contact
-        //                        )
-        //                    ')
-        //            ->setParameter(
-        //                key: 'field_phone',
-        //                value: PhoneField::TYPE,
-        //            )
-        //            ;
-
         $dbal->leftJoin(
             'user_profile',
             TypeProfile::class,
@@ -791,6 +705,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
         );
 
+
         /* Автарка профиля клиента */
         $dbal
             ->addSelect("CONCAT ( '/upload/".$dbal->table(UserProfileAvatar::class)."' , '/', profile_avatar.name) AS profile_avatar_name")
@@ -804,87 +719,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
 
-        if(
-            class_exists(BaksDevProductsStocksBundle::class)
-            && (true === $this->UserProfileTokenStorage->isUser() || $this->profile instanceof UserProfileUid)
-        )
-        {
-            $dbal->leftJoin(
-                'orders',
-                ProductStockOrder::class,
-                'stock_order',
-                'stock_order.ord = orders.id',
-            );
-
-            $dbal->leftJoin(
-                'stock_order',
-                ProductStockEvent::class,
-                'stock_event',
-                'stock_event.id = orders.id',
-            );
-
-            /** Получаем остаток и резерв на текущем складе */
-            $dbal
-                ->leftJoin(
-                    'product_modification',
-                    ProductStockTotal::class,
-                    'product_stock_total',
-                    '
-                    
-                    product_stock_total.product = product_event.main
-   
-                    AND
-                        
-                        CASE 
-                            WHEN product_offer.const IS NOT NULL 
-                            THEN product_stock_total.offer = product_offer.const
-                            ELSE product_stock_total.offer IS NULL
-                        END
-                            
-                    AND 
-                    
-                        CASE
-                            WHEN product_variation.const IS NOT NULL 
-                            THEN product_stock_total.variation = product_variation.const
-                            ELSE product_stock_total.variation IS NULL
-                        END
-                        
-                    AND
-                    
-                        CASE
-                            WHEN product_modification.const IS NOT NULL 
-                            THEN product_stock_total.modification = product_modification.const
-                            ELSE product_stock_total.modification IS NULL
-                        END
-                  
-                        AND product_stock_total.profile = :profile',
-                )
-                ->setParameter(
-                    key: 'profile',
-                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-                    type: UserProfileUid::TYPE,
-                );
-
-            $dbal->addSelect("JSON_AGG
-            	( DISTINCT
-            			JSONB_BUILD_OBJECT
-            			(
-            				'id', product_stock_total.id,
-            
-            				'main', product_stock_total.product,
-            				'offer', product_stock_total.offer,
-            				'variation', product_stock_total.variation,
-            				'modification', product_stock_total.modification,
-            
-            				'total', product_stock_total.total,
-            				'reserve', product_stock_total.reserve
-            			)
-            	) FILTER ( WHERE product_stock_total.id IS NOT NULL ) AS stocks");
-        }
-        else
-        {
-            $dbal->addSelect('NULL AS stocks');
-        }
+        $dbal->addSelect('NULL AS stocks');
 
         $dbal->addSelect(
             "JSON_AGG
@@ -906,46 +741,6 @@ final class OrderDetailRepository implements OrderDetailInterface
 
         $dbal->allGroupByExclude();
 
-        return $dbal;
-    }
-
-    /**
-     * Метод возвращает Generator с информацией об заказах
-     */
-    public function findAll(): Generator|false
-    {
-        if(false === is_array($this->orders))
-        {
-            throw new InvalidArgumentException('Не передан обязательный параметр запроса orders');
-        }
-
-        $builder = $this->builder();
-        $this->orders = null;
-
-        $result = $builder->fetchAllHydrate(OrderDetailResult::class);
-
-        return true === $result->valid() ? $result : false;
-    }
-
-    /**
-     * @deprecated
-     * Метод возвращает Result с информацией об заказе
-     */
-    public function fetchDetailOrderAssociative(OrderUid $order): array|null
-    {
-        $this->onOrder($order);
-
-        $builder = $this->builder();
-
-        return $builder->fetchAssociative() ?: null;
-    }
-
-    /**
-     * Фильтр по заказу
-     */
-    public function onOrder(OrderUid $order): self
-    {
-        $this->order = $order;
-        return $this;
+        return $dbal->fetchHydrate(OrderDetailResult::class);
     }
 }

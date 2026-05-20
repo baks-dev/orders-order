@@ -45,6 +45,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
+#[Group('orders-order-repository')]
 #[Group('orders-order-usecase')]
 #[When(env: 'test')]
 final class OrderStatusCompleteTest extends KernelTestCase

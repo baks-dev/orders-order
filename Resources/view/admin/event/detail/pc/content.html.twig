@@ -365,9 +365,7 @@
                             <th>Дата</th>
                             <th>Время</th>
                             <th>Пользователь</th>
-                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ORDERS_HISTORY') %}
-                                <th>Событие</th>
-                            {% endif %}
+                            <th>Событие</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -395,30 +393,28 @@
 
                                 </td>
 
-                                {% if is_granted('ROLE_ORDERS_HISTORY') or is_granted('ROLE_ADMIN') %}
-                                    <td>
-                                        {% if hist.eventId == order.orderEvent %}
-                                            <div
-                                                class="badge"
-                                                style="background-color: #6c757d; cursor: pointer;"
-                                            >
-                                                Выбрано
-                                            </div>
-                                        {% else %}
-                                            <div
-                                                data-href='{{ path(
-                                                    'orders-order:admin.event.detail',
-                                                    { OrderEvent: hist.eventId }
-                                                ) }}'
-                                                data-id='{{ hist.eventId }}'
-                                                class="badge offcanvas-link"
-                                                style="background-color: #4684D0; cursor: pointer;"
-                                            >
-                                                Показать
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                {% endif %}
+                                <td>
+                                    {% if hist.eventId == order.orderEvent %}
+                                        <div
+                                            class="badge"
+                                            style="background-color: #6c757d; cursor: pointer;"
+                                        >
+                                            Выбрано
+                                        </div>
+                                    {% else %}
+                                        <div
+                                            data-href='{{ path(
+                                                'orders-order:admin.event.detail',
+                                                { OrderEvent: hist.eventId }
+                                            ) }}'
+                                            data-id='{{ hist.eventId }}'
+                                            class="badge offcanvas-link"
+                                            style="background-color: #4684D0; cursor: pointer;"
+                                        >
+                                            Показать
+                                        </div>
+                                    {% endif %}
+                                </td>
 
                             </tr>
                         {% endfor %}
@@ -551,11 +547,13 @@
 
     <div class="w-100 d-flex justify-content-{{ orderCanSave == true ? 'between' : 'end' }} align-items-center sticky-bottom bottom-0 bg-light p-3 gap-3">
 
+        {% set let_save = false == is_current %}
+
         {% set order_save = form_widget(form.order, { label: '
                     <span class="text-nowrap">'~ 'Сохранить изменения'|trans({}, 'core.btn') ~'</span>
                     <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-		        ', attr: { class: 'btn-danger', title : "Сохранить изменения" }
-        }) %}
+		        ', attr: { class: 'btn-danger', title : "Сохранить изменения", disabled: let_save
+        }}) %}
 
 
         {# Сохранение изменений #}

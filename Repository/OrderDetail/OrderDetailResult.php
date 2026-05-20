@@ -86,7 +86,7 @@ final readonly class OrderDetailResult
 
         private string $order_user,
         private ?bool $printed,
-        private ?string $stocks,
+        private ?string $stocks = null,
         private ?string $order_services = null,
         private ?string $order_posting = null,
 

@@ -35,6 +35,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Personal\UserProfilePersonal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use Generator;
 
 final class OrderHistoryRepository implements OrderHistoryInterface
 {
@@ -60,24 +61,24 @@ final class OrderHistoryRepository implements OrderHistoryInterface
         return $this;
     }
 
-    public function findAllHistory(): array
+    private function builder(): DBALQueryBuilder
     {
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-
-        $qb
+        $dbal
+            ->select('event.id as event_id')
             ->addSelect('event.status')
             ->from(OrderEvent::class, 'event');
 
         if($this->order)
         {
-            $qb
+            $dbal
                 ->where('event.orders = :order')
                 ->setParameter('order', $this->order, OrderUid::TYPE);
         }
 
 
-        $qb
+        $dbal
             ->addSelect('modify.mod_date')
             ->addSelect('modify.action')
             ->leftJoin(
@@ -88,7 +89,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
             );
 
 
-        $qb
+        $dbal
             ->addSelect('order_user.profile AS order_profile_id')
             ->leftJoin(
                 'event',
@@ -98,7 +99,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
             );
 
 
-        $qb->leftJoin(
+        $dbal->leftJoin(
             'modify',
             UserProfileInfo::class,
             'profile_info',
@@ -106,7 +107,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
         );
 
 
-        $qb
+        $dbal
             ->addSelect('profile.id AS user_profile_id')
             ->leftJoin(
                 'profile_info',
@@ -115,7 +116,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'profile.id = profile_info.profile',
             );
 
-        $qb
+        $dbal
             ->addSelect('profile_personal.username AS profile_username')
             ->leftJoin(
                 'profile',
@@ -125,7 +126,7 @@ final class OrderHistoryRepository implements OrderHistoryInterface
             );
 
 
-        $qb
+        $dbal
             ->addSelect('profile_avatar.name AS profile_avatar_name')
             ->addSelect('profile_avatar.ext AS profile_avatar_ext')
             ->addSelect('profile_avatar.cdn AS profile_avatar_cdn')
@@ -136,9 +137,32 @@ final class OrderHistoryRepository implements OrderHistoryInterface
                 'profile_avatar.event = profile.event',
             );
 
-        $qb->orderBy('modify.mod_date');
+        $dbal->orderBy('modify.mod_date');
 
-        return $qb->fetchAllAssociative();
+        return $dbal;
     }
 
+
+    /**
+     * @deprecated
+     * Получаем информацию о предыдущих событиях заказа (в виде массива))
+     */
+    public function findAllHistory(): array
+    {
+        $dbal = $this->builder();
+
+        return $dbal->fetchAllAssociative();
+    }
+
+
+    /**
+     * Получаем информацию о предыдущих событиях заказа (в виде резалта))
+     * @return Generator<OrderHistoryResult>
+     */
+    public function findAllHistoryResult(): Generator
+    {
+        $dbal = $this->builder();
+
+        return $dbal->fetchAllHydrate(OrderHistoryResult::class);
+    }
 }

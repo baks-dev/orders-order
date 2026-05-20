@@ -24,14 +24,12 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Orders\Order\Repository\OrdersDetailByProfile\Tests;
+namespace BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByEvent\Tests;
 
-use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileInterface;
-use BaksDev\Orders\Order\Repository\OrdersDetailByProfile\OrdersDetailByProfileResult;
-use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByEvent\OrderDetailByEventInterface;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
+use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Tests\OrderNewTest;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use PHPUnit\Framework\Attributes\DependsOnClass;
 use PHPUnit\Framework\Attributes\Group;
 use ReflectionClass;
@@ -39,34 +37,29 @@ use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-// @TODO зависимость на new статус заказа
-// @TODO зависимость на создание тестового профиля
 #[Group('orders-order')]
 #[Group('orders-order-repository')]
 #[When(env: 'test')]
-class OrdersDetailByProfileRepositoryTest extends KernelTestCase
+final class OrderDetailByEventRepositoryTest extends KernelTestCase
 {
     #[DependsOnClass(OrderNewTest::class)]
-    public function testRepository(): void
+    public function testOrderDetail(): void
     {
+        /** @var OrderDetailByEventInterface $OrderDetailByEventInterface */
+        $OrderDetailByEventInterface = self::getContainer()->get(OrderDetailByEventInterface::class);
 
-        /** @var OrdersDetailByProfileInterface $OrdersDetailByProfileInterface */
-        $OrdersDetailByProfileInterface = self::getContainer()->get(OrdersDetailByProfileInterface::class);
 
-        $result = $OrdersDetailByProfileInterface
-            ->forProfile(new UserProfileUid(UserProfileUid::TEST))
-            ->forStatus(new OrderStatus(OrderStatusNew::STATUS))
-            ->findAllResults();
+        $result = $OrderDetailByEventInterface->find(new OrderEventUid());
 
-        if(false === $result)
-        {
-            self::assertTrue(true);
-            echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
-            return;
-        }
+        self::assertTrue(($result instanceof OrderDetailResult), 'Не найден OrderDetailResult');
+
+
+        /** Присваиваем через сеттер QRcode */
+        $result->setQrCode('qrcode');
+
 
         // Вызываем все геттеры
-        $reflectionClass = new ReflectionClass(OrdersDetailByProfileResult::class);
+        $reflectionClass = new ReflectionClass(OrderDetailResult::class);
         $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
         foreach($methods as $method)
@@ -76,8 +69,10 @@ class OrdersDetailByProfileRepositoryTest extends KernelTestCase
             {
                 // Вызываем метод
                 $data = $method->invoke($result);
-                //                 dump($data);
+                // dump($data);
             }
         }
+
+        self::assertTrue(true);
     }
 }

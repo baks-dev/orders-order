@@ -70,12 +70,12 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Group('orders-order')]
+#[Group('orders-order-controller')]
 #[Group('orders-order-repository')]
 #[Group('orders-order-usecase')]
 #[When(env: 'test')]
 final class OrderNewTest extends KernelTestCase
 {
-
     public static function setUpBeforeClass(): void
     {
         $container = self::getContainer();

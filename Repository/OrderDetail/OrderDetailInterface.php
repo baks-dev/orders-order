@@ -40,7 +40,7 @@ interface OrderDetailInterface
     public function onOrder(OrderUid $order): self;
 
     /**
-     * Фильтр по профилю
+     * Фильтр для получения информации по остаткам продукции на текущем складе
      */
     public function forProfile(UserProfileUid $profile): self;
 

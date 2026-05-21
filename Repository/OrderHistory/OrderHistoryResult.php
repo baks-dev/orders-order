@@ -44,7 +44,7 @@ final readonly class OrderHistoryResult
         private ?string $profile_username,
         private ?string $profile_avatar_name,
         private ?string $profile_avatar_ext,
-        private ?string $profile_avatar_cdn,
+        private ?bool $profile_avatar_cdn,
     ) {}
 
     public function getEventId(): OrderEventUid

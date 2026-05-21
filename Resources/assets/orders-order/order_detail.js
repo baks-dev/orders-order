@@ -30,6 +30,16 @@ executeFunc(function executeOrderCanvasSublitForm()
         return false;
     }
 
+
+    /* вешаем события на OFFCANVAS */
+    document.querySelectorAll(".offcanvas-link").forEach(function(item, i, arr)
+    {
+        item.addEventListener("click", function()
+        {
+            offcanvasLink(item);
+        });
+    });
+
     submitOrderCanvasForm(forms);
 
     return true;
@@ -43,6 +53,7 @@ async function submitOrderCanvasForm(forms)
     {
         forms.addEventListener("submit", function(event)
         {
+            console.log('Ajax submit сработал, обычный не запущен');
             event.preventDefault();
             disabledElementsForm(forms);
 
@@ -140,6 +151,117 @@ async function submitOrderCanvasForm(forms)
         });
 
     }
+}
+
+async function offcanvasLink(offcanvas)
+{
+    /** Показываем прелоад */
+    let modal = document.getElementById("modal");
+    //modal.innerHTML = "<div class=\"modal-dialog modal-dialog-centered\"><div class=\"d-flex justify-content-center w-100\"><div class=\"spinner-border text-light\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div></div></div>";
+
+    modal.innerHTML = "<div class=\"modal-dialog modal-dialog-centered modal-xl\">\n" +
+        "        <div class=\"modal-content border-0 bg-transparent shadow-none\">\n" +
+        "            <div class=\"d-flex justify-content-center w-100\">\n" +
+        "                <button type=\"button\" class=\"btn btn-link w-100\" style=\"min-height: 500px;\" data-bs-dismiss=\"modal\">\n" +
+        "                    <div class=\"spinner-border text-light\" role=\"status\">\n" +
+        "                        <span class=\"visually-hidden\">Loading...</span>\n" +
+        "                    </div>\n" +
+        "                </button>\n" +
+        "            </div>\n" +
+        "        </div>\n" +
+        "    </div>";
 
 
+    bootstrap.Modal.getOrCreateInstance(modal).show();
+
+    //const data = new FormData(forms);
+
+    await fetch(offcanvas.dataset.href, {
+        method : "GET", // *GET, POST, PUT, DELETE, etc.
+        //mode: 'same-origin', // no-cors, *cors, same-origin
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
+        }, redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        //body: data // body data type must match "Content-Type" header
+    })
+        .then((response) =>
+        {
+            if(response.status === 302)
+            {
+                window.location.reload();
+            }
+
+            /** Закрываем прелоад */
+            bootstrap.Modal.getOrCreateInstance(modal).hide();
+
+            if(response.status !== 200)
+            {
+                return false;
+            }
+
+            return response.text();
+
+        }).then((data) =>
+        {
+            if(data)
+            {
+                var myOffcanvas = document.getElementById("offcanvas");
+
+                if(myOffcanvas === null)
+                {
+                    console.log("Элемент с идентификатором id=\"offcanvas\" не найден");
+
+                    /**
+                     <div class="offcanvas offcanvas-start"
+                     tabindex="-1"
+                     id="offcanvas"
+                     style="--bs-offcanvas-width: 850px;">
+                     </div>
+                     */
+
+                    return;
+                }
+
+                let bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(myOffcanvas);
+
+                myOffcanvas.innerHTML = data;
+
+                bsOffcanvas.show();
+
+
+                // Находим актуальную форму
+                const newForms = myOffcanvas.querySelector('form');
+                if (newForms) {
+                    console.log('Навешиваю submit на форму:', newForms);
+                    submitOrderCanvasForm(newForms);
+                }
+
+
+                /** Обновляем Preload */
+
+                let lazy = document.createElement("script");
+                lazy.src = "/assets/" + $version + "/js/lazyload.min.js?v=" + Date.now();
+                document.head.appendChild(lazy);
+
+                myOffcanvas.addEventListener("hidden.bs.offcanvas", event =>
+                {
+                    myOffcanvas.innerHTML = "";
+                });
+
+                bindBootstrapTooltip();
+
+            }
+
+            /** Закрываем прелоад */
+            setTimeout(function()
+            {
+                bootstrap.Modal.getOrCreateInstance(modal).hide();
+            }, 300);
+
+        });
+
+    return false;
 }

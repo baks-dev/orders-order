@@ -60,8 +60,6 @@
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/users-address/script.min.js?v={{ version }}"
         class="lazy"></script>
 
-<script nonce="{{ csp_nonce() }}" data-src='/assets/{{ version }}/js/script.min.js' class="lazy"></script>
-
 {% if constant('BaksDev\\Services\\BaksDevServicesBundle::PATH') is defined %}
     <script nonce='{{ csp_nonce() }}' async
             data-src="/assets/{{ version }}/services/order_service_add_edit.min.js?v={{ version }}"

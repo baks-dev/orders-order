@@ -285,7 +285,7 @@ class BasketController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            //$this->refreshTokenForm($form);
+            $this->refreshTokenForm($form);
 
             /** Делаем проверку геоданных */
             $OrderDeliveryDTO = $OrderUserDTO->getDelivery();

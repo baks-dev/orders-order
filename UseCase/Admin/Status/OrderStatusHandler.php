@@ -83,6 +83,11 @@ final class OrderStatusHandler extends AbstractHandler
 
             if($exists)
             {
+                $this->validatorCollection->error(
+                    'Невозможно применить повторно статус заказа',
+                    [self::class.':'.__LINE__, var_export($command, true)],
+                );
+
                 return 'Невозможно применить повторно статус заказа';
             }
         }
@@ -100,7 +105,7 @@ final class OrderStatusHandler extends AbstractHandler
                 ),
                 context: [
                     self::class.':'.__LINE__,
-                    (string) $this->main, (string) $this->event
+                    (string) $this->main, (string) $this->event,
                 ],
             );
         }

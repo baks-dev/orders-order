@@ -126,6 +126,7 @@ final class PackageController extends AbstractController
 
                 if($Deduplicator->isExecuted())
                 {
+                    $unsuccessful[] = $packageOrderDTO->getId();
                     continue;
                 }
 

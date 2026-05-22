@@ -30,13 +30,12 @@ executeFunc(function executeOrderCanvasSublitForm()
         return false;
     }
 
-
     /* вешаем события на OFFCANVAS */
     document.querySelectorAll(".offcanvas-link").forEach(function(item, i, arr)
     {
         item.addEventListener("click", function()
         {
-            offcanvasLink(item);
+            offcanvasEventLinkDetail(item);
         });
     });
 
@@ -53,7 +52,7 @@ async function submitOrderCanvasForm(forms)
     {
         forms.addEventListener("submit", function(event)
         {
-            console.log('Ajax submit сработал, обычный не запущен');
+            console.log("Ajax submit сработал, обычный не запущен");
             event.preventDefault();
             disabledElementsForm(forms);
 
@@ -148,12 +147,12 @@ async function submitOrderCanvasForm(forms)
                     bsOffcanvas.hide();
                 }
             });
-        });
+        }, {once : true});
 
     }
 }
 
-async function offcanvasLink(offcanvas)
+async function offcanvasEventLinkDetail(offcanvas)
 {
     /** Показываем прелоад */
     let modal = document.getElementById("modal");
@@ -186,82 +185,72 @@ async function offcanvasLink(offcanvas)
         }, redirect : "follow", // manual, *follow, error
         referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         //body: data // body data type must match "Content-Type" header
-    })
-        .then((response) =>
+    }).then((response) =>
+    {
+        if(response.status === 302)
         {
-            if(response.status === 302)
+            window.location.reload();
+        }
+
+        /** Закрываем прелоад */
+        bootstrap.Modal.getOrCreateInstance(modal).hide();
+
+        if(response.status !== 200)
+        {
+            return false;
+        }
+
+        return response.text();
+
+    }).then((data) =>
+    {
+        if(data)
+        {
+            var myOffcanvas = document.getElementById("offcanvas");
+
+            if(myOffcanvas === null)
             {
-                window.location.reload();
+                console.log("Элемент с идентификатором id=\"offcanvas\" не найден");
+
+                /**
+                 <div class="offcanvas offcanvas-start"
+                 tabindex="-1"
+                 id="offcanvas"
+                 style="--bs-offcanvas-width: 850px;">
+                 </div>
+                 */
+
+                return;
             }
 
-            /** Закрываем прелоад */
+            let bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(myOffcanvas);
+
+            myOffcanvas.innerHTML = data;
+
+            bsOffcanvas.show();
+
+            /** Обновляем Preload */
+
+            let lazy = document.createElement("script");
+            lazy.src = "/assets/" + $version + "/js/lazyload.min.js?v=" + Date.now();
+            document.head.appendChild(lazy);
+
+            myOffcanvas.addEventListener("hidden.bs.offcanvas", event =>
+            {
+                myOffcanvas.innerHTML = "";
+            });
+
+            bindBootstrapTooltip();
+
+        }
+
+        /** Закрываем прелоад */
+        setTimeout(function()
+        {
             bootstrap.Modal.getOrCreateInstance(modal).hide();
+        }, 300);
 
-            if(response.status !== 200)
-            {
-                return false;
-            }
-
-            return response.text();
-
-        }).then((data) =>
-        {
-            if(data)
-            {
-                var myOffcanvas = document.getElementById("offcanvas");
-
-                if(myOffcanvas === null)
-                {
-                    console.log("Элемент с идентификатором id=\"offcanvas\" не найден");
-
-                    /**
-                     <div class="offcanvas offcanvas-start"
-                     tabindex="-1"
-                     id="offcanvas"
-                     style="--bs-offcanvas-width: 850px;">
-                     </div>
-                     */
-
-                    return;
-                }
-
-                let bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(myOffcanvas);
-
-                myOffcanvas.innerHTML = data;
-
-                bsOffcanvas.show();
-
-
-                // Находим актуальную форму
-                const newForms = myOffcanvas.querySelector('form');
-                if (newForms) {
-                    console.log('Навешиваю submit на форму:', newForms);
-                    submitOrderCanvasForm(newForms);
-                }
-
-
-                /** Обновляем Preload */
-
-                let lazy = document.createElement("script");
-                lazy.src = "/assets/" + $version + "/js/lazyload.min.js?v=" + Date.now();
-                document.head.appendChild(lazy);
-
-                myOffcanvas.addEventListener("hidden.bs.offcanvas", event =>
-                {
-                    myOffcanvas.innerHTML = "";
-                });
-
-                bindBootstrapTooltip();
-
-            }
-
-            /** Закрываем прелоад */
-            setTimeout(function()
-            {
-                bootstrap.Modal.getOrCreateInstance(modal).hide();
-            }, 300);
-
-        });
+    });
 
     return false;
 }

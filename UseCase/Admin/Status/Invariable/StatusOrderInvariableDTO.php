@@ -35,6 +35,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class StatusOrderInvariableDTO implements OrderInvariableInterface
 {
     /**
+     * Идентификатор заказа
+     */
+    #[Assert\NotBlank]
+    private readonly string $number;
+
+    /**
      * ID профиля ответственного
      */
     #[Assert\NotBlank]
@@ -67,4 +73,8 @@ final readonly class StatusOrderInvariableDTO implements OrderInvariableInterfac
         return null;
     }
 
+    public function getNumber(): string
+    {
+        return $this->number;
+    }
 }

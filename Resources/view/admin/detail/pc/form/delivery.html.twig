@@ -6,6 +6,7 @@
 
         <div class="w-100 mb-3">
 
+
             {% for delivery in form.usr.delivery.delivery %}
 
                 <div class='d-flex align-items-center gap-1'>
@@ -15,13 +16,15 @@
                         {% if delivery.vars.attr['data-price'] %}
 
                             <strong>
-                                ({{ money((delivery.vars.attr['data-price'] * 100), delivery.vars.attr['data-currency'] ) }}
-                                )
+                                ({{ money(
+                                    (delivery.vars.attr['data-price'] * 100), delivery.vars.attr['data-currency'] ) }})
                             </strong>
 
                             {% if delivery.vars.attr['data-excess'] %}
-                                &nbsp; <span
-                                    class="badge text-bg-danger">+ {{ money((delivery.vars.attr['data-excess'] * 100), delivery.vars.attr['data-currency'] ) }} за 1 км</span>
+                                &nbsp; <span class="badge text-bg-danger">
+                                + {{ money((delivery.vars.attr['data-excess'] * 100), delivery.vars.attr['data-currency'] ) }} за 1 км
+                            </span>
+
                             {% endif %}
 
                         {% else %}
@@ -134,7 +137,7 @@
                     {{ form_widget(delivery_field.field) }}
 
                     {% if delivery_field.value is defined %}
-                        {{ form_widget(delivery_field.value) }}
+                        {{ form_widget(delivery_field.value)|replace({ "is-invalid": "" })|raw }}
                     {% else %}
                         {{ form_widget(delivery_field.call) }}
                     {% endif %}

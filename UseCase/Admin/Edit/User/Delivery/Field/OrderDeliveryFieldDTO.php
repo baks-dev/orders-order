@@ -36,7 +36,6 @@ final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
     private DeliveryFieldUid $field;
 
     /** Заполненное значение */
-    #[Assert\Valid]
     private ?string $value = null;
 
 

@@ -222,10 +222,9 @@ final class OrderDeliveryForm extends AbstractType
                     /** @var ArrayCollection $dataFields */
                     $dataFields = $data->getField();
 
-                    $data->setField(new ArrayCollection());
-
-
                     $setField = new ArrayCollection();
+                    $data->setField($setField);
+
 
                     /** @var DeliveryFieldUid $field */
                     foreach($fields as $k => $field)
@@ -245,6 +244,7 @@ final class OrderDeliveryForm extends AbstractType
                             return $field->equals($element->getField());
                         });
 
+
                         if(false === $dataFieldFilter->isEmpty() && $dataFieldFilter->current()->getValue())
                         {
                             $OrderDeliveryFieldDTO->setValue($dataFieldFilter->current()->getValue());
@@ -262,8 +262,7 @@ final class OrderDeliveryForm extends AbstractType
                         $setField->add($OrderDeliveryFieldDTO);
                     }
 
-                    $data->setField($setField);
-
+                    //$data->setField($setField);
 
                     /* Коллекция продукции */
                     $form->add('field', CollectionType::class, [
@@ -271,7 +270,7 @@ final class OrderDeliveryForm extends AbstractType
                         'entry_options' => ['label' => false],
                         'label' => false,
                         'by_reference' => false,
-                        'allow_delete' => true,
+                        'allow_delete' => false,
                         'allow_add' => true,
                         'prototype_name' => '__delivery_field__',
                     ]);

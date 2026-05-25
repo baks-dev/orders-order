@@ -39,6 +39,12 @@ executeFunc(function executeOrderCanvasSublitForm()
         });
     });
 
+    /* вешаем события на модальные ссылки */
+    document.querySelectorAll("[data-bs-toggle=\"modal\"]").forEach(function(item, i, arr)
+    {
+        modalLink(item);
+    });
+
     submitOrderCanvasForm(forms);
 
     return true;

@@ -812,7 +812,11 @@ final readonly class OrderDetailByEventRepository implements OrderDetailByEventI
         );
 
         $dbal
-            ->addSelect('order_project_profile_avatar.name AS order_project_profile_avatar_name')
+            ->addSelect("CONCAT (
+                '/upload/".$dbal->table(UserProfileAvatar::class)."' ,
+                '/',
+                order_project_profile_avatar.name
+            ) AS order_project_profile_avatar_name")
             ->addSelect('order_project_profile_avatar.ext AS order_project_profile_avatar_ext')
             ->addSelect('order_project_profile_avatar.cdn AS order_project_profile_avatar_cdn')
             ->leftJoin(

@@ -49,11 +49,12 @@
     orderUserFirst.orderProjectProfileAvatarExt is defined and
     orderUserFirst.orderProjectProfileAvatarExt is not null
 %}
-    {% set img_host =  orderUserFirst.orderProjectProfileAvatarCdn == true  ? CDN_HOST : '' %}
-    {% set img_table = '/upload/users_profile_avatar/' %}
-    {% set img_dir = orderUserFirst.orderProjectProfileAvatarName %}
-    {% set img_file = (img_host is empty ? '/image.' : '/medium.') ~ orderUserFirst.orderProjectProfileAvatarExt %}
-    {% set image_path = img_host ~ img_table ~ img_dir ~ img_file %}
+    {% set image_path = cdn_image_path(
+        orderUserFirst.orderProjectProfileAvatarName,
+        orderUserFirst.orderProjectProfileAvatarExt,
+        orderUserFirst.orderProjectProfileAvatarCdn,
+        'medium'
+    ) %}
 {% endif %}
 
 

@@ -957,7 +957,8 @@ final class OrderDetailRepository implements OrderDetailInterface
             'order_project_type_profile_field',
             TypeProfileSectionFieldTrans::class,
             'order_project_type_profile_field_trans',
-            'order_project_type_profile_field_trans.field = order_project_type_profile_field.id AND order_project_type_profile_field_trans.local = :local',
+            'order_project_type_profile_field_trans.field = order_project_type_profile_field.id AND
+            order_project_type_profile_field_trans.local = :local',
         );
 
         $dbal->addSelect(
@@ -979,7 +980,11 @@ final class OrderDetailRepository implements OrderDetailInterface
         );
 
         $dbal
-            ->addSelect('order_project_profile_avatar.name AS order_project_profile_avatar_name')
+            ->addSelect("CONCAT (
+                '/upload/".$dbal->table(UserProfileAvatar::class)."' ,
+                '/',
+                order_project_profile_avatar.name
+            ) AS order_project_profile_avatar_name")
             ->addSelect('order_project_profile_avatar.ext AS order_project_profile_avatar_ext')
             ->addSelect('order_project_profile_avatar.cdn AS order_project_profile_avatar_cdn')
             ->leftJoin(

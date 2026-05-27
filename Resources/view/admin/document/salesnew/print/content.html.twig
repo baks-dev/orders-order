@@ -1,6 +1,5 @@
 {# ПЕЧАТЬ #}
 
-{# @var profile \BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult #}
 {# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
 
 {% set orderUser = null %}
@@ -29,6 +28,35 @@
 {% set orderClient = orderUserFirst.orderClient %}
 {% set orderQR = orderUserFirst.qrcode %}
 
+{% set contactPhone = '' %}
+{% set organizationName = '' %}
+
+{% for field in orderUserFirst.orderProjectInfo %}
+    {% if field.field_type == 'organization_field' %}
+        {% set organizationName = field.field_value %}
+    {% endif %}
+
+    {% if field.field_type == 'phone_field' %}
+        {% set contactPhone = contactPhone ? contactPhone~', '~field.field_value : field.field_value %}
+    {% endif %}
+{% endfor %}
+
+
+{# Изображение профиля #}
+{% set image_path = '' %}
+
+{% if
+    orderUserFirst.orderProjectProfileAvatarExt is defined and
+    orderUserFirst.orderProjectProfileAvatarExt is not null
+%}
+    {% set img_host =  orderUserFirst.orderProjectProfileAvatarCdn == true  ? CDN_HOST : '' %}
+    {% set img_table = '/upload/users_profile_avatar/' %}
+    {% set img_dir = orderUserFirst.orderProjectProfileAvatarName %}
+    {% set img_file = (img_host is empty ? '/image.' : '/medium.') ~ orderUserFirst.orderProjectProfileAvatarExt %}
+    {% set image_path = img_host ~ img_table ~ img_dir ~ img_file %}
+{% endif %}
+
+
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
      style="overflow-y:hidden;">
 
@@ -39,29 +67,29 @@
                  style="height: 140px; max-height: 140px; max-width: 200px; margin-left: 20px;"
                  fill="currentColor"
                  viewBox="10 10 30 30">
-                {{ orderQR|raw }} }
+                {{ orderQR|raw }} %}
             </svg>
         </div>
 
-        <img src="/logo.webp" style="max-height: 50px;" alt="{{ app.request.server.get('HOST') }}">
+        {% if image_path %}
+            <img src="{{ image_path }}" style="max-height: 75px;">
+        {% endif %}
 
-        {% if profile.contactPhone %}
-            <h5 class="w-100 text-end">{{ profile.contactPhone.value }}</h5>
+        {% if contactPhone %}
+            <h5 class="w-100 text-end">{{ contactPhone }}</h5>
         {% endif %}
 
     </div>
 
     <div class="d-flex w-100 justify-content-between gap-2 border-bottom">
-        <h5>Расходная накладная #{{ orderNumber }}
-            от {{ orderData|date('d.m.Y') }}</h5>
-        <h6>{{ app.request.server.get('HOST') }}</h6>
+        <h5>Расходная накладная #{{ orderNumber }} от {{ orderData|date('d.m.Y') }}</h5>
     </div>
 
 
     <ul class="small p-0 m-0 mb-2">
 
-        {% if profile.organizationName %}
-            <li class="list-group-item">Поставщик: <strong>{{ profile.organizationName.value }}</strong></li>
+        {% if organizationName %}
+            <li class="list-group-item">Поставщик: <strong>{{ organizationName }}</strong></li>
         {% endif %}
 
         {% for user in orderClient %}
@@ -80,7 +108,7 @@
 
         {% else %}
 
-            {# Если не указан адрес доставки - пробуем показать с геолокации #}
+             Если не указан адрес доставки - пробуем показать с геолокации
             {% if deliveryGeocodeAddress %}
                 <li class="list-group-item">
                     Адрес доставки:<strong> {{ deliveryGeocodeAddress }}</strong>

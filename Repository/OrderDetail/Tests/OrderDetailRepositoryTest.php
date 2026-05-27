@@ -51,6 +51,7 @@ class OrderDetailRepositoryTest extends KernelTestCase
 
         $result = $OrderDetailInterface
             ->onOrder(new OrderUid(OrderUid::TEST))
+            ->onOrder(new OrderUid('019e4472-723f-7c1a-9c91-40384757d31a'))
             ->forProfile(new UserProfileUid(UserProfileUid::TEST))
             ->find();
 

@@ -35,8 +35,11 @@ use BaksDev\Delivery\Entity\Fields\Trans\DeliveryFieldTrans;
 use BaksDev\Delivery\Entity\Price\DeliveryPrice;
 use BaksDev\Delivery\Entity\Trans\DeliveryTrans;
 use BaksDev\Field\Pack\Contact\Type\ContactField;
+use BaksDev\Field\Pack\Organization\Type\OrganizationField;
+use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
+use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Order;
@@ -91,6 +94,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorage;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\DBAL\ArrayParameterType;
@@ -903,6 +907,87 @@ final class OrderDetailRepository implements OrderDetailInterface
 			)
 			AS order_user",
         );
+
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderProject::class,
+                'order_project',
+                'order_project.main = orders.id',
+            );
+
+        $dbal
+            ->leftJoin(
+                'order_project',
+                UserProfile::class,
+                'order_project_profile',
+                'order_project_profile.id = order_project.value',
+            );
+
+        $dbal
+            ->leftJoin(
+                'order_project_profile',
+                UserProfileValue::class,
+                'order_project_profile_value',
+                'order_project_profile_value.event = order_project_profile.event',
+            );
+
+
+        /** Выбираем название организации, номер телефона */
+        $dbal
+            ->leftJoin(
+                'order_project_profile_value',
+                TypeProfileSectionField::class,
+                'order_project_type_profile_field',
+                '
+                        order_project_type_profile_field.id = order_project_profile_value.field AND
+                        (order_project_type_profile_field.type = :field_phone OR order_project_type_profile_field.type = :field_organization)
+                    ')
+            ->setParameter(
+                'field_phone',
+                PhoneField::TYPE,
+            )
+            ->setParameter(
+                'field_organization',
+                OrganizationField::TYPE,
+            );
+
+
+        $dbal->leftJoin(
+            'order_project_type_profile_field',
+            TypeProfileSectionFieldTrans::class,
+            'order_project_type_profile_field_trans',
+            'order_project_type_profile_field_trans.field = order_project_type_profile_field.id AND order_project_type_profile_field_trans.local = :local',
+        );
+
+        $dbal->addSelect(
+            "JSON_AGG
+			( DISTINCT
+				
+					JSONB_BUILD_OBJECT
+					(
+						/* свойства для сортирвоки JSON */
+						'0', order_project_type_profile_field.sort,
+                            
+						'field_type', order_project_type_profile_field.type,
+						'field_name', order_project_type_profile_field_trans.name,
+						'field_value', order_project_profile_value.value
+					)
+				
+			) FILTER (WHERE order_project_type_profile_field.type IS NOT NULL)
+			AS order_project_info",
+        );
+
+        $dbal
+            ->addSelect('order_project_profile_avatar.name AS order_project_profile_avatar_name')
+            ->addSelect('order_project_profile_avatar.ext AS order_project_profile_avatar_ext')
+            ->addSelect('order_project_profile_avatar.cdn AS order_project_profile_avatar_cdn')
+            ->leftJoin(
+                'order_project_profile',
+                UserProfileAvatar::class,
+                'order_project_profile_avatar',
+                'order_project_profile_avatar.event = order_project_profile.event'
+            );
 
         $dbal->allGroupByExclude();
 

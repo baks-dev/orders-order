@@ -53,6 +53,7 @@ use BaksDev\Users\Profile\UserProfile\Repository\UserProfileByRegion\UserProfile
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 use Doctrine\Common\Collections\ArrayCollection;
+use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -72,6 +73,25 @@ class BasketController extends AbstractController
     /** Массив разделенных заказов */
     private array|null $orders = null;
 
+    /**
+     * @param LoggerInterface $logger
+     * @param Request $request
+     * @param ProductUserBasketInterface $userBasket
+     * @param OrderHandler $handler
+     * @param AppCacheInterface $cache
+     * @param GeocodeDistance $GeocodeDistance
+     * @param UserProfileByRegionInterface $UserProfileByRegionRepository
+     * @param OneServiceByIdInterface $oneServiceRepository
+     * @param CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventInterface
+     * @param AllServicesByProjectProfileInterface|null $AllServicesByProjectProfile
+     * @param string|null $share
+     * @param string|null $projectUser
+     * @param string|null $projectProfile
+     * @param string|null $HOST
+     * @return Response
+     * @throws \JsonException
+     * @throws InvalidArgumentException
+     */
     #[Route('/basket', name: 'public.basket', priority: -100)]
     public function index(
         #[Target('ordersOrderLogger')] LoggerInterface $logger,

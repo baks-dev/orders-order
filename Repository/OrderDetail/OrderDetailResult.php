@@ -80,12 +80,17 @@ final readonly class OrderDetailResult
         private ?string $order_profile_name,
         private ?string $account_email,
 
+        /** @deprecated */
         private string $profile_avatar_name,
         private ?string $profile_avatar_ext,
         private ?bool $profile_avatar_cdn,
 
         private string $order_user,
         private ?bool $printed,
+        private ?string $order_project_info,
+        private ?string $order_project_profile_avatar_name,
+        private ?string $order_project_profile_avatar_ext,
+        private ?bool $order_project_profile_avatar_cdn,
         private ?string $stocks = null,
         private ?string $order_services = null,
         private ?string $order_posting = null,
@@ -115,10 +120,15 @@ final readonly class OrderDetailResult
         return $this->order_status;
     }
 
+
+    /**
+     * @throws DateMalformedStringException
+     */
     public function getOrderCreated(): DateTimeImmutable
     {
         return new DateTimeImmutable($this->order_created);
     }
+
 
     /**
      * @throws DateMalformedStringException
@@ -127,6 +137,7 @@ final readonly class OrderDetailResult
     {
         return new DateTimeImmutable($this->order_data);
     }
+
 
     public function getOrderComment(): ?string
     {
@@ -211,20 +222,27 @@ final readonly class OrderDetailResult
         return $this->order_profile_name;
     }
 
-    public function getProfileAvatarName(): string
+
+    /** @deprecated */
+    public function _getProfileAvatarName(): string
     {
         return $this->profile_avatar_name;
     }
 
-    public function getProfileAvatarExt(): ?string
+
+    /** @deprecated */
+    public function _getProfileAvatarExt(): ?string
     {
         return $this->profile_avatar_ext;
     }
 
-    public function getProfileAvatarCdn(): ?bool
+
+    /** @deprecated */
+    public function _getProfileAvatarCdn(): ?bool
     {
         return $this->profile_avatar_cdn === true;
     }
+
 
     public function getOrderUser(): array|null
     {
@@ -419,4 +437,45 @@ final readonly class OrderDetailResult
         return $this->lock;
     }
 
+
+    /**
+     * Возвращает объект с информацией о профиле, на который оформлен заказ (название организации и контактные номера
+     * телефона)
+     *
+     * 'field_type' - тип поля (organization_field или phone_field),
+     * 'field_name' - имя поля,
+     * 'field_value' - значение поля
+     */
+    public function getOrderProjectInfo(): array|false
+    {
+        if(empty($this->order_project_info))
+        {
+            return false;
+        }
+
+        if(false === json_validate($this->order_project_info))
+        {
+            return false;
+        }
+
+        $items = json_decode($this->order_project_info, false, 512, JSON_THROW_ON_ERROR);
+
+        return $items;
+    }
+
+
+    public function getOrderProjectProfileAvatarCdn(): bool
+    {
+        return true === $this->order_project_profile_avatar_cdn;
+    }
+
+    public function getOrderProjectProfileAvatarExt(): ?string
+    {
+        return $this->order_project_profile_avatar_ext;
+    }
+
+    public function getOrderProjectProfileAvatarName(): ?string
+    {
+        return $this->order_project_profile_avatar_name;
+    }
 }

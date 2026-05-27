@@ -37,7 +37,6 @@ use BaksDev\Orders\Order\Forms\SalesInvoice\SalesInvoiceOrderDTO;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailByNumber\OrderDetailByNumberInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Print\OrderEventPrintHandler;
-use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -61,7 +60,6 @@ final class SalesInvoiceNewController extends AbstractController
         #[Target('ordersOrderLogger')] LoggerInterface $logger,
         Request $request,
         OrderDetailByNumberInterface $orderDetailByPartRepository,
-        UserProfileByIdInterface $UserProfileByIdRepository,
         OrderEventPrintHandler $OrderEventPrintHandler,
         BarcodeWrite $BarcodeWrite,
         CentrifugoPublishInterface $publish,
@@ -159,9 +157,6 @@ final class SalesInvoiceNewController extends AbstractController
             return new Response('404 Page Not Found');
         }
 
-        return $this->render([
-            'orders' => $this->orders,
-            'profile' => $UserProfileByIdRepository->find(),
-        ]);
+        return $this->render(['orders' => $this->orders]);
     }
 }

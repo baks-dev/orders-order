@@ -21,6 +21,8 @@
  *  THE SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace BaksDev\Orders\Order\Repository\OrderDetail;
 
 use BaksDev\Orders\Order\Type\Id\OrderUid;

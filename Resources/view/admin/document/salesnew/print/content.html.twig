@@ -61,19 +61,19 @@
 <div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100"
      style="overflow-y:hidden;">
 
-    <div class="d-flex w-100 align-items-center gap-4 mb-2">
+    <div class="d-flex w-100 align-items-center gap-4 mb-4">
 
-        <div class="d-flex align-items-center" style="height: 100px;">
+        {# <div class="d-flex align-items-center" style="height: 100px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"
                  style="height: 140px; max-height: 140px; max-width: 200px; margin-left: 20px;"
                  fill="currentColor"
                  viewBox="10 10 30 30">
                 {{ orderQR|raw }} %}
             </svg>
-        </div>
+        </div> #}
 
         {% if image_path %}
-            <img src="{{ image_path }}" style="max-height: 75px;">
+            <img src="{{ image_path }}" style="max-width: 280px; max-height: 75px; ">
         {% endif %}
 
         {% if contactPhone %}
@@ -109,7 +109,7 @@
 
         {% else %}
 
-             Если не указан адрес доставки - пробуем показать с геолокации
+            Если не указан адрес доставки - пробуем показать с геолокации
             {% if deliveryGeocodeAddress %}
                 <li class="list-group-item">
                     Адрес доставки:<strong> {{ deliveryGeocodeAddress }}</strong>

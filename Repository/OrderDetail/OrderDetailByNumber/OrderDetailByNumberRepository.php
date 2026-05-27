@@ -878,12 +878,20 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
                 'order_project.main = orders.id',
             );
 
+
         $dbal
             ->leftJoin(
                 'order_project',
                 UserProfile::class,
                 'order_project_profile',
-                'order_project_profile.id = order_project.value',
+                '
+                    CASE 
+                        WHEN order_project.value IS NOT NULL 
+                        THEN order_project_profile.id = order_project.value
+                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
+                    END
+                
+                ',
             );
 
         $dbal

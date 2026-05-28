@@ -886,12 +886,16 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
                 'order_project_profile',
                 '
                     CASE 
-                        WHEN order_project.value IS NOT NULL 
+                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
                         THEN order_project_profile.id = order_project.value
                         ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
                     END
                 
-                ',
+                ')
+            ->setParameter(
+                key: 'type_profile_client',
+                value: TypeProfilePartner::TYPE,
+                type: TypeProfileUid::TYPE,
             );
 
         $dbal

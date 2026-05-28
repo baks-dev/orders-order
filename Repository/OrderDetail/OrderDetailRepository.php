@@ -90,6 +90,8 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfilePartner;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
@@ -129,7 +131,7 @@ final class OrderDetailRepository implements OrderDetailInterface
 
     /**
      * Фильтр для получения информации по остаткам продукции на текущем складе
-    */
+     */
     public function forProfile(UserProfileUid $profile): self
     {
         $this->profile = $profile;
@@ -890,6 +892,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             $dbal->addSelect('NULL AS stocks');
         }
 
+
         $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
@@ -921,7 +924,18 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_project',
                 UserProfile::class,
                 'order_project_profile',
-                'order_project_profile.id = order_project.value',
+                '
+                    CASE 
+                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
+                        THEN order_project_profile.id = order_project.value
+                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
+                    END
+                
+                ')
+            ->setParameter(
+                key: 'type_profile_client',
+                value: TypeProfilePartner::TYPE,
+                type: TypeProfileUid::TYPE,
             );
 
         $dbal
@@ -991,7 +1005,7 @@ final class OrderDetailRepository implements OrderDetailInterface
                 'order_project_profile',
                 UserProfileAvatar::class,
                 'order_project_profile_avatar',
-                'order_project_profile_avatar.event = order_project_profile.event'
+                'order_project_profile_avatar.event = order_project_profile.event',
             );
 
         $dbal->allGroupByExclude();

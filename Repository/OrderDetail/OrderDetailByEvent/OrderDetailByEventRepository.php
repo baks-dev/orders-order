@@ -53,6 +53,7 @@ use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\Delivery\Price\OrderDeliveryPrice;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Entity\User\Payment\OrderPayment;
+use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Payment\Entity\Payment;
 use BaksDev\Payment\Entity\Trans\PaymentTrans;
@@ -90,7 +91,6 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
-use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 
 final readonly class OrderDetailByEventRepository implements OrderDetailByEventInterface
@@ -757,7 +757,18 @@ final readonly class OrderDetailByEventRepository implements OrderDetailByEventI
                 'order_project',
                 UserProfile::class,
                 'order_project_profile',
-                'order_project_profile.id = order_project.value',
+                '
+                    CASE 
+                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
+                        THEN order_project_profile.id = order_project.value
+                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
+                    END
+                
+                ')
+            ->setParameter(
+                key: 'type_profile_client',
+                value: TypeProfilePartner::TYPE,
+                type: TypeProfileUid::TYPE,
             );
 
         $dbal

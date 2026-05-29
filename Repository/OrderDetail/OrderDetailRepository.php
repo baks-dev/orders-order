@@ -1036,3 +1036,4 @@ final class OrderDetailRepository implements OrderDetailInterface
         return $this;
     }
 }
+

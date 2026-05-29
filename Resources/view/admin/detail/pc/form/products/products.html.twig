@@ -89,6 +89,19 @@
 
             </td>
 
+            {#
+            Если статус заказа новый либо не дозванившийся - выводим остаток
+            Если статус уже был на упаковке - прибавляет Total
+            #}
+
+            {# @var order \BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult #}
+
+            {% set data_max = card.stockTotal %}
+
+            {% if order.orderStatus != 'new' and order.orderStatus != 'unpaid' %}
+                {% set data_max = data_max + product.price.vars.data.total %}
+            {% endif %}
+
             {# Стоимость, количество, скидка и т.д. #}
             {{ include(_self|replace({ "products.html.twig": "_price.html.twig" })) }}
 
@@ -112,10 +125,21 @@
 
                 <tr>
                     <td colspan="{{ colspan }}">
-                        <span class="badge text-bg-danger">Скидка до 20%</span>
 
-                        <small class="ms-3"> мин. стоимость: </small>
-                        {{ money(card.productPrice.applyString('-20%'), card.productCurrency) }}
+                        <div class="d-flex gap-5">
+                            <div>
+                                <span class="badge text-bg-danger">Скидка до 20%</span>
+
+                                <small class="ms-3 text-secondary"> мин. стоимость: &nbsp;</small>
+                                {{ money(card.productPrice.applyString('-20%'), card.productCurrency) }}
+                            </div>
+
+                            <div>
+                                <small class="text-secondary">Доступно к заказу: &nbsp;</small>
+                                {{ data_max }}
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
 
@@ -123,10 +147,21 @@
 
                 <tr>
                     <td colspan="{{ colspan }}">
-                        <span class="badge text-bg-danger">Скидка до 15%</span>
 
-                        <small class="ms-3"> мин. стоимость: </small>
-                        {{ money(card.productPrice.applyString('-15%'), card.productCurrency) }}
+                        <div class="d-flex gap-5">
+                            <div>
+                                <span class="badge text-bg-danger">Скидка до 15%</span>
+
+                                <small class="ms-3 text-secondary"> мин. стоимость: &nbsp;</small>
+                                {{ money(card.productPrice.applyString('-15%'), card.productCurrency) }}
+                            </div>
+
+                            <div>
+                                <small class="text-secondary">Доступно к заказу: &nbsp;</small>
+                                {{ data_max }}
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
 
@@ -134,10 +169,21 @@
 
                 <tr>
                     <td colspan="{{ colspan }}">
-                        <span class="badge text-bg-danger">Скидка до 10%</span>
 
-                        <small class="ms-3"> мин. стоимость: </small>
-                        {{ money(card.productPrice.applyString('-10%'), card.productCurrency) }}
+                        <div class="d-flex gap-5">
+                            <div>
+                                <span class="badge text-bg-danger">Скидка до 10%</span>
+
+                                <small class="ms-3 text-secondary"> мин. стоимость: &nbsp;</small>
+                                {{ money(card.productPrice.applyString('-10%'), card.productCurrency) }}
+                            </div>
+
+                            <div>
+                                <small class="text-secondary">Доступно к заказу: &nbsp;</small>
+                                {{ data_max }}
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
 
@@ -145,20 +191,42 @@
 
                 <tr>
                     <td colspan="{{ colspan }}">
-                        <span class="badge text-bg-danger">Скидка до 5%</span>
 
-                        <small class="ms-3"> мин. стоимость: </small>
-                        {{ money(card.productPrice.applyString('-5%'), card.productCurrency) }}
+                        <div class="d-flex gap-5">
+                            <div>
+                                <span class="badge text-bg-danger">Скидка до 5%</span>
+
+                                <small class="ms-3 text-secondary"> мин. стоимость: &nbsp;</small>
+                                {{ money(card.productPrice.applyString('-5%'), card.productCurrency) }}
+                            </div>
+
+                            <div>
+                                <small class="text-secondary">Доступно к заказу: &nbsp;</small>
+                                {{ data_max }}
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
 
             {% else %}
                 <tr>
-                    <td colspan="{{ colspan }}">
-                        <span class="badge text-bg-danger">Скидка до 100%</span>
+                    <td colspan="{{ colspan }}" class="">
 
-                        <small class="ms-3"> мин. стоимость: </small>
-                        {{ money(card.productPrice.applyString('-99%'), card.productCurrency) }}
+                        <div class="d-flex gap-5">
+                            <div>
+                                <span class="badge text-bg-danger">Скидка до 100%</span>
+
+                                <small class="ms-3 text-secondary"> мин. стоимость: &nbsp;</small>
+                                {{ money(card.productPrice.applyString('-99%'), card.productCurrency) }}
+                            </div>
+
+                            <div>
+                                <small class="text-secondary">Доступно к заказу: &nbsp;</small>
+                                {{ data_max }}
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
 

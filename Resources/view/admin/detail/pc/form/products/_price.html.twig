@@ -1,3 +1,5 @@
+{# @var card \BaksDev\Orders\Order\Repository\ProductUserBasket\ProductUserBasketResult #}
+
 {#  Стоимость + Скидка товара #}
 <td class="vertical-middle text-center">
 
@@ -122,6 +124,7 @@
 
         {% endif %}
 
+
         {{ form_widget(product.price.total, {
             label: false,
             attr: {
@@ -130,7 +133,7 @@
                 'data-price' : ''~product.price.vars.data.price.value*100,
                 'data-discount' : baks_profile.profile_discount is defined ? baks_profile.profile_discount,
                 'data-currency' : product.price.vars.data.currency|upper,
-                'data-max' : card.stockTotal,
+                'data-max' : data_max,
                 'data-min' : minPriceValue,
                 'data-product-group': productGroup,
                 readonly:  partEditField is true or notEdit is true ?: false

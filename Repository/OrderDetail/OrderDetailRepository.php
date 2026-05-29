@@ -39,7 +39,6 @@ use BaksDev\Field\Pack\Organization\Type\OrganizationField;
 use BaksDev\Field\Pack\Phone\Type\PhoneField;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
-use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Lock\OrderLock;
 use BaksDev\Orders\Order\Entity\Order;
@@ -148,9 +147,7 @@ final class OrderDetailRepository implements OrderDetailInterface
             throw new InvalidArgumentException('Не передан обязательный параметр запроса order');
         }
 
-        $builder = $this->builder();
-
-        return $builder->fetchHydrate(OrderDetailResult::class);
+        return $this->builder()->fetchHydrate(OrderDetailResult::class);
     }
 
     public function builder(): DBALQueryBuilder
@@ -914,24 +911,10 @@ final class OrderDetailRepository implements OrderDetailInterface
         $dbal
             ->leftJoin(
                 'orders',
-                OrderProject::class,
-                'order_project',
-                'order_project.main = orders.id',
-            );
-
-        $dbal
-            ->leftJoin(
-                'order_project',
                 UserProfile::class,
                 'order_project_profile',
-                '
-                    CASE 
-                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
-                        THEN order_project_profile.id = order_project.value
-                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
-                    END
-                
-                ')
+                'order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL'),
+            )
             ->setParameter(
                 key: 'type_profile_client',
                 value: TypeProfilePartner::TYPE,

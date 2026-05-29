@@ -87,6 +87,8 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfilePartner;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;

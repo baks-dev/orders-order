@@ -91,6 +91,8 @@ use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSec
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\TypeProfile;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfilePartner;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Avatar\UserProfileAvatar;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Discount\UserProfileDiscount;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\UserProfileEvent;
@@ -961,7 +963,7 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
                 'order_project_profile',
                 UserProfileAvatar::class,
                 'order_project_profile_avatar',
-                'order_project_profile_avatar.event = order_project_profile.event'
+                'order_project_profile_avatar.event = order_project_profile.event',
             );
 
         $dbal->allGroupByExclude();

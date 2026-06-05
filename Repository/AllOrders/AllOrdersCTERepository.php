@@ -206,13 +206,15 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
 
         /** Если не выбраны все профили, то отобразить только для данного профиля/склада */
-        if($this->filter?->getAll() === false || $this->profile instanceof UserProfileUid)
+        if($this->profile instanceof UserProfileUid || $this->filter?->getAll() === false)
         {
             $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
                 ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
                 : ' order_invariable.profile = :profile');
 
-            $profile = ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile();
+            $profile = ($this->profile instanceof UserProfileUid)
+                ? $this->profile
+                : $this->UserProfileTokenStorage->getProfile();
 
             $cteSelect->andWhere($whereExpression);
 
@@ -252,7 +254,14 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
             {
                 $cteSelect->setMaxResults($this->paginator->getLimit());
+
+                if($this->limit)
+                {
+                    $cteSelect->setMaxResults($this->limit);
+                }
             }
+
+
         }
 
 
@@ -275,6 +284,11 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
             {
                 $cteSelect->setMaxResults($this->paginator->getLimit());
+
+                if($this->limit)
+                {
+                    $cteSelect->setMaxResults($this->limit);
+                }
             }
         }
 
@@ -290,6 +304,11 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
         {
             $cteSelect->setMaxResults($this->paginator->getLimit());
+
+            if($this->limit)
+            {
+                $cteSelect->setMaxResults($this->limit);
+            }
         }
 
         $this->orderBy($cteSelect);

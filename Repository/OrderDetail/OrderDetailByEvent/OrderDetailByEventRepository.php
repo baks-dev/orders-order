@@ -129,6 +129,7 @@ final readonly class OrderDetailByEventRepository implements OrderDetailByEventI
 
         $dbal
             ->addSelect('orders_invariable.number AS order_number')
+            ->addSelect('orders_invariable.profile AS order_package_profile')
             ->join(
                 'orders',
                 OrderInvariable::class,

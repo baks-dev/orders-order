@@ -35,6 +35,7 @@ use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFboOzon;
 use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFbsOzon;
 use BaksDev\Payment\Type\Id\PaymentUid;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Orders\BaksDevWildberriesOrdersBundle;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
@@ -87,6 +88,7 @@ final readonly class OrderDetailResult
 
         private string $order_user,
         private ?bool $printed,
+        private ?string $order_package_profile,
         private ?string $order_project_info,
         private ?string $order_project_profile_avatar_name,
         private ?string $order_project_profile_avatar_ext,
@@ -477,5 +479,10 @@ final readonly class OrderDetailResult
     public function getOrderProjectProfileAvatarName(): ?string
     {
         return $this->order_project_profile_avatar_name;
+    }
+
+    public function getOrderPackageProfile(): UserProfileUid|false
+    {
+        return $this->order_package_profile ? new UserProfileUid($this->order_package_profile) : false;
     }
 }

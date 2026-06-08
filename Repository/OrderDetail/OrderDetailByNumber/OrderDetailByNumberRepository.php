@@ -155,6 +155,7 @@ final class OrderDetailByNumberRepository implements OrderDetailByNumberInterfac
             ->select('orders_invariable.main AS order_id')
             ->addSelect('orders_invariable.event AS order_event')
             ->addSelect('orders_invariable.number AS order_number')
+            ->addSelect('orders_invariable.profile AS order_package_profile')
             ->from(OrderInvariable::class, 'orders_invariable');
 
 

@@ -48,6 +48,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/** @depricated */
 #[AsController]
 #[RoleSecurity(['ROLE_USER'])]
 final class SalesInvoiceController extends AbstractController

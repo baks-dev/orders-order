@@ -104,7 +104,6 @@ final readonly class OrderUnlockHandler
         );
 
         $OrderEvent->getLock()->getDto($OrderLockDTO);
-
         $OrderLockDTO->unlock(); // снимаем блокировку
 
         $OrderLock = $this->orderLockHandler->handle($OrderLockDTO);
@@ -115,7 +114,7 @@ final readonly class OrderUnlockHandler
                 message: sprintf('%s: Ошибка при снятии блокировки с заказа',
                     $OrderEvent->getPostingNumber(),
                 ),
-                context: [self::class.':'.__LINE__],
+                context: [self::class.':'.__LINE__, var_export($message, true),],
             );
 
             return;
@@ -126,7 +125,7 @@ final readonly class OrderUnlockHandler
                 $OrderEvent->getPostingNumber(),
                 $OrderEvent->getStatus()->getOrderStatusValue(),
             ),
-            context: [self::class.':'.__LINE__, $message->getContext()],
+            context: [self::class.':'.__LINE__, var_export($message, true)],
         );
 
 
@@ -139,7 +138,7 @@ final readonly class OrderUnlockHandler
             $socket = $this->centrifugoPublish
                 ->addData([
                     'order' => (string) $OrderEvent->getMain(), // для поиска карточки в канбане
-                    'number' => (string) $OrderEvent->getPostingNumber() ?? $OrderEvent->getOrderNumber(), // номер заказа
+                    'number' => $OrderEvent->getPostingNumber() ?: $OrderEvent->getOrderNumber(), // номер заказа
                     'lock' => false, // разблокировка перетаскивания карточки на UI
                     'context' => self::class.':'.__LINE__,
                 ])

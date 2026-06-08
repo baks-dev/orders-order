@@ -99,11 +99,10 @@ final readonly class OrderLockDispatcher
 
         $OrderLockDTO = new OrderLockDTO(
             $OrderEvent->getId(),
-            $OrderEvent->getStatus()
+            $OrderEvent->getStatus(),
         );
 
         $OrderEvent->getLock()->getDto($OrderLockDTO);
-
         $OrderLockDTO->lock();  // ставим блокировку
 
         $OrderLock = $this->orderLockHandler->handle($OrderLockDTO);
@@ -111,7 +110,8 @@ final readonly class OrderLockDispatcher
         if(false === ($OrderLock instanceof OrderLock))
         {
             $this->logger->critical(
-                message: sprintf('orders-order: %s: Ошибка при блокировке заказа',
+                message: sprintf('orders-order: Ошибка %s при блокировке заказа %s',
+                    $OrderLock,
                     $OrderEvent->getPostingNumber(),
                 ),
                 context: [self::class.':'.__LINE__, var_export($message, true)],
@@ -137,7 +137,7 @@ final readonly class OrderLockDispatcher
             $socket = $this->centrifugoPublish
                 ->addData([
                     'order' => (string) $OrderEvent->getMain(), // для поиска карточки в канбане
-                    'number' => (string) $OrderEvent->getPostingNumber() ?? $OrderEvent->getOrderNumber(), // номер заказа
+                    'number' => $OrderEvent->getPostingNumber() ?: $OrderEvent->getOrderNumber(), // номер заказа
                     'lock' => true, // блокировка перетаскивания карточки на UI
                     'context' => self::class.':'.__LINE__,
                 ])

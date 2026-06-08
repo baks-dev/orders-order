@@ -40,7 +40,10 @@ final class OrderLockHandler extends AbstractHandler
 
         if(false === ($entity instanceof OrderLock))
         {
-            return 'error';
+            $this->validatorCollection->error(
+                sprintf('Событие %s заблокированного заказа не найдено', $command->getEvent()));
+
+            return $this->validatorCollection->getErrorUniqid();
         }
 
         /** Добавляем объект сущности для валидации */

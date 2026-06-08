@@ -36,8 +36,6 @@ use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPhone;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusUnpaid;
-use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockDTO;
-use BaksDev\Orders\Order\UseCase\Admin\Lock\OrderLockHandler;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
@@ -57,8 +55,6 @@ final readonly class OrderUnlockDispatcher
         #[Target('ordersOrderLogger')] private LoggerInterface $logger,
         private CurrentOrderEventInterface $currentOrderEventRepository,
         private MessageDispatchInterface $dispatch,
-        private OrderLockHandler $orderLockHandler,
-        private ?CentrifugoPublishInterface $centrifugoPublish = null,
     ) {}
 
     public function __invoke(OrderMessage $message): void
@@ -120,10 +116,7 @@ final readonly class OrderUnlockDispatcher
         }
 
         /**
-         *
-         * Если установлен модуль products-stocks -
-         * заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
-         *
+         * Если установлен модуль products-stocks - заказ ДОЛЖЕН быть разблокирован по результатам обработки складской заявки
          */
         if(true === class_exists(BaksDevProductsStocksBundle::class))
         {
@@ -137,88 +130,6 @@ final readonly class OrderUnlockDispatcher
             message: $OrderUnlockMessage,
             transport: 'orders-order',
         );
-
-        return;
-
-        /** DEPRICATE */
-
-
-        /**
-         * Если заказ уже РАЗБЛОКИРОВАН - прерываем обработчик
-         *
-         * @note заказ мог быть заблокирован вручную
-         */
-        if(false === $OrderEvent->getLock()->getValue())
-        {
-            $this->logger->warning(
-                message: sprintf('%s: заказ => УЖЕ РАЗБЛОКИРОВАН в статусе %s',
-                    $OrderEvent->getPostingNumber(),
-                    $OrderEvent->getStatus()->getOrderStatusValue(),
-                ),
-                context: [self::class.':'.__LINE__, $message::class],
-            );
-
-            return;
-        }
-
-        $OrderLockDTO = new OrderLockDTO(
-            $OrderEvent->getId(),
-            $OrderEvent->getStatus(),
-        );
-
-        $OrderEvent->getLock()->getDto($OrderLockDTO);
-
-        $OrderLockDTO->unlock(); // снимаем блокировку
-
-        $OrderLock = $this->orderLockHandler->handle($OrderLockDTO);
-
-        if(false === ($OrderLock instanceof OrderLock))
-        {
-            $this->logger->critical(
-                message: sprintf('%s: Ошибка при снятии блокировки с заказа',
-                    $OrderEvent->getPostingNumber(),
-                ),
-                context: [self::class.':'.__LINE__],
-            );
-        }
-
-        $this->logger->info(
-            message: sprintf('%s: РАЗБЛОКИРОВАЛИ заказ в статусе %s',
-                $OrderEvent->getPostingNumber(),
-                $OrderEvent->getStatus()->getOrderStatusValue(),
-            ),
-            context: [self::class.':'.__LINE__],
-        );
-
-        if(true === class_exists(BaksDevCentrifugoBundle::class))
-        {
-            /**
-             * Разблокируем перемещение заказа в канбане
-             */
-
-            $socket = $this->centrifugoPublish
-                ->addData([
-                    'order' => (string) $OrderEvent->getMain(), // для поиска карточки в канбане
-                    'number' => (string) $OrderEvent->getPostingNumber() ?? $OrderEvent->getOrderNumber(), // номер заказа
-                    'lock' => false, // разблокировка перетаскивания карточки на UI
-                    'context' => self::class.':'.__LINE__,
-                ])
-                ->send('orders'); // канал для обработки заказа
-
-            if($socket && $socket->isError())
-            {
-                $this->logger->critical(
-                    message: 'orders-order: Ошибка при отправке информации о блокировке в Centrifugo',
-                    context: [
-                        $socket->getMessage(),
-                        'number' => $OrderEvent->getPostingNumber(),
-                        'main' => $OrderEvent->getMain(),
-                        self::class.':'.__LINE__,
-                    ],
-                );
-            }
-        }
-
     }
 
 }

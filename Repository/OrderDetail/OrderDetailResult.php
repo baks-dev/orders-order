@@ -88,14 +88,17 @@ final readonly class OrderDetailResult
 
         private string $order_user,
         private ?bool $printed,
-        private ?string $order_package_profile,
-        private ?string $order_project_info,
-        private ?string $order_project_profile_avatar_name,
-        private ?string $order_project_profile_avatar_ext,
-        private ?bool $order_project_profile_avatar_cdn,
+
+
         private ?string $stocks = null,
         private ?string $order_services = null,
         private ?string $order_posting = null,
+
+        private ?string $order_package_profile = null,
+        private ?string $order_project_info = null,
+        private ?string $order_project_profile_avatar_name = null,
+        private ?string $order_project_profile_avatar_ext = null,
+        private ?bool $order_project_profile_avatar_cdn = false,
 
         private ?string $order_delivery_type = null,
 

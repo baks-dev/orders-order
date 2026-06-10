@@ -25,6 +25,7 @@
 namespace BaksDev\Orders\Order\Entity\Event;
 
 use BaksDev\Core\Entity\EntityEvent;
+use BaksDev\Orders\Order\Entity\Event\Finance\OrderFinance;
 use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Event\Project\OrderProject;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
@@ -40,6 +41,7 @@ use BaksDev\Orders\Order\Type\Event\OrderEventUid;
 use BaksDev\Orders\Order\Type\Id\OrderUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
+use BaksDev\Reference\Money\Type\Money;
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
@@ -93,6 +95,9 @@ class OrderEvent extends EntityEvent
     #[ORM\OneToOne(targetEntity: OrderPosting::class, mappedBy: 'event', cascade: ['all'])]
     private ?OrderPosting $posting = null;
 
+    /** Выплаты по заказу */
+    #[ORM\OneToOne(targetEntity: OrderFinance::class, mappedBy: 'event', cascade: ['all'])]
+    private ?OrderFinance $finance = null;
 
     /** Статус заказа */
     #[Assert\NotBlank]
@@ -271,6 +276,12 @@ class OrderEvent extends EntityEvent
     public function isDanger(): bool
     {
         return $this->danger === true;
+    }
+
+    /** Размер выплаты по заказу */
+    public function getFinance(): ?Money
+    {
+        return $this->finance?->getValue();
     }
 
     public function getDto($dto): mixed

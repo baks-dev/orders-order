@@ -48,6 +48,10 @@ use BaksDev\Orders\Order\Type\Payment\OrderPaymentType;
 use BaksDev\Orders\Order\Type\Payment\OrderPaymentUid;
 use BaksDev\Orders\Order\Type\Product\OrderProductType;
 use BaksDev\Orders\Order\Type\Product\OrderProductUid;
+use BaksDev\Orders\Order\Type\Returns\Event\ReturnsEventType;
+use BaksDev\Orders\Order\Type\Returns\Event\ReturnsEventUid;
+use BaksDev\Orders\Order\Type\Returns\id\ReturnsType;
+use BaksDev\Orders\Order\Type\Returns\id\ReturnsUid;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatusType;
 use BaksDev\Orders\Order\Type\User\OrderUserType;
@@ -70,6 +74,7 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
     $doctrine->dbal()->type(OrderUid::TYPE)->class(OrderUidType::class);
     $doctrine->dbal()->type(OrderEventUid::TYPE)->class(OrderEventUidType::class);
 
+
     /** Продукты в заказе */
     $doctrine->dbal()->type(OrderProductUid::TYPE)->class(OrderProductType::class);
     $doctrine->dbal()->type(OrderProductItemUid::TYPE)->class(OrderProductItemType::class);
@@ -87,6 +92,10 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
     $doctrine->dbal()->type(OrderDeliveryFieldUid::TYPE)->class(OrderDeliveryFieldType::class);
     $doctrine->dbal()->type(OrderStatus::TYPE)->class(OrderStatusType::class);
 
+    /** Возвраты */
+    $doctrine->dbal()->type(ReturnsUid::TYPE)->class(ReturnsType::class);
+    $doctrine->dbal()->type(ReturnsEventUid::TYPE)->class(ReturnsEventType::class);
+
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
     $emDefault->mapping('orders-order')
@@ -95,5 +104,4 @@ return static function(ContainerConfigurator $container, DoctrineConfig $doctrin
         ->isBundle(false)
         ->prefix(BaksDevOrdersOrderBundle::NAMESPACE.'\\Entity')
         ->alias('orders-order');
-
 };

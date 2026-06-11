@@ -920,33 +920,33 @@ final class OrderDetailRepository implements OrderDetailInterface
             );
 
 
-        $dbal
-            ->leftJoin(
-                'order_project',
-                UserProfile::class,
-                'order_project_profile',
-                '
-                    CASE 
-                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
-                        THEN order_project_profile.id = order_project.value
-                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').' 
-                    END
-                
-                ')
-            ->setParameter(
-                key: 'type_profile_client',
-                value: TypeProfilePartner::TYPE,
-                type: TypeProfileUid::TYPE,
-            );
-
-
-        $dbal
-            ->leftJoin(
-                'order_project_profile',
-                UserProfileValue::class,
-                'order_project_profile_value',
-                'order_project_profile_value.event = order_project_profile.event',
-            );
+        //        $dbal
+        //            ->leftJoin(
+        //                'order_project',
+        //                UserProfile::class,
+        //                'order_project_profile',
+        //                '
+        //                    CASE
+        //                        WHEN order_project.value IS NOT NULL AND type_profile.id != :type_profile_client
+        //                        THEN order_project_profile.id = order_project.value
+        //                        ELSE order_project_profile.id '.($dbal->isProjectProfile() ? ' = :'.$dbal::PROJECT_PROFILE_KEY : ' IS NULL').'
+        //                    END
+        //
+        //                ')
+        //            ->setParameter(
+        //                key: 'type_profile_client',
+        //                value: TypeProfilePartner::TYPE,
+        //                type: TypeProfileUid::TYPE,
+        //            );
+        //
+        //
+        //        $dbal
+        //            ->leftJoin(
+        //                'order_project_profile',
+        //                UserProfileValue::class,
+        //                'order_project_profile_value',
+        //                'order_project_profile_value.event = order_project_profile.event',
+        //            );
 
 
         //        /** Выбираем название организации, номер телефона */

@@ -27,10 +27,30 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Finance;
 
 
 use BaksDev\Core\Entity\AbstractHandler;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Validator\ValidatorCollectionInterface;
+use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
+use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use BaksDev\Orders\Order\Entity\Event\Finance\OrderFinance;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 final class OrderFinanceHandler extends AbstractHandler
 {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        MessageDispatchInterface $messageDispatch,
+        ValidatorCollectionInterface $validatorCollection,
+        ImageUploadInterface $imageUpload,
+        FileUploadInterface $fileUpload,
+
+        private readonly CurrentOrderEventInterface $CurrentOrderEventRepository
+    )
+    {
+        parent::__construct($entityManager, $messageDispatch, $validatorCollection, $imageUpload, $fileUpload);
+    }
+
     /** @see OrderFinance */
     public function handle(OrderFinanceDTO $command): string|OrderFinance
     {
@@ -42,12 +62,23 @@ final class OrderFinanceHandler extends AbstractHandler
 
         if(false === ($OrderFinance instanceof OrderFinance))
         {
-            $this->validatorCollection->error(
-                sprintf('Объект OrderFinance по идентификатору %s не найден', $command->getMain()),
-                [self::class.':'.__LINE__],
-            );
+            /** Получаем текущий объект события */
+            $OrderEvent = $this->CurrentOrderEventRepository
+                ->forOrder($command->getMain())
+                ->find();
 
-            return $this->validatorCollection->getErrorUniqid();
+            if(false === ($OrderEvent instanceof OrderEvent))
+            {
+                $this->validatorCollection->error(
+                    sprintf('Объект OrderEvent по идентификатору %s не найден', $command->getMain()),
+                    [self::class.':'.__LINE__],
+                );
+
+                return $this->validatorCollection->getErrorUniqid();
+            }
+
+            $OrderFinance = new OrderFinance($OrderEvent);
+            $this->persist($OrderFinance);
         }
 
         $OrderFinance->setEntity($command);

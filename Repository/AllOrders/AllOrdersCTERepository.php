@@ -84,6 +84,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\Event\Value\UserProfileValue;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Users\User\Type\Id\UserUid;
 
 final class AllOrdersCTERepository implements AllOrdersInterface
 {
@@ -201,14 +202,23 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'orders',
                 OrderInvariable::class,
                 'order_invariable',
-                'order_invariable.main = orders.id',
+                'order_invariable.main = orders.id
+                AND order_invariable.usr = :usr',
             );
+
+        $dbal->setParameter(
+            key: 'usr',
+            value: $this->UserProfileTokenStorage->getUser(),
+            type: UserUid::TYPE,
+        );
 
 
         /** Если не выбраны все профили, то отобразить только для данного профиля/склада */
         if($this->profile instanceof UserProfileUid || $this->filter?->getAll() === false)
         {
-            $whereExpression = (($this->status instanceof OrderStatus) && $this->status->equals(OrderStatusNew::class)
+            $whereExpression = (($this->status instanceof OrderStatus) &&
+            // отображаем статусы New «Новый» и Completed «Выполнен» - в том числе и с профилем NULL
+            ($this->status->equals(OrderStatusNew::class) || $this->status->equals(OrderStatusCompleted::class))
                 ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
                 : ' order_invariable.profile = :profile');
 

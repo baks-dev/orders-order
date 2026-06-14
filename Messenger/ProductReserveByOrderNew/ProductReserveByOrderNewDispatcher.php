@@ -167,6 +167,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $this->messageDispatch->dispatch(
                     message: $OrderUnlockMessage,
+                    transport: 'orders-order',
                 );
 
                 return;
@@ -189,6 +190,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $this->messageDispatch->dispatch(
                     message: $OrderUnlockMessage,
+                    transport: 'orders-order',
                 );
 
                 return;
@@ -278,6 +280,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
                 $this->messageDispatch->dispatch(
                     message: $OrderUnlockMessage,
+                    transport: 'orders-order',
                 );
 
                 return;
@@ -295,6 +298,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
             $this->messageDispatch->dispatch(
                 message: $OrderUnlockMessage,
+                transport: 'orders-order',
             );
 
             return;
@@ -369,6 +373,7 @@ final readonly class ProductReserveByOrderNewDispatcher
 
         $this->messageDispatch->dispatch(
             message: $OrderUnlockMessage,
+            transport: 'orders-order',
         );
 
         $Deduplicator->save();

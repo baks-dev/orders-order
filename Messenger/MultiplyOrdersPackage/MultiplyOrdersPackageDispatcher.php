@@ -164,6 +164,7 @@ final readonly class MultiplyOrdersPackageDispatcher
 
                     $this->messageDispatch->dispatch(
                         message: $OrderUnlockMessage,
+                        transport: 'orders-order',
                     );
 
                     return;
@@ -198,6 +199,7 @@ final readonly class MultiplyOrdersPackageDispatcher
 
                     $this->messageDispatch->dispatch(
                         message: $OrderUnlockMessage,
+                        transport: 'orders-order',
                     );
 
                     return;

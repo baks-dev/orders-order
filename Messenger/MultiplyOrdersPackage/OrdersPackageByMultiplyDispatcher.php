@@ -98,6 +98,7 @@ final readonly class OrdersPackageByMultiplyDispatcher
 
         $this->messageDispatch->dispatch(
             message: $OrderUnlockMessage,
+            transport: 'orders-order',
         );
 
         if(true === class_exists(BaksDevCentrifugoBundle::class))

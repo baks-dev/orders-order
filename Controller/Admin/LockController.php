@@ -70,7 +70,10 @@ final class LockController extends AbstractController
         }
 
         $messageDispatch
-            ->dispatch(message: $message);
+            ->dispatch(
+                message: $message,
+                transport: 'orders-order',
+            );
 
         return $this->redirectToReferer();
     }

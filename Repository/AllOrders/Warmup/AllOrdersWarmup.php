@@ -33,6 +33,7 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -57,6 +58,11 @@ final readonly class AllOrdersWarmup
             ->find();
 
         if(false === ($OrderEvent instanceof OrderEvent))
+        {
+            return;
+        }
+
+        if(false === ($OrderEvent->getOrderProfile() instanceof UserProfileUid))
         {
             return;
         }

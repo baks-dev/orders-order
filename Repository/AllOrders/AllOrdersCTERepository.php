@@ -202,15 +202,21 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'orders',
                 OrderInvariable::class,
                 'order_invariable',
-                'order_invariable.main = orders.id
-                AND order_invariable.usr = :usr',
+                'order_invariable.main = orders.id'.(
+                $this->UserProfileTokenStorage->isUser()
+                    ? ' AND order_invariable.usr = :usr'
+                    : ' AND order_invariable.usr IS NULL'
+                ),
             );
 
-        $dbal->setParameter(
-            key: 'usr',
-            value: $this->UserProfileTokenStorage->getUser(),
-            type: UserUid::TYPE,
-        );
+        if($this->UserProfileTokenStorage->isUser())
+        {
+            $dbal->setParameter(
+                key: 'usr',
+                value: $this->UserProfileTokenStorage->getUser(),
+                type: UserUid::TYPE,
+            );
+        }
 
 
         /** Если не выбраны все профили, то отобразить только для данного профиля/склада */

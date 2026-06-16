@@ -143,6 +143,10 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
         );
 
 
+        /**
+         * Заказы FBO orders_invariable.profile имеет значение NULL
+         * Для исключения из статистики - применяем IS NOT NULL
+         */
         $cteSelect
             ->addSelect("orders_invariable.number AS order_number")
             ->join(
@@ -150,7 +154,7 @@ final class AllProductsOrdersReportRepository implements AllProductsOrdersReport
                 OrderInvariable::class,
                 "orders_invariable",
                 "orders_invariable.main = orders.id"
-                .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ''),
+                .($this->profile instanceof UserProfileUid ? ' AND orders_invariable.profile = :profile' : ' AND orders_invariable.profile IS NOT NULL'),
             );
 
         if($this->profile instanceof UserProfileUid)

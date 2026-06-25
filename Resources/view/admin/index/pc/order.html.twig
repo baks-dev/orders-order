@@ -230,9 +230,11 @@
                     </div>
                 {% endif %}
 
+                {# @var client_type \BaksDev\Users\Profile\TypeProfile\Type\Id\Choice\TypeProfilePartner #}
+                {% set client_type = constant('BaksDev\\Users\\Profile\\TypeProfile\\Type\\Id\\Choice\\TypeProfilePartner::TYPE') %}
 
-                {% if order.getIsOtherProject %}
-
+                {# Если тип заказа не от партнера и заказ оформлен на другом сайте #}
+                {% if order.getIsOtherProject and order.getClientProfileType() and not order.getClientProfileType().equals(client_type) %}
 
                     <div class="d-flex gap-1 align-items-center text-truncate fw-bolder text-danger pointer"
                          style="max-width: 140px;"

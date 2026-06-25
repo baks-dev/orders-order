@@ -223,8 +223,8 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         if($this->profile instanceof UserProfileUid || $this->filter?->getAll() === false)
         {
             $whereExpression = (($this->status instanceof OrderStatus) &&
-            // отображаем статусы New «Новый» и Completed «Выполнен» - в том числе и с профилем NULL
-            ($this->status->equals(OrderStatusNew::class) || $this->status->equals(OrderStatusCompleted::class))
+            // отображаем статусы New «Новый» - в том числе и с профилем NULL
+            ($this->status->equals(OrderStatusNew::class) || ($this->search instanceof SearchDTO && $this->search->getQuery()))
                 ? ' (order_invariable.profile IS NULL OR order_invariable.profile = :profile)'
                 : ' order_invariable.profile = :profile');
 
@@ -577,6 +577,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         /** Профиль пользователя (Клиент) */
 
         $dbal
+            ->addSelect('user_profile.type AS client_profile_type')
             ->leftJoin(
                 'order_user',
                 UserProfileEvent::class,

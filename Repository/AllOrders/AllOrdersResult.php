@@ -38,6 +38,8 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Reference\Currency\Type\Currency;
 use BaksDev\Reference\Money\Type\Money;
+use BaksDev\Users\Profile\TypeProfile\Type\Id\TypeProfileUid;
+use BaksDev\Users\Profile\UserProfile\Decorator\UserProfile\UserProfileType;
 use DateTimeImmutable;
 
 final class AllOrdersResult
@@ -80,6 +82,7 @@ final class AllOrdersResult
         private readonly string $modify, //  "2025-08-02 12:50:20"
 
         private readonly ?string $stocks,
+        private readonly ?string $client_profile_type,
 
 
         private readonly ?bool $is_other_project,
@@ -426,4 +429,8 @@ final class AllOrdersResult
         return $this->lock === true;
     }
 
+    public function getClientProfileType(): TypeProfileUid|false
+    {
+        return $this->client_profile_type ? new TypeProfileUid($this->client_profile_type) : false;
+    }
 }

@@ -90,9 +90,13 @@ class OrderPaymentField extends EntityEvent
 
     public function setEntity($dto): mixed
     {
-
         if($dto instanceof OrderPaymentFieldInterface || $dto instanceof self)
         {
+            if(empty($dto->getValue()))
+            {
+                return false;
+            }
+
             return parent::setEntity($dto);
         }
 

@@ -28,10 +28,10 @@ namespace BaksDev\Orders\Order\UseCase\Admin\Package\User\Delivery\Field;
 use BaksDev\Orders\Order\Entity\User\Delivery\Field\OrderDeliveryFieldInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see OrderDeliveryField */
 final class OrderDeliveryFieldDTO implements OrderDeliveryFieldInterface
 {
     /** Заполненное значение */
-    #[Assert\Valid]
     private ?string $value;
 
 

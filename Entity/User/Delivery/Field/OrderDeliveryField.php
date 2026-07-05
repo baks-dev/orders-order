@@ -92,7 +92,7 @@ class OrderDeliveryField extends EntityEvent
     {
         if($dto instanceof OrderDeliveryFieldInterface || $dto instanceof self)
         {
-            if(is_null($dto->getValue()))
+            if(empty($dto->getValue()))
             {
                 return false;
             }

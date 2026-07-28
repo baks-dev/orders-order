@@ -55,7 +55,7 @@
 <script nonce="{{ csp_nonce() }}" class='lazy'>
 
 
-      if(typeof executeFunc === 'function')
+      if(typeof executeFunc === "function")
       {
 
         executeFunc(function xA1wFjaW7B()
@@ -68,9 +68,9 @@
 
             centrifuge.newSubscription("orders").on("publication", function(ctx)
             {
-                "{{ app.environment }}" === "dev" && (console.log('ctx.data ->', ctx.data));
+                "{{ app.environment }}" === "dev" && (console.log("ctx.data ->", ctx.data));
 
-                if(typeof ctx.data.order !== 'undefined')
+                if(typeof ctx.data.order !== "undefined")
                 {
                     const order_card = document.getElementById(ctx.data.order);
 
@@ -122,7 +122,7 @@
                     }
 
 
-                    if(typeof ctx.data.profile !== 'undefined' && ctx.data.profile !== '{{ current_profile }}')
+                    if(typeof ctx.data.profile !== "undefined" && ctx.data.profile !== '{{ current_profile }}')
                     {
                         /** Удаляем у остальных менеджеров заказ */
                         document.getElementById(ctx.data.order)?.remove();
@@ -135,10 +135,13 @@
             return true;
 
         }, 100);
-
     }
+
 
 </script>
 
-{% endblock %}
+
+
+
+    {% endblock %}
 

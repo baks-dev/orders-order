@@ -34,4 +34,8 @@ interface OrderFilterInterface
 
     public function getAll(): bool;
 
+    public function getClient(): ?string;
+
+    public function getProduct(): ?string;
+
 }

@@ -349,16 +349,6 @@ final class AllOrdersResult
         return $this->order_profile_username;
     }
 
-    public function getOrganizationName(): ?object
-    {
-        /** Пробуем определить название организации */
-        $filter = array_filter($this->getOrderUser(), static function(object $element) {
-            return $element->profile_type === OrganizationField::TYPE;
-        });
-
-        return current($filter) ?: null;
-    }
-
     private function getOrderUser(): array|false
     {
         if(empty($this->order_user))
@@ -374,8 +364,28 @@ final class AllOrdersResult
         return json_decode($this->order_user, false, 512, JSON_THROW_ON_ERROR);
     }
 
+    public function getOrganizationName(): object|false
+    {
+        if(empty($this->getOrderUser()))
+        {
+            return false;
+        }
+
+        /** Пробуем определить название организации */
+        $filter = array_filter($this->getOrderUser(), static function(object $element) {
+            return $element->profile_type === OrganizationField::TYPE;
+        });
+
+        return current($filter) ?: false;
+    }
+
     public function getClientName(): array|false
     {
+        if(empty($this->getOrderUser()))
+        {
+            return false;
+        }
+
         $filter = array_filter($this->getOrderUser(), static function(object $element) {
             return $element->profile_type === ContactField::TYPE;
         });
@@ -385,13 +395,18 @@ final class AllOrdersResult
         return empty($filter) ? false : $filter;
     }
 
-    public function getClientPhone(): ?object
+    public function getClientPhone(): object|false
     {
+        if(empty($this->getOrderUser()))
+        {
+            return false;
+        }
+
         $filter = array_filter($this->getOrderUser(), static function(object $element) {
             return $element->profile_type === PhoneField::TYPE;
         });
 
-        return current($filter) ?: null;
+        return current($filter) ?: false;
     }
 
     public function getOrderMove(): ?bool

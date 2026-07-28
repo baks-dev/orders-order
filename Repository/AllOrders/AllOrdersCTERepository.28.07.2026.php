@@ -66,7 +66,6 @@ use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
-use BaksDev\Products\Product\Type\SearchTags\ProductSearchTag;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
 use BaksDev\Products\Stocks\Entity\Stock\Move\ProductStockMove;
@@ -74,7 +73,6 @@ use BaksDev\Products\Stocks\Entity\Stock\Orders\ProductStockOrder;
 use BaksDev\Products\Stocks\Entity\Stock\ProductStock;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Products\Stocks\Type\Status\ProductStockStatus;
-use BaksDev\Search\Index\SearchIndexInterface;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\Trans\TypeProfileSectionFieldTrans;
 use BaksDev\Users\Profile\TypeProfile\Entity\Section\Fields\TypeProfileSectionField;
 use BaksDev\Users\Profile\TypeProfile\Entity\Trans\TypeProfileTrans;
@@ -106,7 +104,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
-        private readonly ?SearchIndexInterface $SearchIndexHandler = null,
     ) {}
 
     public function setLimit(int $limit): self
@@ -167,24 +164,9 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $cteSelect->select('orders.id AS order_id');
-
-
         $cteSelect
-            ->from(OrderInvariable::class, 'order_invariable')
-            ->where($this->UserProfileTokenStorage->isUser()
-                ? 'order_invariable.usr = :usr'
-                : 'order_invariable.usr IS NULL',
-            );
-
-        $cteSelect
-            ->join(
-                'order_invariable',
-                Order::class,
-                'orders',
-                'orders.id = order_invariable.main',
-            );
-
+            ->select('orders.id AS order_id')
+            ->from(Order::class, 'orders');
 
         $cteSelect
             //            ->addSelect('orders.event AS order_event')
@@ -215,17 +197,17 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         /** OrderInvariable */
 
-        //        $cteSelect
-        //            ->join(
-        //                'orders',
-        //                OrderInvariable::class,
-        //                'order_invariable',
-        //                'order_invariable.main = orders.id'.(
-        //                $this->UserProfileTokenStorage->isUser()
-        //                    ? ' AND order_invariable.usr = :usr'
-        //                    : ' AND order_invariable.usr IS NULL'
-        //                ),
-        //            );
+        $cteSelect
+            ->join(
+                'orders',
+                OrderInvariable::class,
+                'order_invariable',
+                'order_invariable.main = orders.id'.(
+                $this->UserProfileTokenStorage->isUser()
+                    ? ' AND order_invariable.usr = :usr'
+                    : ' AND order_invariable.usr IS NULL'
+                ),
+            );
 
         if($this->UserProfileTokenStorage->isUser())
         {
@@ -326,13 +308,13 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             }
         }
 
-        //        $cteSelect
-        //            ->leftJoin(
-        //                'orders',
-        //                OrderModify::class,
-        //                'orders_modify',
-        //                'orders_modify.event = orders.event',
-        //            );
+        $cteSelect
+            ->leftJoin(
+                'orders',
+                OrderModify::class,
+                'orders_modify',
+                'orders_modify.event = orders.event',
+            );
 
 
         if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
@@ -500,6 +482,24 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         $dbal
             ->leftJoin(
                 'orders',
+                OrderProduct::class,
+                'order_products',
+                'order_products.event = orders.event',
+            );
+
+        $dbal
+            ->addSelect('order_products_price.currency AS order_currency')
+            ->leftJoin(
+                'order_products',
+                OrderPrice::class,
+                'order_products_price',
+                'order_products_price.product = order_products.id',
+            );
+
+
+        $dbal
+            ->leftJoin(
+                'orders',
                 OrderUser::class,
                 'order_user',
                 'order_user.event = orders.event',
@@ -604,89 +604,25 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
 
 
-        /** Информация о клиенте */
+        $dbal
+            ->leftJoin(
+                'user_profile',
+                UserProfileValue::class,
+                'user_profile_value',
+                'user_profile_value.event = user_profile.id',
+            );
 
 
-        $UserProfileLiteral = $this->DBALQueryBuilder
-            ->createQueryBuilder(self::class);
-
-
-        $UserProfileLiteral->from(UserProfileValue::class, 'user_profile_value');
-
-
-        $UserProfileLiteral
+        /** Выбираем только контакт и номер телефон */
+        $dbal
             ->leftJoin(
                 'user_profile_value',
                 TypeProfileSectionField::class,
                 'type_section_field_client',
-                'type_section_field_client.id = user_profile_value.field',
-            );
-
-
-        $UserProfileLiteral
-            ->leftJoin(
-                'user_profile_value',
-                TypeProfileSectionField::class,
-                'type_profile_field',
-                'type_profile_field.id = user_profile_value.field',
-            );
-
-        $UserProfileLiteral
-            ->leftJoin(
-                'type_profile_field',
-                TypeProfileSectionFieldTrans::class,
-                'type_profile_field_trans',
-                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
-            );
-
-
-        $UserProfileLiteral->where('user_profile_value.event = user_profile.id');
-        $UserProfileLiteral->andWhere('(type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)');
-
-
-        //$UserProfileLiteral->addSelect('type_profile_trans.name AS order_profile');
-
-        $UserProfileLiteral->addSelect(
-            "JSON_AGG
-			( 
-                JSONB_BUILD_OBJECT
-                (
-                    /* свойства для сортирвоки JSON */
-                    '0', type_profile_field.sort,
-
-                    'profile_type', type_profile_field.type,
-                    'profile_name', type_profile_field_trans.name,
-                    'profile_value', user_profile_value.value
-                )
-				
-			)
-			AS order_user",
-        );
-
-        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter?->getClient()))
-        {
-            $UserProfileLiteral->andWhere('LOWER(user_profile_value.value) LIKE :profile_value');
-
-            $dbal
-                ->setParameter(
-                    'profile_value',
-                    '%'.mb_strtolower((string) $this->filter->getClient()).'%',
-                );
-
-            $dbal->andWhere('sub_order_user.order_user IS NOT NULL');
-        }
-
-        $dbal
-            ->addSelect('sub_order_user.order_user')
-            ->leftJoin(
-                'user_profile',
-                sprintf('LATERAL (%s)', $UserProfileLiteral->getSQL()),
-                'sub_order_user',
-                'TRUE',
-            );
-
-
-        $dbal
+                '
+                        type_section_field_client.id = user_profile_value.field AND
+                        (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
+                    ')
             ->setParameter(
                 'field_phone',
                 PhoneField::TYPE,
@@ -695,35 +631,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'field_contact',
                 ContactField::TYPE,
             );
-
-
-        //        $dbal
-        //            ->leftJoin(
-        //                'user_profile',
-        //                UserProfileValue::class,
-        //                'user_profile_value',
-        //                'user_profile_value.event = user_profile.id',
-        //            );
-
-
-        //        /** Выбираем только контакт и номер телефон */
-        //        $dbal
-        //            ->leftJoin(
-        //                'user_profile_value',
-        //                TypeProfileSectionField::class,
-        //                'type_section_field_client',
-        //                '
-        //                        type_section_field_client.id = user_profile_value.field AND
-        //                        (type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)
-        //                    ')
-        //            ->setParameter(
-        //                'field_phone',
-        //                PhoneField::TYPE,
-        //            )
-        //            ->setParameter(
-        //                'field_contact',
-        //                ContactField::TYPE,
-        //            );
 
 
         $dbal
@@ -755,7 +662,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'account_event.id = account.event',
             );
 
-
         /**
          * Название типа профиля (Заказа)
          */
@@ -769,40 +675,39 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local',
             );
 
+        $dbal
+            ->leftJoin(
+                'user_profile_value',
+                TypeProfileSectionField::class,
+                'type_profile_field',
+                'type_profile_field.id = user_profile_value.field',
+            );
 
-        //        $dbal
-        //            ->leftJoin(
-        //                'user_profile_value',
-        //                TypeProfileSectionField::class,
-        //                'type_profile_field',
-        //                'type_profile_field.id = user_profile_value.field',
-        //            );
+        $dbal
+            ->leftJoin(
+                'type_profile_field',
+                TypeProfileSectionFieldTrans::class,
+                'type_profile_field_trans',
+                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
+            );
 
-        //        $dbal
-        //            ->leftJoin(
-        //                'type_profile_field',
-        //                TypeProfileSectionFieldTrans::class,
-        //                'type_profile_field_trans',
-        //                'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
-        //            );
+        $dbal->addSelect(
+            "JSON_AGG
+			( DISTINCT
+				
+					JSONB_BUILD_OBJECT
+					(
+						/* свойства для сортирвоки JSON */
+						'0', type_profile_field.sort,
 
-        //        $dbal->addSelect(
-        //            "JSON_AGG
-        //			( DISTINCT
-        //
-        //					JSONB_BUILD_OBJECT
-        //					(
-        //						/* свойства для сортирвоки JSON */
-        //						'0', type_profile_field.sort,
-        //
-        //						'profile_type', type_profile_field.type,
-        //						'profile_name', type_profile_field_trans.name,
-        //						'profile_value', user_profile_value.value
-        //					)
-        //
-        //			)
-        //			AS order_user",
-        //        );
+						'profile_type', type_profile_field.type,
+						'profile_name', type_profile_field_trans.name,
+						'profile_value', user_profile_value.value
+					)
+				
+			)
+			AS order_user",
+        );
 
 
         /**
@@ -814,14 +719,15 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         /** Услуги */
 
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderService::class,
+                'orders_service',
+                'orders_service.event = orders.event',
+            );
 
-        $OrderServiceLiteral = $this->DBALQueryBuilder
-            ->createQueryBuilder(self::class);
-
-        $OrderServiceLiteral->from(OrderService::class, 'orders_service');
-        $OrderServiceLiteral->where('orders_service.event = orders.event');
-
-        $OrderServiceLiteral
+        $dbal
             ->leftJoin(
                 'orders_service',
                 OrderServicePrice::class,
@@ -829,7 +735,8 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'orders_service_price.serv = orders_service.id',
             );
 
-        $OrderServiceLiteral->addSelect(
+
+        $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
 		
@@ -843,119 +750,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 			AS service_price",
         );
 
-        $dbal
-            ->addSelect('sub_service.service_price')
-            ->leftJoin(
-                'orders',
-                sprintf('LATERAL(%s)', $OrderServiceLiteral->getSQL()),
-                'sub_service',
-                'TRUE',
-            );
-
-
-        //        $dbal
-        //            ->leftJoin(
-        //                'orders',
-        //                OrderService::class,
-        //                'orders_service',
-        //                'orders_service.event = orders.event',
-        //            );
-        //
-        //        $dbal
-        //            ->leftJoin(
-        //                'orders_service',
-        //                OrderServicePrice::class,
-        //                'orders_service_price',
-        //                'orders_service_price.serv = orders_service.id',
-        //            );
-
-
-        //        $dbal->addSelect(
-        //            "JSON_AGG
-        //			( DISTINCT
-        //
-        //					JSONB_BUILD_OBJECT
-        //					(
-        //						'service', orders_service_price.serv,
-        //						'price', orders_service_price.price,
-        //						'currency', orders_service_price.currency
-        //					)
-        //			)
-        //			AS service_price",
-        //        );
-
-
-        /**
-         * Информация о продукции в заказе
-         */
-
-        $OrderProductLiteral = $this->DBALQueryBuilder
-            ->createQueryBuilder(self::class);
-
-
-        $OrderProductLiteral
-            ->from(OrderProduct::class, 'order_products')
-            ->where('order_products.event = orders.event');
-
-
-        //        $dbal
-        //            ->leftJoin(
-        //                'orders',
-        //                OrderProduct::class,
-        //                'order_products',
-        //                'order_products.event = orders.event',
-        //            );
-
-        $OrderProductLiteral
-            ->addSelect('order_products_price.currency AS order_currency')
-            ->leftJoin(
-                'order_products',
-                OrderPrice::class,
-                'order_products_price',
-                'order_products_price.product = order_products.id',
-            );
-
-        $OrderProductLiteral->leftJoin(
-            'order_products',
-            ProductEvent::class,
-            'product_event',
-            'product_event.id = order_products.product',
-        );
-
-        $OrderProductLiteral->leftJoin(
-            'product_event',
-            ProductInfo::class,
-            'product_info',
-            'product_info.product = product_event.main',
-        );
-
-        $OrderProductLiteral
-            ->leftJoin(
-                'order_products',
-                ProductOffer::class,
-                'product_offer',
-                'product_offer.id = order_products.offer',
-            );
-
-
-        $OrderProductLiteral
-            ->leftJoin(
-                'order_products',
-                ProductVariation::class,
-                'product_variation',
-                'product_variation.id = order_products.variation',
-            );
-
-        $OrderProductLiteral
-            ->leftJoin(
-                'order_products',
-                ProductModification::class,
-                'product_modification',
-                'product_modification.id = order_products.modification',
-            );
-
-
-        $OrderProductLiteral->addSelect(
+        $dbal->addSelect(
             "JSON_AGG
 			( DISTINCT
 		
@@ -975,162 +770,14 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 			AS product_price",
         );
 
-        $OrderProductLiteral->addGroupBy('order_products_price.currency');
-
-        // $dbal->allGroupByExclude();
-
-
-        // Поиск
-        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter->getProduct()))
-        {
-
-            /** Поиск по индексам */
-            $search = str_replace('-', ' ', $this->filter->getProduct());
-
-            /** Очистить поисковую строку от всех НЕ буквенных/числовых символов */
-            $search = preg_replace('/[^ a-zа-яё\d]/ui', ' ', $search);
-            $search = preg_replace('/\br(\d+)\b/i', '$1', $search);  // Заменяем R или r в начале строки, за которым следует цифра
-
-            /** Задать префикс и суффикс для реализации варианта "содержит" */
-            $search = '*'.trim($search).'*';
-
-            /** Получим ids из индекса */
-            $resultProducts = $this->SearchIndexHandler instanceof SearchIndexInterface
-                ? $this->SearchIndexHandler->handleSearchQuery($search, ProductSearchTag::TAG)
-                : false;
-
-            if($this->SearchIndexHandler instanceof SearchIndexInterface && false === empty($resultProducts))
-            {
-                /** Фильтруем по полученным из индекса ids: */
-
-                $ids = array_column($resultProducts, 'id');
-
-                /** Товары */
-                $OrderProductLiteral
-                    ->andWhere('(
-                        product_event.main IN (:uuids) 
-                        OR product_offer.id IN (:uuids)
-                        OR product_variation.id IN (:uuids) 
-                        OR product_modification.id IN (:uuids)
-                    )')
-                    ->setParameter(
-                        key: 'uuids',
-                        value: $ids,
-                        type: ArrayParameterType::STRING,
-                    );
-
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_event.main IN (:uuids) THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_offer.id IN (:uuids) THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_variation.id IN (:uuids)  THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_modification.id IN (:uuids)  THEN 0 ELSE 1 END');
-            }
-
-            if(empty($resultProducts))
-            {
-
-                $OrderProductLiteral->andWhere('
-                    product_modification.article LIKE :article
-                    OR product_variation.article LIKE :article
-                    OR product_offer.article LIKE :article
-                    OR product_info.article LIKE :article
-                ');
-
-                $dbal->setParameter(
-                    key: 'article',
-                    value: '%'.$this->filter->getProduct().'%',
-                );
-            }
-
-            $dbal->andWhere('sub_product.product_price IS NOT NULL');
-        }
-
-
-        $dbal
-            ->addSelect('sub_product.order_currency')
-            ->addSelect('sub_product.product_price')
-            ->leftJoin(
-                'orders',
-                sprintf('LATERAL (%s)', $OrderProductLiteral->getSQL()),
-                'sub_product',
-                'TRUE',
-            );
-
-
         if(
             class_exists(BaksDevProductsStocksBundle::class)
             && true === ($this->status instanceof OrderStatus)
             && $this->status->equals(OrderStatusNew::class)
         )
         {
-
             /** Получаем остаток и резерв на текущем складе */
-
-            $ProductStockTotalLiteral = $this->DBALQueryBuilder
-                ->createQueryBuilder(self::class);
-
-            $ProductStockTotalLiteral
-                ->from(OrderProduct::class, 'order_products')
-                ->where('order_products.event = orders.event');
-
-
-            //            $ProductStockTotalLiteral
-            //                //->addSelect('order_products_price.currency AS order_currency')
-            //                ->leftJoin(
-            //                    'order_products',
-            //                    OrderPrice::class,
-            //                    'order_products_price',
-            //                    'order_products_price.product = order_products.id',
-            //                );
-            //
-            $ProductStockTotalLiteral->leftJoin(
-                'order_products',
-                ProductEvent::class,
-                'product_event',
-                'product_event.id = order_products.product',
-            );
-
-            $ProductStockTotalLiteral->leftJoin(
-                'product_event',
-                ProductInfo::class,
-                'product_info',
-                'product_info.product = product_event.main',
-            );
-
-            $ProductStockTotalLiteral
-                ->leftJoin(
-                    'order_products',
-                    ProductOffer::class,
-                    'product_offer',
-                    'product_offer.id = order_products.offer',
-                );
-
-
-            $ProductStockTotalLiteral
-                ->leftJoin(
-                    'order_products',
-                    ProductVariation::class,
-                    'product_variation',
-                    'product_variation.id = order_products.variation',
-                );
-
-            $ProductStockTotalLiteral
-                ->leftJoin(
-                    'order_products',
-                    ProductModification::class,
-                    'product_modification',
-                    'product_modification.id = order_products.modification',
-                );
-
-
-            // $ProductStockTotalLiteral->select('stock.*');
-            //            $ProductStockTotalLiteral
-            //                ->from(ProductStockTotal::class, 'stock')
-            //                ->where('stock.profile = :profile')
-            //                ->andWhere('stock.product = product_event.main')
-            //            ;
-
-
-            $ProductStockTotalLiteral
+            $dbal
                 ->leftJoin(
                     'product_modification',
                     ProductStockTotal::class,
@@ -1140,16 +787,39 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     stock.profile = :profile 
                     AND stock.product = product_event.main
                     
-                    AND ( stock.offer = product_offer.const OR (stock.offer IS NULL AND product_offer.const IS NULL) )
-                    AND (stock.variation = product_variation.const OR (stock.variation IS NULL AND product_variation.const IS NULL))
-                    AND (stock.modification = product_modification.const OR (stock.modification IS NULL AND product_modification.const IS NULL))
+                    AND
+                        
+                        CASE 
+                            WHEN product_offer.const IS NOT NULL 
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END
+                            
+                    AND 
                     
-                  
+                        CASE
+                            WHEN product_variation.const IS NOT NULL 
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END
+                        
+                    AND
+                    
+                        CASE
+                            WHEN product_modification.const IS NOT NULL 
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END
  
-                ');
+                ')
+                ->setParameter(
+                    key: 'profile',
+                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                    type: UserProfileUid::TYPE,
+                );
 
 
-            $ProductStockTotalLiteral->addSelect("JSON_AGG
+            $dbal->addSelect("JSON_AGG
 			( DISTINCT
 					JSONB_BUILD_OBJECT
 					(
@@ -1164,69 +834,50 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 						'reserve', stock.reserve
 					)
 			) AS stocks");
-
-
-            $dbal
-                ->addSelect('sub_stock.stocks')
-                ->leftJoin(
-                    'orders',
-                    sprintf('LATERAL(%s)', $ProductStockTotalLiteral->getSQL()),
-                    'sub_stock',
-                    'TRUE',
-                );
-
-            $dbal->setParameter(
-                key: 'profile',
-                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
-            );
-
-
-            //            $dbal
-            //                ->leftJoin(
-            //                    'product_modification',
-            //                    ProductStockTotal::class,
-            //                    'stock',
-            //                    '
-            //
-            //                    stock.profile = :profile
-            //                    AND stock.product = product_event.main
-            //
-            //                    AND ( stock.offer = product_offer.const OR (stock.offer IS NULL AND product_offer.const IS NULL) )
-            //                    AND (stock.variation = product_variation.const OR (stock.variation IS NULL AND product_variation.const IS NULL))
-            //                    AND (stock.modification = product_modification.const OR (stock.modification IS NULL AND product_modification.const IS NULL))
-            //
-            //
-            //
-            //                ')
-            //                ->setParameter(
-            //                    key: 'profile',
-            //                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-            //                    type: UserProfileUid::TYPE,
-            //                );
-
-            //
-            //            $dbal->addSelect("JSON_AGG
-            //			( DISTINCT
-            //					JSONB_BUILD_OBJECT
-            //					(
-            //						'id', stock.id,
-            //
-            //						'main', stock.product,
-            //						'offer', stock.offer,
-            //						'variation', stock.variation,
-            //						'modification', stock.modification,
-            //
-            //						'total', stock.total,
-            //						'reserve', stock.reserve
-            //					)
-            //			) AS stocks");
         }
         else
         {
             $dbal->addSelect('NULL AS stocks');
         }
 
+        $dbal->leftJoin(
+            'order_products',
+            ProductEvent::class,
+            'product_event',
+            'product_event.id = order_products.product',
+        );
+
+        $dbal->leftJoin(
+            'product_event',
+            ProductInfo::class,
+            'product_info',
+            'product_info.product = product_event.main',
+        );
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductOffer::class,
+                'product_offer',
+                'product_offer.id = order_products.offer',
+            );
+
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductVariation::class,
+                'product_variation',
+                'product_variation.id = order_products.variation',
+            );
+
+        $dbal
+            ->leftJoin(
+                'order_products',
+                ProductModification::class,
+                'product_modification',
+                'product_modification.id = order_products.modification',
+            );
 
         if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
@@ -1248,25 +899,16 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 $dbal
                     ->createSearchQueryBuilder($this->search)
                     ->addSearchLike('orders_posting.value')
-                    //->addSearchLike('user_profile_value.value')
-                    //->addSearchLike('product_info.article')
-                    //->addSearchLike('product_variation.article')
-                    //->addSearchLike('product_modification.article')
-                ;
+                    ->addSearchLike('user_profile_value.value')
+                    ->addSearchLike('product_info.article')
+                    ->addSearchLike('product_variation.article')
+                    ->addSearchLike('product_modification.article');
             }
         }
 
         $this->orderBy($dbal);
 
-
-        //$dbal->allGroupByExclude();
-
-        //        echo $dbal->getSQL();
-        //
-        //        dd($dbal->analyze());
-
-        //dd($dbal->fetchAllAssociative());
-
+        $dbal->allGroupByExclude();
 
         return $this->paginator->fetchAllHydrate(
             $dbal,

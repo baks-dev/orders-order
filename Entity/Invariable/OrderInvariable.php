@@ -45,6 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'orders_invariable')]
 #[ORM\Index(columns: ['number'])]
 #[ORM\Index(columns: ['usr'])]
+#[ORM\Index(columns: ['usr', 'profile'])]
 class OrderInvariable extends EntityReadonly
 {
     /**

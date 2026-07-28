@@ -46,7 +46,7 @@
                    data-bs-delay='{"show":600,"hide":100}'
                    title="Упаковка заказов">
 
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                          class="bi bi-box-seam" viewBox="0 0 16 16">
                         <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
                     </svg>
@@ -64,7 +64,7 @@
                    data-bs-delay='{"show":600,"hide":100}'
                    title="Выдача заказов">
 
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                          class="bi bi-card-checklist" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
                               d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1z"/>
@@ -122,7 +122,7 @@
                            data-bs-toggle="modal"
                            data-bs-target="#modal">
 
-                        Отчет о заказах
+                            Отчет о заказах
                         </a>
                     </li>
 
@@ -132,7 +132,7 @@
                            data-bs-toggle="modal"
                            data-bs-target="#modal">
 
-                        Отчет об отмененных заказах
+                            Отчет об отмененных заказах
                         </a>
                     </li>
 
@@ -142,7 +142,7 @@
                            data-bs-toggle="modal"
                            data-bs-target="#modal">
 
-                        Отчет о продуктах
+                            Отчет о продуктах
                         </a>
                     </li>
 
@@ -154,7 +154,7 @@
                                data-bs-toggle="modal"
                                data-bs-target="#modal">
 
-                            Отчет об услугах
+                                Отчет об услугах
                             </a>
                         </li>
                     {% endif %}
@@ -171,22 +171,59 @@
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
 
-                <div class="col-6">
+                <div class="col-8">
                     {{ form_start(filter) }}
-                    <div class="w-100 d-flex gap-3 justify-content-end mb-2" style="height: 40px;">
+                    <div class="w-100 d-flex gap-3 justify-content-end mb-2 " style="height: 40px;">
+
+                        <div class="w-75 d-flex input-wrapper"
+                             data-bs-toggle="tooltip"
+                             data-bs-placement="bottom"
+                             data-bs-delay='{"show":1000,"hide":100}'
+                             data-bs-title="Артикул, GTIN, название"
+                        >
+                            {{ form_widget(filter.product, { attr: { placeholder : 'Продукт', style: 'min-width: 100%;' } }) }}
+
+                            <div class="w-100 position-relative clear-btn" data-clear="{{ filter.product.vars.id }}">
+                                <span class="btn position-absolute top-0 end-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="w-75 d-flex input-wrapper"
+                             data-bs-toggle="tooltip"
+                             data-bs-placement="bottom"
+                             data-bs-delay='{"show":1000,"hide":100}'
+                             data-bs-title="Контактный телефон, Email"
+                        >
+                            {{ form_widget(filter.client, { attr: { placeholder : 'Клиент', style: 'min-width: 100%;' } }) }}
+
+                            <div class="w-100 position-relative clear-btn" data-clear="{{ filter.client.vars.id }}">
+                                <span class="btn position-absolute top-0 end-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="w-50">
+                            {{ form_row(filter.delivery, { placeholder : 'Любой способ доставки ...', attr : { 'data-select' : 'select2' } }) }}
+                        </div>
 
                         <div class="d-flex justify-content-around radio-buttons clearfix" data-buttons="true">
-                            <label class="btn p-1 border-dotted rounded-3 w-100 ">
-                                <div class="d-flex">
+                            <label class="btn p-2 border-dotted rounded-3 w-100 ">
+                                <div class="d-flex align-items-center align-content-center">
                                     {{ form_widget(filter.all, { label: false }) }}
                                     <div class="form-check ps-0"> Все</div>
                                 </div>
                             </label>
-                        </div>
-
-
-                        <div class="w-50">
-                            {{ form_row(filter.delivery, { placeholder : 'Любой способ доставки ...', attr : { 'data-select' : 'select2' } }) }}
                         </div>
 
                     </div>
@@ -194,13 +231,31 @@
                 </div>
             </div>
 
-            {% if filter.delivery is defined and filter.delivery.vars.data and filter.delivery.vars.data.attr %}
-                <div class="d-flex gap-3 m-2">
-                    <div><small class="text-muted">Способ доставки:</small>&nbsp;
+
+            <div class="d-flex gap-3 m-2">
+                {% if filter.delivery is defined and filter.delivery.vars.data and filter.delivery.vars.data.attr %}
+                    <div>
+                        <small class="text-muted">Способ доставки:</small>&nbsp;
                         <strong>{{ filter.delivery.vars.data.attr }}</strong>
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+
+                {% if filter.product is defined and filter.product.vars.data and filter.product.vars.data %}
+                    <div>
+                        <small class="text-muted">Продукт:</small>&nbsp;
+                        <strong>{{ filter.product.vars.data }}</strong>
+                    </div>
+                {% endif %}
+
+                {% if filter.client is defined and filter.client.vars.data and filter.client.vars.data %}
+                    <div>
+                        <small class="text-muted">Клиент:</small>&nbsp;
+                        <strong>{{ filter.client.vars.data }}</strong>
+                    </div>
+                {% endif %}
+
+            </div>
+
 
             <div class="d-flex justify-content-between gap-2 cards-box p-2 ">
 
@@ -261,8 +316,6 @@
                                         </label>
 
                                     {% endif %}
-
-
 
                                     {{ stats.getValue()|trans({}, 'status.order') }}
                                 </div>
@@ -327,3 +380,18 @@
     </div>
 
 </main>
+
+
+<style>
+    .input-wrapper {
+        display: flex;
+    }
+
+    .input-wrapper .clear-btn {
+        display: none;
+    }
+
+    .input-wrapper:hover .clear-btn {
+        display: block;
+    }
+</style>

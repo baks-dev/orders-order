@@ -64,4 +64,14 @@ final class OrderFilterDTO implements OrderFilterInterface
     {
         return false;
     }
+
+    public function getClient(): ?string
+    {
+        return null;
+    }
+
+    public function getProduct(): ?string
+    {
+        return null;
+    }
 }

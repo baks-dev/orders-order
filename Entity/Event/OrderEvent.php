@@ -59,7 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'orders_event')]
-#[ORM\Index(columns: ['status'])]
+#[ORM\Index(columns: ['id', 'status'])]
 #[ORM\Index(columns: ['created'])]
 #[ORM\Index(columns: ['profile'])]
 #[ORM\Index(columns: ['danger'])]

@@ -87,6 +87,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
+use Doctrine\DBAL\ArrayParameterType;
 
 final class AllOrdersCTERepository implements AllOrdersInterface
 {
@@ -1012,17 +1013,21 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                         OR product_offer.id IN (:uuids)
                         OR product_variation.id IN (:uuids) 
                         OR product_modification.id IN (:uuids)
-                    )')
-                    ->setParameter(
+                    )');
+
+                $dbal->setParameter(
                         key: 'uuids',
                         value: $ids,
                         type: ArrayParameterType::STRING,
                     );
 
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_event.main IN (:uuids) THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_offer.id IN (:uuids) THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_variation.id IN (:uuids)  THEN 0 ELSE 1 END');
-                $OrderProductLiteral->addOrderBy('CASE WHEN product_modification.id IN (:uuids)  THEN 0 ELSE 1 END');
+                //$OrderProductLiteral->addOrderBy('CASE WHEN product_event.main IN (:uuids) THEN 0 ELSE 1 END');
+                //$OrderProductLiteral->addOrderBy('CASE WHEN product_offer.id IN (:uuids) THEN 0 ELSE 1 END');
+                //$OrderProductLiteral->addOrderBy('CASE WHEN product_variation.id IN (:uuids)  THEN 0 ELSE 1 END');
+                //$OrderProductLiteral->addOrderBy('CASE WHEN product_modification.id IN (:uuids)  THEN 0 ELSE 1 END');
+
+
+
             }
 
             if(empty($resultProducts))

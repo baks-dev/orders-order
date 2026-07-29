@@ -168,53 +168,16 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $cteSelect->select('orders.id AS order_id');
 
+        /** OrderInvariable */
 
         $cteSelect
+            ->select('orders.id AS order_id')
             ->from(OrderInvariable::class, 'order_invariable')
             ->where($this->UserProfileTokenStorage->isUser()
                 ? 'order_invariable.usr = :usr'
                 : 'order_invariable.usr IS NULL',
             );
-
-        $cteSelect
-            ->join(
-                'order_invariable',
-                Order::class,
-                'orders',
-                'orders.id = order_invariable.main',
-            );
-
-
-        $cteSelect
-            //            ->addSelect('orders.event AS order_event')
-            //            ->addSelect('order_invariable.number AS order_number')
-            //            ->addSelect('order_event.danger AS order_danger')
-            //            ->addSelect('order_event.created AS order_created')
-            //            ->addSelect('order_event.status AS order_status')
-            //            ->addSelect('orders_modify.mod_date AS orders_modify')
-            //            ->addSelect('order_delivery.delivery_date AS delivery_date')
-            ->join(
-                'orders',
-                OrderEvent::class,
-                'order_event',
-                'order_event.id = orders.event'
-                .($this->status instanceof OrderStatus ? ' AND order_event.status = :status' : ''),
-            );
-
-
-        if($this->status instanceof OrderStatus)
-        {
-            $dbal
-                ->setParameter(
-                    key: 'status',
-                    value: $this->status,
-                    type: OrderStatus::TYPE,
-                );
-        }
-
-        /** OrderInvariable */
 
         //        $cteSelect
         //            ->join(
@@ -260,6 +223,117 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
         }
 
+        $cteSelect
+            ->join(
+                'order_invariable',
+                OrderEvent::class,
+                'order_event',
+                'order_event.id = order_invariable.event'
+                .($this->status instanceof OrderStatus ? ' AND order_event.status = :status' : ''),
+            );
+
+
+        if($this->status instanceof OrderStatus)
+        {
+            $dbal
+                ->setParameter(
+                    key: 'status',
+                    value: $this->status,
+                    type: OrderStatus::TYPE,
+                );
+        }
+
+
+        if($this->search instanceof SearchDTO && $this->search->getQuery())
+        {
+            $cteSelect
+                ->leftJoin(
+                    'orders',
+                    OrderPosting::class,
+                    'orders_posting',
+                    'orders_posting.main = orders.id',
+                );
+
+            $cteSelect->andWhere('LOWER(orders_posting.value) LIKE :posting');
+
+            $dbal->setParameter(
+                key: 'posting',
+                value: '%'.$this->search->getQuery().'%',
+            );
+        }
+
+
+        // Поиск
+        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter->getProduct()))
+        {
+            $cteSelect
+                ->leftJoin(
+                    'orders',
+                    OrderProduct::class,
+                    'order_products',
+                    'order_products.event = order_event.id',
+                );
+
+            $cteSelect->leftJoin(
+                'order_products',
+                ProductEvent::class,
+                'product_event',
+                'product_event.id = order_products.product',
+            );
+
+            $cteSelect->leftJoin(
+                'product_event',
+                ProductInfo::class,
+                'product_info',
+                'product_info.product = product_event.main',
+            );
+
+            $cteSelect
+                ->leftJoin(
+                    'order_products',
+                    ProductOffer::class,
+                    'product_offer',
+                    'product_offer.id = order_products.offer',
+                );
+
+
+            $cteSelect
+                ->leftJoin(
+                    'order_products',
+                    ProductVariation::class,
+                    'product_variation',
+                    'product_variation.id = order_products.variation',
+                );
+
+            $cteSelect
+                ->leftJoin(
+                    'order_products',
+                    ProductModification::class,
+                    'product_modification',
+                    'product_modification.id = order_products.modification',
+                );
+
+            $cteSelect->andWhere('
+                    product_modification.article LIKE :article
+                    OR product_variation.article LIKE :article
+                    OR product_offer.article LIKE :article
+                    OR product_info.article LIKE :article
+                ');
+
+            $dbal->setParameter(
+                key: 'article',
+                value: '%'.$this->filter->getProduct().'%',
+            );
+        }
+
+        $cteSelect
+            ->join(
+                'order_invariable',
+                Order::class,
+                'orders',
+                'orders.id = order_invariable.main',
+            );
+
         if(
             $this->status instanceof OrderStatus &&
             (
@@ -295,8 +369,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     $cteSelect->setMaxResults($this->limit);
                 }
             }
-
-
         }
 
 
@@ -327,13 +399,13 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             }
         }
 
-        //        $cteSelect
-        //            ->leftJoin(
-        //                'orders',
-        //                OrderModify::class,
-        //                'orders_modify',
-        //                'orders_modify.event = orders.event',
-        //            );
+        $cteSelect
+            ->leftJoin(
+                'orders',
+                OrderModify::class,
+                'orders_modify',
+                'orders_modify.event = orders.event',
+            );
 
 
         if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
@@ -495,6 +567,24 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 UserProfilePersonal::class,
                 'stock_profile_personal',
                 'stock_profile_personal.event = stock_profile.event',
+            );
+
+
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderProduct::class,
+                'order_products',
+                'order_products.event = orders.event',
+            );
+
+        $dbal
+            ->addSelect('order_products_price.currency AS order_currency')
+            ->leftJoin(
+                'order_products',
+                OrderPrice::class,
+                'order_products_price',
+                'order_products_price.product = order_products.id',
             );
 
 
@@ -756,7 +846,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'account_event.id = account.event',
             );
 
-
         /**
          * Название типа профиля (Заказа)
          */
@@ -769,7 +858,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'type_profile_trans',
                 'type_profile_trans.event = type_profile.event AND type_profile_trans.local = :local',
             );
-
 
         //        $dbal
         //            ->leftJoin(
@@ -812,6 +900,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         $dbal->addSelect('FALSE AS order_move');
         $dbal->addSelect('FALSE AS move_error');
         $dbal->addSelect('FALSE AS order_error');
+
 
         /** Услуги */
 
@@ -883,6 +972,26 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         //					)
         //			)
         //			AS service_price",
+        //        );
+
+        //        $dbal->addSelect(
+        //            "JSON_AGG
+        //			( DISTINCT
+        //
+        //					JSONB_BUILD_OBJECT
+        //					(
+        //						'product', order_products_price.product,
+        //
+        //						'main', product_event.main,
+        //						'offer', product_offer.const,
+        //						'variation', product_variation.const,
+        //						'modification', product_modification.const,
+        //
+        //						'price', order_products_price.price,
+        //						'total', order_products_price.total
+        //					)
+        //			)
+        //			AS product_price",
         //        );
 
 
@@ -977,77 +1086,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         );
 
         $OrderProductLiteral->addGroupBy('order_products_price.currency');
-
-        // $dbal->allGroupByExclude();
-
-
-        // Поиск
-        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter->getProduct()))
-        {
-
-            /** Поиск по индексам */
-            $search = str_replace('-', ' ', $this->filter->getProduct());
-
-            /** Очистить поисковую строку от всех НЕ буквенных/числовых символов */
-            $search = preg_replace('/[^ a-zа-яё\d]/ui', ' ', $search);
-            $search = preg_replace('/\br(\d+)\b/i', '$1', $search);  // Заменяем R или r в начале строки, за которым следует цифра
-
-            /** Задать префикс и суффикс для реализации варианта "содержит" */
-            $search = '*'.trim($search).'*';
-
-            /** Получим ids из индекса */
-            $resultProducts = $this->SearchIndexHandler instanceof SearchIndexInterface
-                ? $this->SearchIndexHandler->handleSearchQuery($search, ProductSearchTag::TAG)
-                : false;
-
-            if($this->SearchIndexHandler instanceof SearchIndexInterface && false === empty($resultProducts))
-            {
-                /** Фильтруем по полученным из индекса ids: */
-
-                $ids = array_column($resultProducts, 'id');
-
-                /** Товары */
-                $OrderProductLiteral
-                    ->andWhere('(
-                        product_event.main IN (:uuids) 
-                        OR product_offer.id IN (:uuids)
-                        OR product_variation.id IN (:uuids) 
-                        OR product_modification.id IN (:uuids)
-                    )');
-
-                $dbal->setParameter(
-                        key: 'uuids',
-                        value: $ids,
-                        type: ArrayParameterType::STRING,
-                    );
-
-                //$OrderProductLiteral->addOrderBy('CASE WHEN product_event.main IN (:uuids) THEN 0 ELSE 1 END');
-                //$OrderProductLiteral->addOrderBy('CASE WHEN product_offer.id IN (:uuids) THEN 0 ELSE 1 END');
-                //$OrderProductLiteral->addOrderBy('CASE WHEN product_variation.id IN (:uuids)  THEN 0 ELSE 1 END');
-                //$OrderProductLiteral->addOrderBy('CASE WHEN product_modification.id IN (:uuids)  THEN 0 ELSE 1 END');
-
-
-
-            }
-
-            if(empty($resultProducts))
-            {
-
-                $OrderProductLiteral->andWhere('
-                    product_modification.article LIKE :article
-                    OR product_variation.article LIKE :article
-                    OR product_offer.article LIKE :article
-                    OR product_info.article LIKE :article
-                ');
-
-                $dbal->setParameter(
-                    key: 'article',
-                    value: '%'.$this->filter->getProduct().'%',
-                );
-            }
-
-            $dbal->andWhere('sub_product.product_price IS NOT NULL');
-        }
 
 
         $dbal
@@ -1186,46 +1224,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 type: UserProfileUid::TYPE,
             );
 
-
-            //            $dbal
-            //                ->leftJoin(
-            //                    'product_modification',
-            //                    ProductStockTotal::class,
-            //                    'stock',
-            //                    '
-            //
-            //                    stock.profile = :profile
-            //                    AND stock.product = product_event.main
-            //
-            //                    AND ( stock.offer = product_offer.const OR (stock.offer IS NULL AND product_offer.const IS NULL) )
-            //                    AND (stock.variation = product_variation.const OR (stock.variation IS NULL AND product_variation.const IS NULL))
-            //                    AND (stock.modification = product_modification.const OR (stock.modification IS NULL AND product_modification.const IS NULL))
-            //
-            //
-            //
-            //                ')
-            //                ->setParameter(
-            //                    key: 'profile',
-            //                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
-            //                    type: UserProfileUid::TYPE,
-            //                );
-
-            //
-            //            $dbal->addSelect("JSON_AGG
-            //			( DISTINCT
-            //					JSONB_BUILD_OBJECT
-            //					(
-            //						'id', stock.id,
-            //
-            //						'main', stock.product,
-            //						'offer', stock.offer,
-            //						'variation', stock.variation,
-            //						'modification', stock.modification,
-            //
-            //						'total', stock.total,
-            //						'reserve', stock.reserve
-            //					)
-            //			) AS stocks");
         }
         else
         {
@@ -1233,45 +1231,147 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         }
 
 
-        if($this->search instanceof SearchDTO && $this->search->getQuery())
-        {
-            if(
-                preg_match('/^\d{3}\.\d{3}\.\d{3}\.\d{3}$/', $this->search->getQuery())
-                || str_starts_with($this->search->getQuery(), 'o-') // Озон
-                || str_starts_with($this->search->getQuery(), 'y-') // Яндекс
-                || str_starts_with($this->search->getQuery(), 'w-') // Wildberries
-                || str_starts_with($this->search->getQuery(), 'a-') // Авито
-            )
-            {
+        //        if(
+        //            class_exists(BaksDevProductsStocksBundle::class)
+        //            && true === ($this->status instanceof OrderStatus)
+        //            && $this->status->equals(OrderStatusNew::class)
+        //        )
+        //        {
+        //            /** Получаем остаток и резерв на текущем складе */
+        //            $dbal
+        //                ->leftJoin(
+        //                    'product_modification',
+        //                    ProductStockTotal::class,
+        //                    'stock',
+        //                    '
+        //
+        //                    stock.profile = :profile
+        //                    AND stock.product = product_event.main
+        //
+        //                    AND
+        //
+        //                        CASE
+        //                            WHEN product_offer.const IS NOT NULL
+        //                            THEN stock.offer = product_offer.const
+        //                            ELSE stock.offer IS NULL
+        //                        END
+        //
+        //                    AND
+        //
+        //                        CASE
+        //                            WHEN product_variation.const IS NOT NULL
+        //                            THEN stock.variation = product_variation.const
+        //                            ELSE stock.variation IS NULL
+        //                        END
+        //
+        //                    AND
+        //
+        //                        CASE
+        //                            WHEN product_modification.const IS NOT NULL
+        //                            THEN stock.modification = product_modification.const
+        //                            ELSE stock.modification IS NULL
+        //                        END
+        //
+        //                ')
+        //                ->setParameter(
+        //                    key: 'profile',
+        //                    value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+        //                    type: UserProfileUid::TYPE,
+        //                );
+        //
+        //
+        //            $dbal->addSelect("JSON_AGG
+        //			( DISTINCT
+        //					JSONB_BUILD_OBJECT
+        //					(
+        //						'id', stock.id,
+        //
+        //						'main', stock.product,
+        //						'offer', stock.offer,
+        //						'variation', stock.variation,
+        //						'modification', stock.modification,
+        //
+        //						'total', stock.total,
+        //						'reserve', stock.reserve
+        //					)
+        //			) AS stocks");
+        //        }
+        //        else
+        //        {
+        //            $dbal->addSelect('NULL AS stocks');
+        //        }
 
-                $dbal
-                    ->createSearchQueryBuilder($this->search)
-                    ->addSearchLike('orders_posting.value');
-            }
-            else
-            {
-                $dbal
-                    ->createSearchQueryBuilder($this->search)
-                    ->addSearchLike('orders_posting.value')
-                    //->addSearchLike('user_profile_value.value')
-                    //->addSearchLike('product_info.article')
-                    //->addSearchLike('product_variation.article')
-                    //->addSearchLike('product_modification.article')
-                ;
-            }
-        }
+
+        //        $dbal->leftJoin(
+        //            'order_products',
+        //            ProductEvent::class,
+        //            'product_event',
+        //            'product_event.id = order_products.product',
+        //        );
+        //
+        //        $dbal->leftJoin(
+        //            'product_event',
+        //            ProductInfo::class,
+        //            'product_info',
+        //            'product_info.product = product_event.main',
+        //        );
+        //
+        //        $dbal
+        //            ->leftJoin(
+        //                'order_products',
+        //                ProductOffer::class,
+        //                'product_offer',
+        //                'product_offer.id = order_products.offer',
+        //            );
+        //
+        //
+        //        $dbal
+        //            ->leftJoin(
+        //                'order_products',
+        //                ProductVariation::class,
+        //                'product_variation',
+        //                'product_variation.id = order_products.variation',
+        //            );
+        //
+        //        $dbal
+        //            ->leftJoin(
+        //                'order_products',
+        //                ProductModification::class,
+        //                'product_modification',
+        //                'product_modification.id = order_products.modification',
+        //            );
+
+        //        if($this->search instanceof SearchDTO && $this->search->getQuery())
+        //        {
+        //            if(
+        //                preg_match('/^\d{3}\.\d{3}\.\d{3}\.\d{3}$/', $this->search->getQuery())
+        //                || str_starts_with($this->search->getQuery(), 'o-') // Озон
+        //                || str_starts_with($this->search->getQuery(), 'y-') // Яндекс
+        //                || str_starts_with($this->search->getQuery(), 'w-') // Wildberries
+        //                || str_starts_with($this->search->getQuery(), 'a-') // Авито
+        //            )
+        //            {
+        //
+        //                $dbal
+        //                    ->createSearchQueryBuilder($this->search)
+        //                    ->addSearchLike('orders_posting.value');
+        //            }
+        //            else
+        //            {
+        //                $dbal
+        //                    ->createSearchQueryBuilder($this->search)
+        //                    ->addSearchLike('orders_posting.value')
+        //                    //->addSearchLike('user_profile_value.value')
+        //                    //->addSearchLike('product_info.article')
+        //                    //->addSearchLike('product_variation.article')
+        //                    //->addSearchLike('product_modification.article')
+        //                ;
+        //            }
+        //        }
 
         $this->orderBy($dbal);
 
-
         //$dbal->allGroupByExclude();
-
-        //        echo $dbal->getSQL();
-        //
-        //        dd($dbal->analyze());
-
-        //dd($dbal->fetchAllAssociative());
-
 
         return $this->paginator->fetchAllHydrate(
             $dbal,
@@ -1333,6 +1433,4 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         return $dbal;
     }
-
-
 }

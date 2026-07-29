@@ -56,15 +56,34 @@ final class OrderDeliveryFilterForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('product', TextType::class, ['required' => false]);
+        $builder->add('product', TextType::class, [
+            'required' => false,
+            'attr' => ['class' => 'small'],
+        ]);
 
-        $builder->add('client', TextType::class, ['required' => false]);
+        $builder->add('client', TextType::class, [
+            'required' => false,
+            'attr' => ['class' => 'small'],
+        ]);
 
-        $builder->add('delivery', DeliveryForm::class, ['required' => false]);
+        $builder->add('delivery', DeliveryForm::class, [
+            'required' => false,
+        ]);
 
         $builder->add('all', CheckboxType::class);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
+
+            /** @var OrderDeliveryFilterDTO $data */
+            $data = $event->getData();
+
+            $article = $this->request->getMainRequest()->query->get('article', null);
+
+            if($article)
+            {
+                $data->setProduct($article);
+                return;
+            }
 
             if($this->session === false)
             {
@@ -94,9 +113,6 @@ final class OrderDeliveryFilterForm extends AbstractType
             {
                 return;
             }
-
-            /** @var OrderDeliveryFilterDTO $data */
-            $data = $event->getData();
 
             if(time() - $this->session->getMetadataBag()->getLastUsed() > self::LIFETIME)
             {
@@ -172,7 +188,6 @@ final class OrderDeliveryFilterForm extends AbstractType
 
                     return;
                 }
-
 
                 $this->session->remove($this->sessionKey);
             },

@@ -1514,7 +1514,9 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         //$dbal->allGroupByExclude();
 
-        return $this->paginator->fetchAllHydrate(
+        return $this->paginator
+            ->skipOffset()
+            ->fetchAllHydrate(
             $dbal,
             AllOrdersResult::class,
             'orders-order',

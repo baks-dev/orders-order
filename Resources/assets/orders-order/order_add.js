@@ -46,6 +46,8 @@ async function changeObjectCategory(forms)
     }).then((response) =>
     {
 
+        enableElementsForm(forms);
+
         if(response.status !== 200)
         {
             return false;
@@ -139,6 +141,7 @@ async function changeObjectProduct(forms)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+        enableElementsForm(forms);
 
         if(response.status !== 200)
         {
@@ -238,6 +241,7 @@ async function changeObjectOffer(forms)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+        enableElementsForm(forms);
 
         if(response.status !== 200)
         {
@@ -324,6 +328,8 @@ async function changeObjectVariation(forms)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+
+        enableElementsForm(forms);
 
         if(response.status !== 200)
         {

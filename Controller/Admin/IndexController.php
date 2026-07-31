@@ -71,6 +71,7 @@ final class IndexController extends AbstractController
         $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO();
 
         $article = $request->query->get('article', null);
+
         if($article)
         {
             $OrderDeliveryFilterDTO->setProduct($article);

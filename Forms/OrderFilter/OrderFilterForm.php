@@ -24,15 +24,21 @@
 namespace BaksDev\Orders\Order\Forms\OrderFilter;
 
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
+use BaksDev\Delivery\Forms\Delivery\DeliveryForm;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus;
+use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterDTO;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use ReflectionClass;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -43,13 +49,31 @@ final class OrderFilterForm extends AbstractType
 
     private SessionInterface|false $session = false;
 
+    private const int LIFETIME = 300;
+
     public function __construct(private readonly RequestStack $request)
     {
-        $this->sessionKey = md5(self::class);
+        $this->sessionKey = '390e1c2a-4688-7dde-8e73-885ab3470a47';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->add('product', TextType::class, [
+            'required' => false,
+            'attr' => ['class' => 'small'],
+        ]);
+
+        $builder->add('client', TextType::class, [
+            'required' => false,
+            'attr' => ['class' => 'small'],
+        ]);
+
+        $builder->add('delivery', DeliveryForm::class, [
+            'required' => false,
+        ]);
+
+        $builder->add('all', CheckboxType::class);
+
         $builder
             ->add('status', ChoiceType::class, [
                 'choices' => OrderStatus::cases(),
@@ -69,78 +93,124 @@ final class OrderFilterForm extends AbstractType
             ]);
 
 
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            function(FormEvent $event): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event): void {
 
-                /** @var OrderFilterDTO $data */
-                $data = $event->getData();
+            /** @var OrderDeliveryFilterDTO $data */
+            $data = $event->getData();
 
-                if($this->session === false)
+            $article = $this->request->getMainRequest()->query->get('article', null);
+
+            if($article)
+            {
+                $data->setProduct($article);
+                return;
+            }
+
+            if($this->session === false)
+            {
+                try
                 {
                     $this->session = $this->request->getSession();
                 }
-
-                if($this->session && $this->session->get('statusCode') === 307)
+                catch(SessionNotFoundException)
                 {
-                    $this->session->remove($this->sessionKey);
-                    $this->session = false;
+                    return;
                 }
+            }
 
-                if($this->session)
+            if($this->session && $this->session->get('statusCode') === 307)
+            {
+                $this->session->remove($this->sessionKey);
+                $this->session = false;
+            }
+
+            if($this->session && (time() - $this->session->getMetadataBag()->getLastUsed()) > 300)
+            {
+                $this->session->remove($this->sessionKey);
+                $this->session = false;
+            }
+
+            if(false === $this->session instanceof SessionInterface)
+            {
+                return;
+            }
+
+            if(time() - $this->session->getMetadataBag()->getLastUsed() > self::LIFETIME)
+            {
+                $this->session->remove($this->sessionKey);
+                return;
+            }
+
+            $sessionData = $this->request->getSession()->get($this->sessionKey);
+            $sessionJson = $sessionData ? base64_decode($sessionData) : false;
+            $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true, 512, JSON_THROW_ON_ERROR) : false;
+
+            if(empty($sessionArray))
+            {
+                return;
+            }
+
+            foreach($sessionArray as $key => $value)
+            {
+                // Устанавливаем null через сеттер
+                if(method_exists($data, 'set'.ucfirst($key)))
                 {
-                    if(time() - $this->session->getMetadataBag()->getLastUsed() > 300)
-                    {
-                        $this->session->remove($this->sessionKey);
-                        $data->setStatus(null);
-                        return;
-                    }
-
-                    $sessionData = $this->request->getSession()->get($this->sessionKey);
-                    $sessionJson = $sessionData ? base64_decode($sessionData) : false;
-                    $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true) : [];
-
-                    $data->setStatus($sessionArray['status'] ?? null);
+                    $data->{'set'.ucfirst($key)}($value);
                 }
-            },
-        );
+            }
+        });
 
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event): void {
 
-        $builder->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
-
-                /** @var OrderFilterDTO $data */
-                $data = $event->getData();
-
-                if($this->session === false)
+            if($this->session === false)
+            {
+                try
                 {
                     $this->session = $this->request->getSession();
                 }
-
-                if($this->session)
+                catch(SessionNotFoundException)
                 {
-                    $sessionArray = [];
+                    return;
+                }
+            }
 
-                    !$data->getStatus() ?: $sessionArray['status'] = (string) $data->getStatus();
+            /** @var OrderDeliveryFilterDTO $data */
+            $data = $event->getData();
+            $this->session->remove($this->sessionKey);
+            $sessionArray = [];
 
-                    if($sessionArray)
+            $reflection = new ReflectionClass(OrderDeliveryFilterDTO::class);
+
+            foreach($reflection->getProperties() as $property)
+            {
+                $name = $property->getName();
+                $getter = 'get'.ucfirst($name);
+
+                if(method_exists($data, $getter))
+                {
+                    $value = (string) $data->{$getter}();
+
+                    if(empty($value))
                     {
-                        $sessionJson = json_encode($sessionArray);
-                        $sessionData = base64_encode($sessionJson);
-                        $this->request->getSession()->set($this->sessionKey, $sessionData);
-                        return;
+                        continue;
                     }
 
-                    $this->request->getSession()->remove($this->sessionKey);
+                    $sessionArray[$name] = $value;
                 }
+            }
 
+            if($sessionArray)
+            {
+                $sessionJson = json_encode($sessionArray, JSON_THROW_ON_ERROR);
+                $sessionData = base64_encode($sessionJson);
+                $this->request->getSession()->set($this->sessionKey, $sessionData);
 
-                /** @var OrderFilterDTO $data */
-                $data = $event->getData();
-                $this->request->getSession()->set('order_status', $data->getStatus());
-            },
-        );
+                return;
+            }
+
+            $this->session->remove($this->sessionKey);
+        });
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void

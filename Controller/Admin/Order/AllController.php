@@ -79,7 +79,7 @@ final class AllController extends AbstractController
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            ->findPaginator();
+            ->findPaginator(applyLimit: false);
 
         return $this->render(
             [

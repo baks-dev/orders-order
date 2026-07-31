@@ -44,5 +44,5 @@ interface AllOrdersInterface
 
     public function forProfile(UserProfileUid|UserProfile $profile): self;
 
-    public function findPaginator(): PaginatorInterface;
+    public function findPaginator(bool $applyLimit = true): PaginatorInterface;
 }

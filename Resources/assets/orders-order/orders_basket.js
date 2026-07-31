@@ -34,6 +34,7 @@ document.querySelectorAll(".order-basket").forEach((function(forms)
         }));
     }
 }));
+
 executeFunc(initBasketDatepicker, 300);
 
 function initBasketDatepicker()
@@ -87,7 +88,8 @@ function initBasketDatepicker()
 function resolve(forms)
 {
     if(forms === false)
-    {return;}
+    { return; }
+    
     if(forms.name === "order_product_form")
     {
         $userbasket = document.getElementById("user_basket");

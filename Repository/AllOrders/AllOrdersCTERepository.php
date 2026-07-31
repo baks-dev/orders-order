@@ -66,6 +66,7 @@ use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\SearchTags\ProductSearchTag;
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Entity\Stock\Event\ProductStockEvent;
@@ -147,12 +148,9 @@ final class AllOrdersCTERepository implements AllOrdersInterface
     }
 
 
-    //public function findPaginator(): PaginatorInterface
-    // {
-
-    public function findPaginator(): PaginatorInterface
+    /** @params applyLimit = FALSE - необходим при пагинации по списку */
+    public function findPaginator(bool $applyLimit = true): PaginatorInterface
     {
-
         /** Применяем статус если выбран в фильтре */
         if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
         {
@@ -179,18 +177,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 : 'order_invariable.usr IS NULL',
             );
 
-        //        $cteSelect
-        //            ->join(
-        //                'orders',
-        //                OrderInvariable::class,
-        //                'order_invariable',
-        //                'order_invariable.main = orders.id'.(
-        //                $this->UserProfileTokenStorage->isUser()
-        //                    ? ' AND order_invariable.usr = :usr'
-        //                    : ' AND order_invariable.usr IS NULL'
-        //                ),
-        //            );
-
         if($this->UserProfileTokenStorage->isUser())
         {
             $dbal->setParameter(
@@ -199,7 +185,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 type: UserUid::TYPE,
             );
         }
-
 
         /** Если не выбраны все профили, то отобразить только для данного профиля/склада */
         if($this->profile instanceof UserProfileUid || $this->filter?->getAll() === false)
@@ -243,15 +228,14 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 );
         }
 
-
         if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
             $cteSelect
                 ->leftJoin(
-                    'orders',
+                    'order_invariable',
                     OrderPosting::class,
                     'orders_posting',
-                    'orders_posting.main = orders.id',
+                    'orders_posting.main = order_invariable.main',
                 );
 
             $cteSelect->andWhere('LOWER(orders_posting.value) LIKE :posting');
@@ -262,16 +246,54 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
         }
 
+        $cteSelect
+            ->join(
+                'order_invariable',
+                Order::class,
+                'orders',
+                'orders.id = order_invariable.main AND orders.event = order_invariable.event',
+            );
+
+        $cteSelect
+            ->leftJoin(
+                'orders',
+                OrderUser::class,
+                'order_user',
+                'order_user.event = orders.event',
+            );
+
+
+        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter->getClient()))
+        {
+            $cteSelect
+                //->addSelect('user_profile_value.value AS user_profile_value_value')
+                ->join(
+                    'order_user',
+                    UserProfileValue::class,
+                    'user_profile_value',
+                    'user_profile_value.event = order_user.profile
+                    AND user_profile_value.value LIKE :profile_value 
+                    ',
+                );
+
+            $dbal
+                ->setParameter(
+                    'profile_value',
+                    '%'.mb_strtolower((string) $this->filter->getClient()).'%',
+                );
+        }
+
 
         // Поиск
         if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter->getProduct()))
         {
+
             $cteSelect
                 ->leftJoin(
                     'orders',
                     OrderProduct::class,
                     'order_products',
-                    'order_products.event = order_event.id',
+                    'order_products.event = orders.event',
                 );
 
             $cteSelect->leftJoin(
@@ -313,26 +335,154 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     'product_modification.id = order_products.modification',
                 );
 
-            $cteSelect->andWhere('
+
+            /** Пробуем найти по индексам */
+            $search_product = str_replace('-', ' ', $this->filter->getProduct());
+
+            /** Очистить поисковую строку от всех НЕ буквенных/числовых символов */
+            $search_product = preg_replace('/[^ a-zа-яё\d]/ui', ' ', $search_product);
+            $search_product = preg_replace('/\br(\d+)\b/i', '$1', $search_product);  // Заменяем R или r в начале строки, за которым следует цифра
+
+            /** Задать префикс и суффикс для реализации варианта "содержит" */
+            $search_product = '*'.trim($search_product).'*';
+
+            /** Получим ids из индекса */
+            $resultProducts = $this->SearchIndexHandler instanceof SearchIndexInterface
+                ? $this->SearchIndexHandler->handleSearchQuery($search_product, ProductSearchTag::TAG)
+                : false;
+
+            if(true === empty($resultProducts))
+            {
+                $cteSelect->andWhere('
                     product_modification.article LIKE :article
                     OR product_variation.article LIKE :article
                     OR product_offer.article LIKE :article
                     OR product_info.article LIKE :article
                 ');
 
-            $dbal->setParameter(
-                key: 'article',
-                value: '%'.$this->filter->getProduct().'%',
-            );
-        }
+                $dbal->setParameter(
+                    key: 'article',
+                    value: '%'.$this->filter->getProduct().'%',
+                );
+            }
 
-        $cteSelect
-            ->join(
-                'order_invariable',
-                Order::class,
-                'orders',
-                'orders.id = order_invariable.main',
-            );
+            if(false === empty($resultProducts))
+            {
+
+                /** Фильтруем по полученным из индекса ids: */
+                $ids = array_column($resultProducts, 'id');
+                $ids = $this->limit ? array_slice($ids, 0, $this->limit) : array_slice($ids, 0, $this->paginator->getLimit());
+
+                $ProductSearchLateral = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+                $ProductSearchLateral
+                    ->select('order_invariable.main AS order_invariable_main')
+                    ->from(OrderProduct::class, 'order_products')
+                    ->where('order_products.event = order_invariable.event');
+
+                $ProductSearchLateral
+                    ->leftJoin(
+                        'order_products',
+                        ProductOffer::class,
+                        'product_offer',
+                        'product_offer.id = order_products.offer',
+                    );
+
+
+                $ProductSearchLateral
+                    ->leftJoin(
+                        'order_products',
+                        ProductVariation::class,
+                        'product_variation',
+                        'product_variation.id = order_products.variation',
+                    );
+
+                $ProductSearchLateral
+                    ->leftJoin(
+                        'order_products',
+                        ProductModification::class,
+                        'product_modification',
+                        'product_modification.id = order_products.modification',
+                    );
+
+
+                $ProductSearchLateral
+                    ->addSelect('product_offer_search.const AS product_offer_search_const')
+                    ->leftJoin(
+                        'order_products',
+                        ProductOffer::class,
+                        'product_offer_search',
+                        'product_offer_search.id IN (:uuids)
+                        AND product_offer_search.const = product_offer.const',
+                    );
+
+                $ProductSearchLateral
+                    ->addSelect('product_variation_search.const AS product_variation_search_const')
+                    ->leftJoin(
+                        'order_products',
+                        ProductVariation::class,
+                        'product_variation_search',
+                        'product_variation_search.id IN (:uuids) 
+                        AND product_variation_search.const = product_variation.const',
+                    );
+
+                $ProductSearchLateral
+                    ->addSelect('product_modification_search.const AS product_modification_search_const')
+                    ->leftJoin(
+                        'order_products',
+                        ProductModification::class,
+                        'product_modification_search',
+                        'product_modification_search.id IN (:uuids) 
+                        AND product_modification_search.const = product_modification.const
+                        ',
+                    );
+
+
+                $cteSelect->addGroupBy('orders.id');
+                $cteSelect->addGroupBy('order_event.danger');
+
+                if(
+                    $this->status instanceof OrderStatus &&
+                    (
+                        $this->status->equals(OrderStatusPackage::class)
+                        || $this->status->equals(OrderStatusDelivery::class)
+                        || $this->status->equals(OrderStatusExtradition::class)
+                        || $this->filter?->getDelivery()
+                    )
+                )
+                {
+                    $cteSelect->addGroupBy('order_delivery.delivery_date');
+                }
+
+                /** Товары */
+                $dbal
+                    ->setParameter(
+                        key: 'uuids',
+                        value: $ids,
+                        type: ArrayParameterType::STRING,
+                    );
+
+                $ProductSearchLateral->setMaxResults(count($ids));
+
+                $cteSelect
+                    //->addSelect('product_search.*')
+                    ->leftJoin(
+                        'order_invariable',
+                        sprintf('LATERAL (%s)', $ProductSearchLateral->getSQL()),
+                        'product_search',
+                        'TRUE',
+                    );
+
+                $cteSelect
+                    ->andWhere('(
+                    product_search.product_offer_search_const IS NOT NULL
+                    OR product_search.product_variation_search_const IS NOT NULL
+                    OR product_search.product_modification_search_const IS NOT NULL
+                )');
+
+            }
+
+        }
 
         if(
             $this->status instanceof OrderStatus &&
@@ -344,13 +494,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             )
         )
         {
-            $cteSelect
-                ->leftJoin(
-                    'orders',
-                    OrderUser::class,
-                    'order_user',
-                    'order_user.event = orders.event',
-                );
 
             $cteSelect
                 ->leftJoin(
@@ -360,7 +503,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     'order_delivery.usr = order_user.id',
                 );
 
-            if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+            if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
             {
                 $cteSelect->setMaxResults($this->paginator->getLimit());
 
@@ -388,7 +531,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 type: DeliveryUid::TYPE,
             );
 
-            if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+            if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
             {
                 $cteSelect->setMaxResults($this->paginator->getLimit());
 
@@ -408,7 +551,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
 
 
-        if(false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery()))
+        if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
         {
             $cteSelect->setMaxResults($this->paginator->getLimit());
 
@@ -570,22 +713,22 @@ final class AllOrdersCTERepository implements AllOrdersInterface
             );
 
 
-        $dbal
-            ->leftJoin(
-                'orders',
-                OrderProduct::class,
-                'order_products',
-                'order_products.event = orders.event',
-            );
-
-        $dbal
-            ->addSelect('order_products_price.currency AS order_currency')
-            ->leftJoin(
-                'order_products',
-                OrderPrice::class,
-                'order_products_price',
-                'order_products_price.product = order_products.id',
-            );
+        //        $dbal
+        //            ->leftJoin(
+        //                'orders',
+        //                OrderProduct::class,
+        //                'order_products',
+        //                'order_products.event = orders.event',
+        //            );
+        //
+        //        $dbal
+        //            ->addSelect('order_products_price.currency AS order_currency')
+        //            ->leftJoin(
+        //                'order_products',
+        //                OrderPrice::class,
+        //                'order_products_price',
+        //                'order_products_price.product = order_products.id',
+        //            );
 
 
         $dbal
@@ -704,7 +847,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
         $UserProfileLiteral->from(UserProfileValue::class, 'user_profile_value');
 
-
         $UserProfileLiteral
             ->leftJoin(
                 'user_profile_value',
@@ -730,9 +872,12 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'type_profile_field_trans.field = type_profile_field.id AND type_profile_field_trans.local = :local',
             );
 
-
         $UserProfileLiteral->where('user_profile_value.event = user_profile.id');
-        $UserProfileLiteral->andWhere('(type_section_field_client.type = :field_phone OR type_section_field_client.type = :field_contact)');
+
+        $UserProfileLiteral->andWhere('(
+            type_section_field_client.type = :field_phone 
+            OR type_section_field_client.type = :field_contact
+        )');
 
 
         //$UserProfileLiteral->addSelect('type_profile_trans.name AS order_profile');
@@ -753,19 +898,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 			)
 			AS order_user",
         );
-
-        if(($this->filter instanceof OrderFilterInterface) && false === empty($this->filter?->getClient()))
-        {
-            $UserProfileLiteral->andWhere('LOWER(user_profile_value.value) LIKE :profile_value');
-
-            $dbal
-                ->setParameter(
-                    'profile_value',
-                    '%'.mb_strtolower((string) $this->filter->getClient()).'%',
-                );
-
-            $dbal->andWhere('sub_order_user.order_user IS NOT NULL');
-        }
 
         $dbal
             ->addSelect('sub_order_user.order_user')
@@ -1370,6 +1502,15 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         //        }
 
         $this->orderBy($dbal);
+
+
+        //        $res = $dbal->fetchAllAssociative();
+        //
+        //        if($res)
+        //        {
+        //            $dbal->addSelect('cteSelect.*');
+        //            dd($dbal->fetchAllAssociative());
+        //        }
 
         //$dbal->allGroupByExclude();
 

@@ -616,6 +616,9 @@ document.querySelectorAll("select.change_region_field").forEach(function(userReg
 
 async function submitDeliveryForm(forms)
 {
+
+    disabledElementsForm(forms);
+
     const data = new FormData(forms);
 
     const remove = [
@@ -642,14 +645,19 @@ async function submitDeliveryForm(forms)
     }).then((response) =>
     {
 
+        enableElementsForm(forms);
+
         if(response.status !== 200)
         {
             return false;
         }
 
         return response.text();
+
     }).then((data) =>
     {
+        enableElementsForm(forms);
+
         if(data)
         {
             let parser = new DOMParser();
@@ -734,7 +742,7 @@ async function submitDeliveryForm(forms)
 
 async function submitRegionForm(forms, id)
 {
-
+    disabledElementsForm(forms);
 
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
@@ -752,6 +760,8 @@ async function submitRegionForm(forms, id)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+
+        enableElementsForm(forms);
 
         if(response.status !== 200)
         {
@@ -803,6 +813,8 @@ async function submitRegionForm(forms, id)
             }, 100);
 
         }
+
+        enableElementsForm(forms);
     });
 
 
@@ -811,6 +823,8 @@ async function submitRegionForm(forms, id)
 
 async function submitPaymentForm(forms)
 {
+    disabledElementsForm(forms);
+
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
 
@@ -826,6 +840,8 @@ async function submitPaymentForm(forms)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+        enableElementsForm(forms);
+
         if(response.status !== 200)
         {
             return false;
@@ -864,6 +880,8 @@ async function submitPaymentForm(forms)
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         }
+
+        enableElementsForm(forms);
     });
 
 
@@ -872,6 +890,8 @@ async function submitPaymentForm(forms)
 
 async function submitOrderForm(forms)
 {
+    disabledElementsForm(forms);
+
     const data = new FormData(forms);
     data.delete(forms.name + "[_token]");
 
@@ -887,6 +907,8 @@ async function submitOrderForm(forms)
         body : data, // body data type must match "Content-Type" header
     }).then((response) =>
     {
+        enableElementsForm(forms);
+
         if(response.status !== 200)
         {
             return false;
@@ -962,6 +984,9 @@ async function submitOrderForm(forms)
 
             initDatepicker();
         }
+
+        enableElementsForm(forms);
+
     });
 
     return false;

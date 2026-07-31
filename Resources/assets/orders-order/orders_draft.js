@@ -53,6 +53,7 @@ async function changeObjectCategory(forms)
         //.then((response) => response)
         .then((response) =>
         {
+            enableElementsForm(forms);
 
             if(response.status !== 200)
             {
@@ -63,6 +64,8 @@ async function changeObjectCategory(forms)
 
         }).then((data) =>
         {
+
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -118,7 +121,6 @@ async function changeObjectCategory(forms)
                 }
             }
 
-            enableElementsForm(forms);
         });
 }
 
@@ -152,6 +154,8 @@ async function changeObjectProduct(forms)
         .then((response) =>
         {
 
+            enableElementsForm(forms);
+
             if(response.status !== 200)
             {
                 return false;
@@ -161,6 +165,7 @@ async function changeObjectProduct(forms)
 
         }).then((data) =>
         {
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -221,7 +226,6 @@ async function changeObjectProduct(forms)
 
             }
 
-            enableElementsForm(forms);
         });
 }
 
@@ -254,6 +258,7 @@ async function changeObjectOffer(forms)
         //.then((response) => response)
         .then((response) =>
         {
+            enableElementsForm(forms);
 
             if(response.status !== 200)
             {
@@ -264,6 +269,7 @@ async function changeObjectOffer(forms)
 
         }).then((data) =>
         {
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -336,7 +342,6 @@ async function changeObjectOffer(forms)
 
             }
 
-            enableElementsForm(forms);
         });
 }
 
@@ -370,6 +375,8 @@ async function changeObjectVariation(forms)
         .then((response) =>
         {
 
+            enableElementsForm(forms);
+
             if(response.status !== 200)
             {
                 return false;
@@ -379,6 +386,7 @@ async function changeObjectVariation(forms)
 
         }).then((data) =>
         {
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -424,7 +432,6 @@ async function changeObjectVariation(forms)
                 }
             }
 
-            enableElementsForm(forms);
         });
 }
 
@@ -1084,6 +1091,7 @@ async function submitPaymentForm(forms)
         //.then((response) => response)
         .then((response) =>
         {
+            enableElementsForm(forms);
 
             if(response.status !== 200)
             {
@@ -1093,6 +1101,7 @@ async function submitPaymentForm(forms)
             return response.text();
         }).then((data) =>
         {
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -1128,7 +1137,6 @@ async function submitPaymentForm(forms)
 
             }
 
-            enableElementsForm(forms);
         });
 
 
@@ -1166,6 +1174,9 @@ async function submitProfileForm(forms)
         .then((response) =>
         {
 
+            enableElementsForm(forms);
+
+
             if(response.status !== 200)
             {
                 return false;
@@ -1175,7 +1186,7 @@ async function submitProfileForm(forms)
 
         }).then((data) =>
         {
-
+            enableElementsForm(forms);
 
             if(data)
             {
@@ -1368,8 +1379,6 @@ async function submitProfileForm(forms)
                 });
 
             }
-
-            enableElementsForm(forms);
         });
 
 

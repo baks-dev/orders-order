@@ -51,7 +51,7 @@ final class OrderDeliveryFilterForm extends AbstractType
 
     public function __construct(private readonly RequestStack $request)
     {
-        $this->sessionKey = md5(self::class);
+        $this->sessionKey = '390e1c2a-4688-7dde-8e73-885ab3470a47';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -139,59 +139,56 @@ final class OrderDeliveryFilterForm extends AbstractType
             }
         });
 
-        $builder->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function(FormEvent $event): void {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event): void {
 
-                if($this->session === false)
+            if($this->session === false)
+            {
+                try
                 {
-                    try
-                    {
-                        $this->session = $this->request->getSession();
-                    }
-                    catch(SessionNotFoundException)
-                    {
-                        return;
-                    }
+                    $this->session = $this->request->getSession();
                 }
-
-                /** @var OrderDeliveryFilterDTO $data */
-                $data = $event->getData();
-                $this->session->remove($this->sessionKey);
-                $sessionArray = [];
-
-                $reflection = new ReflectionClass(OrderDeliveryFilterDTO::class);
-
-                foreach($reflection->getProperties() as $property)
+                catch(SessionNotFoundException)
                 {
-                    $name = $property->getName();
-                    $getter = 'get'.ucfirst($name);
-
-                    if(method_exists($data, $getter))
-                    {
-                        $value = (string) $data->{$getter}();
-
-                        if(empty($value))
-                        {
-                            continue;
-                        }
-
-                        $sessionArray[$name] = $value;
-                    }
-                }
-
-                if($sessionArray)
-                {
-                    $sessionJson = json_encode($sessionArray, JSON_THROW_ON_ERROR);
-                    $sessionData = base64_encode($sessionJson);
-                    $this->request->getSession()->set($this->sessionKey, $sessionData);
-
                     return;
                 }
+            }
 
-                $this->session->remove($this->sessionKey);
-            },
-        );
+            /** @var OrderDeliveryFilterDTO $data */
+            $data = $event->getData();
+            $this->session->remove($this->sessionKey);
+            $sessionArray = [];
+
+            $reflection = new ReflectionClass(OrderDeliveryFilterDTO::class);
+
+            foreach($reflection->getProperties() as $property)
+            {
+                $name = $property->getName();
+                $getter = 'get'.ucfirst($name);
+
+                if(method_exists($data, $getter))
+                {
+                    $value = (string) $data->{$getter}();
+
+                    if(empty($value))
+                    {
+                        continue;
+                    }
+
+                    $sessionArray[$name] = $value;
+                }
+            }
+
+            if($sessionArray)
+            {
+                $sessionJson = json_encode($sessionArray, JSON_THROW_ON_ERROR);
+                $sessionData = base64_encode($sessionJson);
+                $this->request->getSession()->set($this->sessionKey, $sessionData);
+
+                return;
+            }
+
+            $this->session->remove($this->sessionKey);
+        });
 
     }
 

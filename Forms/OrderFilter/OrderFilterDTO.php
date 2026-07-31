@@ -29,6 +29,14 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 final class OrderFilterDTO implements OrderFilterInterface
 {
+    private ?string $client = null;
+
+    private ?string $product = null;
+
+    private ?DeliveryUid $delivery = null;
+
+    private ?bool $all = null;
+
     /**
      * Статус заказа
      */
@@ -55,23 +63,67 @@ final class OrderFilterDTO implements OrderFilterInterface
     }
 
 
+    /**
+     * Delivery
+     */
     public function getDelivery(): ?DeliveryUid
     {
-        return null;
+        return $this->delivery;
     }
 
+    public function setDelivery(DeliveryUid|string|null $delivery): self
+    {
+        if(empty($delivery))
+        {
+            $this->delivery = null;
+            return $this;
+        }
+
+        if(is_string($delivery))
+        {
+            $delivery = new DeliveryUid($delivery);
+        }
+
+        $this->delivery = $delivery;
+
+        return $this;
+    }
+
+    /**
+     * Показать для всех профилей
+     */
     public function getAll(): bool
     {
-        return false;
+        return $this->all === true;
+    }
+
+    public function setAll(bool $all): self
+    {
+        $this->all = $all;
+
+        return $this;
     }
 
     public function getClient(): ?string
     {
-        return null;
+        return $this->client;
+    }
+
+    public function setClient(?string $client): self
+    {
+        $this->client = $client;
+        return $this;
     }
 
     public function getProduct(): ?string
     {
-        return null;
+        return $this->product;
     }
+
+    public function setProduct(?string $product): self
+    {
+        $this->product = $product;
+        return $this;
+    }
+
 }

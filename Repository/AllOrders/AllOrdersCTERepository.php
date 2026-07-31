@@ -149,7 +149,7 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
 
     /** @params applyLimit = FALSE - необходим при пагинации по списку */
-    public function findPaginator(bool $applyLimit = true): PaginatorInterface
+    public function findPaginator(): PaginatorInterface
     {
         /** Применяем статус если выбран в фильтре */
         if($this->filter instanceof OrderFilterInterface && $this->filter->getStatus())
@@ -165,6 +165,15 @@ final class AllOrdersCTERepository implements AllOrdersInterface
          */
 
         $cteSelect = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $cteSelect->setFirstResult($this->paginator->getFirst());
+        $cteSelect->setMaxResults($this->paginator->getLimit());
+
+        if($this->limit)
+        {
+            $cteSelect->setFirstResult(0);
+            $cteSelect->setMaxResults($this->limit);
+        }
 
 
         /** OrderInvariable */
@@ -502,16 +511,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                     'order_delivery',
                     'order_delivery.usr = order_user.id',
                 );
-
-            if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
-            {
-                $cteSelect->setMaxResults($this->paginator->getLimit());
-
-                if($this->limit)
-                {
-                    $cteSelect->setMaxResults($this->limit);
-                }
-            }
         }
 
 
@@ -530,16 +529,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 value: $this->filter->getDelivery(),
                 type: DeliveryUid::TYPE,
             );
-
-            if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
-            {
-                $cteSelect->setMaxResults($this->paginator->getLimit());
-
-                if($this->limit)
-                {
-                    $cteSelect->setMaxResults($this->limit);
-                }
-            }
         }
 
         $cteSelect
@@ -549,17 +538,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 'orders_modify',
                 'orders_modify.event = orders.event',
             );
-
-
-        if(true === $applyLimit && (false === ($this->search instanceof SearchDTO) || true === empty($this->search->getQuery())))
-        {
-            $cteSelect->setMaxResults($this->paginator->getLimit());
-
-            if($this->limit)
-            {
-                $cteSelect->setMaxResults($this->limit);
-            }
-        }
 
         $this->orderBy($cteSelect);
 

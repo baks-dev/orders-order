@@ -63,7 +63,6 @@ final class AllController extends AbstractController
             )
             ->handleRequest($request);
 
-
         // Фильтр
         $filter = new OrderFilterDTO();
 
@@ -79,7 +78,7 @@ final class AllController extends AbstractController
         $orders = $allOrders
             ->search($search)
             ->filter($filter)
-            ->findPaginator(applyLimit: false);
+            ->findPaginator();
 
         return $this->render(
             [

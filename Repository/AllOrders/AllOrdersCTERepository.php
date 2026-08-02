@@ -1495,11 +1495,11 @@ final class AllOrdersCTERepository implements AllOrdersInterface
         return $this->paginator
             ->skipOffset()
             ->fetchAllHydrate(
-            $dbal,
-            AllOrdersResult::class,
-            'orders-order',
-            '5 minutes',
-        );
+                $dbal,
+                AllOrdersResult::class,
+                'orders-order',
+                '5 minutes',
+            );
 
         //return $dbal->fetchAllHydrate(AllOrdersResult::class);
     }

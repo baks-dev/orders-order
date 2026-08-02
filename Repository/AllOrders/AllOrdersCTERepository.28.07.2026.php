@@ -86,7 +86,7 @@ use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserPro
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\User\Type\Id\UserUid;
 
-final class AllOrdersCTERepository implements AllOrdersInterface
+final class AllOrdersCTERepository // implements AllOrdersInterface
 {
     private array $analyze;
 

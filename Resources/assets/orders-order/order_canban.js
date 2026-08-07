@@ -88,6 +88,24 @@ async function updateStatus(status)
                     item.classList.remove("offcanvas-link");
                 });
 
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=\"tooltip\"]"));
+
+                tooltipTriggerList.map(function(tooltipTriggerEl)
+                {
+                    const tooltipInstance = new bootstrap.Tooltip(tooltipTriggerEl);
+
+                    tooltipTriggerEl.addEventListener("click", event =>
+                    {
+                        tooltipInstance.hide();
+                    });
+
+                    tooltipTriggerEl.removeAttribute("data-bs-toggle");
+
+                    return tooltipInstance;
+                });
+
+
                 return true;
 
             }, 300);

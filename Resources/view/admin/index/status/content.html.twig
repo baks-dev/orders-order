@@ -1,0 +1,24 @@
+{% if query is defined %}
+
+    {# @var status \BaksDev\Orders\Order\Type\Status\OrderStatus #}
+
+    {% set color = status.getColor() %}
+
+    <div class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
+         style="top: 5rem; background-color: {{ color }};">
+        {{ status.getOrderStatusValue()|trans({}, 'status.order') }}
+    </div>
+
+    {% set counter = query|length %}
+
+    <div class="text-center"><small>
+            {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
+    </div>
+
+    {% for order in query %}
+        {# КАРТОЧКА ЗАКАЗА  #}
+        {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
+    {% endfor %}
+{% endif %}
+
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/copy.min.js" class="lazy"></script>

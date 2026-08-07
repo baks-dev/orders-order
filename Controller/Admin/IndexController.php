@@ -32,9 +32,6 @@ use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterDTO;
 use BaksDev\Orders\Order\Forms\DeliveryFilter\OrderDeliveryFilterForm;
 use BaksDev\Orders\Order\Repository\AllOrders\AllOrdersInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCanceled;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusDecommission;
-use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusReturn;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\OrderStatusCollection;
 use BaksDev\Services\BaksDevServicesBundle;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,25 +85,25 @@ final class IndexController extends AbstractController
 
         $orders = null;
 
-        /** @var OrderStatus $status */
-        foreach(OrderStatus::cases() as $status)
-        {
-            if(
-                $status->equals(OrderStatusCanceled::class)
-                || $status->equals(OrderStatusReturn::class)
-                || $status->equals(OrderStatusDecommission::class)
-            )
-            {
-                continue;
-            }
-
-            $orders[$status->getOrderStatusValue()] = $allOrders
-                ->search($search)
-                ->status($status)
-                ->filter($OrderDeliveryFilterDTO)
-                ->findPaginator()
-                ->getData();
-        }
+        //        /** @var OrderStatus $status */
+        //        foreach(OrderStatus::cases() as $status)
+        //        {
+        //            if(
+        //                $status->equals(OrderStatusCanceled::class)
+        //                || $status->equals(OrderStatusReturn::class)
+        //                || $status->equals(OrderStatusDecommission::class)
+        //            )
+        //            {
+        //                continue;
+        //            }
+        //
+        //            $orders[$status->getOrderStatusValue()] = $allOrders
+        //                ->search($search)
+        //                ->status($status)
+        //                ->filter($OrderDeliveryFilterDTO)
+        //                ->findPaginator()
+        //                ->getData();
+        //        }
 
         return $this->render(
             [
@@ -120,6 +117,75 @@ final class IndexController extends AbstractController
                 /* Флаг для отображения ссылки на форму отчета по услугам */
                 'has_services' => class_exists(BaksDevServicesBundle::class),
             ],
+        );
+    }
+
+    /**
+     * Управление заказами (Канбан)
+     */
+    #[Route('/admin/orders_status/{status}', name: 'admin.index.status', methods: ['GET', 'POST'])]
+    public function orders_status(
+        Request $request,
+        AllOrdersInterface $allOrders,
+        string $status,
+    ): Response
+    {
+        /** Поиск */
+        $this
+            ->createForm(
+                type: SearchForm::class,
+                data: $search = new SearchDTO(),
+                options: ['action' => $this->generateUrl('orders-order:admin.index')],
+            )
+            ->handleRequest($request);
+
+
+        $OrderDeliveryFilterDTO = new OrderDeliveryFilterDTO();
+
+        $article = $request->query->get('article', null);
+
+        if($article)
+        {
+            $OrderDeliveryFilterDTO->setProduct($article);
+        }
+
+        /** Фильтр по способу доставки */
+        $this
+            ->createForm(
+                type: OrderDeliveryFilterForm::class,
+                data: $OrderDeliveryFilterDTO,
+                options: ['action' => $this->generateUrl('orders-order:admin.index')],
+            )
+            ->handleRequest($request);
+
+
+        $OrderStatus = new OrderStatus($status);
+
+        $orders = $allOrders
+            ->search($search)
+            ->filter($OrderDeliveryFilterDTO)
+            ->status($status)
+            ->findPaginator()
+            ->getData();
+
+        return $this->render(
+            parameters: [
+                'query' => $orders,
+                'status' => $OrderStatus,
+                //'color' => $status->getColor()
+                //'status' => $collection->cases(),
+                //'token' => $tokenUserGenerator->generate($this->getUsr()),
+                //'current_profile' => $this->getCurrentProfileUid(),
+                //'search' => $searchForm->createView(),
+                //'filter' => $OrderDeliveryFilterForm->createView(),
+
+                /* Флаг для отображения ссылки на форму отчета по услугам */
+                //'has_services' => class_exists(BaksDevServicesBundle::class),
+
+            ],
+
+            file: 'content.html.twig',
+
         );
     }
 }

@@ -293,9 +293,9 @@
                     {% set color = stats.color() %}
 
 
-                    <div class="w-100 d-flex flex-column gap-2" style="min-width: {{ width_col }}px;">
+                    <div class="w-100 d-flex flex-column gap-2 " style="min-width: {{ width_col }}px;">
 
-                        <div class="d-flex flex-column gap-2 draggable-zone z-3 h-100 justify-content-start min-vh-100"
+                        <div class="d-flex flex-column gap-2 draggable-zone z-3 h-100 justify-content-start min-vh-100 placeholder-glow"
                              style="overflow-y: visible;"
                              data-status="{{ stats.getValue() }}"
                              data-level="{{ stats.getValue() == 'new' or
@@ -341,16 +341,74 @@
 
                             {% endif %}
 
-                            <div class="text-center"><small>
-                                    {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
+                            <div class="text-center">
+                                <small>&nbsp;</small>
                             </div>
 
-                            {% if query[stats.getValue()] is defined %}
+                            {% for i in 0..10 %}
+
+                                <div class="border-bottom border-4 rounded-4 border-light bg-light placeholder">
+                                    <div class="card bg-light-primary rounded-4">
+
+                                        <div class="d-flex gap-1 justify-content-between align-items-center px-2 small mt-1">
+
+                                            <div class="d-flex align-items-center gap-1 text-primary pointer copy small">
+                                                &nbsp;
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body d-flex justify-content-between small p-2">
+                                            <div class="d-flex flex-column gap-1 offcanvas-link small"
+                                                 style="cursor: help">
+                                                <div class="small">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="d-flex gap-1 align-items-center fw-bolder">
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-between gap-1">
+                                                <div class="text-end">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-light shadow-sm draggable-handle"
+                                                            role="tooltip" data-bs-toggle="tooltip"
+                                                            data-bs-placement="bottom"
+                                                            data-bs-delay="{&quot;show&quot;:600,&quot;hide&quot;:100}"
+                                                            title="Изменить статус сделки">
+                                                        &nbsp;
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer d-flex flex-column small p-2">
+                                            <div>&nbsp;</div>
+                                            <div style="max-width: 140px;">
+                                                &nbsp;
+                                            </div>
+                                            <div class="mb-1 text-truncate pointer copy" style="max-width: 140px;">
+                                                <div class="d-flex gap-1 align-items-center">
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                            <div class="border-top mt-2 small">
+                                                <div>&nbsp;</div>
+                                                <span class="badge small p-1">&nbsp;</span> &nbsp;
+                                                <strong class="small text-danger"> &nbsp;
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            {% endfor %}
+
+                            {# {% if query[stats.getValue()] is defined %}
                                 {% for order in query[stats.getValue()] %}
-                                    {# КАРТОЧКА ЗАКАЗА  #}
-                                    {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
-                                {% endfor %}
-                            {% endif %}
+                            #}{# КАРТОЧКА ЗАКАЗА  #}{#
+                            {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
+                        {% endfor %}
+                    {% endif %} #}
 
                         </div>
 

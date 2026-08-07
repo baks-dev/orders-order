@@ -1538,7 +1538,6 @@ final class AllOrdersCTERepository implements AllOrdersInterface
 
             if($this->status->equals(OrderStatusCompleted::class))
             {
-                /** todo: после разделение на статус ПРЕД возвратов - поменять на DESC */
                 $dbal->orderBy('order_event.danger', 'DESC');
                 $dbal->addOrderBy('orders.event', 'DESC');
             }

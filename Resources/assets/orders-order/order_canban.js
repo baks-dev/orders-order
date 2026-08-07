@@ -85,6 +85,7 @@ async function updateStatus(status)
                     {
                         offcanvasLink(item);
                     });
+
                     item.classList.remove("offcanvas-link");
                 });
 
@@ -104,7 +105,6 @@ async function updateStatus(status)
 
                     return tooltipInstance;
                 });
-
 
                 return true;
 

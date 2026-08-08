@@ -46,10 +46,132 @@
 const intervalMap = {};
 const UPDATE_INTERVAL_MS = 5000; // Интервал обновления
 
+const canban_statuses = document.querySelectorAll("[data-status][data-level]");
+
+executeFunc(
+    function scheduleAutoSubmitOrderDeliveryFilterForm()
+    {
+        if(typeof formDebounce !== "function")
+        {
+            return false;
+        }
+
+        const form = document.forms.order_delivery_filter_form;
+
+        if(typeof form === "undefined")
+        {
+            return false;
+        }
+
+        const debouncedSubmit = formDebounce(() =>
+        {
+            const data = new FormData(form);
+
+            // При первом запуске обновляем все сразу
+            for(const status of canban_statuses)
+            {
+                // Находим все элементы с классом draggable
+                const draggableElements = status.querySelectorAll(".draggable");
+
+                // Полностью удаляем каждый элемент из DOM-дерева
+                draggableElements.forEach(element =>
+                {
+                    // 1. Задаем параметры плавности прямо в стиле элемента
+                    element.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+
+                    // 2. Запускаем анимацию на следующем кадре анимации (важно для срабатывания transition)
+                    requestAnimationFrame(() =>
+                    {
+                        element.style.opacity = "0";
+                        element.style.transform = "scale(0.9)";
+                    });
+
+                    // 3. Удаляем из DOM после завершения анимации
+                    element.addEventListener("transitionend", () =>
+                    {
+                        element.remove();
+                    });
+                });
+
+                updateStatus(status, data);
+            }
+
+        }, 1000);
+
+
+        const inputFields = form.querySelectorAll("input, select, textarea");
+
+        // Добавляем обработчик изменения для каждого поля ввода
+        inputFields.forEach(field =>
+        {
+            if(field.tagName === "INPUT")
+            {
+                // Вешаем на все relevant события
+                field.addEventListener("input", debouncedSubmit);
+                field.addEventListener("keyup", debouncedSubmit);
+            }
+
+            if(field.tagName === "SELECT")
+            {
+                field.addEventListener("change", debouncedSubmit);
+            }
+
+            field.addEventListener("focus", (event) =>
+            {
+                if(idFormDebounce)
+                {
+                    clearTimeout(idFormDebounce);
+                }
+
+                if(lastFormDebounce)
+                {
+                    clearTimeout(idFormDebounce);
+                }
+
+                //debouncedSubmit();
+            });
+
+            // 2. Логика кнопки "Х" (Очистка поля и сессии)
+            form.querySelectorAll(".clear-btn").forEach(btn =>
+            {
+                btn.addEventListener("click", (e) =>
+                {
+                    e.preventDefault();
+                    const fieldId = btn.dataset.clear;
+
+                    // Находим input по имени (Symfony генерирует имена вида form_name[field_name])
+                    const input = form.querySelector(`#${fieldId}`);
+
+                    if(input)
+                    {
+                        input.value = ""; // Очищаем поле
+
+                        // Сбрасываем таймер авто-отправки, чтобы не было дублирования
+                        if(idFormDebounce)
+                        {
+                            clearTimeout(idFormDebounce);
+                        }
+
+                        if(lastFormDebounce)
+                        {
+                            clearTimeout(idFormDebounce);
+                        }
+
+                        debouncedSubmit();
+                    }
+                });
+            });
+
+        });
+
+        return true;
+    });
+
+
 /**
  * Функция обновления одного статуса
  */
-async function updateStatus(status)
+async function updateStatus(status, form_data)
 {
     try
     {
@@ -60,6 +182,7 @@ async function updateStatus(status)
             headers : {"X-Requested-With" : "XMLHttpRequest"},
             redirect : "follow",
             referrerPolicy : "no-referrer",
+            body : form_data,
         });
 
         if(!response.ok)
@@ -122,8 +245,10 @@ async function updateStatus(status)
  */
 function startStatusUpdate(status, intervalMs)
 {
+
     // Останавливаем старый интервал, если есть
     const oldInterval = intervalMap[status.dataset.status];
+
     if(oldInterval)
     {
         clearInterval(oldInterval);
@@ -132,7 +257,7 @@ function startStatusUpdate(status, intervalMs)
     // Запускаем новый таймер: сначала выполнение fetch, затем задержка
     async function scheduleUpdate()
     {
-        await updateStatus(status);
+        await updateStatus(status, null);
 
         // Планируем обновление через интервал
         const timeoutId = setTimeout(scheduleUpdate, intervalMs);
@@ -159,12 +284,10 @@ function stopStatusUpdate(statusKey)
 }
 
 
-const canban_statuses = document.querySelectorAll("[data-status][data-level]");
-
 // При первом запуске обновляем все сразу
 for(const status of canban_statuses)
 {
-    updateStatus(status);
+    updateStatus(status, null);
 }
 
 // Запускаем индивидуальные интервалы для каждого статуса

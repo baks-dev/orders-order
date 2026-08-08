@@ -237,6 +237,25 @@ final class AllOrdersCTERepository implements AllOrdersInterface
                 );
         }
 
+        if($this->filter instanceof OrderFilterInterface && $this->filter->getNumber())
+        {
+            $cteSelect
+                ->leftJoin(
+                    'order_invariable',
+                    OrderPosting::class,
+                    'orders_posting',
+                    'orders_posting.main = order_invariable.main',
+                );
+
+            $cteSelect->andWhere('orders_posting.value LIKE :posting');
+
+            $dbal->setParameter(
+                key: 'posting',
+                value: '%'.$this->filter->getNumber().'%',
+            );
+        }
+
+
         if($this->search instanceof SearchDTO && $this->search->getQuery())
         {
             $cteSelect

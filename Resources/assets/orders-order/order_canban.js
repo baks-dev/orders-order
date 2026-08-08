@@ -86,18 +86,20 @@ executeFunc(
                         element.style.transform = "scale(0.9)";
                     });
 
-                    // 3. Удаляем из DOM после завершения анимации
-                    element.addEventListener("transitionend", () =>
-                    {
-                        element.remove();
-                    });
                 });
+
+                // Останавливаем старый интервал, если есть
+                const oldInterval = intervalMap[status.dataset.status];
+
+                if(oldInterval)
+                {
+                    clearInterval(oldInterval);
+                }
 
                 updateStatus(status, data);
             }
 
         }, 1000);
-
 
         const inputFields = form.querySelectorAll("input, select, textarea");
 
@@ -163,6 +165,7 @@ executeFunc(
             });
 
         });
+
 
         return true;
     });

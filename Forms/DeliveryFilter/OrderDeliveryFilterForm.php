@@ -56,6 +56,11 @@ final class OrderDeliveryFilterForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->add('number', TextType::class, [
+            'required' => false,
+            'attr' => ['class' => 'small ps-5'],
+        ]);
+
         $builder->add('product', TextType::class, [
             'required' => false,
             'attr' => ['class' => 'small'],
@@ -212,6 +217,7 @@ final class OrderDeliveryFilterForm extends AbstractType
             [
                 'data_class' => OrderDeliveryFilterDTO::class,
                 'method' => 'POST',
+                'attr' => ['class' => 'w-100 d-flex gap-3 justify-content-between '],
             ],
         );
     }

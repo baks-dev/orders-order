@@ -30,6 +30,8 @@ use DateTimeImmutable;
 
 final class OrderDeliveryFilterDTO implements OrderFilterInterface
 {
+    private ?string $number = null;
+
     private ?string $client = null;
 
     private ?string $product = null;
@@ -110,6 +112,17 @@ final class OrderDeliveryFilterDTO implements OrderFilterInterface
     public function setProduct(?string $product): self
     {
         $this->product = $product;
+        return $this;
+    }
+
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(?string $number): self
+    {
+        $this->number = $number;
         return $this;
     }
 }

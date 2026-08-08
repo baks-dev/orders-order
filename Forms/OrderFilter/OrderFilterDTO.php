@@ -29,6 +29,8 @@ use BaksDev\Orders\Order\Type\Status\OrderStatus;
 
 final class OrderFilterDTO implements OrderFilterInterface
 {
+    private ?string $number = null;
+
     private ?string $client = null;
 
     private ?string $product = null;
@@ -126,4 +128,14 @@ final class OrderFilterDTO implements OrderFilterInterface
         return $this;
     }
 
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(?string $number): self
+    {
+        $this->number = $number;
+        return $this;
+    }
 }

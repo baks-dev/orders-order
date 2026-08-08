@@ -38,4 +38,6 @@ interface OrderFilterInterface
 
     public function getProduct(): ?string;
 
+    public function getNumber(): ?string;
+
 }

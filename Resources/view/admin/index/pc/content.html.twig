@@ -169,85 +169,126 @@
 
             <div class="d-flex justify-content-between">
                 {# Форма поиска по разделу #}
-                {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
+                {# {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %} #}
 
-                <div class="col-8">
-                    {{ form_start(filter) }}
-                    <div class="w-100 d-flex gap-3 justify-content-end mb-2 " style="height: 40px;">
 
-                        <div class="w-75 d-flex input-wrapper"
-                             data-bs-toggle="tooltip"
-                             data-bs-placement="bottom"
-                             data-bs-delay='{"show":1000,"hide":100}'
-                             data-bs-title="Артикул, GTIN, название"
-                        >
-                            {{ form_widget(filter.product, { attr: { placeholder : 'Продукт', style: 'min-width: 100%;' } }) }}
+                {{ form_start(filter) }}
+                <div class="w-100 d-flex gap-3 justify-content-between mb-2 " style="height: 40px;">
 
-                            <div class="w-100 position-relative clear-btn" data-clear="{{ filter.product.vars.id }}">
-                                <span class="btn position-absolute top-0 end-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-x" viewBox="0 0 16 16">
-                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                                    </svg>
-                                </span>
-                            </div>
+                    {# <div id="{{ filter.vars.id }}_reset" class="btn btn-link text-muted"
+                    #}{# type="reset" #}{#
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    data-bs-delay='{"show":600,"hide":100}'
+                    data-bs-title="Сбросить фильтр"
 
+              >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+                       viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                  </svg>
+              </div> #}
+
+                    <div class="w-100 d-flex input-wrapper flex-grow-1"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":1000,"hide":100}'
+                         data-bs-title="Контактный телефон, Email"
+                    >
+                        <div class="w-100 position-relative">
+                            <button class="btn position-absolute top-0 start-100" type="submit" aria-label="Поиск">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-search text-secondary" viewBox="0 0 16 16">
+                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                                </svg>
+                            </button>
                         </div>
 
-                        <div class="w-75 d-flex input-wrapper"
-                             data-bs-toggle="tooltip"
-                             data-bs-placement="bottom"
-                             data-bs-delay='{"show":1000,"hide":100}'
-                             data-bs-title="Контактный телефон, Email"
-                        >
-                            {{ form_widget(filter.client, { attr: { placeholder : 'Клиент', style: 'min-width: 100%;' } }) }}
+                        {{ form_widget(filter.number, { attr: { placeholder : 'Заказ', style: 'min-width: 100%;' } }) }}
 
-                            <div class="w-100 position-relative clear-btn" data-clear="{{ filter.client.vars.id }}">
-                                <span class="btn position-absolute top-0 end-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-x" viewBox="0 0 16 16">
-                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                                    </svg>
-                                </span>
-                            </div>
-
-                        </div>
-
-                        <div class="w-50">
-                            {{ form_row(filter.delivery, { placeholder : 'Любой способ доставки ...', attr : { 'data-select' : 'select2' } }) }}
-                        </div>
-
-                        <div class="d-flex justify-content-around radio-buttons clearfix" data-buttons="true">
-                            <label class="btn p-2 border-dotted rounded-3 w-100 {{ filter.all.vars.data ? 'active' }}">
-                                <div class="d-flex align-items-center align-content-center">
-                                    {{ form_widget(filter.all, { label: false }) }}
-                                    <div class="form-check ps-0"> Все</div>
-                                </div>
-                            </label>
+                        <div class="w-100 position-relative clear-btn" data-clear="{{ filter.number.vars.id }}">
+                            <span class="btn position-absolute top-0 end-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-x" viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                </svg>
+                            </span>
                         </div>
 
                     </div>
-                    {{ form_end(filter) }}
+
+                    <div class="w-100">
+                        &nbsp;
+                    </div>
+
+                    <div class="w-100 d-flex input-wrapper"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":1000,"hide":100}'
+                         data-bs-title="Артикул, GTIN, название"
+                    >
+                        {{ form_widget(filter.product, { attr: { placeholder : 'Продукт', style: 'min-width: 100%;' } }) }}
+
+                        <div class="w-100 position-relative clear-btn" data-clear="{{ filter.product.vars.id }}">
+                                <span class="btn position-absolute top-0 end-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </span>
+                        </div>
+
+                    </div>
+
+                    <div class="w-100 d-flex input-wrapper"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="bottom"
+                         data-bs-delay='{"show":1000,"hide":100}'
+                         data-bs-title="Контактный телефон, Email"
+                    >
+                        {{ form_widget(filter.client, { attr: { placeholder : 'Клиент', style: 'min-width: 100%;' } }) }}
+
+                        <div class="w-100 position-relative clear-btn" data-clear="{{ filter.client.vars.id }}">
+                                <span class="btn position-absolute top-0 end-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </span>
+                        </div>
+
+                    </div>
+
+                    <div class="w-50">
+                        {{ form_row(filter.delivery, { placeholder : 'Любой способ доставки ...', attr : { 'data-select' : 'select2' } }) }}
+                    </div>
+
+                    <div class="d-flex justify-content-around radio-buttons clearfix" data-buttons="true">
+                        <label class="btn p-2 border-dotted rounded-3 w-100 {{ filter.all.vars.data ? 'active' }}">
+                            <div class="d-flex align-items-center align-content-center">
+                                {{ form_widget(filter.all, { label: false }) }}
+                                <div class="form-check ps-0"> Все</div>
+                            </div>
+                        </label>
+                    </div>
+
                 </div>
+                {{ form_end(filter) }}
+
             </div>
 
 
             {# Текстовый результат фильтра #}
 
-            <div class="d-flex gap-3 m-2 align-items-center">
+            <div id="{{ filter.vars.id }}_result" class="d-flex gap-3 m-2 align-items-center">
 
                 {% if
                     filter.delivery is defined and filter.delivery.vars.data and filter.delivery.vars.data.attr
                     or filter.product is defined and filter.product.vars.data
-                    or filter.client is defined and filter.client.vars.data %}
+                    or filter.client is defined and filter.client.vars.data
+                    or filter.number is defined and filter.number.vars.data %}
 
-                    <a href="{{ path('core:refresh') }}" class="btn btn-link text-muted">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
-                             class="mb-1" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                        </svg>
-                    </a>
 
                 {% endif %}
 

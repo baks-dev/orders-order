@@ -80,6 +80,16 @@ executeFunc(function P8X1I2diQ4()
     const modal = document.getElementById("modal");
     const modal_bootstrap = bootstrap.Modal.getOrCreateInstance(modal);
 
+
+    modal.addEventListener("hidden.bs.modal", event =>
+    {
+        /** Снимаем чекбоксы с заказов */
+        document.querySelectorAll("input[type=\"checkbox\"][data-status]:checked").forEach(order_checked =>
+        {
+            order_checked.checked = false;
+        });
+    });
+
     let droppable;
 
     // Define draggable element variable for permissions level

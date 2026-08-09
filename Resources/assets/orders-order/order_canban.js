@@ -74,6 +74,17 @@ executeFunc(
 
                 });
 
+                /** Снимаем чекбоксы с заказов */
+                document.querySelectorAll("input[type=\"checkbox\"][data-status]:checked").forEach(order_checked =>
+                {
+                    order_checked.checked = false;
+                });
+
+
+                // Очищаем список выбранных заказов и закрываем модал
+                selectedOrders.clear();
+                //updateSelectedOrdersVisuals();
+
 
                 updateStatusOrderCanban(status, data);
             }
@@ -166,6 +177,14 @@ async function updateStatusOrderCanban(status, form_data)
 
     try
     {
+        /** Проверяем есть ли выделенные заказы */
+        const ischeckboxChecked = document.querySelector("input[type=\"checkbox\"][data-status]:checked");
+
+        if(ischeckboxChecked)
+        {
+            return true;
+        }
+
         const response = await fetch("/admin/orders_status/" + status.dataset.status, {
             method : "POST",
             cache : "no-cache",
@@ -219,6 +238,225 @@ async function updateStatusOrderCanban(status, form_data)
 
                     return tooltipInstance;
                 });
+
+
+                // Добавляем обработчики для чекбоксов
+                function initCheckboxHandlers()
+                {
+
+                    const all = document.getElementById("check-all");
+
+
+                    const checkboxes = document.querySelectorAll(".draggable input[type=\"checkbox\"]");
+                    //console.log("Найдено чекбоксов:", checkboxes.length);
+
+                    checkboxes.forEach(checkbox =>
+                    {
+
+                        /** снимаем чеки при обновлении */
+                        checkbox.checked = false;
+
+                        checkbox.addEventListener("change", function()
+                        {
+                            const orderId = this.closest(".draggable").id;
+                            const draggableElement = this.closest(".draggable");
+
+                            /** Ограничиваем выделяемые заказы по статусу */
+                            status = checkbox.dataset.status;
+
+
+                            //console.log("Чекбокс изменен для заказа:", orderId, "Checked:", this.checked);
+
+                            if(this.checked)
+                            {
+                                //selectCheckboxesByPrefix(checkbox.id);
+
+                                selectedOrders.add(orderId);
+                                draggableElement.classList.add("selected-order");
+                                //console.log("Заказ добавлен в selectedOrders:", orderId);
+
+                                /** Выделяем аналогичные заказы */
+
+                                //// Извлекаем префикс (убираем последнюю часть после последнего дефиса)
+                                //let checkboxId = checkbox.id;
+                                //const idParts = checkboxId.split("-");
+                                //idParts.pop(); // Удаляем последнюю часть
+                                //const prefix = idParts.join("-");
+                                //
+                                //// Находим и выделяем все соответствующие checkbox
+                                //const checkboxes = document.querySelectorAll(`input[type="checkbox"][id^="${prefix}"]`);
+                                //
+                                //checkboxes.forEach(check =>
+                                //{
+                                //    if(!check.checked)
+                                //    {
+                                //        check.checked = true;
+                                //        selectedOrders.add(check.value);
+                                //    }
+                                //});
+
+                            }
+                            else
+                            {
+                                selectedOrders.delete(orderId);
+                                draggableElement.classList.remove("selected-order");
+                                //console.log("Заказ удален из selectedOrders:", orderId);
+                            }
+
+                            //console.log("Текущий список selectedOrders:", Array.from(selectedOrders));
+
+                            // Визуальное выделение выбранных карточек
+                            updateSelectedOrdersVisuals();
+                        });
+                    });
+
+                    if(all)
+                    {
+                        /** снимаем чек при обновлении */
+                        all.checked = false;
+
+                        all.addEventListener("change", function(all)
+                        {
+                            checkboxes.forEach(checkbox =>
+                            {
+
+                                if(checkbox.dataset.status === "new")
+                                {
+                                    const orderId = checkbox.closest(".draggable").id;
+                                    const draggableElement = checkbox.closest(".draggable");
+
+                                    checkbox.checked = this.checked;
+
+                                    if(this.checked)
+                                    {
+                                        selectedOrders.add(orderId);
+                                        draggableElement.classList.add("selected-order");
+
+                                    }
+                                    else
+                                    {
+                                        selectedOrders.delete(orderId);
+                                        draggableElement.classList.remove("selected-order");
+                                    }
+                                }
+
+                            });
+
+                            updateSelectedOrdersVisuals();
+                        });
+                    }
+
+                }
+
+                // Функция для обновления визуального состояния выбранных карточек
+                function updateSelectedOrdersVisuals()
+                {
+                    const allDraggables = document.querySelectorAll(".draggable");
+
+                    allDraggables.forEach(draggable =>
+                    {
+                        const orderId = draggable.id;
+                        const draggableHandle = draggable.querySelector(".draggable-handle");
+                        const draggableCheckbox = draggable.querySelector("input[type=\"checkbox\"]");
+
+
+                        if(selectedOrders.has(orderId))
+                        {
+                            /** Показать полностью весь заказ */
+                            draggable.classList.remove("opacity-50");
+                            draggable.classList.replace("z-0", "z-2");
+
+                            //draggable.classList.add("opacity-100");
+
+                            /** Выделяем заказ рамкой */
+                            draggable.style.transform = "scale(0.98)";
+                            draggable.style.boxShadow = "0 0 0 2px #007bff";
+
+                            // Если есть выделенные карточки, включаем перетаскивание только для них
+                            if(draggableHandle)
+                            {
+                                //draggableHandle.classList.remove("d-none");
+                                draggableHandle.style.pointerEvents = "auto";
+                            }
+                        }
+                        else
+                        {
+
+                            //draggable.classList.remove("opacity-100");
+                            draggable.removeAttribute("style");
+
+                            //draggable.style.opacity = '';
+                            //draggable.style.removeProperty('transform'); // transform = "";
+                            //draggable.style.removeProperty('box-shadow') //.boxShadow = "";
+
+                            // Если есть выделенные карточки, отключаем перетаскивание для невыделенных
+                            if(draggableHandle)
+                            {
+                                if(selectedOrders.size > 0)
+                                {
+                                    draggable.classList.add("opacity-50"); // полупрозрачный заказ
+                                    //draggableHandle.classList.add("d-none"); // скрываем кнопку перетаскивания
+
+                                    //draggableHandle.style.pointerEvents = 'auto';
+                                    draggableHandle.style.pointerEvents = "none";
+
+                                    /** получаем элемент chekbox */
+                                    if(draggableCheckbox && draggableCheckbox.dataset.status !== status)
+                                    {
+                                        //draggableCheckbox.classList.add("invisible");
+                                        draggableCheckbox.disabled = true;
+                                    }
+                                }
+
+                                if(selectedOrders.size === 0)
+                                {
+                                    // Если нет выделенных карточек, включаем перетаскивание для всех
+                                    draggable.classList.remove("opacity-50");
+                                    //draggableHandle.classList.remove("d-none");
+
+
+                                    draggableHandle.style.pointerEvents = "auto";
+
+                                    //draggableCheckbox.classList.remove("disabled");
+                                    draggableCheckbox ? draggableCheckbox.disabled = false : false;
+
+                                    status = null;
+                                }
+
+                            }
+
+                        }
+                    });
+                }
+
+                // Функция для создания визуального индикатора множественного перетаскивания
+                function createMultipleDragIndicator(count)
+                {
+                    const indicator = document.createElement("div");
+                    indicator.className = "multiple-drag-indicator";
+                    indicator.style.cssText = `
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+        `;
+                    indicator.textContent = count;
+                    return indicator;
+                }
+
+                // Инициализируем обработчики чекбоксов
+                initCheckboxHandlers();
+
 
                 return true;
 

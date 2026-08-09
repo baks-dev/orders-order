@@ -134,6 +134,9 @@ final class CanceledController extends AbstractController
 
                 if(true === $isExists)
                 {
+                    /** Отправляем сокет для обновления списка заказов */
+                    $publish->send('orders_reload');
+
                     return new JsonResponse(
                         [
                             'type' => 'success',
@@ -228,6 +231,9 @@ final class CanceledController extends AbstractController
 
             if(true === empty($unsuccessful))
             {
+                /** Отправляем сокет для обновления списка заказов */
+                $publish->send('orders_reload');
+
                 return new JsonResponse(
                     [
                         'type' => 'success',

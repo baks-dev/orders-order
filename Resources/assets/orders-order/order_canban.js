@@ -20,31 +20,9 @@
  *  THE SOFTWARE.
  */
 
-/*
- *  Copyright 2026.  Baks.dev <admin@baks.dev>
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is furnished
- *  to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
- */
-
 // Объект для хранения идентификаторов интервалов для каждого статуса
 const intervalMap = {};
-const UPDATE_INTERVAL_MS = 5000; // Интервал обновления
+const UPDATE_INTERVAL_MS = 60000; // Интервал обновления
 
 const canban_statuses = document.querySelectorAll("[data-status][data-level]");
 
@@ -70,6 +48,14 @@ executeFunc(
             // При первом запуске обновляем все сразу
             for(const status of canban_statuses)
             {
+                // Останавливаем старый интервал, если есть
+                const oldInterval = intervalMap[status.dataset.status];
+
+                if(oldInterval)
+                {
+                    clearInterval(oldInterval);
+                }
+
                 // Находим все элементы с классом draggable
                 const draggableElements = status.querySelectorAll(".draggable");
 
@@ -88,15 +74,8 @@ executeFunc(
 
                 });
 
-                // Останавливаем старый интервал, если есть
-                const oldInterval = intervalMap[status.dataset.status];
 
-                if(oldInterval)
-                {
-                    clearInterval(oldInterval);
-                }
-
-                updateStatus(status, data);
+                updateStatusOrderCanban(status, data);
             }
 
         }, 1000);
@@ -174,8 +153,17 @@ executeFunc(
 /**
  * Функция обновления одного статуса
  */
-async function updateStatus(status, form_data)
+async function updateStatusOrderCanban(status, form_data)
 {
+
+    // Останавливаем старый интервал, если есть
+    const oldInterval = intervalMap[status.dataset.status];
+
+    if(oldInterval)
+    {
+        clearInterval(oldInterval);
+    }
+
     try
     {
         const response = await fetch("/admin/orders_status/" + status.dataset.status, {
@@ -246,7 +234,7 @@ async function updateStatus(status, form_data)
 /**
  * Запуск циклического обновления для одного статуса
  */
-function startStatusUpdate(status, intervalMs)
+function startStatusOrderCanbanUpdate(status, intervalMs)
 {
 
     // Останавливаем старый интервал, если есть
@@ -260,7 +248,7 @@ function startStatusUpdate(status, intervalMs)
     // Запускаем новый таймер: сначала выполнение fetch, затем задержка
     async function scheduleUpdate()
     {
-        await updateStatus(status, null);
+        await updateStatusOrderCanban(status, null);
 
         // Планируем обновление через интервал
         const timeoutId = setTimeout(scheduleUpdate, intervalMs);
@@ -277,7 +265,7 @@ function startStatusUpdate(status, intervalMs)
 /**
  * Остановка обновления для конкретного статуса
  */
-function stopStatusUpdate(statusKey)
+function stopStatusOrderCanbanUpdate(statusKey)
 {
     if(intervalMap[statusKey])
     {
@@ -290,20 +278,20 @@ function stopStatusUpdate(statusKey)
 // При первом запуске обновляем все сразу
 for(const status of canban_statuses)
 {
-    updateStatus(status, null);
+    updateStatusOrderCanban(status, null);
 }
 
 // Запускаем индивидуальные интервалы для каждого статуса
 for(const status of canban_statuses)
 {
-    startStatusUpdate(status, UPDATE_INTERVAL_MS);
+    startStatusOrderCanbanUpdate(status, UPDATE_INTERVAL_MS);
 }
 
 
 // Опционально: остановить при уходе пользователя с вкладки
 window.addEventListener("pagehide", function()
 {
-    Object.keys(intervalMap).forEach(key => stopStatusUpdate(key));
+    Object.keys(intervalMap).forEach(key => stopStatusOrderCanbanUpdate(key));
 });
 
 

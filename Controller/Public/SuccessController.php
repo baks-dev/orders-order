@@ -23,6 +23,7 @@
 
 namespace BaksDev\Orders\Order\Controller\Public;
 
+use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailInterface;
 use BaksDev\Orders\Order\Repository\OrderDetail\OrderDetailResult;
@@ -39,8 +40,12 @@ class SuccessController extends AbstractController
     public function index(
         string $id,
         OrderDetailInterface $orderDetail,
+        CentrifugoPublishInterface $publish,
     ): Response
     {
+        /** Отправляем сокет для обновления списка заказов */
+        $publish->send('orders_reload');
+
         $ids = explode(',', $id);
 
         /** Информация о заказах */

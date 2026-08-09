@@ -67,6 +67,16 @@
                return false;
             }
 
+            centrifuge.newSubscription("orders_reload").on("publication", function(ctx)
+            {
+                for(const status of canban_statuses)
+                {
+                    updateStatusOrderCanban(status, null);
+                }
+
+            }).subscribe();
+
+
             centrifuge.newSubscription("orders").on("publication", function(ctx)
             {
                 "{{ app.environment }}" === "dev" && (console.log("ctx.data ->", ctx.data));

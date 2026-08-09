@@ -203,6 +203,9 @@ final class StatusController extends AbstractController
 
                 if($socket && $socket->isError())
                 {
+                    /** Отправляем сокет для обновления списка заказов */
+                    $publish->send('orders_reload');
+
                     return new JsonResponse($socket->getMessage());
                 }
 
@@ -211,6 +214,9 @@ final class StatusController extends AbstractController
 
             if(true === empty($unsuccessful))
             {
+                /** Отправляем сокет для обновления списка заказов */
+                $publish->send('orders_reload');
+
                 return new JsonResponse(
                     [
                         'type' => 'success',

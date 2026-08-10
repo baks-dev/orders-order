@@ -26,6 +26,38 @@ const UPDATE_INTERVAL_MS = 60000; // Интервал обновления
 
 const canban_statuses = document.querySelectorAll("[data-status][data-level]");
 
+let isActiveDocument = true;
+
+
+function checkTabState()
+{
+    const isActive = (false === document.hidden);
+    //console.log(isActive ? "Вкладка активна" : "Вкладка неактивна");
+
+    if(false === isActiveDocument && true === isActive)
+    {
+        //console.log("Вернулись во вкладку");
+
+        isActiveDocument = true;
+
+        // Обновляем статусы когда возвращаемся в окно
+        for(const status of canban_statuses)
+        {
+            updateStatusOrderCanban(status, null);
+        }
+
+        return true;
+    }
+
+    isActiveDocument = isActive;
+
+    return isActive;
+}
+
+// Слушаем изменения
+document.addEventListener("visibilitychange", checkTabState);
+
+
 executeFunc(
     function scheduleAutoSubmitOrderDeliveryFilterForm()
     {
@@ -177,6 +209,13 @@ async function updateStatusOrderCanban(status, form_data)
 
     try
     {
+        /** Если вкладка не активна - не обновляем */
+        if(false === isActiveDocument)
+        {
+            //console.log("Вкладка не активна, не выполняем запрос ");
+            return true;
+        }
+
         /** Проверяем есть ли выделенные заказы */
         const ischeckboxChecked = document.querySelector("input[type=\"checkbox\"][data-status]:checked");
 

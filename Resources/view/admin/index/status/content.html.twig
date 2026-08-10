@@ -17,7 +17,6 @@
     {% if href %}
         <a href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-3"
            style="top: 5rem; background-color: {{ color }};"
-           target="_{{ status.getOrderStatusValue }}"
         >
             {{ status.getOrderStatusValue|trans({}, 'status.order') }}
         </a>

@@ -1,6 +1,5 @@
 {% if query is defined %}
 
-
     {# @var status \BaksDev\Orders\Order\Type\Status\OrderStatus #}
 
     {% set href = null %}
@@ -15,40 +14,22 @@
     {% set color = status.getColor() %}
 
     {% if href %}
-        <a href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-3"
-           style="top: 5rem; background-color: {{ color }};"
+        <a
+                href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-3"
+                style="top: 5rem; background-color: {{ color }};"
         >
             {{ status.getOrderStatusValue|trans({}, 'status.order') }}
         </a>
     {% else %}
 
-        <div class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
-             style="top: 5rem; background-color: {{ color }};">
-
-            {# {% if status.getOrderStatusValue == 'new' %}
-
-                <label for="check-all">
-                    <input class="form-check-input m-0"
-                           type="checkbox"
-                           value="all"
-                           id="check-all"
-                           style="width: 11px; height: 11px;">
-                </label>
-
-            {% endif %} #}
-
+        <div
+                class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
+                style="top: 5rem; background-color: {{ color }};"
+        >
             {{ status.getOrderStatusValue|trans({}, 'status.order') }}
         </div>
 
     {% endif %}
-
-
-
-
-
-
-
-
 
 
     {# <div class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
@@ -58,15 +39,22 @@
 
     {% set counter = query|length %}
 
-    <div class="text-center"><small>
-            {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}</small>
+    <div class="text-center">
+        <small>
+            {{ counter }}{{ 'num_of_orders'|trans({'count': counter}, 'messages') }}
+        </small>
     </div>
 
     {% for order in query %}
         {# КАРТОЧКА ЗАКАЗА  #}
         {{ include(_self|replace({ "content.html.twig": "order.html.twig" })) }}
     {% endfor %}
+
+    {% if counter %}
+        <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/copy.min.js" class="lazy"></script>
+    {% endif %}
+
 {% endif %}
 
-<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/copy.min.js" class="lazy"></script>
+
 {# <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/orders-order/order_draggable.min.js" class='lazy'></script> #}

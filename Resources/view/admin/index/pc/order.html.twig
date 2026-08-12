@@ -70,7 +70,7 @@
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":600,"hide":100}'
                                 title="Последнее движение по заказу"
-                                class="small {{ day ? 'text-danger' : 'text-success' }}">
+                                class="small {{ day ? 'text-danger' : 'text-success' }} lh-base">
 
                             {% if day %}
                                 {{ day }}<span class="small">д.</span>
@@ -163,13 +163,11 @@
                 </div>
             </div>
 
-
             <div class="card-footer d-flex flex-column small p-2">
 
                 <div class="fw-bolder text-primary">
                     {{ order.orderProfile }}
                 </div>
-
 
                 {% if order.getOrganizationName %}
                     <div class="text-primary text-truncate"

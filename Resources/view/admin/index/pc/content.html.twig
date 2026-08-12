@@ -366,14 +366,14 @@
 
                             {% if href %}
                                 <a href="{{ path(href) }}"
-                                   class="progress-bar progress-bar-striped progress-bar-animated text-white w-100 badge p-2 sticky-top z-3"
+                                   class="progress-bar progress-bar-striped progress-bar-animated text-white w-100 badge p-2 sticky-top z-3 lh-sm"
                                    style="top: 5rem; background-color: {{ color }};">
 
                                     {{ stats.getValue()|trans({}, 'status.order') }}
                                 </a>
                             {% else %}
 
-                                <div class="progress-bar progress-bar-striped progress-bar-animated text-white w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
+                                <div class="progress-bar progress-bar-striped progress-bar-animated text-white lh-sm w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
                                      style="top: 5rem; background-color: {{ color }};">
 
                                     {% if stats.getValue() == 'new' and filter.delivery.vars.data %}

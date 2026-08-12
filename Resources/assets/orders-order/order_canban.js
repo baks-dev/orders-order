@@ -43,6 +43,15 @@ function checkTabState()
         // Обновляем статусы когда возвращаемся в окно
         for(const status of canban_statuses)
         {
+            const progress = status.querySelector(".order-badge");
+
+            if(progress)
+            {
+                progress.classList.add("progress-bar");
+                progress.classList.add("progress-bar-striped");
+                progress.classList.add("progress-bar-animated");
+            }
+
             updateStatusOrderCanban(status, null);
         }
 
@@ -86,6 +95,15 @@ executeFunc(
                 if(oldInterval)
                 {
                     clearInterval(oldInterval);
+                }
+
+                const progress = status.querySelector(".order-badge");
+
+                if(progress)
+                {
+                    progress.classList.add("progress-bar");
+                    progress.classList.add("progress-bar-striped");
+                    progress.classList.add("progress-bar-animated");
                 }
 
                 // Находим все элементы с классом draggable

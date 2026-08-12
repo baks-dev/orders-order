@@ -15,7 +15,7 @@
 
     {% if href %}
         <a
-                href="{{ path(href) }}" class="w-100 badge p-2 sticky-top z-3"
+                href="{{ path(href) }}" class="order-badge w-100 badge p-2 sticky-top z-3 text-white"
                 style="top: 5rem; background-color: {{ color }};"
         >
             {{ status.getOrderStatusValue|trans({}, 'status.order') }}
@@ -23,7 +23,7 @@
     {% else %}
 
         <div
-                class="w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center"
+                class="order-badge w-100 badge p-2 sticky-top z-3 d-flex gap-3 align-items-center justify-content-center text-white"
                 style="top: 5rem; background-color: {{ color }};"
         >
             {{ status.getOrderStatusValue|trans({}, 'status.order') }}

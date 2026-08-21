@@ -29,6 +29,7 @@ use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Delivery\Entity\Delivery;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
@@ -45,11 +46,16 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use InvalidArgumentException;
 
 
 final class RelevantNewOrderByProductRepository implements RelevantNewOrderByProductInterface
 {
+    private UserProfileUid|false $profile = false;
+
     private DeliveryUid|false $delivery = false;
 
     private ProductEventUid|false $product = false;
@@ -64,7 +70,10 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
 
     private bool|null $access = null;
 
-    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
+    public function __construct(
+        private readonly ORMQueryBuilder $ORMQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
+    ) {}
 
     public function forDelivery(Delivery|DeliveryUid|string $delivery): self
     {
@@ -200,6 +209,23 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
         return $this;
     }
 
+    public function forProfile(UserProfile|UserProfileUid|string $profile): self
+    {
+        if(is_string($profile))
+        {
+            $profile = new UserProfileUid($profile);
+        }
+
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
+
     /**
      * Метод возвращает событие самого старого (более актуального) нового заказа
      * на указанный способ доставки и в котором имеется указанная продукция
@@ -231,7 +257,25 @@ final class RelevantNewOrderByProductRepository implements RelevantNewOrderByPro
 
         $orm->clear();
 
-        $orm->from(Order::class, 'ord');
+        //$orm->from(Order::class, 'ord');
+
+
+        $orm
+            ->from(OrderInvariable::class, 'invariable')
+            ->where('invariable.profile = :profile')
+            ->setParameter(
+                key: 'profile',
+                value: $this->profile instanceof UserProfileUid ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
+        $orm
+            ->join(
+                Order::class,
+                'ord',
+                'WITH',
+                'ord.id = invariable.main',
+            );
 
         $orm
             ->select('event')

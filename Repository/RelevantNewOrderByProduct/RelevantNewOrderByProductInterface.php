@@ -34,6 +34,8 @@ use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface RelevantNewOrderByProductInterface
 {
@@ -58,6 +60,9 @@ interface RelevantNewOrderByProductInterface
     /** Только заказы, которые произведены и готовы к упаковке */
     public function filterProductNotAccess(): self;
 
+
+    /** Опционально */
+    public function forProfile(UserProfile|UserProfileUid|string $profile): self;
 
     /**
      * Метод возвращает событие самого старого заказа (более актуального для сборки)
